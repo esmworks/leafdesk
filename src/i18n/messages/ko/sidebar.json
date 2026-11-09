@@ -316,7 +316,9 @@
     "limitRequestNote": "“{note}”",
     "limitRequestApprove": "{tokens, number}(으)로 올리기",
     "limitRequestDecline": "거절",
-    "limitRequestFailed": "요청에 답변하지 못했습니다. 다시 시도하세요."
+    "limitRequestFailed": "요청에 답변하지 못했습니다. 다시 시도하세요.",
+    "approvalRequested": "{actor}님이 이 페이지의 승인을 요청했습니다",
+    "approvalDecided": "{outcome, select, approved {승인됨: {actor}님이 마지막으로 필요한 승인을 했습니다} other {{actor}님이 이 페이지의 변경을 요청했습니다}}"
   },
   "templates": {
     "title": "템플릿",

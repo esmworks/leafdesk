@@ -316,7 +316,9 @@
     "limitRequestNote": "「{note}」",
     "limitRequestApprove": "{tokens, number}に引き上げる",
     "limitRequestDecline": "却下",
-    "limitRequestFailed": "リクエストに回答できませんでした。もう一度お試しください。"
+    "limitRequestFailed": "リクエストに回答できませんでした。もう一度お試しください。",
+    "approvalRequested": "{actor} さんがこのページの承認を依頼しています",
+    "approvalDecided": "{outcome, select, approved {承認されました: 最後に必要な承認を {actor} さんが行いました} other {{actor} さんがこのページへの変更を依頼しました}}"
   },
   "templates": {
     "title": "テンプレート",

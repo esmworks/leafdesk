@@ -3,7 +3,7 @@ import { hasSearchFilters, parseSearchQuery } from "./search-query";
 
 describe("parseSearchQuery", () => {
   it("leaves plain text as it is", () => {
-    expect(parseSearchQuery("  launch   plan ")).toEqual({ text: "launch plan", within: [], kinds: [], verified: false, phrases: [], tags: [] });
+    expect(parseSearchQuery("  launch   plan ")).toEqual({ text: "launch plan", within: [], kinds: [], verified: false, approved: false, phrases: [], tags: [] });
   });
 
   it("takes in: filters, quoted or not, anywhere in the query", () => {
@@ -12,6 +12,7 @@ describe("parseSearchQuery", () => {
       within: ["Projects", "Launch plan"],
       kinds: [],
       verified: false,
+      approved: false,
       phrases: [],
       tags: [],
     });
@@ -23,7 +24,7 @@ describe("parseSearchQuery", () => {
   });
 
   it("takes type:journal (and daily) for daily notes", () => {
-    expect(parseSearchQuery("standup type:journal type:Daily")).toEqual({ text: "standup", within: [], kinds: ["journal"], verified: false, phrases: [], tags: [] });
+    expect(parseSearchQuery("standup type:journal type:Daily")).toEqual({ text: "standup", within: [], kinds: ["journal"], verified: false, approved: false, phrases: [], tags: [] });
   });
 
   it("searches unknown filters, empty values and phrases as text", () => {
@@ -32,13 +33,18 @@ describe("parseSearchQuery", () => {
       within: [],
       kinds: [],
       verified: false,
+      approved: false,
       phrases: ["a phrase"],
       tags: [],
     });
   });
 
+  it("takes is:approved", () => {
+    expect(parseSearchQuery("policy is:Approved")).toEqual({ text: "policy", within: [], kinds: [], verified: false, approved: true, phrases: [], tags: [] });
+  });
+
   it("takes is:verified, and searches other is: values as text", () => {
-    expect(parseSearchQuery("onboarding IS:Verified")).toEqual({ text: "onboarding", within: [], kinds: [], verified: true, phrases: [], tags: [] });
+    expect(parseSearchQuery("onboarding IS:Verified")).toEqual({ text: "onboarding", within: [], kinds: [], verified: true, approved: false, phrases: [], tags: [] });
     expect(parseSearchQuery("is:done").text).toBe("is:done");
   });
 
@@ -75,6 +81,7 @@ describe("parseSearchQuery", () => {
       within: [],
       kinds: [],
       verified: false,
+      approved: false,
       phrases: [],
       tags: ["home/renovation", "cafe"],
     });
@@ -93,6 +100,7 @@ describe("parseSearchQuery", () => {
     expect(hasSearchFilters(parseSearchQuery("text"))).toBe(false);
     expect(hasSearchFilters(parseSearchQuery("type:row"))).toBe(true);
     expect(hasSearchFilters(parseSearchQuery("is:verified"))).toBe(true);
+    expect(hasSearchFilters(parseSearchQuery("is:approved"))).toBe(true);
     expect(hasSearchFilters(parseSearchQuery("#home"))).toBe(true);
   });
 });

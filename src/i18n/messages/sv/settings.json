@@ -2021,7 +2021,10 @@
         "rows_merged": "Sammanfogade {count, plural, one {# rad} other {# rader}} med {target}",
         "publication_expiry_changed": "{change, select, removed {Tog bort giltighetstiden för webblänken till {target}} other {Satte webblänken till {target} att sluta fungera {to}}}",
         "reported": "En besökare anmälde {target}: {reason, select, spam {spam eller bedrägeri} harmful {hatiskt, våldsamt eller trakasserande innehåll} illegal {olagligt innehåll} privacy {personuppgifter} copyright {upphovsrätt} other {något annat}}",
-        "report_dismissed": "Avfärdade en anmälan om {target}"
+        "report_dismissed": "Avfärdade en anmälan om {target}",
+        "approval_requested": "Bad {names} att godkänna {target}",
+        "approval_decided": "{decision, select, approved {Godkände {target}} other {Begärde ändringar på {target}}}",
+        "approval_withdrawn": "Drog tillbaka begäran om godkännande av {target}"
       },
       "property": {
         "access_changed": "Ändrade vem som har åtkomst till ”{property}” i {target}",
@@ -2350,7 +2353,10 @@
         "step3": "Slå på aviseringar för den här webbplatsen.",
         "step4": "Läs in sidan igen och slå på pushaviseringar här."
       }
-    }
+    },
+    "approvalTitle": "Godkännanden",
+    "approvalDescription": "Någon ber dig godkänna en sida, eller en av dina begäranden om godkännande avslutas.",
+    "approvalChannel": "Godkännanden: {channel}"
   },
   "site": {
     "description": "Ge den här arbetsytans publicerade sidor en läsbar adress, en startsida och navigering mellan dem.",

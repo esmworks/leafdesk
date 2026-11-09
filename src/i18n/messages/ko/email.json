@@ -318,7 +318,9 @@
     "messageFile": "파일을 보냈습니다",
     "newMessage": "새 메시지",
     "inThread": "스레드에서",
-    "messageReminder": "메시지 리마인더"
+    "messageReminder": "메시지 리마인더",
+    "approvalRequested": "{actor}님이 이 페이지의 승인을 요청했습니다",
+    "approvalDecided": "{outcome, select, approved {승인됨: {actor}님이 마지막으로 필요한 승인을 했습니다} other {{actor}님이 이 페이지의 변경을 요청했습니다}}"
   },
   "agentReply": {
     "aiOff": "답할 수 없습니다: 이 워크스페이스에서 AI가 꺼져 있습니다.",

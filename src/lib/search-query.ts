@@ -9,6 +9,8 @@
  *   type:row               database rows
  *   type:journal           the user's daily notes
  *   is:verified            pages verified right now (server/verification), not those whose verification expired
+ *   is:approved            pages whose latest request for approval ended approved and that haven't
+ *                          changed since (server/page-approvals)
  *   #home  tag:home        pages whose text carries the tag (lib/tags) or one under it (#home/renovation);
  *                          with several tags, pages carrying each of them
  *
@@ -30,6 +32,8 @@ export type SearchQuery = {
   kinds: SearchKind[];
   /** `is:verified`: only pages verified right now. */
   verified: boolean;
+  /** `is:approved`: only pages approved and unchanged since. */
+  approved: boolean;
   /** Text in closed double quotes: each must match as a phrase. Its words are in `text` too. */
   phrases: string[];
   /** Tags from `#tag` and `tag:` filters, as tags compare (lib/tags tagKey). */
@@ -109,10 +113,13 @@ function applyFilter(parsed: SearchQuery, key: string, rawValue: string): boolea
       if (!parsed.kinds.includes(kind)) parsed.kinds.push(kind);
       return true;
     }
-    case "is":
-      if (value.toLowerCase() !== "verified") return false;
-      parsed.verified = true;
+    case "is": {
+      const what = value.toLowerCase();
+      if (what === "verified") parsed.verified = true;
+      else if (what === "approved") parsed.approved = true;
+      else return false;
       return true;
+    }
     case "tag":
       return addTag(parsed, value.replace(/^#/, ""));
     default:
@@ -130,7 +137,7 @@ function addTag(parsed: SearchQuery, value: string): boolean {
 
 /** Splits a query into its free text and its filters. */
 export function parseSearchQuery(query: string): SearchQuery {
-  const parsed: SearchQuery = { text: "", within: [], kinds: [], verified: false, phrases: [], tags: [] };
+  const parsed: SearchQuery = { text: "", within: [], kinds: [], verified: false, approved: false, phrases: [], tags: [] };
   const words: string[] = [];
   for (const token of tokenize(query)) {
     if (token.kind === "quoted") {
@@ -153,4 +160,4 @@ export function parseSearchQuery(query: string): SearchQuery {
 
 /** Whether the query has a filter (then it lists pages even without text). */
 export const hasSearchFilters = (parsed: SearchQuery) =>
-  parsed.within.length > 0 || parsed.kinds.length > 0 || parsed.verified || parsed.tags.length > 0;
+  parsed.within.length > 0 || parsed.kinds.length > 0 || parsed.verified || parsed.approved || parsed.tags.length > 0;

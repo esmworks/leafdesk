@@ -316,7 +316,9 @@
     "limitRequestNote": "«{note}»",
     "limitRequestApprove": "Øk til {tokens, number}",
     "limitRequestDecline": "Avslå",
-    "limitRequestFailed": "Kunne ikke besvare forespørselen. Prøv igjen."
+    "limitRequestFailed": "Kunne ikke besvare forespørselen. Prøv igjen.",
+    "approvalRequested": "{actor} ber deg godkjenne denne siden",
+    "approvalDecided": "{outcome, select, approved {Godkjent: {actor} ga den siste nødvendige godkjenningen} other {{actor} ba om endringer på denne siden}}"
   },
   "templates": {
     "title": "Maler",

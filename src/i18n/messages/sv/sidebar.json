@@ -316,7 +316,9 @@
     "limitRequestNote": "”{note}”",
     "limitRequestApprove": "Höj till {tokens, number}",
     "limitRequestDecline": "Avslå",
-    "limitRequestFailed": "Det gick inte att besvara begäran. Försök igen."
+    "limitRequestFailed": "Det gick inte att besvara begäran. Försök igen.",
+    "approvalRequested": "{actor} ber dig godkänna den här sidan",
+    "approvalDecided": "{outcome, select, approved {Godkänd: {actor} gav det sista godkännandet som behövdes} other {{actor} begärde ändringar på den här sidan}}"
   },
   "templates": {
     "title": "Mallar",

@@ -316,7 +316,9 @@
     "limitRequestNote": "« {note} »",
     "limitRequestApprove": "Relever à {tokens, number}",
     "limitRequestDecline": "Refuser",
-    "limitRequestFailed": "Impossible de répondre à la demande. Réessayez."
+    "limitRequestFailed": "Impossible de répondre à la demande. Réessayez.",
+    "approvalRequested": "{actor} vous demande d’approuver cette page",
+    "approvalDecided": "{outcome, select, approved {Approuvée : {actor} a donné la dernière approbation nécessaire} other {{actor} a demandé des modifications à cette page}}"
   },
   "templates": {
     "title": "Modèles",

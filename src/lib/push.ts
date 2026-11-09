@@ -317,6 +317,13 @@ export function pushPayload(
         line = t(ended ? "verificationEnded" : "verificationEnds", { date: item.reminderDate ? formatDate(item.reminderDate, reminderZone(item)) : "" });
         break;
       }
+      case "approval_requested":
+        line = t("approvalRequested", { actor });
+        break;
+      case "approval_decided":
+        // How it ended, not the comments: a lock screen shows it to whoever holds the device.
+        line = t("approvalDecided", { actor, outcome: item.automationMessage === "approved" ? "approved" : "changes" });
+        break;
       case "row_email":
         // Who wrote, not the subject: a lock screen shows it to whoever holds the device.
         line = t("rowEmail", { from: item.rowEmail?.from || t("someone") });

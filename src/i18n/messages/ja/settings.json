@@ -2021,7 +2021,10 @@
         "rows_merged": "{count}行を{target}に統合しました",
         "publication_expiry_changed": "{change, select, removed {{target}のWebリンクの有効期限を削除しました} other {{target}のWebリンクが{to}に無効になるよう設定しました}}",
         "reported": "訪問者が {target} を報告しました：{reason, select, spam {スパムまたは詐欺} harmful {憎悪・暴力・嫌がらせ} illegal {違法なコンテンツ} privacy {個人情報} copyright {著作権} other {その他}}",
-        "report_dismissed": "{target} への報告を却下しました"
+        "report_dismissed": "{target} への報告を却下しました",
+        "approval_requested": "{names} に {target} の承認を依頼",
+        "approval_decided": "{decision, select, approved {{target} を承認} other {{target} への変更を依頼}}",
+        "approval_withdrawn": "{target} の承認依頼を取り下げ"
       },
       "property": {
         "access_changed": "{target}の「{property}」にアクセスできる人を変更しました",
@@ -2350,7 +2353,10 @@
         "step3": "このサイトの通知をオンにします。",
         "step4": "このページを再読み込みし、ここでプッシュ通知をオンにします。"
       }
-    }
+    },
+    "approvalTitle": "承認",
+    "approvalDescription": "ページの承認を依頼されたとき、または自分の承認依頼が終わったとき。",
+    "approvalChannel": "承認: {channel}"
   },
   "site": {
     "description": "このワークスペースの公開ページに、わかりやすい1つのアドレス、ホームページ、ページ間のナビゲーションを用意します。",

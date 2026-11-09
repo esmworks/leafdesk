@@ -316,7 +316,9 @@
     "limitRequestNote": "«{note}»",
     "limitRequestApprove": "افزایش به {tokens, number}",
     "limitRequestDecline": "رد کردن",
-    "limitRequestFailed": "پاسخ به درخواست ممکن نشد. دوباره تلاش کنید."
+    "limitRequestFailed": "پاسخ به درخواست ممکن نشد. دوباره تلاش کنید.",
+    "approvalRequested": "{actor} از شما می‌خواهد این صفحه را تأیید کنید",
+    "approvalDecided": "{outcome, select, approved {تأیید شد: {actor} آخرین تأیید لازم را داد} other {{actor} برای این صفحه تغییر خواست}}"
   },
   "templates": {
     "title": "الگوها",

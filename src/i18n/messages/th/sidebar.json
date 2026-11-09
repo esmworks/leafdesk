@@ -316,7 +316,9 @@
     "limitRequestNote": "“{note}”",
     "limitRequestApprove": "เพิ่มเป็น {tokens, number}",
     "limitRequestDecline": "ปฏิเสธ",
-    "limitRequestFailed": "ตอบคำขอไม่สำเร็จ ลองอีกครั้ง"
+    "limitRequestFailed": "ตอบคำขอไม่สำเร็จ ลองอีกครั้ง",
+    "approvalRequested": "{actor} ขอให้คุณอนุมัติหน้านี้",
+    "approvalDecided": "{outcome, select, approved {อนุมัติแล้ว: {actor} ให้การอนุมัติสุดท้ายที่ต้องการ} other {{actor} ขอให้แก้ไขหน้านี้}}"
   },
   "templates": {
     "title": "เทมเพลต",

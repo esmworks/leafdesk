@@ -2021,7 +2021,10 @@
         "rows_merged": "Slo sammen {count, plural, one {# rad} other {# rader}} med {target}",
         "publication_expiry_changed": "{change, select, removed {Fjernet utløpet for nettlenken til {target}} other {Satte nettlenken til {target} til å slutte å virke {to}}}",
         "reported": "En besøkende rapporterte {target}: {reason, select, spam {spam eller svindel} harmful {hatefullt, voldelig eller trakasserende innhold} illegal {ulovlig innhold} privacy {personopplysninger} copyright {opphavsrett} other {noe annet}}",
-        "report_dismissed": "Avviste en rapport om {target}"
+        "report_dismissed": "Avviste en rapport om {target}",
+        "approval_requested": "Ba {names} om å godkjenne {target}",
+        "approval_decided": "{decision, select, approved {Godkjente {target}} other {Ba om endringer på {target}}}",
+        "approval_withdrawn": "Trakk tilbake godkjenningsforespørselen for {target}"
       },
       "property": {
         "access_changed": "Endret hvem som har tilgang til «{property}» i {target}",
@@ -2350,7 +2353,10 @@
         "step3": "Slå på varsler for dette nettstedet.",
         "step4": "Last inn denne siden på nytt og slå på push-varsler her."
       }
-    }
+    },
+    "approvalTitle": "Godkjenninger",
+    "approvalDescription": "Noen ber deg godkjenne en side, eller en av dine godkjenningsforespørsler avsluttes.",
+    "approvalChannel": "Godkjenninger: {channel}"
   },
   "site": {
     "description": "Gi de publiserte sidene i dette arbeidsområdet én lettlest adresse, en startside og navigasjon mellom dem.",

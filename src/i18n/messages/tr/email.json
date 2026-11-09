@@ -318,7 +318,9 @@
     "messageFile": "Bir dosya gönderdi",
     "newMessage": "Yeni mesaj",
     "inThread": "Bir mesaj dizisinde",
-    "messageReminder": "Bir mesaj için hatırlatma"
+    "messageReminder": "Bir mesaj için hatırlatma",
+    "approvalRequested": "{actor} bu sayfayı onaylamanızı istiyor",
+    "approvalDecided": "{outcome, select, approved {Onaylandı: gereken son onayı {actor} verdi} other {{actor} bu sayfada değişiklik istedi}}"
   },
   "agentReply": {
     "aiOff": "Yanıt veremiyorum: bu çalışma alanında yapay zekâ kapalı.",

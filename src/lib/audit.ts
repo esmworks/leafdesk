@@ -94,6 +94,9 @@ export const AUDIT_CATEGORIES = {
     "page.deleted",
     "page.verified",
     "page.unverified",
+    "page.approval_requested",
+    "page.approval_decided",
+    "page.approval_withdrawn",
     "page.published",
     "page.unpublished",
     "page.publication_revoked",
@@ -513,6 +516,10 @@ export function describeAuditEvent(event: Pick<AuditEvent, "action" | "targetLab
     case "page.report_dismissed":
       // Read as a choice in the message (why it was reported), not as the word.
       values.reason = text(d.reason);
+      break;
+    case "page.approval_decided":
+      // Read as a choice in the message (approved or changes asked for), not as the word.
+      values.decision = text(d.decision);
       break;
     case "review.approved":
       // Read as a choice in the message ("it failed"), not as the word.

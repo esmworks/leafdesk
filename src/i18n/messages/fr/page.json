@@ -1565,5 +1565,86 @@
     "label": "Étiquettes",
     "pages": "{count, plural, one {# page} other {# pages}}",
     "find": "Trouver les pages avec #{tag}"
+  },
+  "approval": {
+    "menu": "Demander une approbation…",
+    "menuHint": "Demander à des personnes d’approuver cette version précise de la page",
+    "title": "Demander une approbation",
+    "description": "La page est enregistrée maintenant comme version, et les approbateurs approuvent cette version : les modifications suivantes ne comptent jamais comme approuvées.",
+    "approvers": "Approbateurs",
+    "noPeople": "Personne d’autre ne peut encore ouvrir cette page. Partagez-la d’abord.",
+    "ruleLabel": "Approuvée quand",
+    "rules": {
+      "all": "Tout le monde approuve",
+      "any": "Une seule personne approuve"
+    },
+    "dueLabel": "Échéance (facultatif)",
+    "noteLabel": "Note (facultatif)",
+    "notePlaceholder": "Ce qui a changé et pourquoi",
+    "replaces": "La demande en attente est retirée.",
+    "send": "Envoyer la demande",
+    "sent": "Demande envoyée",
+    "versions": {
+      "sent": "Envoyée pour approbation",
+      "approved": "Approuvée"
+    },
+    "banner": {
+      "asked": "{name} vous demande d’approuver cette page",
+      "someone": "Quelqu’un",
+      "due": "Échéance : {date}",
+      "changed": "La page a changé depuis l’envoi : vous approuvez la version envoyée le {date}.",
+      "commentLabel": "Commentaire",
+      "commentPlaceholder": "Facultatif pour approuver, requis pour demander des modifications",
+      "commentNeeded": "Indiquez d’abord ce qui doit changer.",
+      "approve": "Approuver",
+      "requestChanges": "Demander des modifications",
+      "seeVersion": "Voir la version envoyée"
+    },
+    "badge": {
+      "approved": "Approuvée · par {names} · {date}",
+      "changed": "Modifiée depuis l’approbation",
+      "open": "{rule, select, any {En attente d’approbation} other {En attente d’approbation · {done} sur {total}}}",
+      "changesRequested": "Modifications demandées",
+      "hint": "Historique des approbations"
+    },
+    "history": {
+      "title": "Approbations",
+      "empty": "Aucune demande pour l’instant.",
+      "loadError": "Les approbations n’ont pas pu être chargées.",
+      "status": {
+        "open": "En attente",
+        "approved": "Approuvée",
+        "changes_requested": "Modifications demandées",
+        "withdrawn": "Retirée"
+      },
+      "asked": "Demandée par {name}",
+      "due": "échéance {date}",
+      "approvedAt": "a approuvé le {date}",
+      "changesAt": "a demandé des modifications le {date}",
+      "waiting": "n’a pas encore décidé",
+      "noDecision": "n’a pas décidé",
+      "noAccess": "ne peut plus ouvrir la page",
+      "stuck": "Une personne qui doit approuver ne peut plus ouvrir la page : retirez la demande et redemandez.",
+      "version": "Version envoyée",
+      "withdraw": "Retirer",
+      "askAgain": "Redemander une approbation",
+      "someone": "Quelqu’un"
+    },
+    "errors": {
+      "approvers": "Choisissez de une à vingt personnes qui peuvent ouvrir la page.",
+      "rule": "Choisissez qui doit approuver.",
+      "due": "Choisissez une échéance à partir d’aujourd’hui, dans les cinq ans.",
+      "note": "1 000 caractères au maximum.",
+      "decision": "Approuvez ou demandez des modifications.",
+      "template": "Les modèles et leurs pages ne sont pas approuvés.",
+      "database": "Les bases de données ne sont pas approuvées ; leurs lignes et pages le sont.",
+      "inTrash": "Restaurez d’abord la page depuis la corbeille.",
+      "guest": "Les invités ne peuvent pas demander d’approbation.",
+      "closed": "Cette demande n’est plus en attente.",
+      "notApprover": "On ne vous a pas demandé d’approuver cette page.",
+      "decided": "Vous avez déjà décidé.",
+      "notRequester": "Seule la personne qui a demandé, ou quelqu’un avec un accès complet, peut la retirer.",
+      "commentNeeded": "Indiquez d’abord ce qui doit changer."
+    }
   }
 }

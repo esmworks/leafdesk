@@ -2021,7 +2021,10 @@
         "rows_merged": "Yhdisti {count, plural, one {# rivin} other {# riviä}} riviin {target}",
         "publication_expiry_changed": "{change, select, removed {Poisti sivun {target} verkkolinkin voimassaolon päättymisen} other {Asetti sivun {target} verkkolinkin lakkaamaan toimimasta {to}}}",
         "reported": "Vierailija ilmoitti sivusta {target}: {reason, select, spam {roskapostia tai huijaus} harmful {vihamielistä, väkivaltaista tai häiritsevää sisältöä} illegal {laitonta sisältöä} privacy {henkilötietoja} copyright {tekijänoikeus} other {jotain muuta}}",
-        "report_dismissed": "Hylkäsi ilmoituksen sivusta {target}"
+        "report_dismissed": "Hylkäsi ilmoituksen sivusta {target}",
+        "approval_requested": "Pyysi käyttäjiä {names} hyväksymään sivun {target}",
+        "approval_decided": "{decision, select, approved {Hyväksyi sivun {target}} other {Pyysi muutoksia sivuun {target}}}",
+        "approval_withdrawn": "Perui sivun {target} hyväksyntäpyynnön"
       },
       "property": {
         "access_changed": "Muutti, kuka pääsee ominaisuuteen ”{property}” kohteessa {target}",
@@ -2350,7 +2353,10 @@
         "step3": "Ota ilmoitukset käyttöön tälle sivustolle.",
         "step4": "Lataa tämä sivu uudelleen ja ota push-ilmoitukset käyttöön täällä."
       }
-    }
+    },
+    "approvalTitle": "Hyväksynnät",
+    "approvalDescription": "Joku pyytää sinua hyväksymään sivun, tai jokin hyväksyntäpyyntösi päättyy.",
+    "approvalChannel": "Hyväksynnät: {channel}"
   },
   "site": {
     "description": "Anna tämän työtilan julkaistuille sivuille yksi helppolukuinen osoite, etusivu ja navigointi niiden välillä.",

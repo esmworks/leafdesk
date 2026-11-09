@@ -1565,5 +1565,86 @@
     "label": "Tags",
     "pages": "{count, plural, one {# pagina} other {# pagina's}}",
     "find": "Pagina's met #{tag} zoeken"
+  },
+  "approval": {
+    "menu": "Om goedkeuring vragen…",
+    "menuHint": "Mensen vragen precies deze versie van de pagina goed te keuren",
+    "title": "Om goedkeuring vragen",
+    "description": "De pagina wordt nu als versie opgeslagen en goedkeurders keuren die versie goed: latere bewerkingen gelden nooit als goedgekeurd.",
+    "approvers": "Goedkeurders",
+    "noPeople": "Nog niemand anders kan deze pagina openen. Deel hem eerst.",
+    "ruleLabel": "Goedgekeurd als",
+    "rules": {
+      "all": "Iedereen keurt goed",
+      "any": "Eén persoon keurt goed"
+    },
+    "dueLabel": "Uiterste datum (optioneel)",
+    "noteLabel": "Notitie (optioneel)",
+    "notePlaceholder": "Wat er veranderde en waarom",
+    "replaces": "Het verzoek dat nu wacht, wordt ingetrokken.",
+    "send": "Verzoek versturen",
+    "sent": "Verzoek verstuurd",
+    "versions": {
+      "sent": "Verstuurd ter goedkeuring",
+      "approved": "Goedgekeurd"
+    },
+    "banner": {
+      "asked": "{name} vraagt je deze pagina goed te keuren",
+      "someone": "Iemand",
+      "due": "Uiterlijk {date}",
+      "changed": "De pagina is gewijzigd sinds het versturen: je keurt de versie goed die op {date} is verstuurd.",
+      "commentLabel": "Opmerking",
+      "commentPlaceholder": "Optioneel bij goedkeuren, nodig om wijzigingen te vragen",
+      "commentNeeded": "Zeg eerst wat er moet veranderen.",
+      "approve": "Goedkeuren",
+      "requestChanges": "Wijzigingen vragen",
+      "seeVersion": "Verstuurde versie bekijken"
+    },
+    "badge": {
+      "approved": "Goedgekeurd · door {names} · {date}",
+      "changed": "Gewijzigd sinds goedkeuring",
+      "open": "{rule, select, any {Wacht op goedkeuring} other {Wacht op goedkeuring · {done} van {total}}}",
+      "changesRequested": "Wijzigingen gevraagd",
+      "hint": "Goedkeuringsgeschiedenis"
+    },
+    "history": {
+      "title": "Goedkeuringen",
+      "empty": "Nog geen verzoeken.",
+      "loadError": "De goedkeuringen konden niet worden geladen.",
+      "status": {
+        "open": "Wacht",
+        "approved": "Goedgekeurd",
+        "changes_requested": "Wijzigingen gevraagd",
+        "withdrawn": "Ingetrokken"
+      },
+      "asked": "Gevraagd door {name}",
+      "due": "uiterlijk {date}",
+      "approvedAt": "keurde goed op {date}",
+      "changesAt": "vroeg wijzigingen op {date}",
+      "waiting": "heeft nog niet besloten",
+      "noDecision": "besloot niet",
+      "noAccess": "kan de pagina niet meer openen",
+      "stuck": "Iemand die moet goedkeuren, kan de pagina niet meer openen: trek het verzoek in en vraag opnieuw.",
+      "version": "Verstuurde versie",
+      "withdraw": "Intrekken",
+      "askAgain": "Opnieuw om goedkeuring vragen",
+      "someone": "Iemand"
+    },
+    "errors": {
+      "approvers": "Kies één tot twintig mensen die de pagina kunnen openen.",
+      "rule": "Kies wie moet goedkeuren.",
+      "due": "Kies een uiterste datum vanaf vandaag, binnen vijf jaar.",
+      "note": "Maximaal 1.000 tekens.",
+      "decision": "Keur goed of vraag wijzigingen.",
+      "template": "Sjablonen en de pagina’s erin worden niet goedgekeurd.",
+      "database": "Databases worden niet goedgekeurd; hun rijen en pagina’s wel.",
+      "inTrash": "Zet de pagina eerst terug uit de prullenbak.",
+      "guest": "Gasten kunnen niet om goedkeuring vragen.",
+      "closed": "Dit verzoek wacht niet meer.",
+      "notApprover": "Je is niet gevraagd deze pagina goed te keuren.",
+      "decided": "Je hebt al besloten.",
+      "notRequester": "Alleen wie het vroeg, of iemand met volledige toegang, kan het intrekken.",
+      "commentNeeded": "Zeg eerst wat er moet veranderen."
+    }
   }
 }

@@ -316,7 +316,9 @@
     "limitRequestNote": "“{note}”",
     "limitRequestApprove": "Verhogen naar {tokens, number}",
     "limitRequestDecline": "Afwijzen",
-    "limitRequestFailed": "Het verzoek kon niet worden beantwoord. Probeer het opnieuw."
+    "limitRequestFailed": "Het verzoek kon niet worden beantwoord. Probeer het opnieuw.",
+    "approvalRequested": "{actor} vraagt je deze pagina goed te keuren",
+    "approvalDecided": "{outcome, select, approved {Goedgekeurd: {actor} gaf de laatste nodige goedkeuring} other {{actor} vroeg wijzigingen aan deze pagina}}"
   },
   "templates": {
     "title": "Sjablonen",

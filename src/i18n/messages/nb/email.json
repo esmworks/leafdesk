@@ -318,7 +318,9 @@
     "messageFile": "Sendte en fil",
     "newMessage": "Ny melding",
     "inThread": "I en tråd",
-    "messageReminder": "Påminnelse om en melding"
+    "messageReminder": "Påminnelse om en melding",
+    "approvalRequested": "{actor} ber deg godkjenne denne siden",
+    "approvalDecided": "{outcome, select, approved {Godkjent: {actor} ga den siste nødvendige godkjenningen} other {{actor} ba om endringer på denne siden}}"
   },
   "agentReply": {
     "aiOff": "Jeg kan ikke svare: KI er slått av i dette arbeidsområdet.",

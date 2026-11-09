@@ -1565,5 +1565,86 @@
     "label": "Tags",
     "pages": "{count, plural, one {# Seite} other {# Seiten}}",
     "find": "Seiten mit #{tag} finden"
+  },
+  "approval": {
+    "menu": "Freigabe anfragen…",
+    "menuHint": "Personen bitten, genau diese Version der Seite freizugeben",
+    "title": "Freigabe anfragen",
+    "description": "Die Seite wird jetzt als Version gespeichert, und die Freigebenden geben diese Version frei: spätere Änderungen gelten nie als freigegeben.",
+    "approvers": "Freigebende",
+    "noPeople": "Noch kann niemand sonst diese Seite öffnen. Teile sie zuerst.",
+    "ruleLabel": "Freigegeben, wenn",
+    "rules": {
+      "all": "Alle geben frei",
+      "any": "Eine Person gibt frei"
+    },
+    "dueLabel": "Fällig am (optional)",
+    "noteLabel": "Notiz (optional)",
+    "notePlaceholder": "Was sich geändert hat und warum",
+    "replaces": "Die jetzt wartende Anfrage wird zurückgezogen.",
+    "send": "Anfrage senden",
+    "sent": "Anfrage gesendet",
+    "versions": {
+      "sent": "Zur Freigabe gesendet",
+      "approved": "Freigegeben"
+    },
+    "banner": {
+      "asked": "{name} bittet dich, diese Seite freizugeben",
+      "someone": "Jemand",
+      "due": "Fällig am {date}",
+      "changed": "Die Seite wurde seit dem Senden geändert: Du gibst die am {date} gesendete Version frei.",
+      "commentLabel": "Kommentar",
+      "commentPlaceholder": "Für die Freigabe optional, für Änderungswünsche nötig",
+      "commentNeeded": "Schreib zuerst, was sich ändern soll.",
+      "approve": "Freigeben",
+      "requestChanges": "Änderungen anfordern",
+      "seeVersion": "Gesendete Version ansehen"
+    },
+    "badge": {
+      "approved": "Freigegeben · von {names} · {date}",
+      "changed": "Seit der Freigabe geändert",
+      "open": "{rule, select, any {Wartet auf Freigabe} other {Wartet auf Freigabe · {done} von {total}}}",
+      "changesRequested": "Änderungen angefordert",
+      "hint": "Freigabeverlauf"
+    },
+    "history": {
+      "title": "Freigaben",
+      "empty": "Noch keine Anfragen.",
+      "loadError": "Die Freigaben konnten nicht geladen werden.",
+      "status": {
+        "open": "Wartet",
+        "approved": "Freigegeben",
+        "changes_requested": "Änderungen angefordert",
+        "withdrawn": "Zurückgezogen"
+      },
+      "asked": "Angefragt von {name}",
+      "due": "fällig am {date}",
+      "approvedAt": "freigegeben am {date}",
+      "changesAt": "Änderungen angefordert am {date}",
+      "waiting": "hat noch nicht entschieden",
+      "noDecision": "hat nicht entschieden",
+      "noAccess": "kann die Seite nicht mehr öffnen",
+      "stuck": "Jemand, der freigeben muss, kann die Seite nicht mehr öffnen: Zieh die Anfrage zurück und frag erneut an.",
+      "version": "Gesendete Version",
+      "withdraw": "Zurückziehen",
+      "askAgain": "Erneut Freigabe anfragen",
+      "someone": "Jemand"
+    },
+    "errors": {
+      "approvers": "Wähle eine bis zwanzig Personen, die die Seite öffnen können.",
+      "rule": "Wähle, wer freigeben muss.",
+      "due": "Wähle ein Fälligkeitsdatum ab heute, innerhalb von fünf Jahren.",
+      "note": "Höchstens 1.000 Zeichen.",
+      "decision": "Gib frei oder fordere Änderungen an.",
+      "template": "Vorlagen und die Seiten darin werden nicht freigegeben.",
+      "database": "Datenbanken werden nicht freigegeben, ihre Zeilen und Seiten schon.",
+      "inTrash": "Stelle die Seite zuerst aus dem Papierkorb wieder her.",
+      "guest": "Gäste können keine Freigabe anfragen.",
+      "closed": "Diese Anfrage wartet nicht mehr.",
+      "notApprover": "Du wurdest nicht gebeten, diese Seite freizugeben.",
+      "decided": "Du hast bereits entschieden.",
+      "notRequester": "Nur wer angefragt hat oder jemand mit Vollzugriff kann sie zurückziehen.",
+      "commentNeeded": "Schreib zuerst, was sich ändern soll."
+    }
   }
 }

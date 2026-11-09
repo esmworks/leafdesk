@@ -316,7 +316,9 @@
     "limitRequestNote": "“{note}”",
     "limitRequestApprove": "Raise to {tokens, number}",
     "limitRequestDecline": "Decline",
-    "limitRequestFailed": "Couldn’t answer the request. Try again."
+    "limitRequestFailed": "Couldn’t answer the request. Try again.",
+    "approvalRequested": "{actor} asks you to approve this page",
+    "approvalDecided": "{outcome, select, approved {Approved: {actor} gave the last approval needed} other {{actor} requested changes to this page}}"
   },
   "templates": {
     "title": "Templates",

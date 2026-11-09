@@ -318,7 +318,9 @@
     "messageFile": "שלח/ה קובץ",
     "newMessage": "הודעה חדשה",
     "inThread": "בשרשור",
-    "messageReminder": "תזכורת על הודעה"
+    "messageReminder": "תזכורת על הודעה",
+    "approvalRequested": "{actor} מבקש/ת שתאשרו את הדף הזה",
+    "approvalDecided": "{outcome, select, approved {אושר: {actor} נתן/ה את האישור האחרון שנדרש} other {{actor} ביקש/ה שינויים בדף הזה}}"
   },
   "agentReply": {
     "aiOff": "אין באפשרותי לענות: הבינה המלאכותית כבויה בסביבת העבודה הזו.",

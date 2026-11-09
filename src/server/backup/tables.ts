@@ -67,6 +67,9 @@ export const BACKED_UP: Record<string, Scope> = {
   page_task: ofPages("page_id"),
   page_watch: ofPages("page_id"),
   page_verification: ofPages("page_id"),
+  // After page_snapshot: a round points at the version it sent.
+  page_approval: ofPages("page_id"),
+  page_approval_decision: (ws) => sql`approval_id in (select id from page_approval where page_id in ${pages(ws)})`,
   thread_mute: ofPages("page_id"),
   thread_state: ofPages("page_id"),
   row_follower: ofPages("row_id"),

@@ -316,7 +316,9 @@
     "limitRequestNote": "”{note}”",
     "limitRequestApprove": "Nosta määrään {tokens, number}",
     "limitRequestDecline": "Hylkää",
-    "limitRequestFailed": "Pyyntöön ei voitu vastata. Yritä uudelleen."
+    "limitRequestFailed": "Pyyntöön ei voitu vastata. Yritä uudelleen.",
+    "approvalRequested": "{actor} pyytää sinua hyväksymään tämän sivun",
+    "approvalDecided": "{outcome, select, approved {Hyväksytty: {actor} antoi viimeisen tarvittavan hyväksynnän} other {{actor} pyysi muutoksia tähän sivuun}}"
   },
   "templates": {
     "title": "Mallit",

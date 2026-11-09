@@ -318,7 +318,9 @@
     "messageFile": "أرسل ملفًا",
     "newMessage": "رسالة جديدة",
     "inThread": "في سلسلة ردود",
-    "messageReminder": "تذكير برسالة"
+    "messageReminder": "تذكير برسالة",
+    "approvalRequested": "يطلب منك {actor} الموافقة على هذه الصفحة",
+    "approvalDecided": "{outcome, select, approved {تمت الموافقة: منح {actor} آخر موافقة مطلوبة} other {طلب {actor} تغييرات على هذه الصفحة}}"
   },
   "agentReply": {
     "aiOff": "لا أستطيع الرد: الذكاء الاصطناعي متوقف في مساحة العمل هذه.",

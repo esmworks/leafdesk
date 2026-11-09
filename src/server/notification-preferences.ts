@@ -34,6 +34,9 @@ const COLUMNS = {
   agent_task: { inbox: "agentTaskInbox", email: "agentTaskEmails", push: "agentTaskPush", telegram: "agentTaskTelegram" },
   schedule_paused: { inbox: "schedulePausedInbox", email: "schedulePausedEmails", push: "schedulePausedPush", telegram: "schedulePausedTelegram" },
   ai_chat_waiting: { inbox: "aiChatWaitingInbox", email: "aiChatWaitingEmails", push: "aiChatWaitingPush", telegram: "aiChatWaitingTelegram" },
+  // One choice for both: requests to approve a page and how they ended.
+  approval_requested: { inbox: "approvalInbox", email: "approvalEmails", push: "approvalPush", telegram: "approvalTelegram" },
+  approval_decided: { inbox: "approvalInbox", email: "approvalEmails", push: "approvalPush", telegram: "approvalTelegram" },
 } as const satisfies Record<PreferenceKind, Record<NotificationChannel, keyof typeof userPreference.$inferSelect>>;
 
 const KINDS = Object.keys(COLUMNS) as PreferenceKind[];

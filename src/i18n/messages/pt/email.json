@@ -318,7 +318,9 @@
     "messageFile": "Enviou um arquivo",
     "newMessage": "Nova mensagem",
     "inThread": "Em um tópico",
-    "messageReminder": "Lembrete sobre uma mensagem"
+    "messageReminder": "Lembrete sobre uma mensagem",
+    "approvalRequested": "{actor} pede que você aprove esta página",
+    "approvalDecided": "{outcome, select, approved {Aprovada: {actor} deu a última aprovação necessária} other {{actor} pediu alterações nesta página}}"
   },
   "agentReply": {
     "aiOff": "Não posso responder: a IA está desativada neste espaço de trabalho.",

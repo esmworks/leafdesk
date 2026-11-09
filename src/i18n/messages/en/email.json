@@ -318,7 +318,9 @@
     "messageFile": "Sent a file",
     "newMessage": "New message",
     "inThread": "In a thread",
-    "messageReminder": "Reminder about a message"
+    "messageReminder": "Reminder about a message",
+    "approvalRequested": "{actor} asks you to approve this page",
+    "approvalDecided": "{outcome, select, approved {Approved: {actor} gave the last approval needed} other {{actor} requested changes to this page}}"
   },
   "agentReply": {
     "aiOff": "I can’t answer: AI is off in this workspace.",

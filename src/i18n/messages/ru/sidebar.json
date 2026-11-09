@@ -316,7 +316,9 @@
     "limitRequestNote": "«{note}»",
     "limitRequestApprove": "Повысить до {tokens, number}",
     "limitRequestDecline": "Отклонить",
-    "limitRequestFailed": "Не удалось ответить на запрос. Попробуйте ещё раз."
+    "limitRequestFailed": "Не удалось ответить на запрос. Попробуйте ещё раз.",
+    "approvalRequested": "{actor} просит вас согласовать эту страницу",
+    "approvalDecided": "{outcome, select, approved {Согласовано: {actor} дал(а) последнее нужное согласование} other {{actor} запросил(а) изменения на этой странице}}"
   },
   "templates": {
     "title": "Шаблоны",

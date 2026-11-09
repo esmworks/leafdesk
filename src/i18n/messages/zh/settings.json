@@ -2021,7 +2021,10 @@
         "rows_merged": "将 {count} 行合并到 {target}",
         "publication_expiry_changed": "{change, select, removed {移除了 {target} 网页链接的有效期} other {将 {target} 的网页链接设置为于 {to} 失效}}",
         "reported": "有访问者举报了 {target}：{reason, select, spam {垃圾信息或诈骗} harmful {仇恨、暴力或骚扰内容} illegal {违法内容} privacy {个人信息} copyright {版权} other {其他}}",
-        "report_dismissed": "忽略了一条关于 {target} 的举报"
+        "report_dismissed": "忽略了一条关于 {target} 的举报",
+        "approval_requested": "请 {names} 审批 {target}",
+        "approval_decided": "{decision, select, approved {批准了 {target}} other {请求修改 {target}}}",
+        "approval_withdrawn": "撤回了 {target} 的审批请求"
       },
       "property": {
         "access_changed": "更改了 {target} 中“{property}”的访问权限",
@@ -2350,7 +2353,10 @@
         "step3": "为此网站开启通知。",
         "step4": "重新加载此页面，并在这里开启推送通知。"
       }
-    }
+    },
+    "approvalTitle": "审批",
+    "approvalDescription": "有人请你审批页面，或你的审批请求有了结果。",
+    "approvalChannel": "审批：{channel}"
   },
   "site": {
     "description": "为此工作区已发布的页面提供一个易读的地址、一个主页以及页面之间的导航。",

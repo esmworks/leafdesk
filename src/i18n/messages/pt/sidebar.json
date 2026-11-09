@@ -316,7 +316,9 @@
     "limitRequestNote": "“{note}”",
     "limitRequestApprove": "Aumentar para {tokens, number}",
     "limitRequestDecline": "Recusar",
-    "limitRequestFailed": "Não foi possível responder ao pedido. Tente novamente."
+    "limitRequestFailed": "Não foi possível responder ao pedido. Tente novamente.",
+    "approvalRequested": "{actor} pede que você aprove esta página",
+    "approvalDecided": "{outcome, select, approved {Aprovada: {actor} deu a última aprovação necessária} other {{actor} pediu alterações nesta página}}"
   },
   "templates": {
     "title": "Modelos",

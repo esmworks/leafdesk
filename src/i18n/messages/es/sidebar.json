@@ -316,7 +316,9 @@
     "limitRequestNote": "«{note}»",
     "limitRequestApprove": "Subir a {tokens, number}",
     "limitRequestDecline": "Rechazar",
-    "limitRequestFailed": "No se pudo responder a la solicitud. Inténtalo de nuevo."
+    "limitRequestFailed": "No se pudo responder a la solicitud. Inténtalo de nuevo.",
+    "approvalRequested": "{actor} te pide que apruebes esta página",
+    "approvalDecided": "{outcome, select, approved {Aprobada: {actor} dio la última aprobación necesaria} other {{actor} pidió cambios en esta página}}"
   },
   "templates": {
     "title": "Plantillas",

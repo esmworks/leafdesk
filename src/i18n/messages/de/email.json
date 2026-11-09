@@ -318,7 +318,9 @@
     "messageFile": "Hat eine Datei gesendet",
     "newMessage": "Neue Nachricht",
     "inThread": "In einem Thread",
-    "messageReminder": "Erinnerung an eine Nachricht"
+    "messageReminder": "Erinnerung an eine Nachricht",
+    "approvalRequested": "{actor} bittet dich, diese Seite freizugeben",
+    "approvalDecided": "{outcome, select, approved {Freigegeben: {actor} hat die letzte nötige Freigabe erteilt} other {{actor} hat Änderungen an dieser Seite angefordert}}"
   },
   "agentReply": {
     "aiOff": "Ich kann nicht antworten: KI ist in diesem Workspace ausgeschaltet.",

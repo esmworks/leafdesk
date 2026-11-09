@@ -316,7 +316,9 @@
     "limitRequestNote": "“{note}”",
     "limitRequestApprove": "Podnieś do {tokens, number}",
     "limitRequestDecline": "Odrzuć",
-    "limitRequestFailed": "Nie udało się odpowiedzieć na prośbę. Spróbuj ponownie."
+    "limitRequestFailed": "Nie udało się odpowiedzieć na prośbę. Spróbuj ponownie.",
+    "approvalRequested": "{actor} prosi Cię o zatwierdzenie tej strony",
+    "approvalDecided": "{outcome, select, approved {Zatwierdzona: {actor} udzielił(a) ostatniego potrzebnego zatwierdzenia} other {{actor} poprosił(a) o zmiany na tej stronie}}"
   },
   "templates": {
     "title": "Szablony",

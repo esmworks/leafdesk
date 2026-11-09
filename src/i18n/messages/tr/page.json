@@ -1565,5 +1565,86 @@
     "label": "Etiketler",
     "pages": "{count, plural, one {# sayfa} other {# sayfa}}",
     "find": "#{tag} etiketli sayfaları bul"
+  },
+  "approval": {
+    "menu": "Onay iste…",
+    "menuHint": "Kişilerden sayfanın bu sürümünü onaylamasını iste",
+    "title": "Onay iste",
+    "description": "Sayfa şimdi bir sürüm olarak kaydedilir ve onaylayanlar o sürümü onaylar: sonraki düzenlemeler hiçbir zaman onaylı sayılmaz.",
+    "approvers": "Onaylayanlar",
+    "noPeople": "Bu sayfayı henüz başka kimse açamıyor. Önce paylaşın.",
+    "ruleLabel": "Onaylanma koşulu",
+    "rules": {
+      "all": "Herkes onaylar",
+      "any": "Biri onaylaması yeter"
+    },
+    "dueLabel": "Son tarih (isteğe bağlı)",
+    "noteLabel": "Not (isteğe bağlı)",
+    "notePlaceholder": "Ne değişti ve neden",
+    "replaces": "Şu an bekleyen istek geri çekilir.",
+    "send": "İsteği gönder",
+    "sent": "İstek gönderildi",
+    "versions": {
+      "sent": "Onaya gönderildi",
+      "approved": "Onaylandı"
+    },
+    "banner": {
+      "asked": "{name} bu sayfayı onaylamanızı istiyor",
+      "someone": "Biri",
+      "due": "Son tarih: {date}",
+      "changed": "Sayfa gönderildikten sonra değişti: {date} tarihinde gönderilen sürümü onaylıyorsunuz.",
+      "commentLabel": "Yorum",
+      "commentPlaceholder": "Onay için isteğe bağlı, değişiklik istemek için gerekli",
+      "commentNeeded": "Önce neyin değişmesi gerektiğini yazın.",
+      "approve": "Onayla",
+      "requestChanges": "Değişiklik iste",
+      "seeVersion": "Gönderilen sürümü gör"
+    },
+    "badge": {
+      "approved": "Onaylandı · {names} · {date}",
+      "changed": "Onaydan sonra değişti",
+      "open": "{rule, select, any {Onay bekleniyor} other {Onay bekleniyor · {done}/{total}}}",
+      "changesRequested": "Değişiklik istendi",
+      "hint": "Onay geçmişi"
+    },
+    "history": {
+      "title": "Onaylar",
+      "empty": "Henüz istek yok.",
+      "loadError": "Onaylar yüklenemedi.",
+      "status": {
+        "open": "Bekliyor",
+        "approved": "Onaylandı",
+        "changes_requested": "Değişiklik istendi",
+        "withdrawn": "Geri çekildi"
+      },
+      "asked": "İsteyen: {name}",
+      "due": "son tarih {date}",
+      "approvedAt": "onayladı, {date}",
+      "changesAt": "değişiklik istedi, {date}",
+      "waiting": "henüz karar vermedi",
+      "noDecision": "karar vermedi",
+      "noAccess": "sayfayı artık açamıyor",
+      "stuck": "Onaylaması gereken biri sayfayı artık açamıyor: isteği geri çekip yeniden isteyin.",
+      "version": "Gönderilen sürüm",
+      "withdraw": "Geri çek",
+      "askAgain": "Yeniden onay iste",
+      "someone": "Biri"
+    },
+    "errors": {
+      "approvers": "Sayfayı açabilen bir ile yirmi kişi seçin.",
+      "rule": "Kimin onaylaması gerektiğini seçin.",
+      "due": "Bugünden itibaren, beş yıl içinde bir son tarih seçin.",
+      "note": "En fazla 1.000 karakter yazın.",
+      "decision": "Onaylayın ya da değişiklik isteyin.",
+      "template": "Şablonlar ve içlerindeki sayfalar onaylanmaz.",
+      "database": "Veritabanları onaylanmaz; satırları ve sayfaları onaylanır.",
+      "inTrash": "Önce sayfayı çöp kutusundan geri yükleyin.",
+      "guest": "Misafirler onay isteyemez.",
+      "closed": "Bu istek artık beklemiyor.",
+      "notApprover": "Bu sayfayı onaylamanız istenmedi.",
+      "decided": "Zaten karar verdiniz.",
+      "notRequester": "Yalnızca isteyen kişi ya da tam erişimi olan biri geri çekebilir.",
+      "commentNeeded": "Önce neyin değişmesi gerektiğini yazın."
+    }
   }
 }

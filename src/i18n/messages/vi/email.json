@@ -318,7 +318,9 @@
     "messageFile": "Đã gửi một tệp",
     "newMessage": "Tin nhắn mới",
     "inThread": "Trong một chuỗi",
-    "messageReminder": "Lời nhắc về một tin nhắn"
+    "messageReminder": "Lời nhắc về một tin nhắn",
+    "approvalRequested": "{actor} đề nghị bạn phê duyệt trang này",
+    "approvalDecided": "{outcome, select, approved {Đã duyệt: {actor} đã đưa ra phê duyệt cuối cùng cần thiết} other {{actor} đã yêu cầu thay đổi trang này}}"
   },
   "agentReply": {
     "aiOff": "Tôi không thể trả lời: AI đang tắt trong không gian làm việc này.",

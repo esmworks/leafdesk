@@ -318,7 +318,9 @@
     "messageFile": "ファイルを送信しました",
     "newMessage": "新しいメッセージ",
     "inThread": "スレッド内",
-    "messageReminder": "メッセージのリマインダー"
+    "messageReminder": "メッセージのリマインダー",
+    "approvalRequested": "{actor} さんがこのページの承認を依頼しています",
+    "approvalDecided": "{outcome, select, approved {承認されました: 最後に必要な承認を {actor} さんが行いました} other {{actor} さんがこのページへの変更を依頼しました}}"
   },
   "agentReply": {
     "aiOff": "回答できません: このワークスペースでは AI がオフになっています。",

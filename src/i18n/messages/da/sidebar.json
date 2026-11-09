@@ -316,7 +316,9 @@
     "limitRequestNote": "“{note}”",
     "limitRequestApprove": "Hæv til {tokens, number}",
     "limitRequestDecline": "Afslå",
-    "limitRequestFailed": "Kunne ikke besvare anmodningen. Prøv igen."
+    "limitRequestFailed": "Kunne ikke besvare anmodningen. Prøv igen.",
+    "approvalRequested": "{actor} beder dig godkende denne side",
+    "approvalDecided": "{outcome, select, approved {Godkendt: {actor} gav den sidste nødvendige godkendelse} other {{actor} bad om ændringer på denne side}}"
   },
   "templates": {
     "title": "Skabeloner",

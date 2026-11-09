@@ -2021,7 +2021,10 @@
         "rows_merged": "{count, plural, one {# satırı} other {# satırı}} {target} satırında birleştirdi",
         "publication_expiry_changed": "{change, select, removed {{target} sayfasının web bağlantısındaki süreyi kaldırdı} other {{target} sayfasının web bağlantısını {to} tarihinde çalışmayı bırakacak şekilde ayarladı}}",
         "reported": "Bir ziyaretçi {target} sayfasını bildirdi: {reason, select, spam {spam veya dolandırıcılık} harmful {nefret, şiddet veya taciz} illegal {yasa dışı içerik} privacy {kişisel bilgiler} copyright {telif hakkı} other {başka bir şey}}",
-        "report_dismissed": "{target} hakkındaki bir bildirimi kapattı"
+        "report_dismissed": "{target} hakkındaki bir bildirimi kapattı",
+        "approval_requested": "{names} kişilerinden {target} için onay istedi",
+        "approval_decided": "{decision, select, approved {{target} sayfasını onayladı} other {{target} sayfasında değişiklik istedi}}",
+        "approval_withdrawn": "{target} için onay isteğini geri çekti"
       },
       "property": {
         "access_changed": "{target} içindeki “{property}” özelliğinin erişimi değiştirildi",
@@ -2350,7 +2353,10 @@
         "step3": "Bu site için bildirimleri açın.",
         "step4": "Bu sayfayı yeniden yükleyin ve anlık bildirimleri burada açın."
       }
-    }
+    },
+    "approvalTitle": "Onaylar",
+    "approvalDescription": "Biri sizden bir sayfayı onaylamanızı istediğinde ya da sizin onay isteğiniz sonuçlandığında.",
+    "approvalChannel": "Onaylar: {channel}"
   },
   "site": {
     "description": "Bu çalışma alanının yayındaki sayfalarına okunabilir tek bir adres, bir ana sayfa ve aralarında gezinme menüsü verin.",

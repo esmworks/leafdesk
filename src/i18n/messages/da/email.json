@@ -318,7 +318,9 @@
     "messageFile": "Sendte en fil",
     "newMessage": "Ny besked",
     "inThread": "I en tråd",
-    "messageReminder": "Påmindelse om en besked"
+    "messageReminder": "Påmindelse om en besked",
+    "approvalRequested": "{actor} beder dig godkende denne side",
+    "approvalDecided": "{outcome, select, approved {Godkendt: {actor} gav den sidste nødvendige godkendelse} other {{actor} bad om ændringer på denne side}}"
   },
   "agentReply": {
     "aiOff": "Jeg kan ikke svare: AI er slået fra i dette arbejdsområde.",

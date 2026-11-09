@@ -318,7 +318,9 @@
     "messageFile": "Отправлен файл",
     "newMessage": "Новое сообщение",
     "inThread": "В ветке",
-    "messageReminder": "Напоминание о сообщении"
+    "messageReminder": "Напоминание о сообщении",
+    "approvalRequested": "{actor} просит вас согласовать эту страницу",
+    "approvalDecided": "{outcome, select, approved {Согласовано: {actor} дал(а) последнее нужное согласование} other {{actor} запросил(а) изменения на этой странице}}"
   },
   "agentReply": {
     "aiOff": "Не могу ответить: ИИ отключён в этом рабочем пространстве.",

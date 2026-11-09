@@ -444,6 +444,10 @@ export function InboxDialog({
                         ? t("rowUpdate", { actor: item.actorName || t("someone") })
                       : item.kind === "page_updated"
                         ? t("pageUpdated", { actor: item.actorName || t("someone") })
+                      : item.kind === "approval_requested"
+                        ? t("approvalRequested", { actor: item.actorName || t("someone") })
+                      : item.kind === "approval_decided"
+                        ? t("approvalDecided", { actor: item.actorName || t("someone"), outcome: item.automationMessage === "approved" ? "approved" : "changes" })
                       : item.kind === "verification"
                         ? // Recorded at or after the end: it ended; before it: it ends soon.
                           t(item.reminderDate && new Date(item.createdAt) >= new Date(item.reminderDate) ? "verificationEnded" : "verificationEnds", {

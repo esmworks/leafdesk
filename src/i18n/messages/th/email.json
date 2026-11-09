@@ -318,7 +318,9 @@
     "messageFile": "ส่งไฟล์",
     "newMessage": "ข้อความใหม่",
     "inThread": "ในเธรด",
-    "messageReminder": "การเตือนเกี่ยวกับข้อความ"
+    "messageReminder": "การเตือนเกี่ยวกับข้อความ",
+    "approvalRequested": "{actor} ขอให้คุณอนุมัติหน้านี้",
+    "approvalDecided": "{outcome, select, approved {อนุมัติแล้ว: {actor} ให้การอนุมัติสุดท้ายที่ต้องการ} other {{actor} ขอให้แก้ไขหน้านี้}}"
   },
   "agentReply": {
     "aiOff": "ฉันตอบไม่ได้: AI ถูกปิดในพื้นที่ทำงานนี้",

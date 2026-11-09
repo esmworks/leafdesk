@@ -2021,7 +2021,10 @@
         "rows_merged": "Объединил(а) {count, plural, one {# строку} few {# строки} many {# строк} other {# строки}} с {target}",
         "publication_expiry_changed": "{change, select, removed {Убран срок действия веб-ссылки на {target}} other {Веб-ссылка на {target} перестанет работать {to}}}",
         "reported": "Посетитель пожаловался на {target}: {reason, select, spam {спам или мошенничество} harmful {ненависть, насилие или травля} illegal {незаконный контент} privacy {личные данные} copyright {авторские права} other {другое}}",
-        "report_dismissed": "Отклонил жалобу на {target}"
+        "report_dismissed": "Отклонил жалобу на {target}",
+        "approval_requested": "Попросил(а) {names} согласовать {target}",
+        "approval_decided": "{decision, select, approved {Согласовал(а) {target}} other {Запросил(а) изменения в {target}}}",
+        "approval_withdrawn": "Отозвал(а) запрос на согласование {target}"
       },
       "property": {
         "access_changed": "Изменён доступ к «{property}» в базе данных {target}",
@@ -2350,7 +2353,10 @@
         "step3": "Включите уведомления для этого сайта.",
         "step4": "Перезагрузите эту страницу и включите здесь push-уведомления."
       }
-    }
+    },
+    "approvalTitle": "Согласования",
+    "approvalDescription": "Вас просят согласовать страницу, или ваш запрос на согласование завершился.",
+    "approvalChannel": "Согласования: {channel}"
   },
   "site": {
     "description": "Дайте опубликованным страницам этого рабочего пространства один понятный адрес, главную страницу и навигацию между ними.",

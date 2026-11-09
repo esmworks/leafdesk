@@ -1565,5 +1565,86 @@
     "label": "Taggar",
     "pages": "{count, plural, one {# sida} other {# sidor}}",
     "find": "Hitta sidor med #{tag}"
+  },
+  "approval": {
+    "menu": "Be om godkännande…",
+    "menuHint": "Be personer godkänna exakt den här versionen av sidan",
+    "title": "Be om godkännande",
+    "description": "Sidan sparas nu som en version och godkännarna godkänner den versionen: senare ändringar räknas aldrig som godkända.",
+    "approvers": "Godkännare",
+    "noPeople": "Ingen annan kan öppna sidan än. Dela den först.",
+    "ruleLabel": "Godkänd när",
+    "rules": {
+      "all": "Alla godkänner",
+      "any": "En person godkänner"
+    },
+    "dueLabel": "Förfallodatum (valfritt)",
+    "noteLabel": "Anteckning (valfri)",
+    "notePlaceholder": "Vad som ändrats och varför",
+    "replaces": "Begäran som väntar nu dras tillbaka.",
+    "send": "Skicka begäran",
+    "sent": "Begäran skickad",
+    "versions": {
+      "sent": "Skickad för godkännande",
+      "approved": "Godkänd"
+    },
+    "banner": {
+      "asked": "{name} ber dig godkänna den här sidan",
+      "someone": "Någon",
+      "due": "Senast {date}",
+      "changed": "Sidan har ändrats sedan den skickades: du godkänner versionen som skickades {date}.",
+      "commentLabel": "Kommentar",
+      "commentPlaceholder": "Valfri för att godkänna, krävs för att begära ändringar",
+      "commentNeeded": "Skriv först vad som ska ändras.",
+      "approve": "Godkänn",
+      "requestChanges": "Begär ändringar",
+      "seeVersion": "Visa den skickade versionen"
+    },
+    "badge": {
+      "approved": "Godkänd · av {names} · {date}",
+      "changed": "Ändrad sedan godkännandet",
+      "open": "{rule, select, any {Väntar på godkännande} other {Väntar på godkännande · {done} av {total}}}",
+      "changesRequested": "Ändringar begärda",
+      "hint": "Godkännandehistorik"
+    },
+    "history": {
+      "title": "Godkännanden",
+      "empty": "Inga begäranden än.",
+      "loadError": "Godkännandena kunde inte läsas in.",
+      "status": {
+        "open": "Väntar",
+        "approved": "Godkänd",
+        "changes_requested": "Ändringar begärda",
+        "withdrawn": "Tillbakadragen"
+      },
+      "asked": "Begärd av {name}",
+      "due": "senast {date}",
+      "approvedAt": "godkände {date}",
+      "changesAt": "begärde ändringar {date}",
+      "waiting": "har inte bestämt sig",
+      "noDecision": "bestämde sig inte",
+      "noAccess": "kan inte längre öppna sidan",
+      "stuck": "Någon som måste godkänna kan inte längre öppna sidan: dra tillbaka begäran och fråga igen.",
+      "version": "Skickad version",
+      "withdraw": "Dra tillbaka",
+      "askAgain": "Be om godkännande igen",
+      "someone": "Någon"
+    },
+    "errors": {
+      "approvers": "Välj en till tjugo personer som kan öppna sidan.",
+      "rule": "Välj vem som måste godkänna.",
+      "due": "Välj ett förfallodatum från i dag, inom fem år.",
+      "note": "Högst 1 000 tecken.",
+      "decision": "Godkänn eller begär ändringar.",
+      "template": "Mallar och sidorna i dem godkänns inte.",
+      "database": "Databaser godkänns inte; deras rader och sidor gör det.",
+      "inTrash": "Återställ först sidan från papperskorgen.",
+      "guest": "Gäster kan inte be om godkännande.",
+      "closed": "Den här begäran väntar inte längre.",
+      "notApprover": "Du har inte ombetts godkänna den här sidan.",
+      "decided": "Du har redan bestämt dig.",
+      "notRequester": "Bara den som frågade, eller någon med full åtkomst, kan dra tillbaka den.",
+      "commentNeeded": "Skriv först vad som ska ändras."
+    }
   }
 }

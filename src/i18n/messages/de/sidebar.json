@@ -316,7 +316,9 @@
     "limitRequestNote": "„{note}“",
     "limitRequestApprove": "Auf {tokens, number} erhöhen",
     "limitRequestDecline": "Ablehnen",
-    "limitRequestFailed": "Die Anfrage konnte nicht beantwortet werden. Versuche es erneut."
+    "limitRequestFailed": "Die Anfrage konnte nicht beantwortet werden. Versuche es erneut.",
+    "approvalRequested": "{actor} bittet dich, diese Seite freizugeben",
+    "approvalDecided": "{outcome, select, approved {Freigegeben: {actor} hat die letzte nötige Freigabe erteilt} other {{actor} hat Änderungen an dieser Seite angefordert}}"
   },
   "templates": {
     "title": "Vorlagen",

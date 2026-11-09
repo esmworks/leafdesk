@@ -9,6 +9,7 @@ import { getThreadAction, listMailboxesAction, listThreadsAction, openDraftActio
 import { sidebarMeetingsAction } from "@/app/actions/meetings";
 import { backlinksAction, unlinkedMentionsAction } from "@/app/actions/mentions";
 import { arrivalsAction, dueRemindersAction, listInboxAction, unreadCountAction } from "@/app/actions/notifications";
+import { approvalCandidatesAction, approvalHistoryAction } from "@/app/actions/page-approvals";
 import { recordPageViewAction } from "@/app/actions/page-views";
 import { placeAtAction } from "@/app/actions/places";
 import { getPageReviewAction, listTrashAction, recentSearchAction, searchAction, searchFilterOptionsAction } from "@/app/actions/pages";
@@ -32,6 +33,8 @@ export const READS = {
   backlinks: backlinksAction,
   unlinkedMentions: unlinkedMentionsAction,
   relatedPages: relatedPagesAction,
+  approvalCandidates: approvalCandidatesAction,
+  approvalHistory: approvalHistoryAction,
   pageReview: getPageReviewAction,
   usableSnippets: usableSnippetsAction,
   recordPageView: recordPageViewAction,

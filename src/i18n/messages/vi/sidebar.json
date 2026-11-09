@@ -316,7 +316,9 @@
     "limitRequestNote": "“{note}”",
     "limitRequestApprove": "Nâng lên {tokens, number}",
     "limitRequestDecline": "Từ chối",
-    "limitRequestFailed": "Không thể trả lời yêu cầu. Hãy thử lại."
+    "limitRequestFailed": "Không thể trả lời yêu cầu. Hãy thử lại.",
+    "approvalRequested": "{actor} đề nghị bạn phê duyệt trang này",
+    "approvalDecided": "{outcome, select, approved {Đã duyệt: {actor} đã đưa ra phê duyệt cuối cùng cần thiết} other {{actor} đã yêu cầu thay đổi trang này}}"
   },
   "templates": {
     "title": "Mẫu",

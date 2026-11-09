@@ -1565,5 +1565,86 @@
     "label": "Tagi",
     "pages": "{count, plural, one {# strona} few {# strony} many {# stron} other {# strony}}",
     "find": "Znajdź strony z #{tag}"
+  },
+  "approval": {
+    "menu": "Poproś o zatwierdzenie…",
+    "menuHint": "Poproś osoby o zatwierdzenie dokładnie tej wersji strony",
+    "title": "Poproś o zatwierdzenie",
+    "description": "Strona zostaje teraz zapisana jako wersja, a zatwierdzający zatwierdzają tę wersję: późniejsze zmiany nigdy nie są uznawane za zatwierdzone.",
+    "approvers": "Zatwierdzający",
+    "noPeople": "Nikt inny nie może jeszcze otworzyć tej strony. Najpierw ją udostępnij.",
+    "ruleLabel": "Zatwierdzona, gdy",
+    "rules": {
+      "all": "Zatwierdzą wszyscy",
+      "any": "Zatwierdzi jedna osoba"
+    },
+    "dueLabel": "Termin (opcjonalnie)",
+    "noteLabel": "Notatka (opcjonalnie)",
+    "notePlaceholder": "Co się zmieniło i dlaczego",
+    "replaces": "Oczekująca teraz prośba zostanie wycofana.",
+    "send": "Wyślij prośbę",
+    "sent": "Prośba wysłana",
+    "versions": {
+      "sent": "Wysłano do zatwierdzenia",
+      "approved": "Zatwierdzona"
+    },
+    "banner": {
+      "asked": "{name} prosi Cię o zatwierdzenie tej strony",
+      "someone": "Ktoś",
+      "due": "Termin: {date}",
+      "changed": "Strona zmieniła się od wysłania: zatwierdzasz wersję wysłaną {date}.",
+      "commentLabel": "Komentarz",
+      "commentPlaceholder": "Opcjonalny przy zatwierdzaniu, wymagany przy prośbie o zmiany",
+      "commentNeeded": "Najpierw napisz, co powinno się zmienić.",
+      "approve": "Zatwierdź",
+      "requestChanges": "Poproś o zmiany",
+      "seeVersion": "Zobacz wysłaną wersję"
+    },
+    "badge": {
+      "approved": "Zatwierdzona · przez {names} · {date}",
+      "changed": "Zmieniona od zatwierdzenia",
+      "open": "{rule, select, any {Czeka na zatwierdzenie} other {Czeka na zatwierdzenie · {done} z {total}}}",
+      "changesRequested": "Poproszono o zmiany",
+      "hint": "Historia zatwierdzeń"
+    },
+    "history": {
+      "title": "Zatwierdzenia",
+      "empty": "Brak próśb.",
+      "loadError": "Nie udało się wczytać zatwierdzeń.",
+      "status": {
+        "open": "Czeka",
+        "approved": "Zatwierdzona",
+        "changes_requested": "Poproszono o zmiany",
+        "withdrawn": "Wycofana"
+      },
+      "asked": "Prosi: {name}",
+      "due": "termin {date}",
+      "approvedAt": "zatwierdził(a) {date}",
+      "changesAt": "poprosił(a) o zmiany {date}",
+      "waiting": "jeszcze nie zdecydował(a)",
+      "noDecision": "nie zdecydował(a)",
+      "noAccess": "nie może już otworzyć strony",
+      "stuck": "Ktoś, kto musi zatwierdzić, nie może już otworzyć strony: wycofaj prośbę i poproś ponownie.",
+      "version": "Wysłana wersja",
+      "withdraw": "Wycofaj",
+      "askAgain": "Poproś ponownie o zatwierdzenie",
+      "someone": "Ktoś"
+    },
+    "errors": {
+      "approvers": "Wybierz od jednej do dwudziestu osób, które mogą otworzyć stronę.",
+      "rule": "Wybierz, kto musi zatwierdzić.",
+      "due": "Wybierz termin od dziś, w ciągu pięciu lat.",
+      "note": "Maksymalnie 1000 znaków.",
+      "decision": "Zatwierdź lub poproś o zmiany.",
+      "template": "Szablony i strony w nich nie są zatwierdzane.",
+      "database": "Bazy danych nie są zatwierdzane; ich wiersze i strony tak.",
+      "inTrash": "Najpierw przywróć stronę z kosza.",
+      "guest": "Goście nie mogą prosić o zatwierdzenie.",
+      "closed": "Ta prośba już nie czeka.",
+      "notApprover": "Nie poproszono Cię o zatwierdzenie tej strony.",
+      "decided": "Już podjęto decyzję.",
+      "notRequester": "Wycofać ją może tylko osoba, która prosiła, lub ktoś z pełnym dostępem.",
+      "commentNeeded": "Najpierw napisz, co powinno się zmienić."
+    }
   }
 }

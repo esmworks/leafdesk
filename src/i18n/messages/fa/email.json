@@ -318,7 +318,9 @@
     "messageFile": "یک فایل فرستاد",
     "newMessage": "پیام جدید",
     "inThread": "در یک رشته",
-    "messageReminder": "یادآوری دربارهٔ یک پیام"
+    "messageReminder": "یادآوری دربارهٔ یک پیام",
+    "approvalRequested": "{actor} از شما می‌خواهد این صفحه را تأیید کنید",
+    "approvalDecided": "{outcome, select, approved {تأیید شد: {actor} آخرین تأیید لازم را داد} other {{actor} برای این صفحه تغییر خواست}}"
   },
   "agentReply": {
     "aiOff": "نمی‌توانم پاسخ دهم: هوش مصنوعی در این فضای کاری خاموش است.",

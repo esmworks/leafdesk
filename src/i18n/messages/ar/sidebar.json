@@ -316,7 +316,9 @@
     "limitRequestNote": "«{note}»",
     "limitRequestApprove": "رفع إلى {tokens, number}",
     "limitRequestDecline": "رفض",
-    "limitRequestFailed": "تعذّر الرد على الطلب. حاول مرة أخرى."
+    "limitRequestFailed": "تعذّر الرد على الطلب. حاول مرة أخرى.",
+    "approvalRequested": "يطلب منك {actor} الموافقة على هذه الصفحة",
+    "approvalDecided": "{outcome, select, approved {تمت الموافقة: منح {actor} آخر موافقة مطلوبة} other {طلب {actor} تغييرات على هذه الصفحة}}"
   },
   "templates": {
     "title": "القوالب",

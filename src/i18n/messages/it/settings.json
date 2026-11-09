@@ -2021,7 +2021,10 @@
         "rows_merged": "Ha unito {count, plural, one {# riga} other {# righe}} a {target}",
         "publication_expiry_changed": "{change, select, removed {Ha rimosso la scadenza del link web di {target}} other {Ha fatto scadere il link web di {target} il {to}}}",
         "reported": "Un visitatore ha segnalato {target}: {reason, select, spam {spam o truffa} harmful {contenuti di odio, violenti o molesti} illegal {contenuti illegali} privacy {dati personali} copyright {diritto d'autore} other {altro}}",
-        "report_dismissed": "Ha archiviato una segnalazione su {target}"
+        "report_dismissed": "Ha archiviato una segnalazione su {target}",
+        "approval_requested": "Ha chiesto a {names} di approvare {target}",
+        "approval_decided": "{decision, select, approved {Ha approvato {target}} other {Ha chiesto modifiche a {target}}}",
+        "approval_withdrawn": "Ha ritirato la richiesta di approvazione di {target}"
       },
       "property": {
         "access_changed": "Ha cambiato chi può accedere a “{property}” in {target}",
@@ -2350,7 +2353,10 @@
         "step3": "Attiva le notifiche per questo sito.",
         "step4": "Ricarica questa pagina e attiva qui le notifiche push."
       }
-    }
+    },
+    "approvalTitle": "Approvazioni",
+    "approvalDescription": "Qualcuno ti chiede di approvare una pagina, o una tua richiesta di approvazione si conclude.",
+    "approvalChannel": "Approvazioni: {channel}"
   },
   "site": {
     "description": "Dai alle pagine pubblicate di questo spazio di lavoro un unico indirizzo leggibile, una home page e la navigazione tra di loro.",

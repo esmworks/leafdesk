@@ -1565,5 +1565,86 @@
     "label": "Tagger",
     "pages": "{count, plural, one {# side} other {# sider}}",
     "find": "Finn sider med #{tag}"
+  },
+  "approval": {
+    "menu": "Be om godkjenning…",
+    "menuHint": "Be folk godkjenne akkurat denne versjonen av siden",
+    "title": "Be om godkjenning",
+    "description": "Siden lagres nå som en versjon, og godkjennerne godkjenner den versjonen: senere endringer teller aldri som godkjent.",
+    "approvers": "Godkjennere",
+    "noPeople": "Ingen andre kan åpne siden ennå. Del den først.",
+    "ruleLabel": "Godkjent når",
+    "rules": {
+      "all": "Alle godkjenner",
+      "any": "Én godkjenner"
+    },
+    "dueLabel": "Frist (valgfri)",
+    "noteLabel": "Notat (valgfritt)",
+    "notePlaceholder": "Hva som er endret og hvorfor",
+    "replaces": "Forespørselen som venter nå, trekkes tilbake.",
+    "send": "Send forespørsel",
+    "sent": "Forespørsel sendt",
+    "versions": {
+      "sent": "Sendt til godkjenning",
+      "approved": "Godkjent"
+    },
+    "banner": {
+      "asked": "{name} ber deg godkjenne denne siden",
+      "someone": "Noen",
+      "due": "Frist {date}",
+      "changed": "Siden er endret siden den ble sendt: du godkjenner versjonen som ble sendt {date}.",
+      "commentLabel": "Kommentar",
+      "commentPlaceholder": "Valgfri for å godkjenne, påkrevd for å be om endringer",
+      "commentNeeded": "Skriv først hva som bør endres.",
+      "approve": "Godkjenn",
+      "requestChanges": "Be om endringer",
+      "seeVersion": "Se den sendte versjonen"
+    },
+    "badge": {
+      "approved": "Godkjent · av {names} · {date}",
+      "changed": "Endret etter godkjenning",
+      "open": "{rule, select, any {Venter på godkjenning} other {Venter på godkjenning · {done} av {total}}}",
+      "changesRequested": "Endringer ønsket",
+      "hint": "Godkjenningshistorikk"
+    },
+    "history": {
+      "title": "Godkjenninger",
+      "empty": "Ingen forespørsler ennå.",
+      "loadError": "Godkjenningene kunne ikke lastes inn.",
+      "status": {
+        "open": "Venter",
+        "approved": "Godkjent",
+        "changes_requested": "Endringer ønsket",
+        "withdrawn": "Trukket tilbake"
+      },
+      "asked": "Forespurt av {name}",
+      "due": "frist {date}",
+      "approvedAt": "godkjente {date}",
+      "changesAt": "ba om endringer {date}",
+      "waiting": "har ikke bestemt seg",
+      "noDecision": "bestemte seg ikke",
+      "noAccess": "kan ikke lenger åpne siden",
+      "stuck": "Noen som må godkjenne, kan ikke lenger åpne siden: trekk tilbake forespørselen og spør på nytt.",
+      "version": "Sendt versjon",
+      "withdraw": "Trekk tilbake",
+      "askAgain": "Be om godkjenning på nytt",
+      "someone": "Noen"
+    },
+    "errors": {
+      "approvers": "Velg én til tjue personer som kan åpne siden.",
+      "rule": "Velg hvem som må godkjenne.",
+      "due": "Velg en frist fra i dag, innen fem år.",
+      "note": "Høyst 1 000 tegn.",
+      "decision": "Godkjenn eller be om endringer.",
+      "template": "Maler og sidene i dem godkjennes ikke.",
+      "database": "Databaser godkjennes ikke; radene og sidene deres gjør det.",
+      "inTrash": "Gjenopprett siden fra papirkurven først.",
+      "guest": "Gjester kan ikke be om godkjenning.",
+      "closed": "Denne forespørselen venter ikke lenger.",
+      "notApprover": "Du ble ikke bedt om å godkjenne denne siden.",
+      "decided": "Du har allerede bestemt deg.",
+      "notRequester": "Bare den som spurte, eller noen med full tilgang, kan trekke den tilbake.",
+      "commentNeeded": "Skriv først hva som bør endres."
+    }
   }
 }

@@ -2021,7 +2021,10 @@
         "rows_merged": "{count, plural, one {# ردیف} other {# ردیف}} را در {target} ادغام کرد",
         "publication_expiry_changed": "{change, select, removed {انقضای پیوند وب {target} را برداشت} other {پیوند وب {target} را طوری تنظیم کرد که در {to} از کار بیفتد}}",
         "reported": "یک بازدیدکننده {target} را گزارش کرد: {reason, select, spam {هرزنامه یا کلاهبرداری} harmful {محتوای نفرت‌آمیز، خشن یا آزاردهنده} illegal {محتوای غیرقانونی} privacy {اطلاعات شخصی} copyright {حق نشر} other {چیز دیگر}}",
-        "report_dismissed": "گزارشی دربارهٔ {target} را رد کرد"
+        "report_dismissed": "گزارشی دربارهٔ {target} را رد کرد",
+        "approval_requested": "از {names} خواست {target} را تأیید کنند",
+        "approval_decided": "{decision, select, approved {{target} را تأیید کرد} other {برای {target} تغییر خواست}}",
+        "approval_withdrawn": "درخواست تأیید {target} را پس گرفت"
       },
       "property": {
         "access_changed": "دسترسی به «{property}» در {target} را تغییر داد",
@@ -2350,7 +2353,10 @@
         "step3": "اعلان‌ها را برای این سایت روشن کنید.",
         "step4": "این صفحه را دوباره بارگیری کنید و اعلان‌های فوری را اینجا روشن کنید."
       }
-    }
+    },
+    "approvalTitle": "تأییدها",
+    "approvalDescription": "کسی از شما می‌خواهد صفحه‌ای را تأیید کنید، یا یکی از درخواست‌های تأیید شما به پایان می‌رسد.",
+    "approvalChannel": "تأییدها: {channel}"
   },
   "site": {
     "description": "به صفحه‌های منتشرشده این فضای کاری یک نشانی خوانا، یک صفحه اصلی و ناوبری بین آن‌ها بدهید.",

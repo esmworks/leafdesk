@@ -2021,7 +2021,10 @@
         "rows_merged": "Scalono {count, plural, one {# wiersz} few {# wiersze} many {# wierszy} other {# wiersza}} z {target}",
         "publication_expiry_changed": "{change, select, removed {Usunięto wygaśnięcie linku internetowego {target}} other {Ustawiono wygaśnięcie linku internetowego {target} na {to}}}",
         "reported": "Odwiedzający zgłosił {target}: {reason, select, spam {spam lub oszustwo} harmful {treści nienawistne, brutalne lub nękające} illegal {treści nielegalne} privacy {dane osobowe} copyright {prawa autorskie} other {coś innego}}",
-        "report_dismissed": "Odrzucono zgłoszenie dotyczące {target}"
+        "report_dismissed": "Odrzucono zgłoszenie dotyczące {target}",
+        "approval_requested": "Poprosił(a) {names} o zatwierdzenie {target}",
+        "approval_decided": "{decision, select, approved {Zatwierdził(a) {target}} other {Poprosił(a) o zmiany w {target}}}",
+        "approval_withdrawn": "Wycofał(a) prośbę o zatwierdzenie {target}"
       },
       "property": {
         "access_changed": "Zmieniono, kto ma dostęp do „{property}” w {target}",
@@ -2350,7 +2353,10 @@
         "step3": "Włącz powiadomienia dla tej witryny.",
         "step4": "Odśwież tę stronę i włącz tutaj powiadomienia push."
       }
-    }
+    },
+    "approvalTitle": "Zatwierdzenia",
+    "approvalDescription": "Ktoś prosi Cię o zatwierdzenie strony albo Twoja prośba o zatwierdzenie się kończy.",
+    "approvalChannel": "Zatwierdzenia: {channel}"
   },
   "site": {
     "description": "Nadaj opublikowanym stronom tego obszaru roboczego jeden czytelny adres, stronę główną i nawigację między nimi.",

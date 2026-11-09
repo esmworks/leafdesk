@@ -318,7 +318,9 @@
     "messageFile": "Mengirim file",
     "newMessage": "Pesan baru",
     "inThread": "Di utas",
-    "messageReminder": "Pengingat tentang pesan"
+    "messageReminder": "Pengingat tentang pesan",
+    "approvalRequested": "{actor} meminta Anda menyetujui halaman ini",
+    "approvalDecided": "{outcome, select, approved {Disetujui: {actor} memberi persetujuan terakhir yang diperlukan} other {{actor} meminta perubahan pada halaman ini}}"
   },
   "agentReply": {
     "aiOff": "Saya tidak dapat menjawab: AI dimatikan di ruang kerja ini.",
