@@ -18,7 +18,8 @@
     "event": "Eventos da agenda",
     "meeting": "Reuniões",
     "task": "Tarefas",
-    "reminder": "Lembretes"
+    "reminder": "Lembretes",
+    "block": "Tempo planejado"
   },
   "allDay": "Dia inteiro",
   "from": "A partir das {time}",
@@ -29,5 +30,43 @@
     "fixed": "Não é possível mover para aí",
     "noAccess": "Você não pode alterar isto",
     "failed": "Não foi possível mover. Tente novamente."
+  },
+  "durationHours": "{hours} h",
+  "durationMinutes": "{minutes} min",
+  "durationBoth": "{hours} h {minutes} min",
+  "toPlan": {
+    "title": "A planejar",
+    "toggle": "Tarefas a planejar",
+    "help": "Arraste uma tarefa para a semana ou use Planejar tempo.",
+    "filter": "Filtrar tarefas",
+    "empty": "Nenhuma tarefa aberta",
+    "noMatch": "Nenhuma tarefa corresponde",
+    "planned": "{duration} planejado",
+    "planTime": "Planejar tempo",
+    "couldNotLoad": "Não foi possível carregar suas tarefas"
+  },
+  "planDialog": {
+    "title": "Planejar tempo",
+    "day": "Dia",
+    "start": "Início",
+    "length": "Duração",
+    "plan": "Planejar"
+  },
+  "blockMenu": {
+    "more": "Mais ações",
+    "openTask": "Abrir tarefa",
+    "markDone": "Marcar tarefa como concluída",
+    "remove": "Remover bloco",
+    "resize": "Arraste para mudar a duração"
+  },
+  "blockErrors": {
+    "notFound": "Esta tarefa não pode mais ser planejada",
+    "noAccess": "Você não pode mais abrir esta tarefa",
+    "tooShort": "O tempo planejado é de pelo menos 15 minutos",
+    "tooLong": "O tempo planejado é de no máximo 12 horas",
+    "invalid": "Escolha um dia e um horário de início",
+    "notTask": "Esta não é uma das suas tarefas",
+    "tooMany": "Esta tarefa já tem todo o tempo planejado que comporta",
+    "failed": "Não foi possível alterar o tempo planejado. Tente de novo."
   }
 }

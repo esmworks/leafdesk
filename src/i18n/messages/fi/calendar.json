@@ -18,7 +18,8 @@
     "event": "Kalenteritapahtumat",
     "meeting": "Kokoukset",
     "task": "Tehtävät",
-    "reminder": "Muistutukset"
+    "reminder": "Muistutukset",
+    "block": "Suunniteltu aika"
   },
   "allDay": "Koko päivän",
   "from": "Klo {time} alkaen",
@@ -29,5 +30,43 @@
     "fixed": "Tätä ei voi siirtää sinne",
     "noAccess": "Et voi muuttaa tätä",
     "failed": "Siirto epäonnistui. Yritä uudelleen."
+  },
+  "durationHours": "{hours} h",
+  "durationMinutes": "{minutes} min",
+  "durationBoth": "{hours} h {minutes} min",
+  "toPlan": {
+    "title": "Suunniteltavat",
+    "toggle": "Suunniteltavat tehtävät",
+    "help": "Vedä tehtävä viikolle tai käytä Suunnittele aika -toimintoa.",
+    "filter": "Suodata tehtäviä",
+    "empty": "Ei avoimia tehtäviä",
+    "noMatch": "Mikään tehtävä ei vastaa",
+    "planned": "{duration} suunniteltu",
+    "planTime": "Suunnittele aika",
+    "couldNotLoad": "Tehtäviäsi ei voitu ladata"
+  },
+  "planDialog": {
+    "title": "Suunnittele aika",
+    "day": "Päivä",
+    "start": "Alku",
+    "length": "Kesto",
+    "plan": "Suunnittele"
+  },
+  "blockMenu": {
+    "more": "Lisää toimintoja",
+    "openTask": "Avaa tehtävä",
+    "markDone": "Merkitse tehtävä valmiiksi",
+    "remove": "Poista lohko",
+    "resize": "Muuta kestoa vetämällä"
+  },
+  "blockErrors": {
+    "notFound": "Tätä tehtävää ei voi enää suunnitella",
+    "noAccess": "Et voi enää avata tätä tehtävää",
+    "tooShort": "Suunniteltu aika on vähintään 15 minuuttia",
+    "tooLong": "Suunniteltu aika on enintään 12 tuntia",
+    "invalid": "Valitse päivä ja alkamisaika",
+    "notTask": "Tämä ei ole yksi tehtävistäsi",
+    "tooMany": "Tälle tehtävälle on jo suunniteltu niin paljon aikaa kuin mahdollista",
+    "failed": "Suunniteltua aikaa ei voitu muuttaa. Yritä uudelleen."
   }
 }

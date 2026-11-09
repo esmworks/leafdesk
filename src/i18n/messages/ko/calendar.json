@@ -18,7 +18,8 @@
     "event": "캘린더 일정",
     "meeting": "회의",
     "task": "작업",
-    "reminder": "리마인더"
+    "reminder": "리마인더",
+    "block": "계획한 시간"
   },
   "allDay": "종일",
   "from": "{time}부터",
@@ -29,5 +30,43 @@
     "fixed": "이 항목은 그곳으로 옮길 수 없습니다",
     "noAccess": "이 항목을 변경할 수 없습니다",
     "failed": "옮기지 못했습니다. 다시 시도하세요."
+  },
+  "durationHours": "{hours}시간",
+  "durationMinutes": "{minutes}분",
+  "durationBoth": "{hours}시간 {minutes}분",
+  "toPlan": {
+    "title": "계획할 작업",
+    "toggle": "계획할 작업 목록",
+    "help": "작업을 주간으로 끌어 놓거나 시간 계획을 사용하세요.",
+    "filter": "작업 필터",
+    "empty": "열린 작업이 없습니다",
+    "noMatch": "일치하는 작업이 없습니다",
+    "planned": "{duration} 계획됨",
+    "planTime": "시간 계획",
+    "couldNotLoad": "작업을 불러오지 못했습니다"
+  },
+  "planDialog": {
+    "title": "시간 계획",
+    "day": "날짜",
+    "start": "시작",
+    "length": "길이",
+    "plan": "계획"
+  },
+  "blockMenu": {
+    "more": "추가 작업",
+    "openTask": "작업 열기",
+    "markDone": "작업 완료로 표시",
+    "remove": "블록 제거",
+    "resize": "끌어서 길이 변경"
+  },
+  "blockErrors": {
+    "notFound": "이 작업은 더 이상 계획할 수 없습니다",
+    "noAccess": "이 작업을 더 이상 열 수 없습니다",
+    "tooShort": "계획한 시간은 최소 15분입니다",
+    "tooLong": "계획한 시간은 최대 12시간입니다",
+    "invalid": "날짜와 시작 시간을 선택하세요",
+    "notTask": "내 작업이 아닙니다",
+    "tooMany": "이 작업에는 더 이상 시간을 계획할 수 없습니다",
+    "failed": "계획한 시간을 변경하지 못했습니다. 다시 시도하세요."
   }
 }

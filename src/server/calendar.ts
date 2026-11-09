@@ -8,7 +8,7 @@ import type { GcalQuery } from "@/lib/gcal-sync";
 import type { IcalMapping } from "@/lib/ical-sync";
 import { isBlockId, MENTION, mentionProps, newMentionId } from "@/lib/mentions";
 import { atLeast } from "@/lib/property-access";
-import { dayNumber, dayString, localDay } from "@/lib/time-zone";
+import { dayNumber, dayString, localDay, zonedInstant } from "@/lib/time-zone";
 import { AccessError, childVisibleTo, pageVisibleTo, requireMembership, requirePageAccess } from "@/server/access";
 import { openAssignedRows } from "@/server/assigned";
 import { getCollab } from "@/server/collab/bridge";
@@ -18,6 +18,7 @@ import { isMeetingError, rescheduleMeeting } from "@/server/meetings";
 import { listNotifications, moveReminder } from "@/server/notifications";
 import { openPageTasks } from "@/server/page-tasks";
 import { propertyAccessFor } from "@/server/property-access";
+import { moveWorkBlock, WorkBlockError, workBlockItems } from "@/server/work-blocks";
 
 const addDays = (day: string, n: number) => dayString(dayNumber(day) + n);
 /** What moves to any day or time: tasks, and events of calendars written back to. */
@@ -34,7 +35,8 @@ const REMINDERS_READ = 500;
  * calendar addresses, server/gcal-sync and ical-sync) whose database and When they may see, the
  * meeting notes they may open, planned or held, the open rows and to-dos assigned to them
  * that have a date (as My tasks lists them), and the reminders agents and the AI chat set them
- * that haven't come yet (theirs alone, as the inbox's Scheduled tab lists them). In the order they start.
+ * that haven't come yet (theirs alone, as the inbox's Scheduled tab lists them), and the time they
+ * planned for their tasks (server/work-blocks.ts, theirs alone). In the order they start.
  */
 export async function calendarItems(userId: string, workspaceId: string, input: { from: string; to: string; timeZone: string }): Promise<CalendarItem[]> {
   await requireMembership(userId, workspaceId);
@@ -43,12 +45,13 @@ export async function calendarItems(userId: string, workspaceId: string, input: 
     throw new Error("A calendar reads whole days, at most CALENDAR_MAX_DAYS of them");
   }
   const inRange = (date: string | null): date is string => !!date && dateOverlaps(date, from, to, timeZone);
-  const [events, meetings, rows, tasks, reminders] = await Promise.all([
+  const [events, meetings, rows, tasks, reminders, blocks] = await Promise.all([
     syncedEvents(userId, workspaceId, from, to),
     meetingItems(userId, workspaceId, from, to),
     openAssignedRows(userId, workspaceId, timeZone),
     openPageTasks(userId, workspaceId, timeZone),
     listNotifications(userId, { workspaceId, kinds: ["ai_reminder"], pending: true, limit: REMINDERS_READ }),
+    workBlockItems(userId, workspaceId, new Date(zonedInstant(dayNumber(from), 0, timeZone)), new Date(zonedInstant(dayNumber(to) + 1, 0, timeZone))),
   ]);
   const items: CalendarItem[] = [
     ...events,
@@ -73,6 +76,7 @@ export async function calendarItems(userId: string, workspaceId: string, input: 
           ]
         : [],
     ),
+    ...blocks,
   ];
   const start = (item: CalendarItem) => dateSortKey(item.date, timeZone) ?? 0;
   return items.filter((item) => inRange(item.date)).sort((a, b) => start(a) - start(b));
@@ -208,7 +212,8 @@ export class CalendarMoveError extends Error {
  * to-do's date mention, whose time is a reminder on its day (timedOnItsDay in page-tasks.ts):
  * dropped on a time it gets one then, dropped on a day one it had on its day goes, and one on
  * another day moves along; a reminder still to come, to another time (the person's own, at most
- * 30 days ahead). `timeZone` is the person's, whose days and clock the drop was on.
+ * 30 days ahead); time planned for a task, to new times or a new length (the person's own, a
+ * range of times within its limits). `timeZone` is the person's, whose days and clock the drop was on.
  */
 export async function moveCalendarItem(userId: string, workspaceId: string, id: string, value: string, timeZone: string): Promise<void> {
   await requireMembership(userId, workspaceId);
@@ -228,6 +233,10 @@ export async function moveCalendarItem(userId: string, workspaceId: string, id: 
       if (await moveReminder(userId, first, until, { workspaceId })) return;
       throw new CalendarMoveError("notFound");
     }
+    if (kind === "block" && first) {
+      if (!parts.time || !parts.end) throw new CalendarMoveError("fixed");
+      return await moveWorkBlock(userId, workspaceId, first, new Date(parts.start), new Date(parts.end));
+    }
     if (kind === "meeting" && second) {
       if (!parts.time) throw new CalendarMoveError("fixed");
       await pageInWorkspace(userId, workspaceId, first);
@@ -235,6 +244,7 @@ export async function moveCalendarItem(userId: string, workspaceId: string, id: 
     }
   } catch (error) {
     if (error instanceof AccessError) throw new CalendarMoveError("noAccess");
+    if (error instanceof WorkBlockError) throw new CalendarMoveError(error.code === "notFound" || error.code === "noAccess" ? error.code : "fixed");
     if (isMeetingError(error)) throw new CalendarMoveError(error.code === "noAccess" ? "noAccess" : error.code === "notFound" ? "notFound" : "fixed");
     throw error;
   }

@@ -18,7 +18,8 @@
     "event": "Acara kalender",
     "meeting": "Rapat",
     "task": "Tugas",
-    "reminder": "Pengingat"
+    "reminder": "Pengingat",
+    "block": "Waktu terencana"
   },
   "allDay": "Sepanjang hari",
   "from": "Mulai {time}",
@@ -29,5 +30,43 @@
     "fixed": "Ini tidak bisa dipindahkan ke sana",
     "noAccess": "Anda tidak dapat mengubah ini",
     "failed": "Gagal memindahkan. Coba lagi."
+  },
+  "durationHours": "{hours} j",
+  "durationMinutes": "{minutes} mnt",
+  "durationBoth": "{hours} j {minutes} mnt",
+  "toPlan": {
+    "title": "Untuk direncanakan",
+    "toggle": "Tugas untuk direncanakan",
+    "help": "Seret tugas ke minggu ini, atau gunakan Rencanakan waktu.",
+    "filter": "Filter tugas",
+    "empty": "Tidak ada tugas terbuka",
+    "noMatch": "Tidak ada tugas yang cocok",
+    "planned": "{duration} direncanakan",
+    "planTime": "Rencanakan waktu",
+    "couldNotLoad": "Tidak dapat memuat tugas Anda"
+  },
+  "planDialog": {
+    "title": "Rencanakan waktu",
+    "day": "Hari",
+    "start": "Mulai",
+    "length": "Durasi",
+    "plan": "Rencanakan"
+  },
+  "blockMenu": {
+    "more": "Tindakan lainnya",
+    "openTask": "Buka tugas",
+    "markDone": "Tandai tugas selesai",
+    "remove": "Hapus blok",
+    "resize": "Seret untuk mengubah durasi"
+  },
+  "blockErrors": {
+    "notFound": "Tugas ini tidak bisa direncanakan lagi",
+    "noAccess": "Anda tidak dapat membuka tugas ini lagi",
+    "tooShort": "Waktu terencana minimal 15 menit",
+    "tooLong": "Waktu terencana maksimal 12 jam",
+    "invalid": "Pilih hari dan waktu mulai",
+    "notTask": "Ini bukan salah satu tugas Anda",
+    "tooMany": "Tugas ini sudah memiliki waktu terencana sebanyak yang bisa ditampungnya",
+    "failed": "Tidak dapat mengubah waktu terencana. Coba lagi."
   }
 }

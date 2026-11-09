@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { boolean, date, index, integer, jsonb, pgTable, primaryKey, text, timestamp } from "drizzle-orm/pg-core";
+import { boolean, check, date, index, integer, jsonb, pgTable, primaryKey, text, timestamp } from "drizzle-orm/pg-core";
 import type { Attendee } from "@/lib/meetings";
 import type { SiteHeaderLink, SiteTheme } from "@/lib/site";
 import type { WebLinkStatus } from "@/lib/web-links";
@@ -62,6 +62,41 @@ export const pageTask = pgTable(
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [primaryKey({ columns: [t.pageId, t.blockId, t.userId] }), index("page_task_user_idx").on(t.userId, t.updatedAt)],
+);
+
+/**
+ * Time a person blocked out on their Calendar for one of their tasks (server/work-blocks.ts): a
+ * row (`blockId` null) or a to-do of a page (its block id, as in `page_task`). Their own plan:
+ * nobody else reads it. A task may have several; the task's own date stays as it is. `title` is the
+ * task's title when it was planned, shown once a ticked to-do has left `page_task`. Whether its page
+ * is in the trash or still theirs to open is worked out from the page when it is listed.
+ */
+export const workBlock = pgTable(
+  "work_block",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspace.id, { onDelete: "cascade" }),
+    pageId: text("page_id")
+      .notNull()
+      .references(() => page.id, { onDelete: "cascade" }),
+    blockId: text("block_id"),
+    title: text("title").notNull().default(""),
+    startsAt: timestamp("starts_at", { withTimezone: true }).notNull(),
+    endsAt: timestamp("ends_at", { withTimezone: true }).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    index("work_block_user_idx").on(t.userId, t.startsAt),
+    index("work_block_page_idx").on(t.pageId),
+    check("work_block_length_check", sql`${t.endsAt} >= ${t.startsAt} + interval '15 minutes' and ${t.endsAt} <= ${t.startsAt} + interval '12 hours'`),
+  ],
 );
 
 /**

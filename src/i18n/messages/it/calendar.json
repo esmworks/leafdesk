@@ -18,7 +18,8 @@
     "event": "Eventi del calendario",
     "meeting": "Riunioni",
     "task": "Attività",
-    "reminder": "Promemoria"
+    "reminder": "Promemoria",
+    "block": "Tempo pianificato"
   },
   "allDay": "Tutto il giorno",
   "from": "Dalle {time}",
@@ -29,5 +30,43 @@
     "fixed": "Non si può spostare lì",
     "noAccess": "Non puoi modificarlo",
     "failed": "Spostamento non riuscito. Riprova."
+  },
+  "durationHours": "{hours} h",
+  "durationMinutes": "{minutes} min",
+  "durationBoth": "{hours} h {minutes} min",
+  "toPlan": {
+    "title": "Da pianificare",
+    "toggle": "Attività da pianificare",
+    "help": "Trascina un’attività sulla settimana oppure usa Pianifica tempo.",
+    "filter": "Filtra attività",
+    "empty": "Nessuna attività aperta",
+    "noMatch": "Nessuna attività corrisponde",
+    "planned": "{duration} pianificati",
+    "planTime": "Pianifica tempo",
+    "couldNotLoad": "Impossibile caricare le tue attività"
+  },
+  "planDialog": {
+    "title": "Pianifica tempo",
+    "day": "Giorno",
+    "start": "Inizio",
+    "length": "Durata",
+    "plan": "Pianifica"
+  },
+  "blockMenu": {
+    "more": "Altre azioni",
+    "openTask": "Apri attività",
+    "markDone": "Segna attività come completata",
+    "remove": "Rimuovi blocco",
+    "resize": "Trascina per cambiare la durata"
+  },
+  "blockErrors": {
+    "notFound": "Questa attività non può più essere pianificata",
+    "noAccess": "Non puoi più aprire questa attività",
+    "tooShort": "Il tempo pianificato è di almeno 15 minuti",
+    "tooLong": "Il tempo pianificato è al massimo di 12 ore",
+    "invalid": "Scegli un giorno e un’ora di inizio",
+    "notTask": "Questa non è una delle tue attività",
+    "tooMany": "Questa attività ha già tutto il tempo pianificato possibile",
+    "failed": "Impossibile modificare il tempo pianificato. Riprova."
   }
 }

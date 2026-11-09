@@ -18,7 +18,8 @@
     "event": "Kalenderhändelser",
     "meeting": "Möten",
     "task": "Uppgifter",
-    "reminder": "Påminnelser"
+    "reminder": "Påminnelser",
+    "block": "Planerad tid"
   },
   "allDay": "Heldag",
   "from": "Från {time}",
@@ -29,5 +30,43 @@
     "fixed": "Det går inte att flytta dit",
     "noAccess": "Du kan inte ändra det här",
     "failed": "Kunde inte flytta. Försök igen."
+  },
+  "durationHours": "{hours} h",
+  "durationMinutes": "{minutes} min",
+  "durationBoth": "{hours} h {minutes} min",
+  "toPlan": {
+    "title": "Att planera",
+    "toggle": "Uppgifter att planera",
+    "help": "Dra en uppgift till veckan, eller använd Planera tid.",
+    "filter": "Filtrera uppgifter",
+    "empty": "Inga öppna uppgifter",
+    "noMatch": "Inga uppgifter matchar",
+    "planned": "{duration} planerat",
+    "planTime": "Planera tid",
+    "couldNotLoad": "Dina uppgifter kunde inte läsas in"
+  },
+  "planDialog": {
+    "title": "Planera tid",
+    "day": "Dag",
+    "start": "Start",
+    "length": "Längd",
+    "plan": "Planera"
+  },
+  "blockMenu": {
+    "more": "Fler åtgärder",
+    "openTask": "Öppna uppgift",
+    "markDone": "Markera uppgift som klar",
+    "remove": "Ta bort block",
+    "resize": "Dra för att ändra längden"
+  },
+  "blockErrors": {
+    "notFound": "Den här uppgiften kan inte planeras längre",
+    "noAccess": "Du kan inte längre öppna den här uppgiften",
+    "tooShort": "Planerad tid är minst 15 minuter",
+    "tooLong": "Planerad tid är högst 12 timmar",
+    "invalid": "Välj en dag och en starttid",
+    "notTask": "Det här är inte en av dina uppgifter",
+    "tooMany": "Den här uppgiften har redan så mycket planerad tid som den kan ha",
+    "failed": "Den planerade tiden kunde inte ändras. Försök igen."
   }
 }
