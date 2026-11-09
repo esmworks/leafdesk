@@ -228,6 +228,7 @@
     "heirLabel": "Pagina’s overdragen aan",
     "heirHint": "Pagina’s die alleen {name} kon beheren, en teamruimtes die niemand anders beheert, gaan naar de persoon die je kiest.",
     "heirCount": "{count, plural, =0 {{name} beheert op dit moment geen pagina’s alleen. Teamruimtes die niemand anders beheert, gaan naar de persoon die je kiest.} one {# pagina die alleen {name} kon beheren, gaat naar de persoon die je kiest, samen met teamruimtes die niemand anders beheert.} other {# pagina’s die alleen {name} kon beheren, gaan naar de persoon die je kiest, samen met teamruimtes die niemand anders beheert.}}",
+    "heirStops": "Automatiseringen, planningen en synchronisaties die als {name} draaien: {count}. Ze worden uitgezet en draaien weer zodra iemand die ze beheert ze weer aanzet.",
     "heirYou": "{name} (jij)"
   },
   "guests": {

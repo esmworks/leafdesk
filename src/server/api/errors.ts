@@ -10,7 +10,7 @@ import { TeamspaceError } from "@/lib/teamspace-error";
 import { PAGE_LOCKED_MESSAGE } from "@/lib/page-lock";
 import { PendingChangeError } from "@/server/pending-changes";
 import { SequenceError } from "@/server/sequences/manage";
-import { isPageSaveFailed } from "@/server/collab/bridge";
+import { isPageBusy, isPageSaveFailed } from "@/server/collab/bridge";
 import { WebClipError } from "@/server/web-clip-error";
 
 /** Every error code the REST API answers with, for the docs. */
@@ -68,6 +68,10 @@ export const API_ERROR_CODES = {
   version_conflict: {
     status: 409,
     description: "The page's body changed since `expected_version` was read, and nothing was written. Read the page again and make the change on its current body.",
+  },
+  page_busy: {
+    status: 409,
+    description: "People kept editing the page's body while the change was made, and nothing was written. Send it again in a moment.",
   },
   idempotency_conflict: {
     status: 409,
@@ -180,6 +184,7 @@ export function apiErrorFor(error: unknown): ApiError {
   if (error instanceof AiError) return apiErrorForAi(error);
   // The collab service logged the database's refusal already; its text can name tables and constraints.
   if (isPageSaveFailed(error)) return new ApiError(500, "internal_error", "The page couldn't be saved, so this change isn't stored. Try again later.");
+  if (isPageBusy(error)) return new ApiError(409, "page_busy", "People kept editing the page while this change was made, so it isn't stored. Try again in a moment.");
   if (error instanceof CommentError) {
     if (error.code === "notFound") return new ApiError(404, "not_found", error.message);
     if (error.code === "notAllowed") return new ApiError(403, "forbidden", error.message);

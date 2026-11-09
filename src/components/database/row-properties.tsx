@@ -174,11 +174,15 @@ export function RowProperties({
   useEffect(() => () => void (timer.current && clearTimeout(timer.current)), []);
 
   const setValue = async (propertyId: string, value: unknown) => {
+    // A list edit (tags, people, linked rows, files) says what it started from: the server keeps
+    // what others changed in the list meanwhile (lib/list-merge).
+    const shown = propertyId in pending ? pending[propertyId].value : data?.values[propertyId];
+    const base = Array.isArray(value) || Array.isArray(shown) ? { [propertyId]: shown ?? null } : undefined;
     const v = ++version.current;
     setPending((p) => ({ ...p, [propertyId]: { value, version: v } }));
     // Marking a repeating row done says where its next copy goes (row-repeat.tsx).
     const note = data ? repeatNote(locale, data.repeat ?? undefined, data.properties, data.values, { [propertyId]: value }) : null;
-    const res = await safe(updateRowPropertiesAction(rowId, { [propertyId]: value }));
+    const res = await safe(updateRowPropertiesAction(rowId, { [propertyId]: value }, base));
     if (!res.ok) setError(res.error);
     else setError(null);
     if (res.ok) void note?.then((words) => words && showToast({ message: words(tRepeat) }));

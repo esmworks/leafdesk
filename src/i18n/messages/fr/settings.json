@@ -228,6 +228,7 @@
     "heirLabel": "Transférer ses pages à",
     "heirHint": "Les pages que {name} était seul à pouvoir gérer, et les espaces d’équipe que personne d’autre ne gère, reviennent à la personne choisie.",
     "heirCount": "{count, plural, =0 {{name} ne gère seul aucune page pour l’instant. Les espaces d’équipe que personne d’autre ne gère reviennent à la personne choisie.} one {# page que {name} était seul à pouvoir gérer revient à la personne choisie, avec les espaces d’équipe que personne d’autre ne gère.} other {# pages que {name} était seul à pouvoir gérer reviennent à la personne choisie, avec les espaces d’équipe que personne d’autre ne gère.}}",
+    "heirStops": "Automatisations, planifications et synchronisations exécutées en tant que {name} : {count}. Elles sont désactivées et reprennent quand une personne qui les gère les réactive.",
     "heirYou": "{name} (vous)"
   },
   "guests": {

@@ -91,6 +91,7 @@ import { TagMarks } from "./tags";
 import { editorShortcuts } from "./editor-shortcuts";
 import { LinkCopiedNotice } from "./link-copied-notice";
 import { lazyPart } from "@/components/lazy-part";
+import { opensAfterSpace } from "./opens-after-space";
 
 /** The page's floating outline, loaded once the page has a place for it (see floating-outline.tsx). */
 const FloatingOutline = lazyPart(() => import("./floating-outline").then((m) => m.default));
@@ -628,6 +629,9 @@ function SlashMenu({
   return (
     <SuggestionMenuController
       triggerCharacter="/"
+      // At the start of a line or after a space only: "km/h" and "11/09" stay text, and Enter
+      // after them starts a new line instead of picking a block.
+      shouldOpen={opensAfterSpace}
       getItems={async (query) => {
         // A space right after the slash means it was just a slash: the menu closes.
         if (query.startsWith(" ")) {

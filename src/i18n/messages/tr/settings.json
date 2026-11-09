@@ -228,6 +228,7 @@
     "heirLabel": "Sayfalarını devralacak kişi",
     "heirHint": "Yalnızca {name} kişisinin yönetebildiği sayfalar ve başka kimsenin yönetmediği ekip alanları seçtiğiniz kişiye geçer.",
     "heirCount": "{count, plural, =0 {{name} şu anda tek başına yönettiği bir sayfaya sahip değil. Başka kimsenin yönetmediği ekip alanları seçtiğiniz kişiye geçer.} one {Yalnızca {name} kişisinin yönetebildiği # sayfa, başka kimsenin yönetmediği ekip alanlarıyla birlikte seçtiğiniz kişiye geçer.} other {Yalnızca {name} kişisinin yönetebildiği # sayfa, başka kimsenin yönetmediği ekip alanlarıyla birlikte seçtiğiniz kişiye geçer.}}",
+    "heirStops": "{name} adına çalışan otomasyon, zamanlama ve eşitlemeler: {count}. Kapatılırlar; onları yöneten biri yeniden açtığında tekrar çalışırlar.",
     "heirYou": "{name} (siz)"
   },
   "guests": {

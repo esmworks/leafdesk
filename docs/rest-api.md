@@ -80,7 +80,9 @@ Filter ops: `contains`, `does_not_contain`, `equals`, `not_equals`, `is_any_of` 
   a filter the query may be left out. `GET /pages/{id}`
   gives the body's `version`, and `PATCH` takes it back as `expected_version`: when the body
   changed since, nothing is written and the answer is `409` `version_conflict` with the current
-  version. Body writes report the new `version`.
+  version. Without `expected_version` the change is made on the body as it is when written: when
+  someone edits the page meanwhile it is made again on their edit, and after a few such tries the
+  answer is `409` `page_busy` with nothing written. Body writes report the new `version`.
 - **Databases and rows:** `GET /databases/{id}` (schema), `POST /databases/{id}/query` (filters,
   sorts, a saved view, cursor pagination with `next_cursor` and `has_more`, `properties` to narrow
   each row), `POST /databases/{id}/rows`, `POST

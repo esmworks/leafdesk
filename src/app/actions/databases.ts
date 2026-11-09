@@ -166,8 +166,10 @@ export async function renameRowAction(rowId: string, title: string) {
   return run((userId) => pages.renamePage({ userId }, rowId, title));
 }
 
-export async function updateRowPropertiesAction(rowId: string, patch: Record<string, unknown>) {
-  return run((userId) => databases.updateRowProperties(userId, rowId, patch));
+/** `base`: the list values the edit started from, merged with others' changes (server updateRowProperties). */
+export async function updateRowPropertiesAction(rowId: string, patch: Record<string, unknown>, base?: Record<string, unknown>) {
+  const from = base && typeof base === "object" && !Array.isArray(base) ? base : undefined;
+  return run((userId) => databases.updateRowProperties(userId, rowId, patch, { base: from }));
 }
 
 /** How a row comes round again once done (server/row-repeat); null stops it. */
