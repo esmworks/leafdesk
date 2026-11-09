@@ -102,6 +102,10 @@ const texts: Record<string, string> = {
   schedulePaused: "It failed {count} times in a row",
   chatWaitingTitle: "Your AI chat is waiting for you",
   chatWaiting: "It needs your answer to go on",
+  quizAssigned: "{actor} asked you to take the quiz",
+  quizAssignedDue: "{actor} asked you to take the quiz by {date}",
+  quizPassed: "{actor} passed the quiz with {score}%",
+  quizFailed: "{actor} ran out of attempts at the quiz ({score}%)",
 };
 const t = (key: string, values: Record<string, string | number> = {}) => texts[key].replace(/\{(\w+)\}/g, (_, name: string) => String(values[name] ?? ""));
 const date = (iso: string) => `on ${iso}`;
@@ -141,6 +145,13 @@ describe("pushPayload", () => {
     expect(pushPayload(item({ kind: "comment", pageTitle: "  " }), t, date)).toMatchObject({ title: "Untitled", body: "Ayşe commented in a thread you're in" });
     expect(pushPayload(item({ kind: "page_shared", actorName: null }), t, date)?.body).toBe("Someone shared this page with you");
     expect(pushPayload(item({ kind: "reminder", actorName: null, reminderDate: "2026-10-09" }), t, date)?.body).toBe("Reminder: on 2026-10-09");
+  });
+
+  it("tells of quizzes asked and finished, opening the page", () => {
+    expect(pushPayload(item({ kind: "quiz_assigned" }), t, date)).toMatchObject({ title: "Roadmap", body: "Ayşe asked you to take the quiz", url: "/w/ws1/p/p1" });
+    expect(pushPayload(item({ kind: "quiz_assigned", reminderDate: "2026-11-20" }), t, date)?.body).toBe("Ayşe asked you to take the quiz by on 2026-11-20");
+    expect(pushPayload(item({ kind: "quiz_finished", automationMessage: "passed:90" }), t, date)?.body).toBe("Ayşe passed the quiz with 90%");
+    expect(pushPayload(item({ kind: "quiz_finished", automationMessage: "failed:40" }), t, date)?.body).toBe("Ayşe ran out of attempts at the quiz (40%)");
   });
 
   it("says who reacted with what, not the comment, and opens its thread", () => {

@@ -2350,7 +2350,13 @@
         "step3": "Slå notifikationer til for dette websted.",
         "step4": "Genindlæs denne side, og slå push-notifikationer til her."
       }
-    }
+    },
+    "quizAssignedTitle": "Quizzer, du bliver bedt om at tage",
+    "quizAssignedDescription": "Nogen beder dig om at tage en quiz på en side.",
+    "quizAssignedChannel": "Quizzer, du bliver bedt om at tage: {channel}",
+    "quizFinishedTitle": "Quizresultater",
+    "quizFinishedDescription": "En person, du har bedt om at tage en quiz, består den eller har ikke flere forsøg.",
+    "quizFinishedChannel": "Quizresultater: {channel}"
   },
   "site": {
     "description": "Giv dette arbejdsområdes udgivne sider én læsbar adresse, en forside og navigation mellem dem.",

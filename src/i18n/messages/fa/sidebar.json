@@ -316,7 +316,11 @@
     "limitRequestNote": "«{note}»",
     "limitRequestApprove": "افزایش به {tokens, number}",
     "limitRequestDecline": "رد کردن",
-    "limitRequestFailed": "پاسخ به درخواست ممکن نشد. دوباره تلاش کنید."
+    "limitRequestFailed": "پاسخ به درخواست ممکن نشد. دوباره تلاش کنید.",
+    "quizAssigned": "{actor} از شما خواست در آزمون شرکت کنید",
+    "quizAssignedDue": "{actor} از شما خواست تا {date} در آزمون شرکت کنید",
+    "quizPassed": "{actor} با {score}% در آزمون قبول شد",
+    "quizFailed": "تلاش‌های {actor} در آزمون تمام شد ({score}%)"
   },
   "templates": {
     "title": "الگوها",

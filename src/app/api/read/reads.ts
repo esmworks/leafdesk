@@ -10,6 +10,7 @@ import { sidebarMeetingsAction } from "@/app/actions/meetings";
 import { backlinksAction, unlinkedMentionsAction } from "@/app/actions/mentions";
 import { arrivalsAction, dueRemindersAction, listInboxAction, unreadCountAction } from "@/app/actions/notifications";
 import { recordPageViewAction } from "@/app/actions/page-views";
+import { quizAction, quizPeopleAction, quizResultsAction } from "@/app/actions/quizzes";
 import { placeAtAction } from "@/app/actions/places";
 import { getPageReviewAction, listTrashAction, recentSearchAction, searchAction, searchFilterOptionsAction } from "@/app/actions/pages";
 import { relatedPagesAction } from "@/app/actions/related-pages";
@@ -79,6 +80,9 @@ export const READS = {
   mailAddresses: suggestAddressesAction,
   mailDraft: openDraftAction,
   mailSend: sendStatusAction,
+  quiz: quizAction,
+  quizResults: quizResultsAction,
+  quizPeople: quizPeopleAction,
 };
 
 export type Reads = typeof READS;

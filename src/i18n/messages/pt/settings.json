@@ -2350,7 +2350,13 @@
         "step3": "Ative as notificações para este site.",
         "step4": "Recarregue esta página e ative aqui as notificações push."
       }
-    }
+    },
+    "quizAssignedTitle": "Quizzes pedidos a você",
+    "quizAssignedDescription": "Alguém pede que você faça um quiz em uma página.",
+    "quizAssignedChannel": "Quizzes pedidos a você: {channel}",
+    "quizFinishedTitle": "Resultados de quizzes",
+    "quizFinishedDescription": "Alguém a quem você pediu um quiz é aprovado ou esgota as tentativas.",
+    "quizFinishedChannel": "Resultados de quizzes: {channel}"
   },
   "site": {
     "description": "Dê às páginas publicadas deste espaço de trabalho um endereço legível, uma página inicial e navegação entre elas.",

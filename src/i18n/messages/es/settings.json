@@ -2350,7 +2350,13 @@
         "step3": "Activa las notificaciones para este sitio.",
         "step4": "Vuelve a cargar esta página y activa aquí las notificaciones push."
       }
-    }
+    },
+    "quizAssignedTitle": "Cuestionarios que te piden",
+    "quizAssignedDescription": "Alguien te pide que hagas un cuestionario en una página.",
+    "quizAssignedChannel": "Cuestionarios que te piden: {channel}",
+    "quizFinishedTitle": "Resultados de cuestionarios",
+    "quizFinishedDescription": "Alguien a quien pediste hacer un cuestionario lo aprueba o se queda sin intentos.",
+    "quizFinishedChannel": "Resultados de cuestionarios: {channel}"
   },
   "site": {
     "description": "Dale a las páginas publicadas de este espacio de trabajo una dirección legible, una página de inicio y navegación entre ellas.",

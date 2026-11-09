@@ -316,7 +316,11 @@
     "limitRequestNote": "“{note}”",
     "limitRequestApprove": "Verhogen naar {tokens, number}",
     "limitRequestDecline": "Afwijzen",
-    "limitRequestFailed": "Het verzoek kon niet worden beantwoord. Probeer het opnieuw."
+    "limitRequestFailed": "Het verzoek kon niet worden beantwoord. Probeer het opnieuw.",
+    "quizAssigned": "{actor} heeft je gevraagd de quiz te maken",
+    "quizAssignedDue": "{actor} heeft je gevraagd de quiz vóór {date} te maken",
+    "quizPassed": "{actor} is geslaagd voor de quiz met {score}%",
+    "quizFailed": "{actor} heeft geen pogingen meer voor de quiz ({score}%)"
   },
   "templates": {
     "title": "Sjablonen",

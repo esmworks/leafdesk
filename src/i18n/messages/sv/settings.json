@@ -2350,7 +2350,13 @@
         "step3": "Slå på aviseringar för den här webbplatsen.",
         "step4": "Läs in sidan igen och slå på pushaviseringar här."
       }
-    }
+    },
+    "quizAssignedTitle": "Quiz du ombeds göra",
+    "quizAssignedDescription": "Någon ber dig göra ett quiz på en sida.",
+    "quizAssignedChannel": "Quiz du ombeds göra: {channel}",
+    "quizFinishedTitle": "Quizresultat",
+    "quizFinishedDescription": "Någon du bett göra ett quiz blir godkänd eller har inga försök kvar.",
+    "quizFinishedChannel": "Quizresultat: {channel}"
   },
   "site": {
     "description": "Ge den här arbetsytans publicerade sidor en läsbar adress, en startsida och navigering mellan dem.",

@@ -316,7 +316,11 @@
     "limitRequestNote": "“{note}”",
     "limitRequestApprove": "Aumentar para {tokens, number}",
     "limitRequestDecline": "Recusar",
-    "limitRequestFailed": "Não foi possível responder ao pedido. Tente novamente."
+    "limitRequestFailed": "Não foi possível responder ao pedido. Tente novamente.",
+    "quizAssigned": "{actor} pediu que você fizesse o quiz",
+    "quizAssignedDue": "{actor} pediu que você fizesse o quiz até {date}",
+    "quizPassed": "{actor} foi aprovado no quiz com {score}%",
+    "quizFailed": "{actor} esgotou as tentativas no quiz ({score}%)"
   },
   "templates": {
     "title": "Modelos",

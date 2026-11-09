@@ -11,6 +11,13 @@
   the poll is anonymous the count shows who chose it. The author, or whoever may delete others'
   messages there, can close it; deleting it drops its votes. Migration 0205 adds the polls and
   their votes.
+- **Quizzes on pages.** `/quiz` adds questions with one or several right answers, explanations, a
+  pass mark and a limit on attempts; readers take it and the server scores it. Right answers and
+  explanations reach only the page's editors, and a reader once they pass or run out of attempts,
+  never published pages or exports. Editors see everyone's results and ask people to take it by a
+  day: they get an inbox item, and the person who asked hears when each passes or runs out of
+  attempts. A duplicated page gets its own quiz. Migration 0206 adds the quiz, attempt and
+  assignment tables and the two notification kinds' settings.
 - **Other tools can post in a channel through a webhook.** A channel's admins add one in its
   details and copy its address, shown once; anything that posts to a Slack incoming webhook (alert
   managers, build pipelines, dashboards) can post there instead, with the same payload: text,

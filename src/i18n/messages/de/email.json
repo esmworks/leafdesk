@@ -318,7 +318,11 @@
     "messageFile": "Hat eine Datei gesendet",
     "newMessage": "Neue Nachricht",
     "inThread": "In einem Thread",
-    "messageReminder": "Erinnerung an eine Nachricht"
+    "messageReminder": "Erinnerung an eine Nachricht",
+    "quizAssigned": "{actor} hat dich gebeten, das Quiz zu machen",
+    "quizAssignedDue": "{actor} hat dich gebeten, das Quiz bis {date} zu machen",
+    "quizPassed": "{actor} hat das Quiz mit {score} % bestanden",
+    "quizFailed": "{actor} hat keine Versuche mehr für das Quiz ({score} %)"
   },
   "agentReply": {
     "aiOff": "Ich kann nicht antworten: KI ist in diesem Workspace ausgeschaltet.",

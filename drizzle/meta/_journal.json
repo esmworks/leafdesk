@@ -1443,6 +1443,13 @@
       "when": 1794255094388,
       "tag": "0205_message_polls",
       "breakpoints": true
+    },
+    {
+      "idx": 206,
+      "version": "7",
+      "when": 1794257122956,
+      "tag": "0206_page_quizzes",
+      "breakpoints": true
     }
   ]
 }

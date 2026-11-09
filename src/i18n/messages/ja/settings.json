@@ -2350,7 +2350,13 @@
         "step3": "このサイトの通知をオンにします。",
         "step4": "このページを再読み込みし、ここでプッシュ通知をオンにします。"
       }
-    }
+    },
+    "quizAssignedTitle": "依頼されたクイズ",
+    "quizAssignedDescription": "ページ上のクイズの受験を誰かがあなたに依頼したとき。",
+    "quizAssignedChannel": "依頼されたクイズ：{channel}",
+    "quizFinishedTitle": "クイズの結果",
+    "quizFinishedDescription": "あなたがクイズの受験を依頼した人が合格したか、受験回数を使い切ったとき。",
+    "quizFinishedChannel": "クイズの結果：{channel}"
   },
   "site": {
     "description": "このワークスペースの公開ページに、わかりやすい1つのアドレス、ホームページ、ページ間のナビゲーションを用意します。",

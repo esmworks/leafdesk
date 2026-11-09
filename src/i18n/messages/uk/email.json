@@ -318,7 +318,11 @@
     "messageFile": "Надіслано файл",
     "newMessage": "Нове повідомлення",
     "inThread": "У гілці",
-    "messageReminder": "Нагадування про повідомлення"
+    "messageReminder": "Нагадування про повідомлення",
+    "quizAssigned": "{actor} просить вас пройти тест",
+    "quizAssignedDue": "{actor} просить вас пройти тест до {date}",
+    "quizPassed": "{actor} — тест пройдено з результатом {score}%",
+    "quizFailed": "{actor} — спроби в тесті вичерпано ({score}%)"
   },
   "agentReply": {
     "aiOff": "Не можу відповісти: ШІ вимкнено в цьому робочому просторі.",

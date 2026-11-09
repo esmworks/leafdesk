@@ -318,7 +318,11 @@
     "messageFile": "Sendte en fil",
     "newMessage": "Ny melding",
     "inThread": "I en tråd",
-    "messageReminder": "Påminnelse om en melding"
+    "messageReminder": "Påminnelse om en melding",
+    "quizAssigned": "{actor} har bedt deg ta quizen",
+    "quizAssignedDue": "{actor} har bedt deg ta quizen innen {date}",
+    "quizPassed": "{actor} har bestått quizen med {score} %",
+    "quizFailed": "{actor} har brukt opp forsøkene på quizen ({score} %)"
   },
   "agentReply": {
     "aiOff": "Jeg kan ikke svare: KI er slått av i dette arbeidsområdet.",

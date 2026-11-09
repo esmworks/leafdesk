@@ -2350,7 +2350,13 @@
         "step3": "为此网站开启通知。",
         "step4": "重新加载此页面，并在这里开启推送通知。"
       }
-    }
+    },
+    "quizAssignedTitle": "请你完成的测验",
+    "quizAssignedDescription": "有人请你完成页面上的测验。",
+    "quizAssignedChannel": "请你完成的测验：{channel}",
+    "quizFinishedTitle": "测验结果",
+    "quizFinishedDescription": "你请其完成测验的人通过了测验或用完了作答次数。",
+    "quizFinishedChannel": "测验结果：{channel}"
   },
   "site": {
     "description": "为此工作区已发布的页面提供一个易读的地址、一个主页以及页面之间的导航。",

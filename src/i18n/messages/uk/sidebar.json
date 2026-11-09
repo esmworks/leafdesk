@@ -316,7 +316,11 @@
     "limitRequestNote": "«{note}»",
     "limitRequestApprove": "Підвищити до {tokens, number}",
     "limitRequestDecline": "Відхилити",
-    "limitRequestFailed": "Не вдалося відповісти на запит. Спробуйте ще раз."
+    "limitRequestFailed": "Не вдалося відповісти на запит. Спробуйте ще раз.",
+    "quizAssigned": "{actor} просить вас пройти тест",
+    "quizAssignedDue": "{actor} просить вас пройти тест до {date}",
+    "quizPassed": "{actor} — тест пройдено з результатом {score}%",
+    "quizFailed": "{actor} — спроби в тесті вичерпано ({score}%)"
   },
   "templates": {
     "title": "Шаблони",

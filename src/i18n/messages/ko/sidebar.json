@@ -316,7 +316,11 @@
     "limitRequestNote": "“{note}”",
     "limitRequestApprove": "{tokens, number}(으)로 올리기",
     "limitRequestDecline": "거절",
-    "limitRequestFailed": "요청에 답변하지 못했습니다. 다시 시도하세요."
+    "limitRequestFailed": "요청에 답변하지 못했습니다. 다시 시도하세요.",
+    "quizAssigned": "{actor}님이 나에게 퀴즈 응시를 요청했습니다",
+    "quizAssignedDue": "{actor}님이 나에게 {date}까지 퀴즈 응시를 요청했습니다",
+    "quizPassed": "{actor}님이 퀴즈에 {score}%로 합격했습니다",
+    "quizFailed": "{actor}님이 퀴즈 응시 기회를 모두 썼습니다({score}%)"
   },
   "templates": {
     "title": "템플릿",

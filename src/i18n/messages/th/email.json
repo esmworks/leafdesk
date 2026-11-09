@@ -318,7 +318,11 @@
     "messageFile": "ส่งไฟล์",
     "newMessage": "ข้อความใหม่",
     "inThread": "ในเธรด",
-    "messageReminder": "การเตือนเกี่ยวกับข้อความ"
+    "messageReminder": "การเตือนเกี่ยวกับข้อความ",
+    "quizAssigned": "{actor} ขอให้คุณทำแบบทดสอบ",
+    "quizAssignedDue": "{actor} ขอให้คุณทำแบบทดสอบภายใน {date}",
+    "quizPassed": "{actor} ทำแบบทดสอบผ่านด้วยคะแนน {score}%",
+    "quizFailed": "{actor} ใช้สิทธิ์ทำแบบทดสอบหมดแล้ว ({score}%)"
   },
   "agentReply": {
     "aiOff": "ฉันตอบไม่ได้: AI ถูกปิดในพื้นที่ทำงานนี้",

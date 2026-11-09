@@ -2350,7 +2350,13 @@
         "step3": "Aktifkan notifikasi untuk situs ini.",
         "step4": "Muat ulang halaman ini dan aktifkan notifikasi push di sini."
       }
-    }
+    },
+    "quizAssignedTitle": "Kuis yang diminta dari Anda",
+    "quizAssignedDescription": "Seseorang meminta Anda mengerjakan kuis di sebuah halaman.",
+    "quizAssignedChannel": "Kuis yang diminta dari Anda: {channel}",
+    "quizFinishedTitle": "Hasil kuis",
+    "quizFinishedDescription": "Seseorang yang Anda minta mengerjakan kuis lulus atau kehabisan kesempatan.",
+    "quizFinishedChannel": "Hasil kuis: {channel}"
   },
   "site": {
     "description": "Beri halaman terbit ruang kerja ini satu alamat yang mudah dibaca, sebuah beranda, dan navigasi di antaranya.",

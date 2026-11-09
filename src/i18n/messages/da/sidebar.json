@@ -316,7 +316,11 @@
     "limitRequestNote": "“{note}”",
     "limitRequestApprove": "Hæv til {tokens, number}",
     "limitRequestDecline": "Afslå",
-    "limitRequestFailed": "Kunne ikke besvare anmodningen. Prøv igen."
+    "limitRequestFailed": "Kunne ikke besvare anmodningen. Prøv igen.",
+    "quizAssigned": "{actor} har bedt dig om at tage quizzen",
+    "quizAssignedDue": "{actor} har bedt dig om at tage quizzen senest {date}",
+    "quizPassed": "{actor} har bestået quizzen med {score} %",
+    "quizFailed": "{actor} har ikke flere forsøg i quizzen ({score} %)"
   },
   "templates": {
     "title": "Skabeloner",

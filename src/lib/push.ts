@@ -7,6 +7,7 @@ import { aiLimitLine, type AiLimitNotice } from "./agent-guardrails";
 import { parseMassExport } from "./mass-export";
 import { parseMassTrash } from "./mass-trash";
 import { pushLink } from "./push-link";
+import { parseQuizNotice } from "./quiz-block";
 import { canSnooze } from "./snooze";
 import type { SuggestionNotice } from "./suggestions";
 import { isTimeZone } from "./time-zone";
@@ -315,6 +316,15 @@ export function pushPayload(
         // Recorded at or after the end: it ended; before it: it ends soon.
         const ended = item.reminderDate !== null && new Date(item.createdAt ?? Date.now()) >= new Date(item.reminderDate);
         line = t(ended ? "verificationEnded" : "verificationEnds", { date: item.reminderDate ? formatDate(item.reminderDate, reminderZone(item)) : "" });
+        break;
+      }
+      case "quiz_assigned":
+        // A day without a time: written as it is, in no zone.
+        line = item.reminderDate ? t("quizAssignedDue", { actor, date: formatDate(item.reminderDate, "UTC") }) : t("quizAssigned", { actor });
+        break;
+      case "quiz_finished": {
+        const notice = parseQuizNotice(item.automationMessage);
+        line = t(notice?.passed === false ? "quizFailed" : "quizPassed", { actor, score: notice?.score ?? 0 });
         break;
       }
       case "row_email":

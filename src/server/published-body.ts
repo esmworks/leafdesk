@@ -8,6 +8,7 @@ import { applyCalloutStyles, findCalloutStyle, type CalloutStyle } from "@/lib/c
 import { BREADCRUMB_BLOCK, CALLOUT_BLOCK, MERMAID_BLOCK, SUBPAGES_BLOCK, TOC_BLOCK } from "@/lib/content-blocks";
 import { plainText } from "@/lib/content-markdown";
 import { AGENT_CHAT_BLOCK } from "@/lib/agent-chat";
+import { QUIZ_BLOCK } from "@/lib/quiz-block";
 import { DASHBOARD_BLOCK, dashboardLayout, parseDashboard, type DashboardLayout, type DashboardWidget } from "@/lib/dashboard";
 import { ALL_TIME, parseDashboardPeriod, type DashboardPeriod } from "@/lib/dashboard-period";
 import { isEmbedBlockType, parseLinkedView, type EmbedBlockType, type LinkedView } from "@/lib/embed-blocks";
@@ -294,6 +295,7 @@ const isStandalone = (block: PageBlock) =>
   block.type === SUBPAGES_BLOCK ||
   block.type === MERMAID_BLOCK ||
   block.type === AGENT_CHAT_BLOCK ||
+  block.type === QUIZ_BLOCK ||
   inPlaceFileOf(block) !== null;
 
 /** This app's origin: its own pages are never framed in an embed. */
@@ -717,6 +719,9 @@ export async function bodySegmentsFromBlocks(
         segments.push({ kind: "agentChat" });
         return;
       }
+      // A quiz is taken in the app only, and its answers never leave it: published pages, print,
+      // PDFs and Word files leave it out.
+      if (block.type === QUIZ_BLOCK) return;
       if (block.type === MERMAID_BLOCK) {
         const source = plainText(block.content);
         if (!source.trim()) return;

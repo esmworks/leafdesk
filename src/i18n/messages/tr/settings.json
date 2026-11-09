@@ -2350,7 +2350,13 @@
         "step3": "Bu site için bildirimleri açın.",
         "step4": "Bu sayfayı yeniden yükleyin ve anlık bildirimleri burada açın."
       }
-    }
+    },
+    "quizAssignedTitle": "Sizden istenen testler",
+    "quizAssignedDescription": "Biri sizden bir sayfadaki testi çözmenizi ister.",
+    "quizAssignedChannel": "Sizden istenen testler: {channel}",
+    "quizFinishedTitle": "Test sonuçları",
+    "quizFinishedDescription": "Test çözmesini istediğiniz biri testi geçer ya da deneme hakkını bitirir.",
+    "quizFinishedChannel": "Test sonuçları: {channel}"
   },
   "site": {
     "description": "Bu çalışma alanının yayındaki sayfalarına okunabilir tek bir adres, bir ana sayfa ve aralarında gezinme menüsü verin.",

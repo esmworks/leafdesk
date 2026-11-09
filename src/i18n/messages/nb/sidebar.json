@@ -316,7 +316,11 @@
     "limitRequestNote": "«{note}»",
     "limitRequestApprove": "Øk til {tokens, number}",
     "limitRequestDecline": "Avslå",
-    "limitRequestFailed": "Kunne ikke besvare forespørselen. Prøv igjen."
+    "limitRequestFailed": "Kunne ikke besvare forespørselen. Prøv igjen.",
+    "quizAssigned": "{actor} ba deg ta quizen",
+    "quizAssignedDue": "{actor} ba deg ta quizen innen {date}",
+    "quizPassed": "{actor} besto quizen med {score} %",
+    "quizFailed": "{actor} har brukt opp forsøkene på quizen ({score} %)"
   },
   "templates": {
     "title": "Maler",

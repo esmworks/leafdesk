@@ -318,7 +318,11 @@
     "messageFile": "یک فایل فرستاد",
     "newMessage": "پیام جدید",
     "inThread": "در یک رشته",
-    "messageReminder": "یادآوری دربارهٔ یک پیام"
+    "messageReminder": "یادآوری دربارهٔ یک پیام",
+    "quizAssigned": "{actor} از شما خواست در آزمون شرکت کنید",
+    "quizAssignedDue": "{actor} از شما خواست تا {date} در آزمون شرکت کنید",
+    "quizPassed": "{actor} با {score}% در آزمون قبول شد",
+    "quizFailed": "تلاش‌های {actor} در آزمون تمام شد ({score}%)"
   },
   "agentReply": {
     "aiOff": "نمی‌توانم پاسخ دهم: هوش مصنوعی در این فضای کاری خاموش است.",

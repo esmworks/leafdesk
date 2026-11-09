@@ -316,7 +316,11 @@
     "limitRequestNote": "「{note}」",
     "limitRequestApprove": "{tokens, number}に引き上げる",
     "limitRequestDecline": "却下",
-    "limitRequestFailed": "リクエストに回答できませんでした。もう一度お試しください。"
+    "limitRequestFailed": "リクエストに回答できませんでした。もう一度お試しください。",
+    "quizAssigned": "{actor}がクイズの受験を依頼しました",
+    "quizAssignedDue": "{actor}が{date}までにクイズを受けるよう依頼しました",
+    "quizPassed": "{actor}がクイズに{score}%で合格しました",
+    "quizFailed": "{actor}がクイズの受験回数を使い切りました（{score}%）"
   },
   "templates": {
     "title": "テンプレート",

@@ -316,7 +316,11 @@
     "limitRequestNote": "“{note}”",
     "limitRequestApprove": "Naikkan ke {tokens, number}",
     "limitRequestDecline": "Tolak",
-    "limitRequestFailed": "Tidak dapat menjawab permintaan. Coba lagi."
+    "limitRequestFailed": "Tidak dapat menjawab permintaan. Coba lagi.",
+    "quizAssigned": "{actor} meminta Anda mengerjakan kuis",
+    "quizAssignedDue": "{actor} meminta Anda mengerjakan kuis paling lambat {date}",
+    "quizPassed": "{actor} lulus kuis dengan {score}%",
+    "quizFailed": "{actor} kehabisan kesempatan pada kuis ({score}%)"
   },
   "templates": {
     "title": "Templat",

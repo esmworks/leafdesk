@@ -316,7 +316,11 @@
     "limitRequestNote": "“{note}”",
     "limitRequestApprove": "提高到 {tokens, number}",
     "limitRequestDecline": "拒绝",
-    "limitRequestFailed": "无法答复该申请。请重试。"
+    "limitRequestFailed": "无法答复该申请。请重试。",
+    "quizAssigned": "{actor} 请你完成测验",
+    "quizAssignedDue": "{actor} 请你在 {date} 前完成测验",
+    "quizPassed": "{actor} 以 {score}% 通过了测验",
+    "quizFailed": "{actor} 用完了测验的作答次数（{score}%）"
   },
   "templates": {
     "title": "模板",

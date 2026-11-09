@@ -4,13 +4,14 @@ import type { ExportLabels } from "@/server/export";
 
 /** Labels exported Markdown uses, in the reader's language (route handlers only). */
 export async function exportLabels(): Promise<ExportLabels> {
-  const [tm, te, tc, ts, ta, tb, comments] = await Promise.all([
+  const [tm, te, tc, ts, ta, tb, tq, comments] = await Promise.all([
     getTranslations("page.mention"),
     getTranslations("page.embed"),
     getTranslations("common"),
     getTranslations("page.syncedBlock"),
     getTranslations("page.agentChat"),
     getTranslations("page.button"),
+    getTranslations("page.quiz"),
     commentExportLabels(),
   ]);
   const note = (state: "noAccess" | "trashed" | "deleted" | "removed") => ts("exportNote", { state: ts(`state.${state}`) });
@@ -22,6 +23,7 @@ export async function exportLabels(): Promise<ExportLabels> {
     synced: { noAccess: note("noAccess"), trashed: note("trashed"), deleted: note("deleted"), removed: note("removed") },
     agentChat: (name) => (name ? ta("exportLine", { name }) : ta("label")),
     button: (label) => tb("blockLabel", { label: label || tb("untitled") }),
+    quiz: (count) => (count === null ? tq("label") : tq("exportLine", { count })),
     comments,
   };
 }

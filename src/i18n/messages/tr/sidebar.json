@@ -316,7 +316,11 @@
     "limitRequestNote": "“{note}”",
     "limitRequestApprove": "{tokens, number} tokene çıkar",
     "limitRequestDecline": "Reddet",
-    "limitRequestFailed": "İstek yanıtlanamadı. Yeniden deneyin."
+    "limitRequestFailed": "İstek yanıtlanamadı. Yeniden deneyin.",
+    "quizAssigned": "{actor} testi çözmenizi istedi",
+    "quizAssignedDue": "{actor} testi {date} tarihine kadar çözmenizi istedi",
+    "quizPassed": "{actor} testi %{score} ile geçti",
+    "quizFailed": "{actor} testte deneme haklarını bitirdi (%{score})"
   },
   "templates": {
     "title": "Şablonlar",
