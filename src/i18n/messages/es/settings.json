@@ -228,6 +228,7 @@
     "heirLabel": "Pasar sus páginas a",
     "heirHint": "Las páginas que solo {name} podía gestionar, y los espacios de equipo que nadie más dirige, pasan a la persona que elijas.",
     "heirCount": "{count, plural, =0 {{name} no gestiona ninguna página en solitario ahora mismo. Los espacios de equipo que nadie más dirige pasan a la persona que elijas.} one {# página que solo {name} podía gestionar pasa a la persona que elijas, junto con los espacios de equipo que nadie más dirige.} other {# páginas que solo {name} podía gestionar pasan a la persona que elijas, junto con los espacios de equipo que nadie más dirige.}}",
+    "heirStops": "Automatizaciones, programaciones y sincronizaciones que se ejecutan como {name}: {count}. Se desactivan y vuelven a ejecutarse cuando alguien que las gestiona las active de nuevo.",
     "heirYou": "{name} (tú)"
   },
   "guests": {

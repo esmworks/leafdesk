@@ -228,6 +228,7 @@
     "heirLabel": "Przekaż strony osobie",
     "heirHint": "Strony, którymi tylko {name} mógł(a) zarządzać, i przestrzenie zespołu, którymi nikt inny nie zarządza, przejdą na wybraną osobę.",
     "heirCount": "{count, plural, =0 {{name} nie zarządza obecnie samodzielnie żadną stroną. Przestrzenie zespołu, którymi nikt inny nie zarządza, przejdą na wybraną osobę.} one {# strona, którą tylko {name} mógł(a) zarządzać, przejdzie na wybraną osobę razem z przestrzeniami zespołu, którymi nikt inny nie zarządza.} few {# strony, którymi tylko {name} mógł(a) zarządzać, przejdą na wybraną osobę razem z przestrzeniami zespołu, którymi nikt inny nie zarządza.} many {# stron, którymi tylko {name} mógł(a) zarządzać, przejdzie na wybraną osobę razem z przestrzeniami zespołu, którymi nikt inny nie zarządza.} other {# strony, którymi tylko {name} mógł(a) zarządzać, przejdzie na wybraną osobę razem z przestrzeniami zespołu, którymi nikt inny nie zarządza.}}",
+    "heirStops": "Automatyzacje, harmonogramy i synchronizacje działające jako {name}: {count}. Zostaną wyłączone i zadziałają ponownie, gdy ktoś, kto nimi zarządza, włączy je z powrotem.",
     "heirYou": "{name} (ty)"
   },
   "guests": {

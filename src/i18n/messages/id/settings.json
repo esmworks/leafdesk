@@ -228,6 +228,7 @@
     "heirLabel": "Serahkan halamannya kepada",
     "heirHint": "Halaman yang hanya dapat dikelola {name}, dan ruang tim yang tidak dikelola orang lain, dialihkan kepada orang yang Anda pilih.",
     "heirCount": "{count, plural, =0 {Saat ini {name} tidak mengelola halaman apa pun sendirian. Ruang tim yang tidak dikelola orang lain dialihkan kepada orang yang Anda pilih.} other {# halaman yang hanya dapat dikelola {name} dialihkan kepada orang yang Anda pilih, bersama ruang tim yang tidak dikelola orang lain.}}",
+    "heirStops": "Otomatisasi, jadwal, dan sinkronisasi yang berjalan sebagai {name}: {count}. Semuanya dimatikan dan berjalan lagi setelah seseorang yang mengelolanya menyalakannya kembali.",
     "heirYou": "{name} (Anda)"
   },
   "guests": {

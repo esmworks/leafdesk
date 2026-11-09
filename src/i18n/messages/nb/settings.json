@@ -228,6 +228,7 @@
     "heirLabel": "Overlat sidene til",
     "heirHint": "Sider som bare {name} kunne administrere, og teamområder ingen andre styrer, går til personen du velger.",
     "heirCount": "{count, plural, =0 {{name} administrerer ingen sider alene akkurat nå. Teamområder ingen andre styrer, går til personen du velger.} one {# side som bare {name} kunne administrere, går til personen du velger, sammen med teamområder ingen andre styrer.} other {# sider som bare {name} kunne administrere, går til personen du velger, sammen med teamområder ingen andre styrer.}}",
+    "heirStops": "Automatiseringer, tidsplaner og synkroniseringer som kjører som {name}: {count}. De slås av og kjører igjen når noen som administrerer dem, slår dem på igjen.",
     "heirYou": "{name} (deg)"
   },
   "guests": {

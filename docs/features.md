@@ -970,8 +970,10 @@
   (pages only they could manage, and teamspaces nobody else runs, pass to someone first). An owner
   removing a member picks who receives them in the dialog, which says how many pages that is (the
   owner by default; any member or owner who stays); someone leaving hands them to the oldest owner,
-  and so does the identity provider. The audit log records who received how many. Coming back
-  starts afresh.
+  and so does the identity provider. The audit log records who received how many. Automations,
+  schedules and synced databases that ran as them are turned off rather than handed over (they
+  would run with someone else's access): the dialog says how many, and someone who manages one
+  turns it back on to run it as themselves. Coming back starts afresh.
 - **Property access**: people with full access to a database decide, from a column's menu
   (*More settings* → *Property access*), who
   may see and change that one property: everyone with access to the database can edit it, edit

@@ -15,6 +15,12 @@
   linked row never keeps a back-link to a row that no longer links to it. Tags, people, linked rows
   and files changed in the app merge with changes made meanwhile: two people adding a tag at the
   same time both keep theirs, and a removal takes away only what it removed.
+- **Removing someone turns off what ran as them instead of leaving it to fail.** Their automations,
+  schedules and synced databases kept trying to run with access they no longer had, and the
+  failure showed only in each one's own settings. They are now turned off as the person goes
+  (never handed to someone else, whose access could be wider), the removal dialog says how many,
+  and the audit log records it. Someone removed by the identity provider (SCIM) also loses their
+  mailbox in the workspace, as a removal in the app already did.
 - **Forwarding a message from the Mail tab sends its files again.** A forward lost the forwarded
   message's attachments as soon as its draft was saved a second time, which happens a few seconds
   after typing, so most forwards went out without them. The composer now lists those files from the

@@ -10,6 +10,8 @@ import {
   conversation,
   apiToken,
   calendarFeed,
+  databaseAutomation,
+  databaseSync,
   databaseView,
   DEFAULT_WORKSPACE_SETTINGS,
   file,
@@ -24,6 +26,7 @@ import {
   pageIndexState,
   pagePermission,
   propertyPermission,
+  schedule,
   sensitiveFinding,
   sensitiveScan,
   session,
@@ -1156,6 +1159,50 @@ export async function pagesOnlyTheyManage(actorId: string, workspaceId: string, 
 }
 
 /**
+ * What runs as `userId` in the workspace and is on: automations, schedules and synced databases,
+ * which run with the access of whoever saved them last. Counted for the owner removing them, as
+ * they go off then (see stopTheirRuns). Owners only.
+ */
+export async function runsAsThem(actorId: string, workspaceId: string, targetId: string): Promise<number> {
+  await requireMembership(actorId, workspaceId, "owner");
+  const [row] = await db.execute<{ count: number }>(sql`
+    select (
+      (select count(*) from ${databaseAutomation} where workspace_id = ${workspaceId} and run_as = ${targetId} and enabled)
+      + (select count(*) from ${schedule} where workspace_id = ${workspaceId} and run_as = ${targetId} and enabled)
+      + (select count(*) from ${databaseSync} where workspace_id = ${workspaceId} and run_as = ${targetId} and enabled)
+    )::int as count
+  `);
+  return Number(row?.count ?? 0);
+}
+
+/**
+ * Turns off what runs as `userId` in the workspace as they leave it: their automations, schedules
+ * and synced databases ran with their access, which ends here. They aren't handed to anyone: what
+ * they set up would then run with someone else's access, perhaps more than theirs. They wait, off,
+ * for someone who manages them to turn them on again, who then runs them. Returns how many went
+ * off of each, for the audit.
+ */
+async function stopTheirRuns(tx: Tx, workspaceId: string, userId: string) {
+  const automations = await tx
+    .update(databaseAutomation)
+    .set({ enabled: false })
+    .where(and(eq(databaseAutomation.workspaceId, workspaceId), eq(databaseAutomation.runAs, userId), eq(databaseAutomation.enabled, true)))
+    .returning({ id: databaseAutomation.id });
+  const schedules = await tx
+    .update(schedule)
+    .set({ enabled: false, nextRunAt: null })
+    .where(and(eq(schedule.workspaceId, workspaceId), eq(schedule.runAs, userId), eq(schedule.enabled, true)))
+    .returning({ id: schedule.id });
+  const syncs = await tx
+    .update(databaseSync)
+    .set({ enabled: false })
+    .where(and(eq(databaseSync.workspaceId, workspaceId), eq(databaseSync.runAs, userId), eq(databaseSync.enabled, true)))
+    .returning({ id: databaseSync.id });
+  const stopped = { automations: automations.length, schedules: schedules.length, syncs: syncs.length };
+  return stopped.automations || stopped.schedules || stopped.syncs ? stopped : null;
+}
+
+/**
  * Owners can remove anyone, membership admins anyone but owners (`mayRemove`); everyone else can
  * only remove themselves (leave). An owner removing someone may name `heirId`, an owner or member
  * staying in the workspace, to take over what only the person removed could manage (their pages,
@@ -1214,6 +1261,7 @@ export async function removeMember(actorId: string, workspaceId: string, targetI
     const handed = heir ? await handOverOrphanedPages(tx, workspaceId, heir) : 0;
     if (heir && handed) await recordHandOver(tx, workspaceId, actorId, targetId, heir, handed);
     await forgetWorkspaceGrants(tx, workspaceId, targetId);
+    const stopped = await stopTheirRuns(tx, workspaceId, targetId);
     // Their AI chat and agent chat conversations quote the workspace's pages, and what it
     // remembers about them is the workspace's context: they go with them.
     await tx.delete(conversation).where(and(eq(conversation.workspaceId, workspaceId), eq(conversation.userId, targetId)));
@@ -1230,7 +1278,7 @@ export async function removeMember(actorId: string, workspaceId: string, targetI
         actorId,
         action: actorId === targetId ? "member.left" : "member.removed",
         target: { type: "user", id: targetId },
-        details: { role: current.role },
+        details: { role: current.role, ...(stopped ? { stopped } : {}) },
       },
       tx,
     );
@@ -1854,9 +1902,18 @@ export async function removeMemberByProvider(workspaceId: string, userId: string
     const handed = heir ? await handOverOrphanedPages(tx, workspaceId, heir) : 0;
     if (heir && handed) await recordHandOver(tx, workspaceId, null, userId, heir, handed);
     await forgetWorkspaceGrants(tx, workspaceId, userId);
+    const stopped = await stopTheirRuns(tx, workspaceId, userId);
+    // Their mailbox in the workspace (and its password) goes too, as in removeMember.
+    await tx.delete(mailbox).where(and(eq(mailbox.workspaceId, workspaceId), eq(mailbox.userId, userId)));
     await rememberDeparture(tx, workspaceId, userId, "declined", null);
     await recordAudit(
-      { workspaceId, actorId: null, action: "member.removed", target: { type: "user", id: userId }, details: { role: current.role, via: "scim" } },
+      {
+        workspaceId,
+        actorId: null,
+        action: "member.removed",
+        target: { type: "user", id: userId },
+        details: { role: current.role, via: "scim", ...(stopped ? { stopped } : {}) },
+      },
       tx,
     );
     return true;

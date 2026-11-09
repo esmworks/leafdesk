@@ -11,7 +11,8 @@ type Person = { userId: string; name: string; email: string; role: WorkspaceRole
 /**
  * In the dialog removing someone from the workspace: who takes over the pages only they could
  * manage (and teamspaces nobody else runs), among the owners and members who stay. The owner
- * removing them is picked first; the count of such pages is looked up when the dialog opens.
+ * removing them is picked first; the count of such pages is looked up when the dialog opens, with
+ * how many automations, schedules and syncs run as them (they go off, handed to nobody).
  */
 export function RemoveMemberHeir({
   workspaceId,
@@ -32,7 +33,7 @@ export function RemoveMemberHeir({
   disabled?: boolean;
 }) {
   const t = useTranslations("settings.members");
-  const [count, setCount] = useState<number | null>(null);
+  const [count, setCount] = useState<{ pages: number; runs: number } | null>(null);
   useEffect(() => {
     let live = true;
     pagesOnlyTheyManageAction(workspaceId, target.userId)
@@ -52,8 +53,9 @@ export function RemoveMemberHeir({
         {t("heirLabel")}
       </label>
       <p className="text-xs text-fg-muted">
-        {count === null ? t("heirHint", { name }) : t("heirCount", { name, count })}
+        {count === null ? t("heirHint", { name }) : t("heirCount", { name, count: count.pages })}
       </p>
+      {count?.runs ? <p className="text-xs text-fg-muted">{t("heirStops", { name, count: count.runs })}</p> : null}
       <select
         id="remove-member-heir"
         className={cn(selectClass, "w-full")}

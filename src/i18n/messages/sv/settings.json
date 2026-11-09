@@ -228,6 +228,7 @@
     "heirLabel": "Lämna över sidorna till",
     "heirHint": "Sidor som bara {name} kunde hantera, och teamytor som ingen annan driver, går till den person du väljer.",
     "heirCount": "{count, plural, =0 {{name} hanterar inga sidor ensam just nu. Teamytor som ingen annan driver går till den person du väljer.} one {# sida som bara {name} kunde hantera går till den person du väljer, tillsammans med teamytor som ingen annan driver.} other {# sidor som bara {name} kunde hantera går till den person du väljer, tillsammans med teamytor som ingen annan driver.}}",
+    "heirStops": "Automatiseringar, scheman och synkroniseringar som körs som {name}: {count}. De stängs av och körs igen när någon som hanterar dem slår på dem igen.",
     "heirYou": "{name} (du)"
   },
   "guests": {
