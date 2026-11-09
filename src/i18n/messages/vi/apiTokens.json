@@ -119,6 +119,10 @@
       "audit": {
         "name": "Nhật ký kiểm tra",
         "hint": "Nhật ký kiểm tra của không gian làm việc (chỉ chủ sở hữu, cho token giới hạn trong không gian làm việc họ sở hữu)."
+      },
+      "messages": {
+        "hint": "Kênh và tin nhắn trong đó; quyền ghi gửi tin nhắn với tư cách bạn.",
+        "name": "Tin nhắn"
       }
     },
     "summary": {

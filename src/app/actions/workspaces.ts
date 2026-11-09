@@ -23,6 +23,7 @@ import {
   createWorkspace,
   joinWithLink,
   pagesOnlyTheyManage,
+  runsAsThem,
   removeMember,
   renameWorkspace,
   revokeInvitation,
@@ -160,10 +161,16 @@ export async function removeMemberAction(workspaceId: string, targetId: string, 
   return result;
 }
 
-/** How many pages only `targetId` can manage, for the dialog removing them. Owners only. */
+/**
+ * For the dialog removing `targetId`: how many pages only they can manage, and how many
+ * automations, schedules and syncs run as them (they go off). Owners only.
+ */
 export async function pagesOnlyTheyManageAction(workspaceId: string, targetId: string) {
   const userId = await requireUserId();
-  return run(() => pagesOnlyTheyManage(userId, workspaceId, targetId));
+  return run(async () => {
+    const [pages, runs] = await Promise.all([pagesOnlyTheyManage(userId, workspaceId, targetId), runsAsThem(userId, workspaceId, targetId)]);
+    return { pages, runs };
+  });
 }
 
 export async function revokeInvitationAction(workspaceId: string, invitationId: string) {

@@ -328,5 +328,28 @@
       "noAccess": "Bara ägare av arbetsytan kan importera till Meddelanden.",
       "failed": "Importen misslyckades. Försök igen."
     }
+  },
+  "removePreviews": "Ta bort förhandsvisningar",
+  "viaAutomation": "via automatiseringen ”{name}”",
+  "webhook": "Webhook",
+  "webhooks": {
+    "add": "Lägg till",
+    "address": "Webhookadress",
+    "cancel": "Avbryt",
+    "copied": "Adressen kopierades",
+    "copy": "Kopiera adressen",
+    "copyNow": "Kopiera adressen nu: den visas inte igen. Alla som har den kan skriva här.",
+    "create": "Skapa",
+    "failed": "Webhooken kunde inte ändras. Försök igen.",
+    "hint": "Verktyg som skickar till en chatts inkommande webhook (larm, byggen, instrumentpaneler) kan skriva i den här kanalen i stället, med samma innehåll.",
+    "lastUsed": "skrev senast {when}",
+    "loading": "Läser in…",
+    "name": "Webhookens namn",
+    "namePlaceholder": "Till exempel Grafana-larm",
+    "neverUsed": "har inte skrivit något än",
+    "none": "Inga webhooks än.",
+    "remove": "Radera ”{name}”",
+    "removeConfirm": "Radera webhooken ”{name}”? Adressen slutar fungera direkt; dess meddelanden finns kvar.",
+    "title": "Webhooks"
   }
 }

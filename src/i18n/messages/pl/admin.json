@@ -93,5 +93,15 @@
     "clearTitle": "Wyczyścić zatwierdzone sieci obszaru {workspace}?",
     "clearBody": "Wszyscy w obszarze roboczym znów będą mogli otwierać go z każdej sieci, a dziennik audytu odnotuje, że wyczyściłeś listę. Właściciele mogą ustawić ją ponownie w Ustawieniach → Bezpieczeństwo.",
     "clearConfirm": "Wyczyść listę"
+  },
+  "version": {
+    "heading": "Wersja",
+    "running": "Leafdesk {running}",
+    "newer": "Wyszedł Leafdesk {latest} (używasz {running})",
+    "newerDescription": "W informacjach o wydaniu przeczytasz, co się zmieniło i jak zaktualizować.",
+    "latest": "To najnowsza wersja.",
+    "unknown": "Brak jeszcze odpowiedzi o nowych wersjach; serwer pyta GitHub dwa razy dziennie.",
+    "off": "Serwer nie szuka nowych wersji (UPDATE_CHECK jest wyłączone).",
+    "releaseNotes": "Informacje o wydaniu"
   }
 }

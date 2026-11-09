@@ -328,5 +328,28 @@
       "noAccess": "Chỉ chủ sở hữu không gian làm việc mới có thể nhập vào Tin nhắn.",
       "failed": "Nhập không thành công. Hãy thử lại."
     }
+  },
+  "removePreviews": "Gỡ bản xem trước",
+  "viaAutomation": "qua tự động hóa “{name}”",
+  "webhook": "Webhook",
+  "webhooks": {
+    "add": "Thêm",
+    "address": "Địa chỉ webhook",
+    "cancel": "Hủy",
+    "copied": "Đã sao chép địa chỉ",
+    "copy": "Sao chép địa chỉ",
+    "copyNow": "Hãy sao chép địa chỉ này ngay: nó sẽ không hiện lại. Bất kỳ ai có địa chỉ này đều có thể đăng vào đây.",
+    "create": "Tạo",
+    "failed": "Không thể thay đổi webhook. Hãy thử lại.",
+    "hint": "Các công cụ đăng vào webhook đến của một ứng dụng chat (cảnh báo, bản dựng, bảng điều khiển) có thể đăng vào kênh này thay thế, với cùng nội dung.",
+    "lastUsed": "đăng lần cuối {when}",
+    "loading": "Đang tải…",
+    "name": "Tên webhook",
+    "namePlaceholder": "Ví dụ: cảnh báo Grafana",
+    "neverUsed": "chưa đăng lần nào",
+    "none": "Chưa có webhook nào.",
+    "remove": "Xóa “{name}”",
+    "removeConfirm": "Xóa webhook “{name}”? Địa chỉ của nó ngừng hoạt động ngay; các tin nhắn của nó vẫn được giữ.",
+    "title": "Webhook"
   }
 }

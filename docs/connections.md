@@ -301,6 +301,10 @@ The tools cover:
   delete a comment, delete a thread, resolve or reopen it, add or take back an emoji reaction, or
   mark it *Come back later*). A thread about the whole page comes back with `about_page: true` and
   no quote, and one the user marked with `marked: true`.
+- **Messages:** `list_channels`, `read_channel_messages` (a channel's latest messages or a
+  thread's replies, paged back with `before`), `search_messages` and `send_channel_message` (as
+  the user, in a channel they are in or a thread), found through `find_tools`. Leafdesk's own AI
+  chat and agents don't get them.
 - **Meeting notes:** `list_meeting_notes` lists a workspace's meetings, newest first, narrowed by
   words and days; `get_page` on a meeting's page reads its summary, decisions, action items and
   transcript.

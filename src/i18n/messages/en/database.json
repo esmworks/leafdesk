@@ -1518,7 +1518,8 @@
         "celebrate": "Celebrate with confetti",
         "approval": "Ask for approval",
         "start_sequence": "Start a follow-up",
-        "slack": "Send to Slack"
+        "slack": "Send to Slack",
+        "channel_message": "Post in a channel"
       },
       "trashHelp": "Moves the row to the trash, where it can be restored from until the trash is emptied. Nothing can run after this action.",
       "addAction": "Add action",
@@ -1583,7 +1584,9 @@
         "needView": "Choose the view whose rows count.",
         "needNumber": "Choose the number property to calculate over.",
         "needThreshold": "Enter the number to compare with.",
-        "needButton": "Choose the button that runs it."
+        "needButton": "Choose the button that runs it.",
+        "needChannel": "Choose the channel to post in.",
+        "needChannelMessage": "Write the message to post."
       },
       "agent": "Agent",
       "chooseAgent": "Choose an agent…",
@@ -1834,7 +1837,15 @@
       "rowTemplateDefault": "The database’s default template",
       "rowTemplateDefaultNamed": "The default template ({name})",
       "rowTemplateGone": "A template that no longer exists",
-      "rowTemplateHelp": "The row starts as a copy of the template. Values set here go over the template’s; an empty title keeps the template’s."
+      "rowTemplateHelp": "The row starts as a copy of the template. Values set here go over the template’s; an empty title keeps the template’s.",
+      "channel": "Channel",
+      "channelPick": "Choose a channel",
+      "channelLoading": "Loading channels…",
+      "channelUnknown": "A channel you can't post in",
+      "channelPrivate": "private",
+      "channelNone": "You aren't in a channel you can post in. Join one in Messages first.",
+      "channelMessage": "Message",
+      "channelHelp": "Posts the message in the channel as you, with a link to the row. Markdown works."
     },
     "variables": {
       "button": "Insert a variable",

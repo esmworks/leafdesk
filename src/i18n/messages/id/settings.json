@@ -99,7 +99,8 @@
       "domainPeople": "domain akun pengguna perusahaan email tidak dikelola",
       "openOnStart": "mulai buka halaman pertama terakhir dikunjungi terbaru",
       "pageReports": "laporkan laporan penyalahgunaan keluhan turunkan diterbitkan publik web halaman",
-      "dashboardEmails": "langganan laporan jadwal mingguan ringkasan email dasbor"
+      "dashboardEmails": "langganan laporan jadwal mingguan ringkasan email dasbor",
+      "phoneSignIn": "kode qr ponsel hp seluler pindai perangkat masuk"
     }
   },
   "workspace": {
@@ -228,6 +229,7 @@
     "heirLabel": "Serahkan halamannya kepada",
     "heirHint": "Halaman yang hanya dapat dikelola {name}, dan ruang tim yang tidak dikelola orang lain, dialihkan kepada orang yang Anda pilih.",
     "heirCount": "{count, plural, =0 {Saat ini {name} tidak mengelola halaman apa pun sendirian. Ruang tim yang tidak dikelola orang lain dialihkan kepada orang yang Anda pilih.} other {# halaman yang hanya dapat dikelola {name} dialihkan kepada orang yang Anda pilih, bersama ruang tim yang tidak dikelola orang lain.}}",
+    "heirStops": "Otomatisasi, jadwal, dan sinkronisasi yang berjalan sebagai {name}: {count}. Semuanya dimatikan dan berjalan lagi setelah seseorang yang mengelolanya menyalakannya kembali.",
     "heirYou": "{name} (Anda)"
   },
   "guests": {
@@ -2174,7 +2176,9 @@
         "updated": "Mengubah kanal {target}",
         "archived": "Mengarsipkan kanal {target}",
         "unarchived": "Mengembalikan kanal {target} dari arsip",
-        "imported": "Mengimpor kanal {target}"
+        "imported": "Mengimpor kanal {target}",
+        "webhook_created": "Menambahkan webhook ke kanal {target}",
+        "webhook_deleted": "Menghapus webhook dari kanal {target}"
       },
       "dashboard_email": {
         "set": "Mengatur “{target}” untuk dikirim lewat email ke {count, plural, other {# orang}}",
@@ -2185,6 +2189,9 @@
         "note_added": "Menambahkan catatan ke memori AI {target}: “{to}”",
         "note_changed": "Mengubah catatan di memori AI {target}: “{from}” → “{to}”",
         "note_deleted": "{count, plural, =1 {Menghapus catatan dari memori AI {target}: “{from}”} other {Menghapus # catatan dari memori AI {target}}}"
+      },
+      "account": {
+        "phone_signed_in": "Memakai kode QR untuk masuk di perangkat lain"
       }
     },
     "decisions": {
@@ -2307,7 +2314,43 @@
     "dashboardEmailsHeading": "Email dasbor",
     "dashboardEmailsDescription": "Dasbor yang dikirim ke Anda lewat email sesuai jadwal, dan yang Anda atur untuk orang lain.",
     "dashboardEmailsNone": "Tidak ada email dasbor",
-    "dashboardEmailsNoneDescription": "Untuk menerima dasbor lewat email, buka dasbor lalu pilih Email di atas widget-nya."
+    "dashboardEmailsNoneDescription": "Untuk menerima dasbor lewat email, buka dasbor lalu pilih Email di atas widget-nya.",
+    "unblock": {
+      "ownHeading": "Untuk mengizinkannya lagi di {platform}:",
+      "others": "Langkah untuk browser dan perangkat lain",
+      "all": "Cara mengizinkannya lagi",
+      "chrome": {
+        "name": "Chrome, Edge, dan browser Chromium lainnya",
+        "step1": "Klik ikon di awal bilah alamat, di kiri alamat.",
+        "step2": "Aktifkan Notifikasi atau setel ke Izinkan. Jika tidak tercantum, buka Setelan situs dan ubah di sana.",
+        "step3": "Muat ulang halaman ini dan aktifkan notifikasi push di sini."
+      },
+      "safari": {
+        "name": "Safari di Mac",
+        "step1": "Di bar menu, pilih Safari, lalu Pengaturan, dan buka Situs Web.",
+        "step2": "Klik Pemberitahuan di daftar sebelah kiri.",
+        "step3": "Setel situs ini ke Izinkan, lalu muat ulang halaman ini dan aktifkan notifikasi push di sini."
+      },
+      "firefox": {
+        "name": "Firefox",
+        "step1": "Klik ikon di awal bilah alamat.",
+        "step2": "Di samping Kirim notifikasi, hapus Diblokir.",
+        "step3": "Muat ulang halaman ini, aktifkan notifikasi push di sini, dan pilih Izinkan saat ditanya."
+      },
+      "ios": {
+        "name": "iPhone dan iPad, Leafdesk di Layar Utama",
+        "step1": "Buka app Pengaturan dan ketuk Pemberitahuan.",
+        "step2": "Ketuk Leafdesk di daftar app.",
+        "step3": "Aktifkan Izinkan Pemberitahuan, lalu buka Leafdesk lagi dari Layar Utama."
+      },
+      "android": {
+        "name": "Chrome di Android",
+        "step1": "Ketuk ikon di awal bilah alamat.",
+        "step2": "Ketuk Izin, lalu Notifikasi.",
+        "step3": "Aktifkan notifikasi untuk situs ini.",
+        "step4": "Muat ulang halaman ini dan aktifkan notifikasi push di sini."
+      }
+    }
   },
   "site": {
     "description": "Beri halaman terbit ruang kerja ini satu alamat yang mudah dibaca, sebuah beranda, dan navigasi di antaranya.",

@@ -19,6 +19,7 @@ import {
   revokeOtherSessions,
   revokeSession,
   setPassword,
+  startPhoneSignIn,
   updateName,
 } from "@/server/account";
 import { getSession } from "@/server/session";
@@ -45,7 +46,7 @@ async function run<T>(fn: () => Promise<T>): Promise<AccountResult<T>> {
     if (!(error instanceof AccountError)) throw error;
     const t = await getTranslations("account.errors");
     const message =
-      error.code === "soleOwner" || error.code === "storageStuck" || error.code === "legalHold"
+      error.code === "soleOwner" || error.code === "storageStuck" || error.code === "legalHold" || error.code === "phoneSignInSso" || error.code === "phoneSignInTwoFactor"
         ? t(error.code, { workspaces: error.workspaces.join(", ") })
         : t(error.code);
     return { ok: false, error: message, code: error.code };
@@ -145,4 +146,11 @@ export async function deleteAccountAction(input: { confirmation: string; proof: 
     }
   }
   return result;
+}
+
+/** "Sign in on your phone": a QR code's link and when it stops working (server/phone-sign-in.ts). */
+export async function startPhoneSignInAction(input: { proof: Proof }) {
+  const current = await signedIn();
+  const { proof } = (input ?? {}) as Record<string, unknown>;
+  return run(() => startPhoneSignIn(current, proofOf(proof)));
 }

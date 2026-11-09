@@ -99,7 +99,8 @@
       "domainPeople": "domínio contas usuários empresa e-mail shadow não gerenciadas",
       "openOnStart": "início inicialização primeira página última visitada recente",
       "pageReports": "denunciar denúncia abuso reclamação remover publicada pública web páginas",
-      "dashboardEmails": "inscrição relatório programação semanal resumo e-mail painel"
+      "dashboardEmails": "inscrição relatório programação semanal resumo e-mail painel",
+      "phoneSignIn": "código qr celular telefone escanear dispositivo entrar"
     }
   },
   "workspace": {
@@ -228,6 +229,7 @@
     "heirLabel": "Passar as páginas para",
     "heirHint": "Páginas que só {name} podia gerenciar, e espaços de equipe que ninguém mais administra, vão para a pessoa escolhida.",
     "heirCount": "{count, plural, =0 {{name} não gerencia nenhuma página sozinho no momento. Espaços de equipe que ninguém mais administra vão para a pessoa escolhida.} one {# página que só {name} podia gerenciar vai para a pessoa escolhida, junto com os espaços de equipe que ninguém mais administra.} other {# páginas que só {name} podia gerenciar vão para a pessoa escolhida, junto com os espaços de equipe que ninguém mais administra.}}",
+    "heirStops": "Automações, agendamentos e sincronizações que são executados como {name}: {count}. Eles são desativados e voltam a ser executados quando alguém que os gerencia os ativar de novo.",
     "heirYou": "{name} (você)"
   },
   "guests": {
@@ -2174,7 +2176,9 @@
         "updated": "Alterou o canal {target}",
         "archived": "Arquivou o canal {target}",
         "unarchived": "Tirou o canal {target} do arquivo",
-        "imported": "Importou o canal {target}"
+        "imported": "Importou o canal {target}",
+        "webhook_created": "Adicionou um webhook ao canal {target}",
+        "webhook_deleted": "Excluiu um webhook do canal {target}"
       },
       "dashboard_email": {
         "set": "Configurou o envio por e-mail de {target} para {count, plural, one {# pessoa} other {# pessoas}}",
@@ -2185,6 +2189,9 @@
         "note_added": "Adicionou uma nota à memória da IA de {target}: “{to}”",
         "note_changed": "Alterou uma nota na memória da IA de {target}: “{from}” → “{to}”",
         "note_deleted": "{count, plural, one {Excluiu uma nota da memória da IA de {target}: “{from}”} other {Excluiu # notas da memória da IA de {target}}}"
+      },
+      "account": {
+        "phone_signed_in": "Usou um código QR para entrar em outro dispositivo"
       }
     },
     "decisions": {
@@ -2307,7 +2314,43 @@
     "dashboardEmailsHeading": "E-mails de painéis",
     "dashboardEmailsDescription": "Painéis enviados a você por e-mail em uma programação e os que você configurou para outras pessoas.",
     "dashboardEmailsNone": "Nenhum e-mail de painel",
-    "dashboardEmailsNoneDescription": "Para receber um painel por e-mail, abra-o e escolha E-mail acima dos widgets."
+    "dashboardEmailsNoneDescription": "Para receber um painel por e-mail, abra-o e escolha E-mail acima dos widgets.",
+    "unblock": {
+      "ownHeading": "Para permiti-las de novo no {platform}:",
+      "others": "Passos para outros navegadores e dispositivos",
+      "all": "Como permiti-las de novo",
+      "chrome": {
+        "name": "Chrome, Edge e outros navegadores Chromium",
+        "step1": "Clique no ícone no início da barra de endereço, à esquerda do endereço.",
+        "step2": "Ative Notificações ou escolha Permitir. Se não aparecer, abra as Configurações do site e mude lá.",
+        "step3": "Recarregue esta página e ative aqui as notificações push."
+      },
+      "safari": {
+        "name": "Safari no Mac",
+        "step1": "Na barra de menus, escolha Safari, depois Ajustes, e abra Sites.",
+        "step2": "Clique em Notificações na lista à esquerda.",
+        "step3": "Defina este site como Permitir, recarregue esta página e ative aqui as notificações push."
+      },
+      "firefox": {
+        "name": "Firefox",
+        "step1": "Clique no ícone no início da barra de endereço.",
+        "step2": "Ao lado de Enviar notificações, remova Bloqueado.",
+        "step3": "Recarregue esta página, ative aqui as notificações push e escolha Permitir quando for perguntado."
+      },
+      "ios": {
+        "name": "iPhone e iPad, Leafdesk na Tela de Início",
+        "step1": "Abra o app Ajustes e toque em Notificações.",
+        "step2": "Toque em Leafdesk na lista de apps.",
+        "step3": "Ative Permitir Notificações e abra o Leafdesk de novo pela Tela de Início."
+      },
+      "android": {
+        "name": "Chrome no Android",
+        "step1": "Toque no ícone no início da barra de endereço.",
+        "step2": "Toque em Permissões e depois em Notificações.",
+        "step3": "Ative as notificações para este site.",
+        "step4": "Recarregue esta página e ative aqui as notificações push."
+      }
+    }
   },
   "site": {
     "description": "Dê às páginas publicadas deste espaço de trabalho um endereço legível, uma página inicial e navegação entre elas.",

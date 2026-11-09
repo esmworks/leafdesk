@@ -119,6 +119,10 @@
       "audit": {
         "name": "Dziennik inspekcji",
         "hint": "Dziennik inspekcji obszaru roboczego (tylko właściciele, dla tokenu ograniczonego do obszaru roboczego, którego są właścicielami)."
+      },
+      "messages": {
+        "hint": "Kanały i ich wiadomości; zapis wysyła wiadomości w twoim imieniu.",
+        "name": "Wiadomości"
       }
     },
     "summary": {

@@ -99,7 +99,8 @@
       "domainPeople": "alan adı hesaplar kullanıcılar şirket e-posta gölge yönetilmeyen",
       "openOnStart": "başlangıç açılış ilk sayfa son ziyaret edilen son",
       "pageReports": "bildir bildirim şikayet kötüye kullanım yayından kaldır yayımlanan herkese açık web sayfaları",
-      "dashboardEmails": "abonelik rapor zamanlama haftalık özet e-posta gösterge paneli"
+      "dashboardEmails": "abonelik rapor zamanlama haftalık özet e-posta gösterge paneli",
+      "phoneSignIn": "qr kod telefon mobil tara cihaz giriş oturum"
     }
   },
   "workspace": {
@@ -228,6 +229,7 @@
     "heirLabel": "Sayfalarını devralacak kişi",
     "heirHint": "Yalnızca {name} kişisinin yönetebildiği sayfalar ve başka kimsenin yönetmediği ekip alanları seçtiğiniz kişiye geçer.",
     "heirCount": "{count, plural, =0 {{name} şu anda tek başına yönettiği bir sayfaya sahip değil. Başka kimsenin yönetmediği ekip alanları seçtiğiniz kişiye geçer.} one {Yalnızca {name} kişisinin yönetebildiği # sayfa, başka kimsenin yönetmediği ekip alanlarıyla birlikte seçtiğiniz kişiye geçer.} other {Yalnızca {name} kişisinin yönetebildiği # sayfa, başka kimsenin yönetmediği ekip alanlarıyla birlikte seçtiğiniz kişiye geçer.}}",
+    "heirStops": "{name} adına çalışan otomasyon, zamanlama ve eşitlemeler: {count}. Kapatılırlar; onları yöneten biri yeniden açtığında tekrar çalışırlar.",
     "heirYou": "{name} (siz)"
   },
   "guests": {
@@ -2174,7 +2176,9 @@
         "updated": "Kanal değiştirildi: {target}",
         "archived": "Kanal arşivlendi: {target}",
         "unarchived": "Kanal arşivden çıkarıldı: {target}",
-        "imported": "Kanal içe aktarıldı: {target}"
+        "imported": "Kanal içe aktarıldı: {target}",
+        "webhook_created": "Kanala webhook eklendi: {target}",
+        "webhook_deleted": "Kanalın bir webhook’u silindi: {target}"
       },
       "dashboard_email": {
         "set": "{target} için {count, plural, one {# kişiye} other {# kişiye}} e-posta gönderimini ayarladı",
@@ -2185,6 +2189,9 @@
         "note_added": "{target} için yapay zekâ hafızasına not eklendi: “{to}”",
         "note_changed": "{target} için yapay zekâ hafızasındaki bir not değiştirildi: “{from}” → “{to}”",
         "note_deleted": "{count, plural, one {{target} için yapay zekâ hafızasından bir not silindi: “{from}”} other {{target} için yapay zekâ hafızasından # not silindi}}"
+      },
+      "account": {
+        "phone_signed_in": "Başka bir cihazda giriş yapmak için QR kodu kullandı"
       }
     },
     "decisions": {
@@ -2307,7 +2314,43 @@
     "dashboardEmailsHeading": "Gösterge paneli e-postaları",
     "dashboardEmailsDescription": "Size zamanlanmış olarak e-postayla gönderilen gösterge panelleri ve başkaları için kurduklarınız.",
     "dashboardEmailsNone": "Gösterge paneli e-postası yok",
-    "dashboardEmailsNoneDescription": "Bir gösterge panelini e-postayla almak için paneli açın ve widget'ların üstündeki E-posta'yı seçin."
+    "dashboardEmailsNoneDescription": "Bir gösterge panelini e-postayla almak için paneli açın ve widget'ların üstündeki E-posta'yı seçin.",
+    "unblock": {
+      "ownHeading": "{platform} için yeniden izin vermek:",
+      "others": "Diğer tarayıcılar ve cihazlar için adımlar",
+      "all": "Yeniden nasıl izin verilir",
+      "chrome": {
+        "name": "Chrome, Edge ve diğer Chromium tarayıcıları",
+        "step1": "Adres çubuğunun başındaki, adresin solundaki simgeye tıklayın.",
+        "step2": "Bildirimler'i açın veya İzin ver olarak ayarlayın. Listede yoksa Site ayarları'nı açıp orada değiştirin.",
+        "step3": "Bu sayfayı yeniden yükleyin ve anlık bildirimleri burada açın."
+      },
+      "safari": {
+        "name": "Mac'te Safari",
+        "step1": "Menü çubuğunda Safari'yi, ardından Ayarlar'ı seçin ve Web Siteleri'ni açın.",
+        "step2": "Soldaki listede Bildirimler'e tıklayın.",
+        "step3": "Bu siteyi İzin Ver olarak ayarlayın, ardından bu sayfayı yeniden yükleyip anlık bildirimleri burada açın."
+      },
+      "firefox": {
+        "name": "Firefox",
+        "step1": "Adres çubuğunun başındaki simgeye tıklayın.",
+        "step2": "Bildirim gönderme'nin yanındaki Engellendi'yi kaldırın.",
+        "step3": "Bu sayfayı yeniden yükleyin, anlık bildirimleri burada açın ve sorulduğunda İzin ver'i seçin."
+      },
+      "ios": {
+        "name": "iPhone ve iPad, Ana Ekran'daki Leafdesk",
+        "step1": "Ayarlar uygulamasını açın ve Bildirimler'e dokunun.",
+        "step2": "Uygulamalar listesinde Leafdesk'e dokunun.",
+        "step3": "Bildirimlere İzin Ver'i açın, ardından Leafdesk'i Ana Ekran'dan yeniden açın."
+      },
+      "android": {
+        "name": "Android'de Chrome",
+        "step1": "Adres çubuğunun başındaki simgeye dokunun.",
+        "step2": "İzinler'e, ardından Bildirimler'e dokunun.",
+        "step3": "Bu site için bildirimleri açın.",
+        "step4": "Bu sayfayı yeniden yükleyin ve anlık bildirimleri burada açın."
+      }
+    }
   },
   "site": {
     "description": "Bu çalışma alanının yayındaki sayfalarına okunabilir tek bir adres, bir ana sayfa ve aralarında gezinme menüsü verin.",

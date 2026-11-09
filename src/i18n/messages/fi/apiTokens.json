@@ -119,6 +119,10 @@
       "audit": {
         "name": "Tarkastusloki",
         "hint": "Työtilan tarkastusloki (vain omistajat, tunnukselle, joka on rajattu heidän omistamaansa työtilaan)."
+      },
+      "messages": {
+        "hint": "Kanavat ja niiden viestit; kirjoitus lähettää viestejä sinun nimissäsi.",
+        "name": "Viestit"
       }
     },
     "summary": {

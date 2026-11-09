@@ -81,6 +81,7 @@ export const AUDIT_CATEGORIES = {
     "audit_stream.removed",
     "sensitive_content.found",
     "sensitive_content.dismissed",
+    "account.phone_signed_in",
   ],
   pages: [
     "page.created",
@@ -158,7 +159,7 @@ export const AUDIT_CATEGORIES = {
     "connection.approval_decided",
   ],
   exports: ["export.workspace", "export.page", "backup.created", "backup.restored", "dashboard_email.set", "dashboard_email.removed", "dashboard_email.sent"],
-  messages: ["channel.created", "channel.updated", "channel.archived", "channel.unarchived", "channel.imported"],
+  messages: ["channel.created", "channel.updated", "channel.archived", "channel.unarchived", "channel.imported", "channel.webhook_created", "channel.webhook_deleted"],
 } as const;
 
 export type AuditCategory = keyof typeof AUDIT_CATEGORIES;

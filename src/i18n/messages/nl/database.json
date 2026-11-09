@@ -1518,7 +1518,8 @@
         "celebrate": "Vieren met confetti",
         "approval": "Om goedkeuring vragen",
         "start_sequence": "Een opvolgreeks starten",
-        "slack": "Naar Slack versturen"
+        "slack": "Naar Slack versturen",
+        "channel_message": "In een kanaal plaatsen"
       },
       "trashHelp": "Verplaatst de rij naar de prullenbak, waaruit ze kan worden teruggezet tot de prullenbak wordt geleegd. Na deze actie kan niets meer worden uitgevoerd.",
       "addAction": "Actie toevoegen",
@@ -1583,7 +1584,9 @@
         "needView": "Kies de weergave waarvan de rijen worden geteld.",
         "needNumber": "Kies de getaleigenschap waarover wordt berekend.",
         "needThreshold": "Voer het getal in om mee te vergelijken.",
-        "needButton": "Kies de knop die hem start."
+        "needButton": "Kies de knop die hem start.",
+        "needChannel": "Kies het kanaal om in te plaatsen.",
+        "needChannelMessage": "Schrijf het bericht dat geplaatst moet worden."
       },
       "agent": "Agent",
       "chooseAgent": "Kies een agent…",
@@ -1834,7 +1837,15 @@
       "rowTemplateDefault": "Het standaardsjabloon van de database",
       "rowTemplateDefaultNamed": "Het standaardsjabloon ({name})",
       "rowTemplateGone": "Een sjabloon dat niet meer bestaat",
-      "rowTemplateHelp": "De rij begint als kopie van het sjabloon. Waarden die je hier instelt, gaan voor die van het sjabloon; een lege titel behoudt die van het sjabloon."
+      "rowTemplateHelp": "De rij begint als kopie van het sjabloon. Waarden die je hier instelt, gaan voor die van het sjabloon; een lege titel behoudt die van het sjabloon.",
+      "channel": "Kanaal",
+      "channelHelp": "Plaatst het bericht als jou in het kanaal, met een link naar de rij. Markdown werkt.",
+      "channelLoading": "Kanalen laden…",
+      "channelMessage": "Bericht",
+      "channelNone": "Je zit niet in een kanaal waarin je kunt plaatsen. Word eerst lid van een kanaal in Berichten.",
+      "channelPick": "Kies een kanaal",
+      "channelPrivate": "privé",
+      "channelUnknown": "Een kanaal waarin je niet kunt plaatsen"
     },
     "variables": {
       "button": "Een variabele invoegen",

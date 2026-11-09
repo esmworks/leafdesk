@@ -93,5 +93,15 @@
     "clearTitle": "Vil du rydde de godkendte netværk for {workspace}?",
     "clearBody": "Alle i arbejdsområdet kan igen åbne det fra alle netværk, og dets revisionslog registrerer, at du har ryddet listen. Ejerne kan angive den igen under Indstillinger → Sikkerhed.",
     "clearConfirm": "Ryd listen"
+  },
+  "version": {
+    "heading": "Version",
+    "running": "Leafdesk {running}",
+    "newer": "Leafdesk {latest} er udkommet (du kører {running})",
+    "newerDescription": "Udgivelsesnoterne fortæller, hvad der er ændret, og hvordan du opdaterer.",
+    "latest": "Dette er den nyeste version.",
+    "unknown": "Intet svar om nye versioner endnu; serveren spørger GitHub to gange om dagen.",
+    "off": "Serveren leder ikke efter nye versioner (UPDATE_CHECK er slået fra).",
+    "releaseNotes": "Udgivelsesnoter"
   }
 }

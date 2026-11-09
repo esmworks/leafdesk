@@ -24,7 +24,7 @@ try {
 // Imported after .env is loaded: the database client reads DATABASE_URL when it is created.
 const { and, eq, inArray, sql } = await import("drizzle-orm");
 const { db } = await import("@/db");
-const { auditEvent, notification, page, user, workspace, workspaceInvitation, workspaceJoinRequest, workspaceMember } = await import("@/db/schema");
+const { auditEvent, databaseAutomation, notification, page, schedule, user, workspace, workspaceInvitation, workspaceJoinRequest, workspaceMember } = await import("@/db/schema");
 const { InMemoryTransport } = await import("@modelcontextprotocol/server");
 const { createMcpServer } = await import("@/server/mcp/tools");
 const { READ_SCOPE, WRITE_SCOPE } = await import("@/server/mcp/principal");
@@ -61,6 +61,7 @@ const {
   listInvitations,
   memberInviteAccess,
   removeMember,
+  runsAsThem,
   renameWorkspace,
   WorkspaceError,
   revokeInvitation,
@@ -289,7 +290,38 @@ try {
   await rejects(() => removeMember(ids.admin, workspaceId, ids.leaver, { heirId: ids.twin }), isAccessError, "a membership admin can't pick who takes over");
   await rejects(() => removeMember(ids.admin, workspaceId, ids.leaver, { heirId: ids.admin }), isAccessError, "…nor take it over themselves");
   check((await roleOf(ids.leaver)) === "member", "…and the member stays until removed without one");
+  // What runs as them goes off as they go, handed to nobody (it would run with someone else's access).
+  const leaversDb = await createPage({ userId: ids.leaver }, { workspaceId, teamspaceId: null, kind: "database", title: `${RUN} leaver's tasks` });
+  const [ran] = await db
+    .insert(databaseAutomation)
+    .values({ databaseId: leaversDb.id, workspaceId, name: "Ping", trigger: { type: "row_created" }, actions: [], secretSalt: RUN, runAs: ids.leaver })
+    .returning({ id: databaseAutomation.id });
+  const [planned] = await db
+    .insert(schedule)
+    .values({ workspaceId, kind: "row_template", databaseId: leaversDb.id, rule: { frequency: "daily", interval: 1, weekdays: [], time: "08:00", start: "2026-01-01" }, timeZone: "UTC", runAs: ids.leaver, nextRunAt: new Date() })
+    .returning({ id: schedule.id });
+  check((await runsAsThem(ids.owner, workspaceId, ids.leaver)) === 2, "the dialog counts the automations and schedules that run as them");
+  await rejects(() => runsAsThem(ids.admin, workspaceId, ids.leaver), isAccessError, "…for owners only");
   await removeMember(ids.admin, workspaceId, ids.leaver);
+  const [ranAfter] = await db.select({ enabled: databaseAutomation.enabled, runAs: databaseAutomation.runAs }).from(databaseAutomation).where(eq(databaseAutomation.id, ran.id));
+  const [plannedAfter] = await db.select({ enabled: schedule.enabled, nextRunAt: schedule.nextRunAt, runAs: schedule.runAs }).from(schedule).where(eq(schedule.id, planned.id));
+  check(
+    ranAfter.enabled === false && ranAfter.runAs === ids.leaver && plannedAfter.enabled === false && plannedAfter.nextRunAt === null && plannedAfter.runAs === ids.leaver,
+    "removing them turns off their automations and schedules, still theirs (not handed to anyone)",
+    { ranAfter, plannedAfter },
+  );
+  const [removedEvent] = await db
+    .select({ details: auditEvent.details })
+    .from(auditEvent)
+    .where(and(eq(auditEvent.workspaceId, workspaceId), eq(auditEvent.action, "member.removed"), eq(auditEvent.targetId, ids.leaver)));
+  check(
+    (() => {
+      const stopped = (removedEvent?.details as { stopped?: Record<string, number> }).stopped;
+      return stopped?.automations === 1 && stopped.schedules === 1 && stopped.syncs === 0;
+    })(),
+    "…and the audit log records how many went off",
+    removedEvent,
+  );
   check((await roleOf(ids.leaver)) === null, "a membership admin removes a member");
   check((await pageAccessOf(ids.admin, leaversPage.id)).level === "none", "…without taking over the pages only they managed");
   check((await pageAccessOf(ids.owner, leaversPage.id)).level === "full", "…which go to the longest-standing owner");

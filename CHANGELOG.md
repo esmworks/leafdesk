@@ -4,6 +4,37 @@
 
 ### Added
 
+- **Other tools can post in a channel through a webhook.** A channel's admins add one in its
+  details and copy its address, shown once; anything that posts to a Slack incoming webhook (alert
+  managers, build pipelines, dashboards) can post there instead, with the same payload: text,
+  blocks and attachments become Markdown, the message shows the webhook's name and the channel is
+  notified as for any message. Webhooks are rate-limited, stop when the channel is archived or
+  their maker leaves the workspace, and are in the audit log. Migration 0203 adds them.
+- **Automations post in a channel.** The new *Post in a channel* step writes a message with the
+  trigger's values in a Messages channel, as the automation's person, with a link to the row, and
+  says which automation posted it.
+- **Links in messages get preview cards.** A message's web links (up to three) show the page's
+  title, description and picture under it; the author can take the cards away.
+- **A message's files open in the file viewer, and videos play in the message.** Pictures, PDFs
+  and documents open in the viewer with arrows between them; each file keeps a download button.
+- **Apps and API tokens can read and send team messages.** MCP has `list_channels`,
+  `read_channel_messages`, `search_messages` and `send_channel_message`; the REST API has
+  `GET /workspaces/{id}/channels`, `GET` and `POST /channels/{id}/messages` and
+  `GET /workspaces/{id}/messages/search`, under the new `messages:read` and `messages:write`
+  scopes. They run with the person's own access; Leafdesk's AI chat and agents don't get them.
+- **Sign in on your phone with a QR code.** My account → Security shows, after the same proof as a
+  password change, a QR code whose link signs the phone's browser in as you once the page there is
+  confirmed. Each code works once, for two minutes, and only its hash is stored; the phone still
+  enters a two-step code when the account has one. People a workspace holds to single sign-on, or
+  to two-step verification they haven't turned on, get no code, with the reason, and each of the
+  person's workspaces records the sign-in in its audit log. Migration 0204 adds its table.
+- **The admin page says when a newer Leafdesk is out.** Twice a day the server asks GitHub's public
+  API for the latest release and `/admin` (and an administrator's About tab) names it, with a link
+  to its release notes. `UPDATE_CHECK=off` stops the check; the desktop app never makes it.
+- **Steps to allow notifications a browser blocks.** Where push notifications are blocked,
+  Settings → Preferences lists how to allow them again in the browser in use (Chrome and Edge,
+  Safari on a Mac, Firefox, the iPhone and iPad Home Screen app, Chrome on Android), with the other
+  browsers' steps a click away.
 - **Tabs on pages.** `/tabs` puts blocks in named tabs that show one at a time, for long pages
   that read better as sections side by side. A tab is named by double-clicking it, *+* adds one (up
   to 12) and the current tab's menu renames, moves or deletes it. Which tab shows is each reader's
@@ -11,8 +42,40 @@
   title, and Markdown writes them between `<!-- leafdesk:tabs -->` and `<!-- leafdesk:/tabs -->`
   lines, so the MCP server and the AI read and write them.
 
+### Changed
+
+- **Words in a page's headings count for more in search.** A page whose heading has the words
+  now ranks above one that only mentions them in passing; the title still counts most. Migration
+  `0202_heading_search` keeps the headings' text apart and rebuilds the page table's search index
+  once, which takes a while on a large workspace.
+- **The slash menu opens only at the start of a line or after a space.** Typing `km/h` or `11/09`
+  no longer opens it, so Enter after them starts a new line instead of turning the line into a
+  block.
+- **Opening a page checks access and reads it once.** The page's title for the browser tab and the
+  page itself shared nothing, so every page opened was read and checked twice.
+
 ### Fixed
 
+- **A page's version history lists every version it keeps.** The list stopped at the newest 100,
+  while up to 200 automatic versions, manual saves and the ways back from restores are kept, so the
+  older ones could be restored by no one. It now lists up to the newest 1,000.
+- **A server write no longer undoes what someone typed at the same moment.** Buttons that edit a
+  page, the AI chat's edits, appending to a page (mail tasks, MCP, the REST API) and API or MCP
+  page updates sent without `expected_version` read the body, worked out the change and then wrote
+  it: anything an open editor changed in between was put back as it was. Such a write is now made
+  again on the body as it is then; after a few tries it gives up with nothing written (REST
+  `409 page_busy`). Restoring a version saves what was typed during it in the way back too.
+- **Two people editing the same row's links or tags at once no longer lose one of them.** A row
+  write now reads the row again locked and writes its two-way links in the same transaction, so a
+  linked row never keeps a back-link to a row that no longer links to it. Tags, people, linked rows
+  and files changed in the app merge with changes made meanwhile: two people adding a tag at the
+  same time both keep theirs, and a removal takes away only what it removed.
+- **Removing someone turns off what ran as them instead of leaving it to fail.** Their automations,
+  schedules and synced databases kept trying to run with access they no longer had, and the
+  failure showed only in each one's own settings. They are now turned off as the person goes
+  (never handed to someone else, whose access could be wider), the removal dialog says how many,
+  and the audit log records it. Someone removed by the identity provider (SCIM) also loses their
+  mailbox in the workspace, as a removal in the app already did.
 - **A dashboard's tabs no longer show a scrollbar beside them.** Where the system always shows
   scrollbars, a dashboard shown as tabs had a thin vertical one after its last tab, in the app and
   on published pages.

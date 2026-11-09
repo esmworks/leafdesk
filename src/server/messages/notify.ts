@@ -72,7 +72,7 @@ async function tell(workspaceId: string, messageIds: string[]) {
     const statusOf = new Map(quiet.map((q) => [q.userId, q]));
     const isAgent = new Set(agents.map((a) => a.userId));
     const now = Date.now();
-    const author = row.authorName?.trim() || null;
+    const author = row.message.data?.webhook?.name || row.authorName?.trim() || null;
     const words = snippet(message.body, 180);
     const files = message.body.trim() ? "" : "file";
     for (const userId of ids) {

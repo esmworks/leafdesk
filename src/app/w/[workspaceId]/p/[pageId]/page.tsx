@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+import { cache } from "react";
 import { getTranslations } from "next-intl/server";
 import { DatabasePage } from "@/components/database/database-page";
 import { RowProperties } from "@/components/database/row-properties";
@@ -18,8 +19,11 @@ import { policyGatePath, requireUser, requireWorkspaceSession } from "@/server/s
 
 type Params = { params: Promise<{ workspaceId: string; pageId: string }> };
 
-/** The page, or null when it doesn't exist or the user may not see it (the two look the same). */
-async function load(userId: string, pageId: string) {
+/**
+ * The page, or null when it doesn't exist or the user may not see it (the two look the same).
+ * Read once per request: the tab title and the page itself share it (React `cache`).
+ */
+const load = cache(async (userId: string, pageId: string) => {
   try {
     return await getPage(userId, pageId);
   } catch (error) {
@@ -27,7 +31,7 @@ async function load(userId: string, pageId: string) {
     if (error instanceof AccessError) return null;
     throw error;
   }
-}
+});
 
 export async function generateMetadata({
   params,

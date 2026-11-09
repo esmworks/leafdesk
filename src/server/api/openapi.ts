@@ -14,6 +14,7 @@ const TAGS = [
   { name: "Databases", description: "Database schemas and row queries." },
   { name: "Rows", description: "Database rows and their property values." },
   { name: "Comments", description: "Comment threads on pages." },
+  { name: "Messages", description: "Team messages: the channels and direct conversations the user may read, their messages and threads, search, and messages sent as the user." },
   { name: "Agents", description: "A workspace's agents: their settings, who they are shared with, runs asked for now, schedules, run history and monthly usage." },
   { name: "Review", description: "Changes agents proposed instead of making them: rows to add or change and email drafts, each approved (optionally edited) or dismissed by a person." },
   { name: "Follow-ups", description: "Follow-up sequences of mail databases, and the rows they go on: emails sent one after another from a member's mailbox until the contact replies." },
@@ -56,12 +57,37 @@ Field descriptions are shared with Leafdesk's MCP server; where they name its to
 
 const url = { type: "string", format: "uri", description: "Link to it in the app." };
 const id = { type: "string" };
+
 const loose = (properties: Record<string, JsonSchema>, required: string[] = []): JsonSchema => ({
   type: "object",
   properties,
   ...(required.length ? { required } : {}),
   additionalProperties: true,
 });
+
+const channelMessage = loose(
+  {
+    id,
+    seq: { type: "integer", description: "Its place in the channel." },
+    author_id: { type: ["string", "null"] },
+    author: { type: ["string", "null"] },
+    via: { type: "string", description: "webhook, or the automation that posted it." },
+    kind: { type: "string", enum: ["message", "system"] },
+    text: { type: "string", description: "Markdown; people, channels and pages are leafdesk: links." },
+    deleted: { type: "boolean" },
+    created_at: { type: "string" },
+    edited_at: { type: "string" },
+    thread_id: { type: ["string", "null"], description: "The thread's first message, for a reply." },
+    reply_count: { type: "integer" },
+    last_reply_at: { type: ["string", "null"] },
+    files: { type: "array", items: loose({ id, name: { type: "string" }, type: { type: "string" }, size: { type: "integer" }, url: { type: "string" } }) },
+    reactions: { type: "array", items: loose({ emoji: { type: "string" }, count: { type: "integer" } }) },
+    channel_id: id,
+    channel: { type: "string" },
+    url,
+  },
+  ["id", "kind", "text", "created_at", "url"],
+);
 const ref = (name: string) => ({ $ref: `#/components/schemas/${name}` });
 const cursorFields = {
   next_cursor: { type: ["string", "null"], description: "Pass as cursor to read the next page; null after the last one." },
@@ -690,6 +716,35 @@ const SCHEMAS: Record<string, JsonSchema> = {
     ["page_id", "threads"],
   ),
   CommentCreated: loose({ thread_id: id, comment_id: id, url }, ["thread_id", "comment_id"]),
+  ChannelList: loose(
+    {
+      workspace_id: id,
+      channels: {
+        type: "array",
+        items: loose(
+          {
+            id,
+            kind: { type: "string", enum: ["public", "private", "direct"] },
+            name: { type: "string" },
+            topic: { type: "string" },
+            member: { type: "boolean", description: "The user is in it; only members post." },
+            members: { type: "integer" },
+            posting: { type: "string" },
+            archived: { type: "boolean" },
+            last_message_at: { type: ["string", "null"] },
+            url,
+          },
+          ["id", "kind", "name", "member"],
+        ),
+      },
+    },
+    ["channels"],
+  ),
+  MessageList: loose(
+    { channel_id: id, thread: channelMessage, messages: { type: "array", items: channelMessage }, next_cursor: { type: ["string", "null"] }, has_more: { type: "boolean" } },
+    ["messages", "has_more"],
+  ),
+  MessageSent: loose({ message: channelMessage, not_in_channel: { type: "array", items: { type: "string" }, description: "People mentioned who aren't in the channel and weren't told." } }, ["message"]),
   AgentSummary: loose(
     {
       id,

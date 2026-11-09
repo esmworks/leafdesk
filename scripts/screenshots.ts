@@ -5,7 +5,7 @@
  * same place's Catch up summing up a busy channel, in the light and the dark scheme, in headless
  * Chrome against a running server. Run it again after the interface's look changes.
  *
- *   pnpm build && MAIL_ALLOWED_HOSTS=127.0.0.1 pnpm start   # one terminal
+ *   pnpm build && MAIL_ALLOWED_HOSTS=127.0.0.1:3925,127.0.0.1:3943 pnpm start   # one terminal
  *   pnpm tsx scripts/screenshots.ts [board] [mail] [messages]   # another; all of them by default
  *
  * Writes .github/screenshots/{board,mail,messages,catch-up}-{light,dark}.png (1440×900 at 2×, the
@@ -14,8 +14,9 @@
  * on each run; its owner is screenshots@example.test, who can't sign in (the script makes the
  * session). The script writes the new pages' live documents itself, which is safe with the server
  * running: no one has them open yet. The Mail tab's shots read a mailbox on GreenMail
- * (greenmail/standalone:2.1.14, started here with Docker on free ports and removed at the end),
- * which MAIL_ALLOWED_HOSTS lets the server reach. Catch up asks the server's AI (AI_PROVIDER and
+ * (greenmail/standalone:2.1.14, started here with Docker and removed at the end) on SMTP port 3925
+ * and IMAP port 3943 (GREENMAIL_SMTP_PORT, GREENMAIL_IMAP_PORT), which MAIL_ALLOWED_HOSTS lets the
+ * server reach: a bare host there allows mail's own ports only. Catch up asks the server's AI (AI_PROVIDER and
  * the rest of its settings) for each of its four shots, so their words differ a little each run.
  * The agent's answer in the thread is written here, not by a run: it reads the same each time.
  *
@@ -25,7 +26,6 @@
 import { execFileSync, spawn } from "node:child_process";
 import { randomBytes } from "node:crypto";
 import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
-import { type AddressInfo, createServer } from "node:net";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { makeSignature } from "better-auth/crypto";
@@ -35,8 +35,11 @@ import MailComposer from "nodemailer/lib/mail-composer";
 try {
   process.loadEnvFile();
 } catch {}
+// GreenMail's ports, which the server's MAIL_ALLOWED_HOSTS must name too.
+const SMTP_PORT = Number(process.env.GREENMAIL_SMTP_PORT ?? 3925);
+const IMAP_PORT = Number(process.env.GREENMAIL_IMAP_PORT ?? 3943);
 // Connecting the mailbox checks its server here too.
-process.env.MAIL_ALLOWED_HOSTS = "127.0.0.1";
+process.env.MAIL_ALLOWED_HOSTS = `127.0.0.1:${SMTP_PORT},127.0.0.1:${IMAP_PORT}`;
 
 // Imported after .env is loaded: the database client reads DATABASE_URL when it is created.
 const { eq, inArray, max, sql } = await import("drizzle-orm");
@@ -199,23 +202,12 @@ const SENT: Mail = {
   replyTo: "pricing-1",
 };
 
-function freePort(): Promise<number> {
-  return new Promise((resolve, reject) => {
-    const server = createServer();
-    server.once("error", reject);
-    server.listen(0, MAIL_HOST, () => {
-      const { port } = server.address() as AddressInfo;
-      server.close(() => resolve(port));
-    });
-  });
-}
-
 const docker = (...args: string[]) => execFileSync("docker", args, { stdio: ["ignore", "pipe", "pipe"] }).toString().trim();
 
 /** Starts GreenMail, puts Alex's mail in it and connects it as Alex's mailbox in the workspace. */
 async function seedMail(workspaceId: string) {
-  const smtpPort = await freePort();
-  const imapPort = await freePort();
+  const smtpPort = SMTP_PORT;
+  const imapPort = IMAP_PORT;
   try {
     docker("rm", "-f", MAIL_CONTAINER);
   } catch {}
@@ -513,7 +505,8 @@ try {
   async function mail(scheme: "light" | "dark", scale: number, format: "png" | "jpeg", out: string) {
     await tab("Emulation.setDeviceMetricsOverride", { width: 1440, height: 900, deviceScaleFactor: scale, mobile: false });
     await tab("Emulation.setEmulatedMedia", { features: [{ name: "prefers-color-scheme", value: scheme }] });
-    // The thread joins Alex's answer once the sent folder is read too, which may come after the inbox.
+    // The thread joins Alex's answer once the sent folder is read too: the minute sweep reads it after
+    // the inbox, so this waits up to about two minutes.
     for (let attempt = 1; ; attempt++) {
       await tab("Page.navigate", { url: `${BASE}/w/${workspaceId}/mail` });
       // The first read of the mailbox runs in the background as Mail lists it.
@@ -522,7 +515,7 @@ try {
       await until(`document.body.innerText.includes(${JSON.stringify(OPENED_TEXT)}) && document.fonts.status === "loaded"`, "the open thread");
       await new Promise((r) => setTimeout(r, 2_000));
       if (await evaluate<boolean>(`document.body.innerText.includes(${JSON.stringify(SENT_TEXT)})`)) break;
-      if (attempt === 10) throw new Error("Alex's answer never joined the thread");
+      if (attempt === 20) throw new Error("Alex's answer never joined the thread");
       await new Promise((r) => setTimeout(r, 3_000));
     }
     const { data } = await tab<{ data: string }>("Page.captureScreenshot", { format, ...(format === "jpeg" ? { quality: 88 } : {}) });

@@ -328,5 +328,28 @@
       "noAccess": "Solo los propietarios del espacio de trabajo pueden importar a Mensajes.",
       "failed": "La importación falló. Inténtalo de nuevo."
     }
+  },
+  "removePreviews": "Quitar vistas previas",
+  "viaAutomation": "mediante la automatización {name}",
+  "webhook": "Webhook",
+  "webhooks": {
+    "add": "Añadir",
+    "address": "Dirección del webhook",
+    "cancel": "Cancelar",
+    "copied": "Dirección copiada",
+    "copy": "Copiar dirección",
+    "copyNow": "Copia esta dirección ahora: no se volverá a mostrar. Quien la tenga puede publicar aquí.",
+    "create": "Crear",
+    "failed": "No se pudo cambiar el webhook. Vuelve a intentarlo.",
+    "hint": "Las herramientas que publican en el webhook entrante de un chat (alertas, compilaciones, paneles) pueden publicar en este canal en su lugar, con el mismo payload.",
+    "lastUsed": "última publicación {when}",
+    "loading": "Cargando…",
+    "name": "Nombre del webhook",
+    "namePlaceholder": "Por ejemplo, alertas de Grafana",
+    "neverUsed": "aún no ha publicado",
+    "none": "Aún no hay webhooks.",
+    "remove": "Eliminar {name}",
+    "removeConfirm": "¿Eliminar el webhook {name}? Su dirección deja de funcionar al instante; sus mensajes se quedan.",
+    "title": "Webhooks"
   }
 }

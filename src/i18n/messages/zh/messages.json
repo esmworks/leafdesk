@@ -328,5 +328,28 @@
       "noAccess": "只有工作区所有者可以导入到消息。",
       "failed": "导入失败。请再试一次。"
     }
+  },
+  "removePreviews": "移除预览",
+  "viaAutomation": "通过自动化“{name}”",
+  "webhook": "Webhook",
+  "webhooks": {
+    "add": "添加",
+    "address": "Webhook 地址",
+    "cancel": "取消",
+    "copied": "地址已复制",
+    "copy": "复制地址",
+    "copyNow": "请立即复制此地址：它不会再次显示。任何拥有此地址的人都可以在这里发帖。",
+    "create": "创建",
+    "failed": "无法更改 Webhook，请重试。",
+    "hint": "向聊天工具的传入 Webhook 发帖的工具（告警、构建、仪表板）可以改为发到此频道，负载格式相同。",
+    "lastUsed": "上次发帖于 {when}",
+    "loading": "正在加载…",
+    "name": "Webhook 名称",
+    "namePlaceholder": "例如 Grafana 告警",
+    "neverUsed": "尚未发帖",
+    "none": "还没有 Webhook。",
+    "remove": "删除“{name}”",
+    "removeConfirm": "要删除 Webhook“{name}”吗？其地址将立即失效，已发的消息会保留。",
+    "title": "Webhook"
   }
 }

@@ -119,6 +119,10 @@
       "audit": {
         "name": "Revisjonslogg",
         "hint": "Revisjonsloggen til arbeidsområdet (bare eiere, for et token som er begrenset til et arbeidsområde de eier)."
+      },
+      "messages": {
+        "hint": "Kanaler og meldingene i dem; skriving sender meldinger som deg.",
+        "name": "Meldinger"
       }
     },
     "summary": {

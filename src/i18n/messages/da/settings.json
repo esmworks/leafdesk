@@ -99,7 +99,8 @@
       "domainPeople": "domæne konti brugere firma e-mail skygge-it ikke-administreret",
       "openOnStart": "start opstart første side sidst besøgt seneste",
       "pageReports": "anmeld anmeldelse misbrug klage fjern publiceret offentlig web sider",
-      "dashboardEmails": "abonnement rapport tidsplan ugentlig oversigt e-mail dashboard"
+      "dashboardEmails": "abonnement rapport tidsplan ugentlig oversigt e-mail dashboard",
+      "phoneSignIn": "qr kode telefon mobil scan enhed log ind"
     }
   },
   "workspace": {
@@ -228,6 +229,7 @@
     "heirLabel": "Overdrag sider til",
     "heirHint": "Sider, som kun {name} kunne administrere, og teamområder, som ingen andre styrer, går til den person, du vælger.",
     "heirCount": "{count, plural, =0 {{name} administrerer ingen sider alene lige nu. Teamområder, som ingen andre styrer, går til den person, du vælger.} one {# side, som kun {name} kunne administrere, går til den person, du vælger, sammen med teamområder, som ingen andre styrer.} other {# sider, som kun {name} kunne administrere, går til den person, du vælger, sammen med teamområder, som ingen andre styrer.}}",
+    "heirStops": "Automatiseringer, tidsplaner og synkroniseringer, der kører som {name}: {count}. De slås fra og kører igen, når nogen, der administrerer dem, slår dem til igen.",
     "heirYou": "{name} (dig)"
   },
   "guests": {
@@ -2174,7 +2176,9 @@
         "updated": "Ændrede kanalen {target}",
         "archived": "Arkiverede kanalen {target}",
         "unarchived": "Hentede kanalen {target} tilbage fra arkivet",
-        "imported": "Importerede kanalen {target}"
+        "imported": "Importerede kanalen {target}",
+        "webhook_created": "Tilføjede en webhook til kanalen {target}",
+        "webhook_deleted": "Slettede en webhook i kanalen {target}"
       },
       "dashboard_email": {
         "set": "Satte {target} til at blive sendt som e-mail til {count, plural, one {# person} other {# personer}}",
@@ -2185,6 +2189,9 @@
         "note_added": "Tilføjede en note til AI-hukommelsen for {target}: “{to}”",
         "note_changed": "Ændrede en note i AI-hukommelsen for {target}: “{from}” → “{to}”",
         "note_deleted": "{count, plural, one {Slettede en note fra AI-hukommelsen for {target}: “{from}”} other {Slettede # noter fra AI-hukommelsen for {target}}}"
+      },
+      "account": {
+        "phone_signed_in": "Brugte en QR-kode til at logge ind på en anden enhed"
       }
     },
     "decisions": {
@@ -2307,7 +2314,43 @@
     "dashboardEmailsHeading": "Dashboard-e-mails",
     "dashboardEmailsDescription": "Dashboards, der sendes til dig som e-mail efter en tidsplan, og dem, du har sat op til andre.",
     "dashboardEmailsNone": "Ingen dashboard-e-mails",
-    "dashboardEmailsNoneDescription": "For at få et dashboard som e-mail skal du åbne det og vælge E-mail over dets widgets."
+    "dashboardEmailsNoneDescription": "For at få et dashboard som e-mail skal du åbne det og vælge E-mail over dets widgets.",
+    "unblock": {
+      "ownHeading": "Sådan tillader du dem igen i {platform}:",
+      "others": "Trin for andre browsere og enheder",
+      "all": "Sådan tillader du dem igen",
+      "chrome": {
+        "name": "Chrome, Edge og andre Chromium-browsere",
+        "step1": "Klik på ikonet i starten af adresselinjen, til venstre for adressen.",
+        "step2": "Slå Notifikationer til, eller sæt dem til Tillad. Står de der ikke, så åbn Webstedsindstillinger og skift det der.",
+        "step3": "Genindlæs denne side, og slå push-notifikationer til her."
+      },
+      "safari": {
+        "name": "Safari på en Mac",
+        "step1": "Vælg Safari i menulinjen, derefter Indstillinger, og åbn Websteder.",
+        "step2": "Klik på Notifikationer i listen til venstre.",
+        "step3": "Sæt dette websted til Tillad, genindlæs derefter denne side, og slå push-notifikationer til her."
+      },
+      "firefox": {
+        "name": "Firefox",
+        "step1": "Klik på ikonet i starten af adresselinjen.",
+        "step2": "Fjern Blokeret ud for Send notifikationer.",
+        "step3": "Genindlæs denne side, slå push-notifikationer til her, og vælg Tillad, når du bliver spurgt."
+      },
+      "ios": {
+        "name": "iPhone og iPad, Leafdesk på hjemmeskærmen",
+        "step1": "Åbn appen Indstillinger, og tryk på Notifikationer.",
+        "step2": "Tryk på Leafdesk i listen over apps.",
+        "step3": "Slå Tillad notifikationer til, og åbn derefter Leafdesk igen fra hjemmeskærmen."
+      },
+      "android": {
+        "name": "Chrome på Android",
+        "step1": "Tryk på ikonet i starten af adresselinjen.",
+        "step2": "Tryk på Tilladelser og derefter Notifikationer.",
+        "step3": "Slå notifikationer til for dette websted.",
+        "step4": "Genindlæs denne side, og slå push-notifikationer til her."
+      }
+    }
   },
   "site": {
     "description": "Giv dette arbejdsområdes udgivne sider én læsbar adresse, en forside og navigation mellem dem.",

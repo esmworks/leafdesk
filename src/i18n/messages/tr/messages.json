@@ -328,5 +328,28 @@
       "noAccess": "Mesajlar'a yalnızca çalışma alanının sahipleri içe aktarabilir.",
       "failed": "İçe aktarma başarısız oldu. Yeniden deneyin."
     }
+  },
+  "removePreviews": "Önizlemeleri kaldır",
+  "viaAutomation": "“{name}” otomasyonuyla",
+  "webhook": "Webhook",
+  "webhooks": {
+    "add": "Ekle",
+    "address": "Webhook adresi",
+    "cancel": "Vazgeç",
+    "copied": "Adres kopyalandı",
+    "copy": "Adresi kopyala",
+    "copyNow": "Bu adresi şimdi kopyalayın: bir daha gösterilmeyecek. Adrese sahip olan herkes buraya yazabilir.",
+    "create": "Oluştur",
+    "failed": "Webhook değiştirilemedi. Tekrar deneyin.",
+    "hint": "Bir sohbetin gelen webhook’una mesaj gönderen araçlar (uyarılar, derlemeler, panolar) aynı içerikle bunun yerine bu kanala yazabilir.",
+    "lastUsed": "son mesaj {when}",
+    "loading": "Yükleniyor…",
+    "name": "Webhook adı",
+    "namePlaceholder": "Örneğin Grafana uyarıları",
+    "neverUsed": "henüz mesaj göndermedi",
+    "none": "Henüz webhook yok.",
+    "remove": "“{name}” webhook’unu sil",
+    "removeConfirm": "“{name}” webhook’u silinsin mi? Adresi hemen çalışmayı bırakır; mesajları kalır.",
+    "title": "Webhook’lar"
   }
 }

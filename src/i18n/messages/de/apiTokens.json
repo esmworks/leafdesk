@@ -119,6 +119,10 @@
       "audit": {
         "name": "Audit-Log",
         "hint": "Das Audit-Log des Workspace (nur Inhaber, für ein Token, das auf einen Workspace beschränkt ist, dessen Inhaber sie sind)."
+      },
+      "messages": {
+        "hint": "Kanäle und ihre Nachrichten; Schreiben sendet Nachrichten in deinem Namen.",
+        "name": "Nachrichten"
       }
     },
     "summary": {

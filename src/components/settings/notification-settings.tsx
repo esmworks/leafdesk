@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import { useEffect, useState, useTransition } from "react";
 import { setNotificationPreferenceAction } from "@/app/actions/preferences";
 import { subscribePushAction, unsubscribePushAction } from "@/app/actions/push";
+import { lazyPart } from "@/components/lazy-part";
 import { useLocalMode } from "@/components/local-mode";
 import { Button, Switch } from "@/components/ui";
 import type { PreferenceKind } from "@/db/schema";
@@ -11,6 +12,9 @@ import { INBOX_PREFERENCES_EVENT } from "@/lib/inbox-event";
 import type { NotificationChannel, NotificationPreferences } from "@/server/notification-preferences";
 import { appWorker, base64UrlToBytes, madeWithKey, pushSupported } from "./push-device";
 import { SettingsRow } from "./section";
+
+/** Shown only where the browser blocks notifications, so its steps load then. */
+const NotificationUnblockHelp = lazyPart(() => import("./notification-unblock").then((m) => m.NotificationUnblockHelp));
 
 const KIND_KEYS = {
   assignment: "assignment",
@@ -236,6 +240,8 @@ function PushDeviceRow({ publicKey, endpoints }: { publicKey: string; endpoints:
           </Button>
         ) : null
       }
-    />
+    >
+      {state === "blocked" && !error && <NotificationUnblockHelp />}
+    </SettingsRow>
   );
 }

@@ -89,6 +89,15 @@ export async function listAutomationsAction(databaseId: string) {
   });
 }
 
+/** The Messages channels a "Post in a channel" step of the database's automations may pick: those the person can post in. */
+export async function automationChannelsAction(databaseId: string) {
+  return run(async (userId) => {
+    const database = await requireDatabase(userId, String(databaseId), "full");
+    const { writableChannels } = await import("@/server/messages/automation-channels");
+    return writableChannels(userId, database.workspaceId);
+  });
+}
+
 /** What the quick setup of Slack notifications shows: the properties to watch and the automations that send to Slack. */
 export async function slackSetupAction(databaseId: string) {
   return run((userId) => slackSetup(userId, String(databaseId)));

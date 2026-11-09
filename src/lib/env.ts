@@ -112,6 +112,14 @@ export const env = {
     return !/^(off|false|0|no)$/i.test(process.env.SENDER_LOGOS?.trim() ?? "");
   },
   /**
+   * UPDATE_CHECK=off stops the server from asking GitHub twice a day which Leafdesk release is the
+   * latest (server/update-check.ts), for the instance admin page to say when a newer one is out.
+   * On by default; never on one computer (the desktop app updates itself).
+   */
+  get updateCheck() {
+    return !/^(off|false|0|no)$/i.test(process.env.UPDATE_CHECK?.trim() ?? "");
+  },
+  /**
    * MAIL_ALLOWED_HOSTS: mail servers (host names, or host:port) members' mailboxes may be on even
    * though they are on a private network or a local name, and may talk to without TLS (a mail
    * server on the same machine or in the office, say); comma-separated. Every other mailbox is

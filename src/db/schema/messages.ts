@@ -378,6 +378,34 @@ export const scheduledMessage = pgTable(
 );
 
 /**
+ * A webhook that posts into a channel (server/messages/webhooks.ts): tools that send to a chat's
+ * incoming webhooks (alerts, builds) send here instead. Its address carries a secret shown once,
+ * kept only as its SHA-256; its messages have no author and carry its name in `data.webhook`.
+ */
+export const channelWebhook = pgTable(
+  "channel_webhook",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    channelId: text("channel_id")
+      .notNull()
+      .references(() => channel.id, { onDelete: "cascade" }),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspace.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    secretHash: text("secret_hash").notNull(),
+    /** The secret's last characters, to tell addresses apart in the list. */
+    hint: text("hint").notNull(),
+    createdBy: text("created_by").references(() => user.id, { onDelete: "set null" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    lastUsedAt: timestamp("last_used_at", { withTimezone: true }),
+  },
+  (t) => [index("channel_webhook_channel_idx").on(t.channelId)],
+);
+
+/**
  * A person's status in a workspace's messages: a few words and an emoji others see beside their
  * name, until `statusUntil`, and quiet hours of their own (`quietUntil`: no notifications till then).
  */

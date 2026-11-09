@@ -108,6 +108,10 @@
         "name": "Comments",
         "hint": "Comment threads; writing starts threads and replies."
       },
+      "messages": {
+        "name": "Messages",
+        "hint": "Channels and their messages; writing sends messages as you."
+      },
       "agents": {
         "name": "Agents",
         "hint": "Agents' settings, runs, schedules and sharing."

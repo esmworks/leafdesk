@@ -93,5 +93,15 @@
     "clearTitle": "Freigegebene Netzwerke von {workspace} leeren?",
     "clearBody": "Alle im Workspace können ihn wieder aus jedem Netzwerk öffnen, und sein Audit-Log hält fest, dass du die Liste geleert hast. Die Eigentümer können sie unter Einstellungen → Sicherheit neu festlegen.",
     "clearConfirm": "Liste leeren"
+  },
+  "version": {
+    "heading": "Version",
+    "running": "Leafdesk {running}",
+    "newer": "Leafdesk {latest} ist erschienen (du verwendest {running})",
+    "newerDescription": "Was sich geändert hat und wie du aktualisierst, steht in den Versionshinweisen.",
+    "latest": "Das ist die neueste Version.",
+    "unknown": "Noch keine Antwort zu neuen Versionen; der Server fragt GitHub zweimal am Tag.",
+    "off": "Der Server sucht nicht nach neuen Versionen (UPDATE_CHECK ist aus).",
+    "releaseNotes": "Versionshinweise"
   }
 }

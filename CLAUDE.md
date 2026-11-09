@@ -64,18 +64,25 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   helper that skips them (`pageAccessOf`, `findMembership`, `rowMailAccess`) asks `sessionHeldBack`
   too; row email has `requestRowMailAccess`. Every session Better Auth deletes closes its collab
   connections (`session.delete.after` in `lib/auth.ts`); one deleted with raw SQL needs
-  `disconnectEndedSessions`.
+  `disconnectEndedSessions`. A new way to create sessions goes through Better Auth's
+  `internalAdapter.createSession` inside an auth endpoint, as `server/phone-sign-in.ts` (QR codes
+  signing phones in) does: its path goes into `AUTH_METHOD_BY_PATH` and the two-factor challenge's
+  matcher in `lib/auth-security.ts`, its session never copies another's `ssoProviderId`, and the
+  endpoint takes `use: [formCsrfMiddleware]` (Better Auth checks Origin only on requests with cookies).
 - **Page content.** The Yjs document is the source of truth. Writes from the server go through
   `getCollab()` (`src/server/collab/bridge.ts`: `replaceContent`, `editBlocks`, `setTitle` …), which
   only exists when the app runs through `server.ts`. A block whose data is all in its props, written
   while people may be editing (meeting notes, ticking a to-do), changes them in place with
   `updateBlockAttributes` (its `find` gets the block's id, which sits on the `blockContainer`; an
   inline node such as a mention, also found by it, gets the id of the block it is in):
-  `editBlocks` and other `writeBlocks` callers read, await, then rewrite, and can lose edits made
-  in between. Editor-side rewrites that must ride along with the change that caused them (toggle headings
+  `editBlocks` and other `writeBlocks` callers read, await, then rewrite: a write without an
+  expected version is made again when the body changed meanwhile, and gives up after
+  `WRITE_ATTEMPTS` (`pageBusyError`), so its `build` must be safe to run twice. Row writes lock
+  the row (`lockRowValues`) and write two-way links in the same transaction; list values the app
+  sends carry `base` (`lib/list-merge.ts`). Editor-side rewrites that must ride along with the change that caused them (toggle headings
   taking their section, `components/page/toggle-headings.ts`; column cleanup) are ProseMirror
   `appendTransaction` plugins that skip transactions carrying `ySyncPluginKey` meta (others' edits
-  and undo), so they make one undo step and never run twice. Saves derive markdown and text (`collab/service.ts` `persistPage`) and announce `pageChanged()` (`page-events.ts`); row value
+  and undo), so they make one undo step and never run twice. Saves derive markdown, text and the headings' text (`collab/service.ts` `persistPage`; a copy that writes `content_text` itself writes `heading_text` with it, which search weighs above the body) and announce `pageChanged()` (`page-events.ts`); row value
   changes announce through `row-events.ts`. Page tree operations: `src/server/pages.ts`; databases,
   rows and properties: `databases.ts`; formulas and rollups: `derived.ts` (pure part in
   `src/lib/derived.ts`). Row values are checked in `databases.ts` `normalizeRowProperties` (types,
@@ -201,6 +208,15 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   `lib/message-quiet.ts` `withoutCalls`; the thread is outside words (`dispatch.ts` `readOutside`).
   Anything that stores messages without a person writing them now (an import) must not go through
   `sendMessage`, or its mentions of agents start runs (only `FRESH_MS` holds them back).
+  Webhooks (`webhooks.ts`, table `channel_webhook`, route `api/messages/webhooks/[id]/[secret]`)
+  insert an authorless message straight inside `write` (`data.webhook`, no mentions, no previews);
+  their payloads are read by the pure `lib/slack-payload.ts`, which reuses the importer's mrkdwn
+  reader. Link cards are `link-previews.ts` (`data.previews`, fetched after `sendMessage` and
+  edits through `server/link-preview.ts`, stored only while the body is unchanged). The automation
+  step `channel_message` posts through `sendMessage` as the run's person under an id derived from
+  the run and step, so a retried run posts once (`automations/run.ts` `postInChannel`); the
+  channels it offers are `automation-channels.ts`. MCP's and the REST API's message calls are
+  `messages/operations.ts` (`requireMembership` first), hidden from the AI chat and agents.
 - **Shared operations.** `src/server/operations.ts` is what the MCP tools, the REST API, the AI
   chat, agents and automations do with pages, databases, rows and comments. Each operation runs as
   `ctx.userId` with that person's access; the caller checks its own scopes first.
@@ -582,7 +598,8 @@ several mailboxes, whose thread ids can repeat, so the list keys threads by `ite
   the logo is document content kept in `pdf_letterhead`, not page decoration; a letterhead's
   `theme` is JSON checked by `lib/pdf-themes.ts`, drawn by `pdf-theme-layout.ts`, described for
   models by `pdf-theme-docs.ts`, changed by the AI in `pdf-theme-ai.ts`), backup `backup/`, SSO `sso.ts`, SCIM
-  `scim.ts`, sealed secrets `secret-box.ts`.
+  `scim.ts`, sealed secrets `secret-box.ts`, the admin page's "a newer release is out"
+  `update-check.ts` (GitHub's latest release twice a day, kept on `globalThis`, `UPDATE_CHECK`).
 - **Editor odds and ends.** Media alignment and in-place width: `lib/media-blocks.ts` (file and
   audio specs shared with the server) and `lib/media-placement.ts` (pure; published pages use it).
   Shiki ships no grammar for some languages: `lib/code-grammars.ts` holds small ones (patterns as
@@ -834,7 +851,7 @@ plus the `scripts/*-e2e.ts` of the area you touched (`pnpm tsx scripts/<name>-e2
   everyone out), sso (with a mock identity provider; see its header), scale.
 - **Needs no server on the same database**, because a server's workers would take the queued work:
   agents, agent-api, agent-approvers, agent-chat, agent-copy, agent-handoff, agent-memory, agent-mention, desktop-files,
-  agent-schedule, agent-sharing, agent-guardrails, agent-skills, agent-channel, automation, button, row-buttons, timed-automation, schedule,
+  agent-schedule, agent-sharing, agent-guardrails, agent-skills, agent-channel, automation, button, row-buttons, timed-automation, schedule, concurrent-writes,
   row-activity, row-follow, row-mail, ai-reminders, web-links, discussions, follow-ups (starts its own GreenMail container
   unless given ports), page-watch, page-webhooks, verify, wins-log, jira-sync, github-pulls-sync, sheets-sync, sprints. `connector-e2e` starts its own `next dev` against
   `<database>_peer`, which must exist; no other dev server may run in the same checkout.

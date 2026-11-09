@@ -31,6 +31,13 @@ edits your last message, and the arrow beside *Send* schedules it (tomorrow morn
 a time of your own). What you leave in a box is kept as a draft on the server, on every device.
 Mentioning someone who isn't in the channel offers to add them.
 
+Files in a message open in the file viewer (pictures, PDFs, documents and the rest, with arrows
+between a message's files), with a separate download button beside each; videos play in the
+message. A link to a web page gets a card under the message with the page's title, description
+and picture, up to three a message; the author can take the cards away with ×, and they stay away
+after an edit. The server fetches the page as an address anyone gives (only
+`WEB_FETCH_ALLOWED_HOSTS` reaches a private network), and the picture loads from the site itself.
+
 ## Threads, reactions and the message menu
 
 Each message has replies in a *thread* beside the channel (followed by those who write in it,
@@ -57,6 +64,24 @@ join automatically*, *Make the channel private* (for good), leaving and archivin
 channel stays readable). New messages that concern you (by that setting; replies in threads you
 follow) come as push notifications, unless the conversation is open in front of you or your quiet
 hours last.
+
+## Webhooks
+
+A channel's admins can let other tools post in it: in its details, *Webhooks → Add* with a name
+gives an address to copy, shown only then. Anything that can post to a Slack incoming webhook
+(alert managers, build pipelines, dashboards, monitoring) can post to that address instead, with
+the same JSON payload: `text` (Slack's formatting becomes Markdown), `blocks` (headers, sections
+and their fields, context, dividers, rich text, images and link buttons, shown as Markdown in
+place of the text) and `attachments` (quoted cards with a title, text, fields and a footer). A
+form-encoded `payload` field works too. The answer is `ok`, or what's wrong
+(`invalid_payload`, `no_text`, `channel_is_archived`, `rate_limited`). A webhook's message shows
+the webhook's name, notifies the channel as any message does and mentions no one; pictures become
+links, and buttons that would need a chat app to answer them are left out. A webhook posts up to
+30 messages a minute, a channel has up to ten, and one stops working when the channel is archived,
+when the person who made it leaves the workspace or when an admin deletes it (its messages stay).
+
+An automation's *Post in a channel* step posts in a channel too, as the person the automation runs
+as and with a link to the row ([Automations](automations.md)).
 
 Keys: `Cmd/Ctrl+Shift+K` jumps to a channel or person, `Alt+↑/↓` to the conversation before or
 after (with Shift, the unread ones), `Shift+Esc` marks everything read.
@@ -103,9 +128,18 @@ Direct conversations, custom emoji and reactions of people who matched no member
 counted in the result. Importing the same export again leaves its channels as they are. The
 export may hold up to 100,000 files (one per channel and day); the ZIP's own limits are Import's.
 
+## From other apps
+
+Apps connected over MCP and REST API tokens with the `messages:read` scope list the channels the
+person may read, read a channel's messages or a thread, and search them; with `messages:write` they
+send a message as the person, in a channel they are in or in a thread ([REST API](rest-api.md),
+[Connections](connections.md)). The workspace's connected-apps setting applies as it does to
+pages. Leafdesk's own AI chat and agents don't get these tools: an agent reads a channel only when
+it is named there.
+
 ## For owners and administrators
 
-Channels made, imported, renamed or made private, archived and brought back are in the workspace's
-audit log ([Features](features.md), *Audit log*). Backups hold channels and their messages; direct
-messages stay out of them, like AI chats ([Export](export.md#backups)). A legal hold
+Channels made, imported, renamed or made private, archived and brought back, and webhooks added or
+deleted, are in the workspace's audit log ([Features](features.md), *Audit log*). Backups hold channels and their messages; direct
+messages and webhooks stay out of them, like AI chats ([Export](export.md#backups)). A legal hold
 ([Features](features.md), *Legal holds*) keeps messages from being deleted for good.

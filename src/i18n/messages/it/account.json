@@ -29,7 +29,10 @@
     "issues": "Segnala un problema",
     "issuesDescription": "Bug e idee vanno nel sistema di segnalazione del progetto.",
     "issuesLink": "Apri una segnalazione",
-    "notice": "Leafdesk include software open source di terzi; le relative note si trovano nel file <link>NOTICE</link>."
+    "notice": "Leafdesk include software open source di terzi; le relative note si trovano nel file <link>NOTICE</link>.",
+    "newer": "È uscito Leafdesk {latest}",
+    "newerDescription": "Una versione più recente di quella in uso su questo server. Chi gestisce il server può aggiornarlo.",
+    "newerNotes": "Novità"
   },
   "profile": {
     "description": "Come ti vedono gli altri in ogni spazio di lavoro, l’email con cui accedi e l’eliminazione del tuo account.",
@@ -168,7 +171,9 @@
     "samePassword": "Scegli una password diversa da quella precedente.",
     "resetStepExpired": "Questo passaggio è scaduto. Accedi di nuovo con la vecchia password.",
     "storageStuck": "I file di {workspaces} sono nella tua archiviazione e non hanno un posto in cui essere spostati. Chiedi ai loro proprietari di configurare un’archiviazione, oppure sposta prima i file.",
-    "legalHold": "Una conservazione legale in {workspaces} protegge il tuo account. Chiedi prima a un proprietario di revocarla."
+    "legalHold": "Una conservazione legale in {workspaces} protegge il tuo account. Chiedi prima a un proprietario di revocarla.",
+    "phoneSignInSso": "{workspaces} ti chiede di accedere con il single sign-on, quindi un codice QR non può far accedere il telefono.",
+    "phoneSignInTwoFactor": "{workspaces} richiede la verifica in due passaggi. Attivala prima per il tuo account."
   },
   "mail": {
     "description": "Le tue caselle di posta e i tuoi indirizzi di calendario, in tutti i tuoi spazi di lavoro.",
@@ -249,5 +254,31 @@
     "unlinkConfirm": "Scollega Telegram",
     "unlinking": "Scollegamento…",
     "unreachable": "Il server non riesce a raggiungere Telegram in questo momento. Riprova più tardi."
+  },
+  "phoneSignIn": {
+    "heading": "Altri dispositivi",
+    "title": "Accedi dal telefono",
+    "description": "Mostra un codice QR e scansionalo con la fotocamera del telefono per accedere lì senza digitare la password. Ogni codice funziona una volta, per due minuti.",
+    "show": "Mostra codice QR",
+    "blockedSso": "{workspaces} ti chiede di accedere con il single sign-on, quindi un codice QR non può far accedere il telefono. Accedi dal telefono con il single sign-on.",
+    "blockedTwoFactor": "{workspaces} richiede la verifica in due passaggi. Attivala per il tuo account qui sopra; dopo la scansione il telefono ti chiederà un codice.",
+    "dialogTitle": "Accedi dal telefono",
+    "confirmBody": "Prima conferma che sei tu. Chiunque scansioni il codice entra nel tuo account, quindi mostralo solo al tuo telefono.",
+    "showCode": "Mostra codice",
+    "scan": "Inquadra il codice con la fotocamera del telefono, apri il link trovato e conferma.",
+    "codeLabel": "Codice QR che fa accedere un telefono al tuo account",
+    "validFor": "Funziona una volta, per {seconds, plural, one {# altro secondo} other {altri # secondi}}.",
+    "expired": "Questo codice è scaduto.",
+    "expiredNote": "Mostra un nuovo codice per riprovare.",
+    "newCode": "Nuovo codice",
+    "metaTitle": "Accedi su questo dispositivo",
+    "invalidTitle": "Questo codice non funziona",
+    "invalidBody": "È scaduto o è già stato usato. Mostra un nuovo codice dalla pagina del tuo account e scansionalo di nuovo.",
+    "phoneTitle": "Accedere su questo dispositivo?",
+    "phoneBody": "Questo dispositivo accederà a Leafdesk come {name} ({email}).",
+    "phoneConfirm": "Accedi",
+    "phoneWarning": "Continua solo se hai appena scansionato questo codice sul tuo schermo.",
+    "refusedSso": "Uno spazio di lavoro di cui fai parte richiede il single sign-on. Accedi su questo dispositivo con il single sign-on.",
+    "refusedTwoFactor": "Uno spazio di lavoro di cui fai parte richiede la verifica in due passaggi. Attivala prima per il tuo account, poi mostra un nuovo codice."
   }
 }

@@ -1518,7 +1518,8 @@
         "celebrate": "Feir med konfetti",
         "approval": "Be om godkjenning",
         "start_sequence": "Start en oppfølging",
-        "slack": "Send til Slack"
+        "slack": "Send til Slack",
+        "channel_message": "Legg ut i en kanal"
       },
       "trashHelp": "Flytter raden til papirkurven, der den kan gjenopprettes til papirkurven tømmes. Ingenting kan kjøre etter denne handlingen.",
       "addAction": "Legg til handling",
@@ -1583,7 +1584,9 @@
         "needView": "Velg visningen som radene telles i.",
         "needNumber": "Velg tallegenskapen det skal beregnes på.",
         "needThreshold": "Skriv inn tallet det skal sammenlignes med.",
-        "needButton": "Velg knappen som kjører den."
+        "needButton": "Velg knappen som kjører den.",
+        "needChannel": "Velg kanalen det skal legges ut i.",
+        "needChannelMessage": "Skriv meldingen som skal legges ut."
       },
       "agent": "Agent",
       "chooseAgent": "Velg en agent…",
@@ -1834,7 +1837,15 @@
       "rowTemplateDefault": "Databasens standardmal",
       "rowTemplateDefaultNamed": "Standardmalen ({name})",
       "rowTemplateGone": "En mal som ikke finnes lenger",
-      "rowTemplateHelp": "Raden starter som en kopi av malen. Verdier som angis her, går foran malens; en tom tittel beholder malens."
+      "rowTemplateHelp": "Raden starter som en kopi av malen. Verdier som angis her, går foran malens; en tom tittel beholder malens.",
+      "channel": "Kanal",
+      "channelHelp": "Legger ut meldingen i kanalen som deg, med en lenke til raden. Markdown fungerer.",
+      "channelLoading": "Laster inn kanaler…",
+      "channelMessage": "Melding",
+      "channelNone": "Du er ikke med i noen kanal du kan legge ut i. Bli med i en under Meldinger først.",
+      "channelPick": "Velg en kanal",
+      "channelPrivate": "privat",
+      "channelUnknown": "En kanal du ikke kan legge ut i"
     },
     "variables": {
       "button": "Sett inn en variabel",

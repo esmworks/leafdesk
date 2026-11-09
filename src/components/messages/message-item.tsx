@@ -1,8 +1,10 @@
 "use client";
 
-import { Bookmark, BookmarkCheck, CircleCheck, Copy, Download, FileText, Forward, History, Link2, MailOpen, MessageSquareText, MoreHorizontal, Pencil, Pin, PinOff, SmilePlus, Trash2 } from "lucide-react";
+import { Bookmark, BookmarkCheck, CircleCheck, Copy, Download, FileText, Forward, History, Link2, MailOpen, MessageSquareText, MoreHorizontal, Pencil, Pin, PinOff, SmilePlus, Trash2, Webhook } from "lucide-react";
 import { useFormatter, useLocale, useNow, useTranslations } from "next-intl";
-import { memo, useEffect, useRef, useState } from "react";
+import { memo, useEffect, useRef, useState, type MouseEvent } from "react";
+import { plainClick, useFileViewer } from "@/components/file-viewer";
+import { lazyPart } from "@/components/lazy-part";
 import { showToast } from "@/components/toast";
 import { cn, MenuItem, MenuSeparator, Popover, textareaClass } from "@/components/ui";
 import { formatBytes } from "@/lib/files";
@@ -12,6 +14,9 @@ import { EmojiPicker, QUICK_REACTIONS, rememberEmoji } from "./emoji-picker";
 import { MessageBody } from "./message-body";
 import { PersonFace } from "./person";
 import { call, channelTitle, dropPending, patchMessage, personName, retrySend, useView, type Pending, type View } from "./store";
+
+/** Link cards load with the first message that has them: their bookmark card brings the embed rules along. */
+const LinkCards = lazyPart(() => import("./link-cards").then((m) => m.LinkCards));
 
 /** What a message row may do in the place it shows (a channel's list, a thread, a result list). */
 export type ItemContext = {
@@ -75,10 +80,26 @@ function SystemLine({ m, s }: { m: MessageView; s: View }) {
   return <p className="py-1 ps-12 text-[13px] text-fg-muted">{text}</p>;
 }
 
+/** Videos play where they were posted; PDF, Office files, tables and text show in the file viewer. */
+const VIDEO_TYPES = /^video\/(mp4|webm|ogg|quicktime)$/;
+
 function Files({ files }: { files: FileView[] }) {
   const t = useTranslations("messages");
+  const viewer = useFileViewer();
   const images = files.filter((f) => f.contentType.startsWith("image/") && f.contentType !== "image/svg+xml");
-  const others = files.filter((f) => !images.includes(f));
+  const videos = files.filter((f) => VIDEO_TYPES.test(f.contentType));
+  const others = files.filter((f) => !images.includes(f) && !videos.includes(f));
+  // Opened over the conversation, never in a tab of its own: an app on a phone's home screen has no
+  // way back from one. A click with a modifier still opens the file in a tab.
+  const openAt = (event: MouseEvent, file: FileView) => {
+    if (!plainClick(event)) return;
+    event.preventDefault();
+    const shown = files.filter((f) => !videos.includes(f));
+    viewer.open(
+      shown.map((f) => ({ url: f.url, name: f.name, type: f.contentType })),
+      shown.indexOf(file),
+    );
+  };
   return (
     <div className="mt-1 flex flex-col gap-1.5">
       {images.length > 0 && (
@@ -88,23 +109,40 @@ function Files({ files }: { files: FileView[] }) {
             const w = f.width && f.height ? Math.min(360, f.width) : 360;
             const h = f.width && f.height ? Math.round((w / f.width) * f.height) : undefined;
             return (
-              <a key={f.id} href={f.url} target="_blank" rel="noopener" className="block overflow-hidden rounded-lg border border-border bg-bg-subtle">
+              <a key={f.id} href={f.url} target="_blank" rel="noopener" onClick={(e) => openAt(e, f)} className="block overflow-hidden rounded-lg border border-border bg-bg-subtle">
                 <img src={f.url} alt={f.name} loading="lazy" decoding="async" width={w} height={h} style={{ maxHeight: 360, width: w, height: h ? Math.min(h, 360) : undefined }} className="object-cover" />
               </a>
             );
           })}
         </div>
       )}
-      {others.map((f) => (
-        <a key={f.id} href={f.url} target="_blank" rel="noopener" className="flex w-fit max-w-full items-center gap-2 rounded-lg border border-border px-3 py-2 hover:bg-bg-hover">
-          <FileText className="h-5 w-5 shrink-0 text-fg-icon" />
-          <span className="min-w-0">
-            <span className="block truncate text-sm text-fg">{f.name}</span>
-            <span className="block text-xs text-fg-faint tabular-nums">{formatBytes(f.size)}</span>
-          </span>
-          <Download aria-label={t("download")} className="ms-2 h-4 w-4 shrink-0 text-fg-muted" />
-        </a>
+      {videos.map((f) => (
+        <video
+          key={f.id}
+          src={f.url}
+          controls
+          playsInline
+          preload="metadata"
+          aria-label={f.name}
+          width={f.width ? Math.min(480, f.width) : 480}
+          className="max-h-[360px] max-w-full rounded-lg border border-border bg-black"
+        />
       ))}
+      {others.map((f) => (
+        <span key={f.id} className="flex w-fit max-w-full items-center rounded-lg border border-border">
+          <a href={f.url} target="_blank" rel="noopener" onClick={(e) => openAt(e, f)} className="flex min-w-0 items-center gap-2 rounded-s-lg py-2 ps-3 pe-2 hover:bg-bg-hover">
+            <FileText className="h-5 w-5 shrink-0 text-fg-icon" />
+            <span className="min-w-0">
+              <span className="block truncate text-sm text-fg">{f.name}</span>
+              <span className="block text-xs text-fg-faint tabular-nums">{formatBytes(f.size)}</span>
+            </span>
+          </a>
+          <a href={`${f.url}?download=1`} download={f.name} aria-label={t("download")} title={t("download")} className="self-stretch rounded-e-lg px-2.5 text-fg-muted hover:bg-bg-hover hover:text-fg flex items-center">
+            <Download className="h-4 w-4 shrink-0" />
+          </a>
+        </span>
+      ))}
+      {viewer.element}
     </div>
   );
 }
@@ -523,7 +561,8 @@ export const MessageItem = memo(function MessageItem({
   const s = useView();
   if (m.kind === "system") return <SystemLine m={m} s={s} />;
   const author = s.people.get(m.authorId ?? "");
-  const name = m.data?.importedFrom?.name ?? personName(s, m.authorId, t("someone"));
+  const hook = m.data?.webhook;
+  const name = hook?.name ?? m.data?.importedFrom?.name ?? personName(s, m.authorId, t("someone"));
   const status = m.authorId ? s.statuses.get(m.authorId) : undefined;
   const statusShown = status && (status.emoji || status.text) && (!status.statusUntil || new Date(status.statusUntil) > new Date()) ? status : null;
   const when = new Date(m.createdAt);
@@ -547,7 +586,12 @@ export const MessageItem = memo(function MessageItem({
             {time(m.createdAt, locale)}
           </time>
         ) : (
-          m.authorId && <PersonFace s={s} userId={m.authorId} size="lg" presence={false} />
+          (m.authorId && <PersonFace s={s} userId={m.authorId} size="lg" presence={false} />) ||
+          (hook && (
+            <span className="flex h-9 w-9 items-center justify-center rounded-full bg-bg-active text-fg-muted">
+              <Webhook className="h-4 w-4" />
+            </span>
+          ))
         )}
       </div>
       <div className="min-w-0 flex-1">
@@ -555,6 +599,8 @@ export const MessageItem = memo(function MessageItem({
           <div className="flex items-baseline gap-2">
             <span className="truncate text-sm font-semibold text-fg">{name}</span>
             {author?.agent && <span className="rounded bg-bg-active px-1 text-[10px] font-medium text-fg-muted uppercase">{t("agent")}</span>}
+            {hook && <span className="rounded bg-bg-active px-1 text-[10px] font-medium text-fg-muted uppercase">{t("webhook")}</span>}
+            {m.data?.automation && <span className="truncate text-xs text-fg-faint">{t("viaAutomation", { name: m.data.automation.name })}</span>}
             {statusShown && (
               <span className="truncate text-xs text-fg-muted" title={statusShown.text}>
                 {statusShown.emoji} {statusShown.text}
@@ -580,6 +626,7 @@ export const MessageItem = memo(function MessageItem({
             {m.body && <MessageBody body={m.body} workspaceId={ctx.workspaceId} edited={m.editedAt ? new Date(m.editedAt).toLocaleString(locale) : null} />}
             <Forwarded m={m} s={s} workspaceId={ctx.workspaceId} />
             {m.files.length > 0 && <Files files={m.files} />}
+            {m.data?.previews?.length ? <LinkCards messageId={m.id} previews={m.data.previews} own={m.authorId === s.me} /> : null}
           </>
         )}
         {m.threadId && m.alsoInChannel && !ctx.inThread && ctx.openThread && (

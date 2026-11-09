@@ -93,5 +93,15 @@
     "clearTitle": "De goedgekeurde netwerken van {workspace} wissen?",
     "clearBody": "Iedereen in de werkruimte kan die dan weer vanaf elk netwerk openen, en het auditlogboek legt vast dat jij de lijst hebt gewist. De eigenaren kunnen haar opnieuw instellen via Instellingen → Beveiliging.",
     "clearConfirm": "Lijst wissen"
+  },
+  "version": {
+    "heading": "Versie",
+    "running": "Leafdesk {running}",
+    "newer": "Leafdesk {latest} is uit (je gebruikt {running})",
+    "newerDescription": "In de release notes lees je wat er veranderd is en hoe je bijwerkt.",
+    "latest": "Dit is de nieuwste versie.",
+    "unknown": "Nog geen antwoord over nieuwe versies; de server vraagt het GitHub twee keer per dag.",
+    "off": "De server zoekt niet naar nieuwe versies (UPDATE_CHECK staat uit).",
+    "releaseNotes": "Release notes"
   }
 }

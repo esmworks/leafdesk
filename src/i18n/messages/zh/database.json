@@ -1518,7 +1518,8 @@
         "celebrate": "撒彩纸庆祝",
         "approval": "请求审批",
         "start_sequence": "开始跟进",
-        "slack": "发送到 Slack"
+        "slack": "发送到 Slack",
+        "channel_message": "在频道中发帖"
       },
       "trashHelp": "将该行移到回收站，在回收站清空之前都可以从中恢复。此操作之后不能再运行任何操作。",
       "addAction": "添加操作",
@@ -1583,7 +1584,9 @@
         "needView": "请选择要统计行数的视图。",
         "needNumber": "请选择要计算的数字属性。",
         "needThreshold": "请输入要比较的数字。",
-        "needButton": "选择运行它的按钮。"
+        "needButton": "选择运行它的按钮。",
+        "needChannel": "请选择要发帖的频道。",
+        "needChannelMessage": "请填写要发布的消息。"
       },
       "agent": "智能体",
       "chooseAgent": "选择智能体…",
@@ -1834,7 +1837,15 @@
       "rowTemplateDefault": "数据库的默认模板",
       "rowTemplateDefaultNamed": "默认模板（{name}）",
       "rowTemplateGone": "已不存在的模板",
-      "rowTemplateHelp": "该行以模板副本开始。此处设置的值会覆盖模板中的值；标题留空则沿用模板标题。"
+      "rowTemplateHelp": "该行以模板副本开始。此处设置的值会覆盖模板中的值；标题留空则沿用模板标题。",
+      "channel": "频道",
+      "channelHelp": "以你的身份在频道中发布消息，并附上该行的链接。支持 Markdown。",
+      "channelLoading": "正在加载频道…",
+      "channelMessage": "消息",
+      "channelNone": "你不在任何可以发帖的频道中。请先在“消息”中加入一个频道。",
+      "channelPick": "选择频道",
+      "channelPrivate": "私有",
+      "channelUnknown": "你无法发帖的频道"
     },
     "variables": {
       "button": "插入变量",

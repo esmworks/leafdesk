@@ -558,10 +558,12 @@ export const page = pgTable(
     ydoc: bytea("ydoc"),
     /** Derived from ydoc on every store; used for search and MCP reads. */
     contentText: text("content_text").notNull().default(""),
+    /** The text of the body's headings, one line each (lib/blocks blocksToHeadingText); stored with content_text. */
+    headingText: text("heading_text").notNull().default(""),
     contentMarkdown: text("content_markdown").notNull().default(""),
     /**
      * What full-text search matches and ranks (server/pages.ts fullTextSearch): the title's words
-     * weighted A, the body's B, folded so the dotted and dotless i are alike (search_fold, migration
+     * weighted A, the body's headings B (heading_text, migration 0202), the rest of the body C, folded so the dotted and dotless i are alike (search_fold, migration
      * 0093; queries fold their words alike), then the same for the two-character pieces of their
      * Chinese and Japanese text (cjk_bigrams, migration 0077; lib/search-words cuts queries alike).
      * Only the first 1,000 characters of the title and 80,000 of the body, so that the vector always
@@ -570,7 +572,7 @@ export const page = pgTable(
      * again. Large: select it only where a query needs it.
      */
     searchVector: tsvector("search_vector").generatedAlwaysAs(
-      sql`setweight(to_tsvector('simple', search_fold(left(coalesce(title, ''), 1000))), 'A') || setweight(to_tsvector('simple', search_fold(left(coalesce(content_text, ''), 80000))), 'B') || setweight(to_tsvector('simple', cjk_bigrams(left(title, 1000))), 'A') || setweight(to_tsvector('simple', cjk_bigrams(left(content_text, 80000))), 'B')`,
+      sql`setweight(to_tsvector('simple', search_fold(left(coalesce(title, ''), 1000))), 'A') || setweight(to_tsvector('simple', search_fold(left(coalesce(heading_text, ''), 4000))), 'B') || setweight(to_tsvector('simple', search_fold(left(coalesce(content_text, ''), 80000))), 'C') || setweight(to_tsvector('simple', cjk_bigrams(left(title, 1000))), 'A') || setweight(to_tsvector('simple', cjk_bigrams(left(heading_text, 4000))), 'B') || setweight(to_tsvector('simple', cjk_bigrams(left(content_text, 80000))), 'C')`,
     ),
     /** While set, the page is in the trash (with the pages under it that went there with it). */
     archivedAt: timestamp("archived_at", { withTimezone: true }),

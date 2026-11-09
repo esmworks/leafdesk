@@ -53,6 +53,18 @@ export function pageSaveFailedError(cause: unknown) {
 export const isPageSaveFailed = (error: unknown) => (error as { code?: unknown } | null)?.code === PAGE_SAVE_FAILED;
 
 /**
+ * A server write of the body without an expected version that open editors changed every time it
+ * was made again (collab/service.ts writeBlocks): nothing was written. Told apart by `code`, as above.
+ */
+export const PAGE_BUSY = "pageBusy";
+
+export function pageBusyError() {
+  return Object.assign(new Error("The page kept changing while this change was made"), { code: PAGE_BUSY });
+}
+
+export const isPageBusy = (error: unknown) => (error as { code?: unknown } | null)?.code === PAGE_BUSY;
+
+/**
  * A body write that checked or reported the body's version (see CollabService.pageVersion):
  * `conflict` when the body no longer had the version the writer expected, and nothing was written.
  * `version` is the body's version after the write, or the current one on a conflict.

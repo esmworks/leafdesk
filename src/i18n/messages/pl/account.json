@@ -29,7 +29,10 @@
     "issues": "Zgłoś problem",
     "issuesDescription": "Błędy i pomysły trafiają do systemu zgłoszeń projektu.",
     "issuesLink": "Utwórz zgłoszenie",
-    "notice": "Leafdesk zawiera oprogramowanie open source innych autorów; ich informacje znajdują się w pliku <link>NOTICE</link>."
+    "notice": "Leafdesk zawiera oprogramowanie open source innych autorów; ich informacje znajdują się w pliku <link>NOTICE</link>.",
+    "newer": "Wyszedł Leafdesk {latest}",
+    "newerDescription": "Nowsza wersja niż ta, której używa ten serwer. Osoba zarządzająca serwerem może go zaktualizować.",
+    "newerNotes": "Co nowego"
   },
   "profile": {
     "description": "Jak widzą cię inni we wszystkich obszarach roboczych, adres e-mail, którym się logujesz, i usuwanie konta.",
@@ -168,7 +171,9 @@
     "samePassword": "Wybierz hasło inne niż poprzednie.",
     "resetStepExpired": "Ten krok wygasł. Zaloguj się ponownie starym hasłem.",
     "storageStuck": "Pliki tych obszarów roboczych są w twoim magazynie i nie mają dokąd zostać przeniesione: {workspaces}. Poproś ich właścicieli o skonfigurowanie magazynu albo najpierw przenieś pliki.",
-    "legalHold": "Blokada prawna w {workspaces} chroni Twoje konto. Najpierw poproś tamtejszego właściciela o jej zdjęcie."
+    "legalHold": "Blokada prawna w {workspaces} chroni Twoje konto. Najpierw poproś tamtejszego właściciela o jej zdjęcie.",
+    "phoneSignInSso": "{workspaces} wymaga logowania jednokrotnego, więc kod QR nie może zalogować twojego telefonu.",
+    "phoneSignInTwoFactor": "{workspaces} wymaga weryfikacji dwuetapowej. Najpierw włącz ją dla swojego konta."
   },
   "mail": {
     "description": "Twoje skrzynki pocztowe i adresy kalendarzy we wszystkich twoich obszarach roboczych.",
@@ -249,5 +254,31 @@
     "unlinkConfirm": "Odłącz Telegram",
     "unlinking": "Odłączanie…",
     "unreachable": "Serwer nie może teraz połączyć się z Telegramem. Spróbuj później."
+  },
+  "phoneSignIn": {
+    "heading": "Inne urządzenia",
+    "title": "Zaloguj się na telefonie",
+    "description": "Pokaż kod QR i zeskanuj go aparatem telefonu, aby zalogować się na nim bez wpisywania hasła. Każdy kod działa raz, przez dwie minuty.",
+    "show": "Pokaż kod QR",
+    "blockedSso": "{workspaces} wymaga logowania jednokrotnego, więc kod QR nie może zalogować twojego telefonu. Zaloguj się na telefonie przez logowanie jednokrotne.",
+    "blockedTwoFactor": "{workspaces} wymaga weryfikacji dwuetapowej. Włącz ją powyżej dla swojego konta; po zeskanowaniu telefon poprosi o kod.",
+    "dialogTitle": "Zaloguj się na telefonie",
+    "confirmBody": "Najpierw potwierdź, że to ty. Każdy, kto zeskanuje kod, wejdzie na twoje konto, więc pokazuj go tylko swojemu telefonowi.",
+    "showCode": "Pokaż kod",
+    "scan": "Skieruj aparat telefonu na kod, otwórz znaleziony link i potwierdź.",
+    "codeLabel": "Kod QR, który loguje telefon na twoje konto",
+    "validFor": "Działa raz, jeszcze przez {seconds, plural, one {# sekundę} few {# sekundy} many {# sekund} other {# sekundy}}.",
+    "expired": "Ten kod wygasł.",
+    "expiredNote": "Pokaż nowy kod, aby spróbować ponownie.",
+    "newCode": "Nowy kod",
+    "metaTitle": "Zaloguj się na tym urządzeniu",
+    "invalidTitle": "Ten kod nie działa",
+    "invalidBody": "Wygasł lub został już użyty. Pokaż nowy kod na stronie swojego konta i zeskanuj go ponownie.",
+    "phoneTitle": "Zalogować się na tym urządzeniu?",
+    "phoneBody": "To urządzenie zaloguje się do Leafdesk jako {name} ({email}).",
+    "phoneConfirm": "Zaloguj się",
+    "phoneWarning": "Kontynuuj tylko wtedy, gdy przed chwilą zeskanowałeś ten kod na własnym ekranie.",
+    "refusedSso": "Obszar roboczy, do którego należysz, wymaga logowania jednokrotnego. Zaloguj się na tym urządzeniu przez logowanie jednokrotne.",
+    "refusedTwoFactor": "Obszar roboczy, do którego należysz, wymaga weryfikacji dwuetapowej. Najpierw włącz ją dla swojego konta, a potem pokaż nowy kod."
   }
 }

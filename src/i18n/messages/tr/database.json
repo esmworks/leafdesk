@@ -1518,7 +1518,8 @@
         "celebrate": "Konfetiyle kutla",
         "approval": "Onay iste",
         "start_sequence": "Takip başlat",
-        "slack": "Slack’e gönder"
+        "slack": "Slack’e gönder",
+        "channel_message": "Kanala mesaj gönder"
       },
       "trashHelp": "Satırı çöp kutusuna taşır; çöp kutusu boşaltılana kadar oradan geri yüklenebilir. Bu eylemden sonra başka eylem çalışamaz.",
       "addAction": "Eylem ekle",
@@ -1583,7 +1584,9 @@
         "needView": "Satırları sayılacak görünümü seçin.",
         "needNumber": "Hesaplanacak sayı özelliğini seçin.",
         "needThreshold": "Karşılaştırılacak sayıyı girin.",
-        "needButton": "Onu çalıştıracak butonu seçin."
+        "needButton": "Onu çalıştıracak butonu seçin.",
+        "needChannel": "Mesajın gönderileceği kanalı seçin.",
+        "needChannelMessage": "Gönderilecek mesajı yazın."
       },
       "agent": "Ajan",
       "chooseAgent": "Bir ajan seçin…",
@@ -1834,7 +1837,15 @@
       "rowTemplateDefault": "Veritabanının varsayılan şablonu",
       "rowTemplateDefaultNamed": "Varsayılan şablon ({name})",
       "rowTemplateGone": "Artık var olmayan bir şablon",
-      "rowTemplateHelp": "Satır şablonun bir kopyası olarak başlar. Burada belirlenen değerler şablonunkilerin yerine geçer; boş başlık şablonun başlığını korur."
+      "rowTemplateHelp": "Satır şablonun bir kopyası olarak başlar. Burada belirlenen değerler şablonunkilerin yerine geçer; boş başlık şablonun başlığını korur.",
+      "channel": "Kanal",
+      "channelHelp": "Mesajı sizin adınıza, satırın bağlantısıyla birlikte kanala gönderir. Markdown kullanılabilir.",
+      "channelLoading": "Kanallar yükleniyor…",
+      "channelMessage": "Mesaj",
+      "channelNone": "Mesaj gönderebileceğiniz bir kanalda değilsiniz. Önce Mesajlar’da bir kanala katılın.",
+      "channelPick": "Bir kanal seçin",
+      "channelPrivate": "özel",
+      "channelUnknown": "Mesaj gönderemeyeceğiniz bir kanal"
     },
     "variables": {
       "button": "Değişken ekle",

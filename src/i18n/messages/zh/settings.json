@@ -99,7 +99,8 @@
       "domainPeople": "域名 账户 用户 公司 邮箱 未管理",
       "openOnStart": "启动 开始 首页 上次访问 最近",
       "pageReports": "举报 滥用 投诉 撤下 已发布 公开 网络 页面",
-      "dashboardEmails": "订阅 报告 计划 每周 摘要 邮件 仪表板 定时"
+      "dashboardEmails": "订阅 报告 计划 每周 摘要 邮件 仪表板 定时",
+      "phoneSignIn": "二维码 qr 手机 移动 扫描 设备 登录"
     }
   },
   "workspace": {
@@ -228,6 +229,7 @@
     "heirLabel": "将其页面移交给",
     "heirHint": "只有 {name} 能管理的页面，以及没有其他人管理的团队空间，将移交给你选择的人。",
     "heirCount": "{count, plural, =0 {{name} 目前没有独自管理的页面。没有其他人管理的团队空间将移交给你选择的人。} other {只有 {name} 能管理的 # 个页面，连同没有其他人管理的团队空间，将移交给你选择的人。}}",
+    "heirStops": "以 {name} 身份运行的自动化、计划和同步：{count} 个。它们会被关闭，等管理它们的人重新开启后再次运行。",
     "heirYou": "{name}（你）"
   },
   "guests": {
@@ -2174,7 +2176,9 @@
         "updated": "更改了频道 {target}",
         "archived": "归档了频道 {target}",
         "unarchived": "将频道 {target} 从归档中恢复",
-        "imported": "导入了频道 {target}"
+        "imported": "导入了频道 {target}",
+        "webhook_created": "向频道 {target} 添加了一个 Webhook",
+        "webhook_deleted": "删除了频道 {target} 的一个 Webhook"
       },
       "dashboard_email": {
         "set": "将 {target} 设置为通过邮件发送给 {count, plural, other {# 个人}}",
@@ -2185,6 +2189,9 @@
         "note_added": "向 {target} 的 AI 记忆添加了一条笔记：“{to}”",
         "note_changed": "更改了 {target} 的 AI 记忆中的一条笔记：“{from}” → “{to}”",
         "note_deleted": "{count, plural, =1 {从 {target} 的 AI 记忆中删除了一条笔记：“{from}”} other {从 {target} 的 AI 记忆中删除了 # 条笔记}}"
+      },
+      "account": {
+        "phone_signed_in": "使用二维码在另一台设备上登录"
       }
     },
     "decisions": {
@@ -2307,7 +2314,43 @@
     "dashboardEmailsHeading": "仪表板邮件",
     "dashboardEmailsDescription": "按计划发送给你的仪表板，以及你为他人设置的仪表板。",
     "dashboardEmailsNone": "没有仪表板邮件",
-    "dashboardEmailsNoneDescription": "要通过邮件接收仪表板，请打开它并选择组件上方的“邮件”。"
+    "dashboardEmailsNoneDescription": "要通过邮件接收仪表板，请打开它并选择组件上方的“邮件”。",
+    "unblock": {
+      "ownHeading": "在 {platform} 中重新允许：",
+      "others": "其他浏览器和设备的步骤",
+      "all": "如何重新允许",
+      "chrome": {
+        "name": "Chrome、Edge 及其他 Chromium 浏览器",
+        "step1": "点击地址栏开头、地址左侧的图标。",
+        "step2": "打开通知，或将其设为允许。如果没有列出，请打开网站设置并在那里更改。",
+        "step3": "重新加载此页面，并在这里开启推送通知。"
+      },
+      "safari": {
+        "name": "Mac 上的 Safari",
+        "step1": "在菜单栏中依次选择 Safari、设置，然后打开网站。",
+        "step2": "在左侧列表中点击通知。",
+        "step3": "将此网站设为允许，然后重新加载此页面并在这里开启推送通知。"
+      },
+      "firefox": {
+        "name": "Firefox",
+        "step1": "点击地址栏开头的图标。",
+        "step2": "在发送通知旁边移除已阻止。",
+        "step3": "重新加载此页面，在这里开启推送通知，并在询问时选择允许。"
+      },
+      "ios": {
+        "name": "iPhone 和 iPad，主屏幕上的 Leafdesk",
+        "step1": "打开设置 App，轻点通知。",
+        "step2": "在 App 列表中轻点 Leafdesk。",
+        "step3": "开启允许通知，然后从主屏幕重新打开 Leafdesk。"
+      },
+      "android": {
+        "name": "Android 上的 Chrome",
+        "step1": "轻点地址栏开头的图标。",
+        "step2": "依次轻点权限、通知。",
+        "step3": "为此网站开启通知。",
+        "step4": "重新加载此页面，并在这里开启推送通知。"
+      }
+    }
   },
   "site": {
     "description": "为此工作区已发布的页面提供一个易读的地址、一个主页以及页面之间的导航。",

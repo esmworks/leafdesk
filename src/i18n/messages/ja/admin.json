@@ -93,5 +93,15 @@
     "clearTitle": "{workspace} の承認済みネットワークを空にしますか？",
     "clearBody": "ワークスペースの全員がまたどのネットワークからでも開けるようになり、あなたがリストを空にしたことが監査ログに残ります。オーナーは「設定 → セキュリティ」でリストを設定し直せます。",
     "clearConfirm": "リストを空にする"
+  },
+  "version": {
+    "heading": "バージョン",
+    "running": "Leafdesk {running}",
+    "newer": "Leafdesk {latest} が公開されました（現在は {running}）",
+    "newerDescription": "変更点と更新方法はリリースノートをご覧ください。",
+    "latest": "これが最新のリリースです。",
+    "unknown": "新しいリリースについての応答はまだありません。サーバーは 1 日 2 回 GitHub に問い合わせます。",
+    "off": "サーバーは新しいリリースを確認しません（UPDATE_CHECK がオフ）。",
+    "releaseNotes": "リリースノート"
   }
 }

@@ -328,5 +328,28 @@
       "noAccess": "Tylko właściciele przestrzeni roboczej mogą importować do Wiadomości.",
       "failed": "Import się nie powiódł. Spróbuj ponownie."
     }
+  },
+  "removePreviews": "Usuń podglądy",
+  "viaAutomation": "przez automatyzację „{name}”",
+  "webhook": "Webhook",
+  "webhooks": {
+    "add": "Dodaj",
+    "address": "Adres webhooka",
+    "cancel": "Anuluj",
+    "copied": "Skopiowano adres",
+    "copy": "Kopiuj adres",
+    "copyNow": "Skopiuj ten adres teraz: nie zostanie pokazany ponownie. Każdy, kto go ma, może tu publikować.",
+    "create": "Utwórz",
+    "failed": "Nie udało się zmienić webhooka. Spróbuj ponownie.",
+    "hint": "Narzędzia publikujące przez przychodzący webhook czatu (alerty, kompilacje, pulpity) mogą zamiast tego publikować na tym kanale, z tą samą treścią.",
+    "lastUsed": "ostatnia publikacja {when}",
+    "loading": "Wczytywanie…",
+    "name": "Nazwa webhooka",
+    "namePlaceholder": "Na przykład alerty Grafany",
+    "neverUsed": "jeszcze nic nie opublikował",
+    "none": "Nie ma jeszcze webhooków.",
+    "remove": "Usuń {name}",
+    "removeConfirm": "Usunąć webhook „{name}”? Jego adres od razu przestanie działać; jego wiadomości pozostaną.",
+    "title": "Webhooki"
   }
 }

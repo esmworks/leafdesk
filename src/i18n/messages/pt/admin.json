@@ -93,5 +93,15 @@
     "clearTitle": "Esvaziar as redes aprovadas de {workspace}?",
     "clearBody": "Todos no espaço de trabalho poderão abri-lo de novo de qualquer rede, e o registro de auditoria anotará que você esvaziou a lista. Os proprietários podem defini-la de novo em Configurações → Segurança.",
     "clearConfirm": "Esvaziar lista"
+  },
+  "version": {
+    "heading": "Versão",
+    "running": "Leafdesk {running}",
+    "newer": "O Leafdesk {latest} já saiu (você usa {running})",
+    "newerDescription": "As notas da versão explicam o que mudou e como atualizar.",
+    "latest": "Esta é a versão mais recente.",
+    "unknown": "Ainda sem resposta sobre novas versões; o servidor consulta o GitHub duas vezes por dia.",
+    "off": "O servidor não procura novas versões (UPDATE_CHECK está desligado).",
+    "releaseNotes": "Notas da versão"
   }
 }

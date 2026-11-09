@@ -36,6 +36,7 @@ In Markdown a callout's icon leads its text under the alert line (`> [!TIP]`, th
 | `databases:read` | `GET /databases/{id}` (properties and views) and its history |
 | `rows:read`, `rows:write` | `POST /databases/{id}/query`, `GET /rows/{id}` and its activity, changes waiting for review; writing adds, upserts and changes rows (a voice note into a database needs it too) and approves or dismisses those changes |
 | `comments:read`, `comments:write` | a page's comment threads; writing starts threads and replies |
+| `messages:read`, `messages:write` | the Messages channels the user may read, their messages and threads, and search; writing sends messages as the user |
 | `agents:read`, `agents:write` | agents, their runs, usage, schedules and sharing; writing changes them, asks for runs, sets schedules and shares |
 | `audit:read` | `GET /workspaces/{id}/audit-log` (owners only, on a token limited to that workspace; never in the presets; see [Audit log streaming](account-and-security.md#audit-log-streaming)) |
 
@@ -79,7 +80,9 @@ Filter ops: `contains`, `does_not_contain`, `equals`, `not_equals`, `is_any_of` 
   a filter the query may be left out. `GET /pages/{id}`
   gives the body's `version`, and `PATCH` takes it back as `expected_version`: when the body
   changed since, nothing is written and the answer is `409` `version_conflict` with the current
-  version. Body writes report the new `version`.
+  version. Without `expected_version` the change is made on the body as it is when written: when
+  someone edits the page meanwhile it is made again on their edit, and after a few such tries the
+  answer is `409` `page_busy` with nothing written. Body writes report the new `version`.
 - **Databases and rows:** `GET /databases/{id}` (schema), `POST /databases/{id}/query` (filters,
   sorts, a saved view, cursor pagination with `next_cursor` and `has_more`, `properties` to narrow
   each row), `POST /databases/{id}/rows`, `POST
@@ -104,6 +107,12 @@ Filter ops: `contains`, `does_not_contain`, `equals`, `not_equals`, `is_any_of` 
     -F audio=@memo.m4a -F workspace_id=<workspace_id>
   ```
 - **Comments:** `GET` and `POST /pages/{id}/comments`.
+- **Messages:** `GET /workspaces/{id}/channels`, `GET /channels/{id}/messages` (the latest
+  messages, oldest first, or a thread's with `thread_id`; `next_cursor` reads older ones),
+  `GET /workspaces/{id}/messages/search` (`query`, `channel_id`, `from`, `after`, `before`) and
+  `POST /channels/{id}/messages` (`text` in Markdown, `thread_id`, `also_in_channel`), sending as
+  the user in a channel they are in. Bodies are Markdown in which people, channels and pages are
+  `leafdesk:` links ([Messages](messages.md#from-other-apps)).
 - **Agents:** `GET /workspaces/{id}/agents`, `GET` and `PATCH /agents/{id}` (settings, pausing and
   resuming, the monthly token limit, the model; with this month's usage), `POST /agents/{id}/runs` (ask for a
   task now, optionally on a row), `POST /agents/{id}/duplicate` (a copy with its setup, without

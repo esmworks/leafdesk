@@ -93,5 +93,15 @@
     "clearTitle": "Svuotare le reti approvate di {workspace}?",
     "clearBody": "Tutti nello spazio di lavoro potranno di nuovo aprirlo da qualsiasi rete, e il suo registro di controllo annoterà che hai svuotato l’elenco. I proprietari possono reimpostarlo in Impostazioni → Sicurezza.",
     "clearConfirm": "Svuota elenco"
+  },
+  "version": {
+    "heading": "Versione",
+    "running": "Leafdesk {running}",
+    "newer": "È uscito Leafdesk {latest} (usi {running})",
+    "newerDescription": "Le note di rilascio spiegano cosa è cambiato e come aggiornare.",
+    "latest": "Questa è la versione più recente.",
+    "unknown": "Ancora nessuna risposta sulle nuove versioni; il server chiede a GitHub due volte al giorno.",
+    "off": "Il server non cerca nuove versioni (UPDATE_CHECK è disattivato).",
+    "releaseNotes": "Note di rilascio"
   }
 }

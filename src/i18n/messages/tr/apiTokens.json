@@ -119,6 +119,10 @@
       "audit": {
         "name": "Denetim kaydı",
         "hint": "Çalışma alanının denetim kaydı (yalnızca sahipler için; sahip olunan bir çalışma alanıyla sınırlı anahtarlarda)."
+      },
+      "messages": {
+        "hint": "Kanallar ve mesajları; yazma, mesajları sizin adınıza gönderir.",
+        "name": "Mesajlar"
       }
     },
     "summary": {

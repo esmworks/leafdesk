@@ -174,8 +174,12 @@ import { gzipSync } from "node:zlib";
  * add about 1.5 kB to all first loads together, for which that budget rose 2 kB.
  * The search box over an agent's kept notes (its settings' Memory section) adds a few hundred bytes
  * to all first loads together, which stood at its budget: it rose 1 kB.
+ * A message's files opening in the file viewer and its videos playing in place add about 1.5 kB to
+ * the Messages route (link cards, a channel's webhooks and the phone code's dialog load when shown),
+ * and the phone's sign-in page from a QR code is a route of its own (under 1 kB): all first loads
+ * together stood at their budget and rose 3 kB.
  */
-const BUDGET = { routeFirstLoad: 804, firstLoadShared: 1257, onDemandChunk: 450 };
+const BUDGET = { routeFirstLoad: 804, firstLoadShared: 1260, onDemandChunk: 450 };
 
 const NEXT = ".next";
 const kB = (bytes: number) => bytes / 1024;

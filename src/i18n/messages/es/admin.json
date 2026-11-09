@@ -93,5 +93,15 @@
     "clearTitle": "¿Vaciar las redes aprobadas de {workspace}?",
     "clearBody": "Todos en el espacio de trabajo podrán abrirlo de nuevo desde cualquier red, y su registro de auditoría anotará que vaciaste la lista. Sus propietarios pueden volver a definirla en Ajustes → Seguridad.",
     "clearConfirm": "Vaciar lista"
+  },
+  "version": {
+    "heading": "Versión",
+    "running": "Leafdesk {running}",
+    "newer": "Ya está disponible Leafdesk {latest} (usas {running})",
+    "newerDescription": "Las notas de la versión explican qué cambió y cómo actualizar.",
+    "latest": "Es la versión más reciente.",
+    "unknown": "Aún no hay respuesta sobre nuevas versiones; el servidor consulta GitHub dos veces al día.",
+    "off": "El servidor no busca nuevas versiones (UPDATE_CHECK está desactivado).",
+    "releaseNotes": "Notas de la versión"
   }
 }

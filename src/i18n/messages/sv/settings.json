@@ -99,7 +99,8 @@
       "domainPeople": "domän konton användare företag e-post skugg-it ohanterade",
       "openOnStart": "start uppstart första sida senast besökt senaste",
       "pageReports": "anmäl anmälan missbruk klagomål ta bort publicerad offentlig webb sidor",
-      "dashboardEmails": "prenumeration rapport schema veckovis sammanfattning e-post"
+      "dashboardEmails": "prenumeration rapport schema veckovis sammanfattning e-post",
+      "phoneSignIn": "qr kod telefon mobil skanna enhet logga in"
     }
   },
   "workspace": {
@@ -228,6 +229,7 @@
     "heirLabel": "Lämna över sidorna till",
     "heirHint": "Sidor som bara {name} kunde hantera, och teamytor som ingen annan driver, går till den person du väljer.",
     "heirCount": "{count, plural, =0 {{name} hanterar inga sidor ensam just nu. Teamytor som ingen annan driver går till den person du väljer.} one {# sida som bara {name} kunde hantera går till den person du väljer, tillsammans med teamytor som ingen annan driver.} other {# sidor som bara {name} kunde hantera går till den person du väljer, tillsammans med teamytor som ingen annan driver.}}",
+    "heirStops": "Automatiseringar, scheman och synkroniseringar som körs som {name}: {count}. De stängs av och körs igen när någon som hanterar dem slår på dem igen.",
     "heirYou": "{name} (du)"
   },
   "guests": {
@@ -2174,7 +2176,9 @@
         "updated": "Ändrade kanalen {target}",
         "archived": "Arkiverade kanalen {target}",
         "unarchived": "Tog tillbaka kanalen {target} från arkivet",
-        "imported": "Importerade kanalen {target}"
+        "imported": "Importerade kanalen {target}",
+        "webhook_created": "Lade till en webhook i kanalen {target}",
+        "webhook_deleted": "Raderade en webhook i kanalen {target}"
       },
       "dashboard_email": {
         "set": "Ställde in att {target} skickas med e-post till {count, plural, one {# person} other {# personer}}",
@@ -2185,6 +2189,9 @@
         "note_added": "Lade till en anteckning i AI-minnet för {target}: ”{to}”",
         "note_changed": "Ändrade en anteckning i AI-minnet för {target}: ”{from}” → ”{to}”",
         "note_deleted": "{count, plural, one {Raderade en anteckning från AI-minnet för {target}: ”{from}”} other {Raderade # anteckningar från AI-minnet för {target}}}"
+      },
+      "account": {
+        "phone_signed_in": "Använde en QR-kod för att logga in på en annan enhet"
       }
     },
     "decisions": {
@@ -2307,7 +2314,43 @@
     "dashboardEmailsHeading": "Instrumentpanelsmejl",
     "dashboardEmailsDescription": "Instrumentpaneler som skickas till dig med e-post enligt ett schema, och de du har ställt in åt andra.",
     "dashboardEmailsNone": "Inga instrumentpanelsmejl",
-    "dashboardEmailsNoneDescription": "För att få en instrumentpanel med e-post, öppna den och välj E-post ovanför widgetarna."
+    "dashboardEmailsNoneDescription": "För att få en instrumentpanel med e-post, öppna den och välj E-post ovanför widgetarna.",
+    "unblock": {
+      "ownHeading": "Så tillåter du dem igen i {platform}:",
+      "others": "Steg för andra webbläsare och enheter",
+      "all": "Så tillåter du dem igen",
+      "chrome": {
+        "name": "Chrome, Edge och andra Chromium-webbläsare",
+        "step1": "Klicka på ikonen i början av adressfältet, till vänster om adressen.",
+        "step2": "Slå på Aviseringar eller välj Tillåt. Finns de inte där, öppna Webbplatsinställningar och ändra det där.",
+        "step3": "Läs in sidan igen och slå på pushaviseringar här."
+      },
+      "safari": {
+        "name": "Safari på Mac",
+        "step1": "Välj Safari i menyraden, sedan Inställningar, och öppna Webbplatser.",
+        "step2": "Klicka på Notiser i listan till vänster.",
+        "step3": "Ställ in den här webbplatsen på Tillåt, läs sedan in sidan igen och slå på pushaviseringar här."
+      },
+      "firefox": {
+        "name": "Firefox",
+        "step1": "Klicka på ikonen i början av adressfältet.",
+        "step2": "Ta bort Blockerad bredvid Skicka aviseringar.",
+        "step3": "Läs in sidan igen, slå på pushaviseringar här och välj Tillåt när du tillfrågas."
+      },
+      "ios": {
+        "name": "iPhone och iPad, Leafdesk på hemskärmen",
+        "step1": "Öppna appen Inställningar och tryck på Notiser.",
+        "step2": "Tryck på Leafdesk i listan med appar.",
+        "step3": "Slå på Tillåt notiser och öppna sedan Leafdesk igen från hemskärmen."
+      },
+      "android": {
+        "name": "Chrome på Android",
+        "step1": "Tryck på ikonen i början av adressfältet.",
+        "step2": "Tryck på Behörigheter och sedan på Aviseringar.",
+        "step3": "Slå på aviseringar för den här webbplatsen.",
+        "step4": "Läs in sidan igen och slå på pushaviseringar här."
+      }
+    }
   },
   "site": {
     "description": "Ge den här arbetsytans publicerade sidor en läsbar adress, en startsida och navigering mellan dem.",

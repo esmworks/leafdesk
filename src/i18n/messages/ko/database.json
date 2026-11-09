@@ -1518,7 +1518,8 @@
         "celebrate": "색종이로 축하하기",
         "approval": "승인 요청",
         "start_sequence": "팔로업 시작",
-        "slack": "Slack으로 보내기"
+        "slack": "Slack으로 보내기",
+        "channel_message": "채널에 게시"
       },
       "trashHelp": "행을 휴지통으로 이동합니다. 휴지통을 비우기 전까지 복원할 수 있습니다. 이 동작 뒤에는 다른 동작을 실행할 수 없습니다.",
       "addAction": "동작 추가",
@@ -1583,7 +1584,9 @@
         "needView": "행을 셀 보기를 선택하세요.",
         "needNumber": "계산할 숫자 속성을 선택하세요.",
         "needThreshold": "비교할 숫자를 입력하세요.",
-        "needButton": "실행할 버튼을 선택하세요."
+        "needButton": "실행할 버튼을 선택하세요.",
+        "needChannel": "게시할 채널을 선택하세요.",
+        "needChannelMessage": "게시할 메시지를 작성하세요."
       },
       "agent": "에이전트",
       "chooseAgent": "에이전트 선택…",
@@ -1834,7 +1837,15 @@
       "rowTemplateDefault": "데이터베이스의 기본 템플릿",
       "rowTemplateDefaultNamed": "기본 템플릿({name})",
       "rowTemplateGone": "더 이상 없는 템플릿",
-      "rowTemplateHelp": "행은 템플릿의 사본으로 시작합니다. 여기서 설정한 값이 템플릿 값보다 우선하며, 제목이 비어 있으면 템플릿 제목을 유지합니다."
+      "rowTemplateHelp": "행은 템플릿의 사본으로 시작합니다. 여기서 설정한 값이 템플릿 값보다 우선하며, 제목이 비어 있으면 템플릿 제목을 유지합니다.",
+      "channel": "채널",
+      "channelHelp": "행 링크와 함께 내 이름으로 채널에 메시지를 게시합니다. Markdown을 쓸 수 있습니다.",
+      "channelLoading": "채널 불러오는 중…",
+      "channelMessage": "메시지",
+      "channelNone": "글을 올릴 수 있는 채널에 참여하고 있지 않습니다. 먼저 메시지에서 채널에 참여하세요.",
+      "channelPick": "채널 선택",
+      "channelPrivate": "비공개",
+      "channelUnknown": "글을 올릴 수 없는 채널"
     },
     "variables": {
       "button": "변수 삽입",
