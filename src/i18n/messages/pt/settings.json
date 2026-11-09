@@ -2311,7 +2311,43 @@
     "dashboardEmailsHeading": "E-mails de painéis",
     "dashboardEmailsDescription": "Painéis enviados a você por e-mail em uma programação e os que você configurou para outras pessoas.",
     "dashboardEmailsNone": "Nenhum e-mail de painel",
-    "dashboardEmailsNoneDescription": "Para receber um painel por e-mail, abra-o e escolha E-mail acima dos widgets."
+    "dashboardEmailsNoneDescription": "Para receber um painel por e-mail, abra-o e escolha E-mail acima dos widgets.",
+    "unblock": {
+      "ownHeading": "Para permiti-las de novo no {platform}:",
+      "others": "Passos para outros navegadores e dispositivos",
+      "all": "Como permiti-las de novo",
+      "chrome": {
+        "name": "Chrome, Edge e outros navegadores Chromium",
+        "step1": "Clique no ícone no início da barra de endereço, à esquerda do endereço.",
+        "step2": "Ative Notificações ou escolha Permitir. Se não aparecer, abra as Configurações do site e mude lá.",
+        "step3": "Recarregue esta página e ative aqui as notificações push."
+      },
+      "safari": {
+        "name": "Safari no Mac",
+        "step1": "Na barra de menus, escolha Safari, depois Ajustes, e abra Sites.",
+        "step2": "Clique em Notificações na lista à esquerda.",
+        "step3": "Defina este site como Permitir, recarregue esta página e ative aqui as notificações push."
+      },
+      "firefox": {
+        "name": "Firefox",
+        "step1": "Clique no ícone no início da barra de endereço.",
+        "step2": "Ao lado de Enviar notificações, remova Bloqueado.",
+        "step3": "Recarregue esta página, ative aqui as notificações push e escolha Permitir quando for perguntado."
+      },
+      "ios": {
+        "name": "iPhone e iPad, Leafdesk na Tela de Início",
+        "step1": "Abra o app Ajustes e toque em Notificações.",
+        "step2": "Toque em Leafdesk na lista de apps.",
+        "step3": "Ative Permitir Notificações e abra o Leafdesk de novo pela Tela de Início."
+      },
+      "android": {
+        "name": "Chrome no Android",
+        "step1": "Toque no ícone no início da barra de endereço.",
+        "step2": "Toque em Permissões e depois em Notificações.",
+        "step3": "Ative as notificações para este site.",
+        "step4": "Recarregue esta página e ative aqui as notificações push."
+      }
+    }
   },
   "site": {
     "description": "Dê às páginas publicadas deste espaço de trabalho um endereço legível, uma página inicial e navegação entre elas.",

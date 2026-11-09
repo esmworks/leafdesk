@@ -2311,7 +2311,43 @@
     "dashboardEmailsHeading": "Email bảng điều khiển",
     "dashboardEmailsDescription": "Các bảng điều khiển được gửi cho bạn qua email theo lịch, và những bảng bạn thiết lập cho người khác.",
     "dashboardEmailsNone": "Không có email bảng điều khiển",
-    "dashboardEmailsNoneDescription": "Để nhận bảng điều khiển qua email, hãy mở bảng điều khiển và chọn Email phía trên các tiện ích."
+    "dashboardEmailsNoneDescription": "Để nhận bảng điều khiển qua email, hãy mở bảng điều khiển và chọn Email phía trên các tiện ích.",
+    "unblock": {
+      "ownHeading": "Để cho phép lại trong {platform}:",
+      "others": "Các bước cho trình duyệt và thiết bị khác",
+      "all": "Cách cho phép lại",
+      "chrome": {
+        "name": "Chrome, Edge và các trình duyệt Chromium khác",
+        "step1": "Nhấp vào biểu tượng ở đầu thanh địa chỉ, bên trái địa chỉ.",
+        "step2": "Bật Thông báo hoặc đặt thành Cho phép. Nếu không thấy, hãy mở Cài đặt trang web và đổi ở đó.",
+        "step3": "Tải lại trang này và bật thông báo đẩy tại đây."
+      },
+      "safari": {
+        "name": "Safari trên máy Mac",
+        "step1": "Trên thanh menu, chọn Safari, rồi Cài đặt, và mở Trang web.",
+        "step2": "Nhấp vào Thông báo trong danh sách bên trái.",
+        "step3": "Đặt trang này thành Cho phép, rồi tải lại trang này và bật thông báo đẩy tại đây."
+      },
+      "firefox": {
+        "name": "Firefox",
+        "step1": "Nhấp vào biểu tượng ở đầu thanh địa chỉ.",
+        "step2": "Bên cạnh Gửi thông báo, bỏ Đã chặn.",
+        "step3": "Tải lại trang này, bật thông báo đẩy tại đây và chọn Cho phép khi được hỏi."
+      },
+      "ios": {
+        "name": "iPhone và iPad, Leafdesk trên Màn hình chính",
+        "step1": "Mở ứng dụng Cài đặt và chạm vào Thông báo.",
+        "step2": "Chạm vào Leafdesk trong danh sách ứng dụng.",
+        "step3": "Bật Cho phép thông báo, rồi mở lại Leafdesk từ Màn hình chính."
+      },
+      "android": {
+        "name": "Chrome trên Android",
+        "step1": "Chạm vào biểu tượng ở đầu thanh địa chỉ.",
+        "step2": "Chạm vào Quyền, rồi Thông báo.",
+        "step3": "Bật thông báo cho trang web này.",
+        "step4": "Tải lại trang này và bật thông báo đẩy tại đây."
+      }
+    }
   },
   "site": {
     "description": "Cho các trang đã xuất bản của không gian làm việc này một địa chỉ dễ đọc, một trang chủ và điều hướng giữa chúng.",

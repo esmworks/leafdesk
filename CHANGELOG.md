@@ -13,6 +13,10 @@
 - **The admin page says when a newer Leafdesk is out.** Twice a day the server asks GitHub's public
   API for the latest release and `/admin` (and an administrator's About tab) names it, with a link
   to its release notes. `UPDATE_CHECK=off` stops the check; the desktop app never makes it.
+- **Steps to allow notifications a browser blocks.** Where push notifications are blocked,
+  Settings → Preferences lists how to allow them again in the browser in use (Chrome and Edge,
+  Safari on a Mac, Firefox, the iPhone and iPad Home Screen app, Chrome on Android), with the other
+  browsers' steps a click away.
 
 ### Fixed
 

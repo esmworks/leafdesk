@@ -2311,7 +2311,43 @@
     "dashboardEmailsHeading": "Dashbord-e-poster",
     "dashboardEmailsDescription": "Dashbord som sendes til deg på e-post etter en tidsplan, og de du har satt opp for andre.",
     "dashboardEmailsNone": "Ingen dashbord-e-poster",
-    "dashboardEmailsNoneDescription": "For å få et dashbord på e-post, åpne det og velg E-post over modulene."
+    "dashboardEmailsNoneDescription": "For å få et dashbord på e-post, åpne det og velg E-post over modulene.",
+    "unblock": {
+      "ownHeading": "Slik tillater du dem igjen i {platform}:",
+      "others": "Steg for andre nettlesere og enheter",
+      "all": "Slik tillater du dem igjen",
+      "chrome": {
+        "name": "Chrome, Edge og andre Chromium-nettlesere",
+        "step1": "Klikk på ikonet i starten av adressefeltet, til venstre for adressen.",
+        "step2": "Slå på Varsler eller velg Tillat. Står de ikke der, åpner du Nettstedsinnstillinger og endrer det der.",
+        "step3": "Last inn denne siden på nytt og slå på push-varsler her."
+      },
+      "safari": {
+        "name": "Safari på Mac",
+        "step1": "Velg Safari i menylinjen, deretter Innstillinger, og åpne Nettsteder.",
+        "step2": "Klikk på Varslinger i listen til venstre.",
+        "step3": "Sett dette nettstedet til Tillat, last inn denne siden på nytt og slå på push-varsler her."
+      },
+      "firefox": {
+        "name": "Firefox",
+        "step1": "Klikk på ikonet i starten av adressefeltet.",
+        "step2": "Fjern Blokkert ved siden av Send varsler.",
+        "step3": "Last inn denne siden på nytt, slå på push-varsler her og velg Tillat når du blir spurt."
+      },
+      "ios": {
+        "name": "iPhone og iPad, Leafdesk på Hjem-skjermen",
+        "step1": "Åpne Innstillinger-appen og trykk på Varslinger.",
+        "step2": "Trykk på Leafdesk i listen over apper.",
+        "step3": "Slå på Tillat varslinger, og åpne deretter Leafdesk på nytt fra Hjem-skjermen."
+      },
+      "android": {
+        "name": "Chrome på Android",
+        "step1": "Trykk på ikonet i starten av adressefeltet.",
+        "step2": "Trykk på Tillatelser og deretter Varsler.",
+        "step3": "Slå på varsler for dette nettstedet.",
+        "step4": "Last inn denne siden på nytt og slå på push-varsler her."
+      }
+    }
   },
   "site": {
     "description": "Gi de publiserte sidene i dette arbeidsområdet én lettlest adresse, en startside og navigasjon mellom dem.",

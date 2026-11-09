@@ -2311,7 +2311,43 @@
     "dashboardEmailsHeading": "Email delle dashboard",
     "dashboardEmailsDescription": "Le dashboard che ricevi via email a intervalli programmati e quelle che hai configurato per altri.",
     "dashboardEmailsNone": "Nessuna email di dashboard",
-    "dashboardEmailsNoneDescription": "Per ricevere una dashboard via email, aprila e scegli Email sopra i suoi widget."
+    "dashboardEmailsNoneDescription": "Per ricevere una dashboard via email, aprila e scegli Email sopra i suoi widget.",
+    "unblock": {
+      "ownHeading": "Per consentirle di nuovo in {platform}:",
+      "others": "Passaggi per altri browser e dispositivi",
+      "all": "Come consentirle di nuovo",
+      "chrome": {
+        "name": "Chrome, Edge e altri browser Chromium",
+        "step1": "Fai clic sull'icona all'inizio della barra degli indirizzi, a sinistra dell'indirizzo.",
+        "step2": "Attiva Notifiche o scegli Consenti. Se non compare, apri Impostazioni sito e cambialo lì.",
+        "step3": "Ricarica questa pagina e attiva qui le notifiche push."
+      },
+      "safari": {
+        "name": "Safari su Mac",
+        "step1": "Nella barra dei menu scegli Safari, poi Impostazioni, e apri Siti web.",
+        "step2": "Fai clic su Notifiche nell'elenco a sinistra.",
+        "step3": "Imposta questo sito su Consenti, poi ricarica questa pagina e attiva qui le notifiche push."
+      },
+      "firefox": {
+        "name": "Firefox",
+        "step1": "Fai clic sull'icona all'inizio della barra degli indirizzi.",
+        "step2": "Accanto a Invia notifiche, rimuovi Bloccato.",
+        "step3": "Ricarica questa pagina, attiva qui le notifiche push e scegli Consenti quando richiesto."
+      },
+      "ios": {
+        "name": "iPhone e iPad, Leafdesk nella schermata Home",
+        "step1": "Apri l'app Impostazioni e tocca Notifiche.",
+        "step2": "Tocca Leafdesk nell'elenco delle app.",
+        "step3": "Attiva Consenti notifiche, poi riapri Leafdesk dalla schermata Home."
+      },
+      "android": {
+        "name": "Chrome su Android",
+        "step1": "Tocca l'icona all'inizio della barra degli indirizzi.",
+        "step2": "Tocca Autorizzazioni, poi Notifiche.",
+        "step3": "Attiva le notifiche per questo sito.",
+        "step4": "Ricarica questa pagina e attiva qui le notifiche push."
+      }
+    }
   },
   "site": {
     "description": "Dai alle pagine pubblicate di questo spazio di lavoro un unico indirizzo leggibile, una home page e la navigazione tra di loro.",

@@ -2311,7 +2311,43 @@
     "dashboardEmailsHeading": "Dashboard-e-mails",
     "dashboardEmailsDescription": "Dashboards, der sendes til dig som e-mail efter en tidsplan, og dem, du har sat op til andre.",
     "dashboardEmailsNone": "Ingen dashboard-e-mails",
-    "dashboardEmailsNoneDescription": "For at få et dashboard som e-mail skal du åbne det og vælge E-mail over dets widgets."
+    "dashboardEmailsNoneDescription": "For at få et dashboard som e-mail skal du åbne det og vælge E-mail over dets widgets.",
+    "unblock": {
+      "ownHeading": "Sådan tillader du dem igen i {platform}:",
+      "others": "Trin for andre browsere og enheder",
+      "all": "Sådan tillader du dem igen",
+      "chrome": {
+        "name": "Chrome, Edge og andre Chromium-browsere",
+        "step1": "Klik på ikonet i starten af adresselinjen, til venstre for adressen.",
+        "step2": "Slå Notifikationer til, eller sæt dem til Tillad. Står de der ikke, så åbn Webstedsindstillinger og skift det der.",
+        "step3": "Genindlæs denne side, og slå push-notifikationer til her."
+      },
+      "safari": {
+        "name": "Safari på en Mac",
+        "step1": "Vælg Safari i menulinjen, derefter Indstillinger, og åbn Websteder.",
+        "step2": "Klik på Notifikationer i listen til venstre.",
+        "step3": "Sæt dette websted til Tillad, genindlæs derefter denne side, og slå push-notifikationer til her."
+      },
+      "firefox": {
+        "name": "Firefox",
+        "step1": "Klik på ikonet i starten af adresselinjen.",
+        "step2": "Fjern Blokeret ud for Send notifikationer.",
+        "step3": "Genindlæs denne side, slå push-notifikationer til her, og vælg Tillad, når du bliver spurgt."
+      },
+      "ios": {
+        "name": "iPhone og iPad, Leafdesk på hjemmeskærmen",
+        "step1": "Åbn appen Indstillinger, og tryk på Notifikationer.",
+        "step2": "Tryk på Leafdesk i listen over apps.",
+        "step3": "Slå Tillad notifikationer til, og åbn derefter Leafdesk igen fra hjemmeskærmen."
+      },
+      "android": {
+        "name": "Chrome på Android",
+        "step1": "Tryk på ikonet i starten af adresselinjen.",
+        "step2": "Tryk på Tilladelser og derefter Notifikationer.",
+        "step3": "Slå notifikationer til for dette websted.",
+        "step4": "Genindlæs denne side, og slå push-notifikationer til her."
+      }
+    }
   },
   "site": {
     "description": "Giv dette arbejdsområdes udgivne sider én læsbar adresse, en forside og navigation mellem dem.",

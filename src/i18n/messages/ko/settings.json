@@ -2311,7 +2311,43 @@
     "dashboardEmailsHeading": "대시보드 이메일",
     "dashboardEmailsDescription": "일정에 따라 이메일로 받는 대시보드와 다른 사람을 위해 설정한 대시보드입니다.",
     "dashboardEmailsNone": "대시보드 이메일 없음",
-    "dashboardEmailsNoneDescription": "대시보드를 이메일로 받으려면 대시보드를 열고 위젯 위의 이메일을 선택하세요."
+    "dashboardEmailsNoneDescription": "대시보드를 이메일로 받으려면 대시보드를 열고 위젯 위의 이메일을 선택하세요.",
+    "unblock": {
+      "ownHeading": "{platform}에서 다시 허용하려면:",
+      "others": "다른 브라우저와 기기의 단계",
+      "all": "다시 허용하는 방법",
+      "chrome": {
+        "name": "Chrome, Edge 및 기타 Chromium 브라우저",
+        "step1": "주소 표시줄 맨 앞, 주소 왼쪽에 있는 아이콘을 클릭합니다.",
+        "step2": "알림을 켜거나 허용으로 설정합니다. 목록에 없으면 사이트 설정을 열어 그곳에서 변경합니다.",
+        "step3": "이 페이지를 새로고침하고 여기에서 푸시 알림을 켭니다."
+      },
+      "safari": {
+        "name": "Mac의 Safari",
+        "step1": "메뉴 막대에서 Safari, 설정을 차례로 선택하고 웹 사이트를 엽니다.",
+        "step2": "왼쪽 목록에서 알림을 클릭합니다.",
+        "step3": "이 사이트를 허용으로 설정한 다음 이 페이지를 새로고침하고 여기에서 푸시 알림을 켭니다."
+      },
+      "firefox": {
+        "name": "Firefox",
+        "step1": "주소 표시줄 맨 앞의 아이콘을 클릭합니다.",
+        "step2": "알림 보내기 옆의 차단됨을 제거합니다.",
+        "step3": "이 페이지를 새로고침하고 여기에서 푸시 알림을 켠 다음, 물으면 허용을 선택합니다."
+      },
+      "ios": {
+        "name": "iPhone 및 iPad, 홈 화면의 Leafdesk",
+        "step1": "설정 앱을 열고 알림을 탭합니다.",
+        "step2": "앱 목록에서 Leafdesk를 탭합니다.",
+        "step3": "알림 허용을 켜고, 홈 화면에서 Leafdesk를 다시 엽니다."
+      },
+      "android": {
+        "name": "Android의 Chrome",
+        "step1": "주소 표시줄 맨 앞의 아이콘을 탭합니다.",
+        "step2": "권한, 알림을 차례로 탭합니다.",
+        "step3": "이 사이트의 알림을 켭니다.",
+        "step4": "이 페이지를 새로고침하고 여기에서 푸시 알림을 켭니다."
+      }
+    }
   },
   "site": {
     "description": "이 워크스페이스의 게시된 페이지에 읽기 쉬운 하나의 주소, 홈 페이지, 페이지 간 탐색을 제공합니다.",
