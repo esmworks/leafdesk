@@ -5,7 +5,7 @@ import { getTranslations } from "next-intl/server";
 import * as Y from "yjs";
 import { db } from "@/db";
 import { databaseProperty, databaseView, file, fileReference, page, type PageKind, type RowProperties } from "@/db/schema";
-import { blocksToPlainText } from "@/lib/blocks";
+import { blocksToHeadingText, blocksToPlainText } from "@/lib/blocks";
 import { COLLAB_FRAGMENT } from "@/lib/collab-constants";
 import { writeDocTitle } from "@/lib/collab-title";
 import { copyAccess, dropPropertyReferences, keptUnderShownRows, planDuplicate, redactCopy, type CopyAccess, type SourcePage } from "@/lib/duplicate";
@@ -281,7 +281,7 @@ export async function duplicatePublishedPage(
     }
 
     // New documents, and their Markdown and text.
-    const bodies = new Map<string, { ydoc: Uint8Array; markdown: string; text: string; blocks: PageBlock[] }>();
+    const bodies = new Map<string, { ydoc: Uint8Array; markdown: string; text: string; headings: string; blocks: PageBlock[] }>();
     for (const p of plan.pages) {
       const blocks = blocksOf.get(p.id);
       if (!blocks) continue;
@@ -296,6 +296,7 @@ export async function duplicatePublishedPage(
           ydoc: Y.encodeStateAsUpdate(doc),
           markdown: (await blocksToMarkdown(stored, { workspaceId: target })).trim(),
           text: blocksToPlainText(stored),
+          headings: blocksToHeadingText(stored),
           blocks: stored,
         });
       } finally {
@@ -360,6 +361,7 @@ export async function duplicatePublishedPage(
               properties: JSON.parse(remapFilePaths(JSON.stringify(values.get(p.id) ?? {}), fileMap)) as RowProperties,
               ydoc: body?.ydoc ?? null,
               contentText: body?.text ?? "",
+              headingText: body?.headings ?? "",
               contentMarkdown: body?.markdown ?? "",
               isTemplate: isRoot && asTemplate,
               inTemplate: asTemplate,

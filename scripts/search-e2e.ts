@@ -192,6 +192,13 @@ try {
   check(asked.includes(japanese.id) && !asked.includes(chinese.id) && !asked.includes(korean.id), "a question in Japanese finds the pages about it, not every page with kana", asked);
   check((await search("纪要"))[0]?.snippet.includes("纪要"), "…and the snippet shows where", (await search("纪要"))[0]);
 
+  // A word in a heading counts for more than the same word in the body (heading_text, weighed B).
+  const inBody = await body("Weekly notes", "We talked about the quarterly zephyrine budget at length.");
+  // Its body is longer, which ranks lower on its own: the heading makes up for it.
+  const inHeading = await body("Planning notes", "## Zephyrine rollout\n\nDates, owners, risks and the order the teams move in, with what each one needs first.");
+  const zephyr = idsOf(await search("zephyrine"));
+  check(zephyr.indexOf(inHeading.id) === 0 && zephyr.includes(inBody.id), "a page with the word in a heading comes before one with it in the body", titlesOf(await search("zephyrine")));
+
   // Turkish: "I" lowers to "ı" and "İ" to "i", which the database (lowering the English way) doesn't
   // do. Page and query are folded alike, so the dotted and dotless i find each other either way.
   const shouted = await body("Depo notları", "Depoda IŞIK yetersiz, SICAKLIK yüksek.");

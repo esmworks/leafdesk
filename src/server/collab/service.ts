@@ -7,7 +7,7 @@ import * as Y from "yjs";
 import { db } from "@/db";
 import { databaseProperty, page, pageSnapshot, type PageKind, type SnapshotReason } from "@/db/schema";
 import { applyBlockEdits, listedBlocks, stripBlockMarkers, type BlockEdit } from "@/lib/block-edits";
-import { blocksToPlainText } from "@/lib/blocks";
+import { blocksToHeadingText, blocksToPlainText } from "@/lib/blocks";
 import { linkTitle } from "@/lib/link-context";
 import { linkWikilinks, titleKey, wikilinkTitles } from "@/lib/wikilinks";
 import { mediaAsLinks } from "@/lib/model-media";
@@ -171,7 +171,7 @@ function withoutTrailingEmpty<B extends { type: string; children: unknown[] }>(b
 async function deriveContent(doc: Y.Doc, workspaceId: string | undefined, pageId: string) {
   const blocks = bodyBlocks(doc, pageId);
   const markdown = (await blocksToMarkdown(blocks, { workspaceId })).trim();
-  return { blocks, markdown, text: blocksToPlainText(blocks) };
+  return { blocks, markdown, text: blocksToPlainText(blocks), headings: blocksToHeadingText(blocks) };
 }
 
 /** CollabService.pageVersion of a body read as these blocks: its Markdown as deriveContent writes it, hashed. */
@@ -384,7 +384,7 @@ export function createCollab() {
     } catch (error) {
       console.error(`[collab] could not update the suggestion threads of page:${pageId}`, error);
     }
-    const { blocks, markdown, text } = await deriveContent(doc, row.workspaceId, pageId);
+    const { blocks, markdown, text, headings } = await deriveContent(doc, row.workspaceId, pageId);
     const title = readTitle(doc) ?? row.title;
     // Comments and their marks change the document but not the page: they don't count as edits.
     const bodyChanged = row.markdownHash !== createHash("md5").update(markdown).digest("hex");
@@ -397,6 +397,7 @@ export function createCollab() {
           ydoc: Y.encodeStateAsUpdate(doc),
           contentMarkdown: markdown,
           contentText: text,
+          headingText: headings,
           title,
           ...(!edited ? { updatedAt: sql`${page.updatedAt}` } : userId ? { updatedBy: userId } : {}),
         })

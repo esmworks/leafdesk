@@ -18,7 +18,8 @@
   middle of a word doesn't match; Japanese and Chinese words also inside a sentence, which has no
   spaces between words: "会議" finds "明日の会議について", a word's characters only side by side;
   Korean words by their start, so with a particle joined on: "회의" finds "회의를"; pages whose
-  title has the words come first; past the first 80,000 characters of a huge page's text, words
+  title has the words come first, and a word in a page's headings counts for more than one in the
+  rest of its text; past the first 80,000 characters of a huge page's text, words
   aren't found; text in double quotes, `"launch plan"`, only with its words whole, side by side and
   in that order, and then a page found by meaning alone isn't listed), and also by meaning when the
   server has an embeddings model
@@ -184,7 +185,8 @@
   that browser. Text in Chinese, Japanese and Korean is set in faces chosen for each language, sans
   and serif (the page's *Serif* typeface too). Resting on a date mention shows its day written out
   with the weekday. *Turn into* also changes the kind of the selected text
-  blocks (heading, list, quote, code …), and a space typed right after `/` closes the slash menu.
+  blocks (heading, list, quote, code …). The slash menu opens at the start of a line or after a
+  space only (`km/h` and `11/09` stay text), and a space typed right after `/` closes it.
   Table cells merge across columns and rows from the formatting toolbar (Markdown writes
   the full grid, the covered places empty), and a table's row and column handles color their
   cells' text or background and make the first row or column a header (published pages and PDFs

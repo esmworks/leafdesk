@@ -1362,8 +1362,9 @@ export async function listChildren(
 }
 
 /**
- * A page's newest 100 versions, newest first; with `named`, only its named versions
- * (server/page-versions), however far back they go (the newest 1,000).
+ * A page's versions, newest first, up to the newest 1,000: every version retention keeps (at most
+ * 200 automatic ones, plus manual saves and the ways back from restores), so none kept is out of
+ * reach. With `named`, only its named versions (server/page-versions), however far back they go.
  */
 export async function listSnapshots(userId: string, pageId: string, { named = false }: { named?: boolean } = {}) {
   await requirePageAccess(userId, pageId, "view");
@@ -1386,7 +1387,7 @@ export async function listSnapshots(userId: string, pageId: string, { named = fa
     .leftJoin(oauthClient, eq(oauthClient.clientId, pageSnapshot.oauthClientId))
     .where(and(eq(pageSnapshot.pageId, pageId), named ? isNotNull(pageSnapshot.name) : undefined))
     .orderBy(desc(pageSnapshot.createdAt))
-    .limit(named ? 1000 : 100);
+    .limit(1000);
 }
 
 export async function getSnapshot(userId: string, snapshotId: string) {

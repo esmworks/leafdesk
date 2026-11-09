@@ -2,8 +2,23 @@
 
 ## Unreleased
 
+### Changed
+
+- **Words in a page's headings count for more in search.** A page whose heading has the words
+  now ranks above one that only mentions them in passing; the title still counts most. Migration
+  `0202_heading_search` keeps the headings' text apart and rebuilds the page table's search index
+  once, which takes a while on a large workspace.
+- **The slash menu opens only at the start of a line or after a space.** Typing `km/h` or `11/09`
+  no longer opens it, so Enter after them starts a new line instead of turning the line into a
+  block.
+- **Opening a page checks access and reads it once.** The page's title for the browser tab and the
+  page itself shared nothing, so every page opened was read and checked twice.
+
 ### Fixed
 
+- **A page's version history lists every version it keeps.** The list stopped at the newest 100,
+  while up to 200 automatic versions, manual saves and the ways back from restores are kept, so the
+  older ones could be restored by no one. It now lists up to the newest 1,000.
 - **A server write no longer undoes what someone typed at the same moment.** Buttons that edit a
   page, the AI chat's edits, appending to a page (mail tasks, MCP, the REST API) and API or MCP
   page updates sent without `expected_version` read the body, worked out the change and then wrote

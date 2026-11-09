@@ -58,6 +58,25 @@ export function blockText(block: BlockLike, pageText?: PageMentionText): string 
   return "";
 }
 
+/**
+ * The text of a block tree's headings, one line each, for full-text search: a word in a heading
+ * counts for more than one in the body (page.search_vector weighs them B, the body C).
+ */
+export function blocksToHeadingText(blocks: BlockLike[]): string {
+  const lines: string[] = [];
+  const walk = (list: BlockLike[]) => {
+    for (const block of list) {
+      if (block.type === "heading") {
+        const text = blockText(block).trim();
+        if (text) lines.push(text);
+      }
+      if (block.children?.length) walk(block.children);
+    }
+  };
+  walk(blocks);
+  return lines.join("\n");
+}
+
 /** Plain text of a block tree, one line per block, for full-text search. */
 export function blocksToPlainText(blocks: BlockLike[]): string {
   const lines: string[] = [];
