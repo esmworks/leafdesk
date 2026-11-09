@@ -545,6 +545,42 @@ export async function recordPageReport(workspaceId: string, pageId: string, reas
 }
 
 /**
+ * Tells `userIds` that `actorId` asks them to approve page `pageId` (server/page-approvals.ts, which
+ * checked they can open it). Inbox, push and Telegram only.
+ */
+export async function recordApprovalRequest(workspaceId: string, actorId: string, pageId: string, userIds: string[]) {
+  if (!userIds.length) return;
+  const inserted = await db
+    .insert(notification)
+    .values(userIds.map((userId) => ({ userId, workspaceId, kind: "approval_requested" as const, actorId, pageId })))
+    .returning({ id: notification.id });
+  signal(workspaceId);
+  pushNotifications(inserted.map((n) => n.id));
+}
+
+/** Takes away the unread requests to approve page `pageId`: its round ended or was withdrawn. */
+export async function withdrawApprovalRequests(workspaceId: string, pageId: string) {
+  const removed = await db
+    .delete(notification)
+    .where(and(eq(notification.kind, "approval_requested"), eq(notification.pageId, pageId), isNull(notification.readAt)))
+    .returning({ id: notification.id });
+  if (removed.length) signal(workspaceId);
+}
+
+/**
+ * Tells `userId` that their request to approve page `pageId` ended as `outcome`, through the
+ * decision of `actorId` (server/page-approvals.ts). Inbox, push and Telegram only.
+ */
+export async function recordApprovalDecided(workspaceId: string, userId: string, actorId: string, pageId: string, outcome: "approved" | "changes_requested") {
+  const inserted = await db
+    .insert(notification)
+    .values({ userId, workspaceId, kind: "approval_decided", actorId, pageId, message: outcome })
+    .returning({ id: notification.id });
+  signal(workspaceId);
+  pushNotifications(inserted.map((n) => n.id));
+}
+
+/**
  * Tells `owners` that `actorId` moved many rows of database `databaseId` to the trash, or the
  * database with them (server/mass-trash.ts, which decides when and keeps it to once an hour per
  * person and database; `message` is lib/mass-trash `massTrashMessage`). Inbox and push only.

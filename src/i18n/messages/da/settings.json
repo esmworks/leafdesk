@@ -2021,7 +2021,10 @@
         "rows_merged": "Flettede {count, plural, one {# række} other {# rækker}} ind i {target}",
         "publication_expiry_changed": "{change, select, removed {Fjernede udløbet af weblinket til {target}} other {Satte weblinket til {target} til at udløbe {to}}}",
         "reported": "En besøgende anmeldte {target}: {reason, select, spam {spam eller svindel} harmful {hadsk, voldeligt eller chikanerende indhold} illegal {ulovligt indhold} privacy {personoplysninger} copyright {ophavsret} other {noget andet}}",
-        "report_dismissed": "Afviste en anmeldelse af {target}"
+        "report_dismissed": "Afviste en anmeldelse af {target}",
+        "approval_requested": "Bad {names} om at godkende {target}",
+        "approval_decided": "{decision, select, approved {Godkendte {target}} other {Bad om ændringer på {target}}}",
+        "approval_withdrawn": "Trak godkendelsesanmodningen for {target} tilbage"
       },
       "property": {
         "access_changed": "Ændrede, hvem der har adgang til “{property}” i {target}",
@@ -2356,7 +2359,10 @@
     "quizAssignedChannel": "Quizzer, du bliver bedt om at tage: {channel}",
     "quizFinishedTitle": "Quizresultater",
     "quizFinishedDescription": "En person, du har bedt om at tage en quiz, består den eller har ikke flere forsøg.",
-    "quizFinishedChannel": "Quizresultater: {channel}"
+    "quizFinishedChannel": "Quizresultater: {channel}",
+    "approvalTitle": "Godkendelser",
+    "approvalDescription": "Nogen beder dig godkende en side, eller en af dine godkendelsesanmodninger afsluttes.",
+    "approvalChannel": "Godkendelser: {channel}"
   },
   "site": {
     "description": "Giv dette arbejdsområdes udgivne sider én læsbar adresse, en forside og navigation mellem dem.",

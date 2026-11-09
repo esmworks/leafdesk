@@ -22,6 +22,7 @@ import {
   Ellipsis,
   FileArchive,
   FileDown,
+  FileCheck,
   FileCode,
   FileSpreadsheet,
   FileText,
@@ -136,6 +137,8 @@ export function PageHeaderActions({
   onAnswerAll,
   onVerified,
   onVerify,
+  onApproval,
+  onRequestApproval,
 }: {
   workspaceId: string;
   page: { id: string; kind: PageKind; parentId: string | null; archived: boolean; hasBody: boolean; isRow?: boolean; title?: string; icon?: string | null };
@@ -185,6 +188,10 @@ export function PageHeaderActions({
   onVerified?: (verified: PageHeaderInfo["verified"]) => void;
   /** Opens the dialog that verifies the page; unset for those who can't (full access only). */
   onVerify?: () => void;
+  /** Hears how the page's approval stands, likewise. */
+  onApproval?: (approval: PageHeaderInfo["approval"]) => void;
+  /** Opens the dialog that asks people to approve the page; unset for those who can't. */
+  onRequestApproval?: () => void;
 }) {
   const t = useTranslations("page.header");
   const tOffline = useTranslations("offline");
@@ -193,6 +200,7 @@ export function PageHeaderActions({
   useEffect(() => onSkill?.(info.skill), [info.skill, onSkill]);
   useEffect(() => onOutdated?.(info.outdated), [info.outdated, onOutdated]);
   useEffect(() => onVerified?.(info.verified), [info.verified, onVerified]);
+  useEffect(() => onApproval?.(info.approval), [info.approval, onApproval]);
   const offlineTitle = (label: string) => (offline ? tOffline("needsConnection", { action: label }) : label);
   const aiChat = useAiChat();
   const tAi = useTranslations("ai.chat");
@@ -366,6 +374,7 @@ export function PageHeaderActions({
         onMoveToTrash={onMoveToTrash}
         onOpenPage={onOpenPage}
         onVerify={onVerify}
+        onRequestApproval={onRequestApproval}
         offline={offline}
         style={style}
         onStyle={onStyle}
@@ -571,6 +580,7 @@ function PageMenu({
   onMoveToTrash,
   onOpenPage,
   onVerify,
+  onRequestApproval,
   offline,
   style,
   onStyle,
@@ -590,6 +600,7 @@ function PageMenu({
   onMoveToTrash: () => void;
   onOpenPage?: (workspaceId: string, pageId: string) => void;
   onVerify?: () => void;
+  onRequestApproval?: () => void;
   offline: boolean;
   style?: PageStyle;
   onStyle?: (change: Partial<PageStyle>) => void;
@@ -601,6 +612,7 @@ function PageMenu({
   const tVoice = useTranslations("page.voiceNote.instructions");
   const tMerge = useTranslations("database.merge");
   const tVerify = useTranslations("page.verification");
+  const tApproval = useTranslations("page.approval");
   const tRowAccess = useTranslations("database.rowAccess");
   const tTeamspaces = useTranslations("teamspaces");
   const tGithub = useTranslations("database.github");
@@ -884,6 +896,19 @@ function PageMenu({
             }}
           >
             {info.verified ? tVerify("menuVerified") : tVerify("menu")}
+          </MenuItem>
+        ),
+        onRequestApproval && (
+          <MenuItem
+            key="approval"
+            icon={<FileCheck className="h-4 w-4" />}
+            title={tApproval("menuHint")}
+            onClick={() => {
+              close();
+              onRequestApproval();
+            }}
+          >
+            {tApproval("menu")}
           </MenuItem>
         ),
         // For the REST API and MCP clients, which take a page's, database's or row's id.

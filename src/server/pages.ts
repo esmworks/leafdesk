@@ -1001,12 +1001,13 @@ export type SearchOptions = SearchScope & {
 };
 
 /** Whether a search has a scope of its own, which lists pages even without words to search for. */
-const scoped = ({ withinPageIds, kinds, verifiedOnly, teamspaceIds, createdBy, editedBy, createdIn, editedIn, tags }: SearchScope) =>
+const scoped = ({ withinPageIds, kinds, verifiedOnly, approvedOnly, teamspaceIds, createdBy, editedBy, createdIn, editedIn, tags }: SearchScope) =>
   Boolean(
     withinPageIds?.length ||
       tags?.length ||
       kinds?.length ||
       verifiedOnly ||
+      approvedOnly ||
       teamspaceIds?.length ||
       createdBy?.length ||
       editedBy?.length ||
@@ -1435,7 +1436,7 @@ export async function searchWithQuery(
     sort = "relevance",
   }: { includeOutdated?: boolean; filters?: SearchFilters; timeZone?: string; now?: Date; sort?: SearchSort } = {},
 ): Promise<SearchHit[]> {
-  const { text, within, kinds, verified, phrases, tags } = parseSearchQuery(query);
+  const { text, within, kinds, verified, approved, phrases, tags } = parseSearchQuery(query);
   const withinPageIds = within.length ? await pagesTitled(userId, workspaceId, within, 20, { includeOutdated }) : undefined;
   if (withinPageIds && !withinPageIds.length) return [];
   const { teamspaceIds, createdBy, editedBy, date } = filters;
@@ -1447,6 +1448,7 @@ export async function searchWithQuery(
     kinds,
     includeOutdated,
     verifiedOnly: verified,
+    approvedOnly: approved,
     phrases,
     tags,
     teamspaceIds,

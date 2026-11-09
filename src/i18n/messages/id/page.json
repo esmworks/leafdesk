@@ -1678,5 +1678,86 @@
         "explanation": "penjelasan bisa hingga 500 karakter."
       }
     }
+  },
+  "approval": {
+    "menu": "Minta persetujuan…",
+    "menuHint": "Minta orang menyetujui versi halaman yang persis ini",
+    "title": "Minta persetujuan",
+    "description": "Halaman disimpan sebagai versi sekarang, dan penyetuju menyetujui versi itu: suntingan berikutnya tidak pernah dianggap disetujui.",
+    "approvers": "Penyetuju",
+    "noPeople": "Belum ada orang lain yang bisa membuka halaman ini. Bagikan dulu.",
+    "ruleLabel": "Disetujui jika",
+    "rules": {
+      "all": "Semua menyetujui",
+      "any": "Satu orang menyetujui"
+    },
+    "dueLabel": "Tenggat (opsional)",
+    "noteLabel": "Catatan (opsional)",
+    "notePlaceholder": "Apa yang berubah dan mengapa",
+    "replaces": "Permintaan yang menunggu sekarang ditarik.",
+    "send": "Kirim permintaan",
+    "sent": "Permintaan terkirim",
+    "versions": {
+      "sent": "Dikirim untuk persetujuan",
+      "approved": "Disetujui"
+    },
+    "banner": {
+      "asked": "{name} meminta Anda menyetujui halaman ini",
+      "someone": "Seseorang",
+      "due": "Tenggat {date}",
+      "changed": "Halaman berubah sejak dikirim: Anda menyetujui versi yang dikirim pada {date}.",
+      "commentLabel": "Komentar",
+      "commentPlaceholder": "Opsional untuk menyetujui, wajib untuk meminta perubahan",
+      "commentNeeded": "Tulis dulu apa yang perlu diubah.",
+      "approve": "Setujui",
+      "requestChanges": "Minta perubahan",
+      "seeVersion": "Lihat versi yang dikirim"
+    },
+    "badge": {
+      "approved": "Disetujui · oleh {names} · {date}",
+      "changed": "Berubah sejak disetujui",
+      "open": "{rule, select, any {Menunggu persetujuan} other {Menunggu persetujuan · {done} dari {total}}}",
+      "changesRequested": "Perubahan diminta",
+      "hint": "Riwayat persetujuan"
+    },
+    "history": {
+      "title": "Persetujuan",
+      "empty": "Belum ada permintaan.",
+      "loadError": "Persetujuan tidak dapat dimuat.",
+      "status": {
+        "open": "Menunggu",
+        "approved": "Disetujui",
+        "changes_requested": "Perubahan diminta",
+        "withdrawn": "Ditarik"
+      },
+      "asked": "Diminta oleh {name}",
+      "due": "tenggat {date}",
+      "approvedAt": "menyetujui {date}",
+      "changesAt": "meminta perubahan {date}",
+      "waiting": "belum memutuskan",
+      "noDecision": "tidak memutuskan",
+      "noAccess": "tidak bisa lagi membuka halaman",
+      "stuck": "Seseorang yang harus menyetujui tidak bisa lagi membuka halaman: tarik permintaan lalu minta lagi.",
+      "version": "Versi yang dikirim",
+      "withdraw": "Tarik",
+      "askAgain": "Minta persetujuan lagi",
+      "someone": "Seseorang"
+    },
+    "errors": {
+      "approvers": "Pilih satu sampai dua puluh orang yang bisa membuka halaman.",
+      "rule": "Pilih siapa yang harus menyetujui.",
+      "due": "Pilih tenggat mulai hari ini, dalam lima tahun.",
+      "note": "Maksimal 1.000 karakter.",
+      "decision": "Setujui atau minta perubahan.",
+      "template": "Templat dan halaman di dalamnya tidak disetujui.",
+      "database": "Database tidak disetujui; baris dan halamannya disetujui.",
+      "inTrash": "Pulihkan halaman dari tempat sampah dulu.",
+      "guest": "Tamu tidak bisa meminta persetujuan.",
+      "closed": "Permintaan ini tidak lagi menunggu.",
+      "notApprover": "Anda tidak diminta menyetujui halaman ini.",
+      "decided": "Anda sudah memutuskan.",
+      "notRequester": "Hanya yang meminta, atau seseorang dengan akses penuh, yang bisa menariknya.",
+      "commentNeeded": "Tulis dulu apa yang perlu diubah."
+    }
   }
 }

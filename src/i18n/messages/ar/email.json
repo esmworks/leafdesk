@@ -322,7 +322,9 @@
     "quizAssigned": "طلب منك {actor} إجراء الاختبار",
     "quizAssignedDue": "طلب منك {actor} إجراء الاختبار بحلول {date}",
     "quizPassed": "نجح {actor} في الاختبار بنسبة {score}%",
-    "quizFailed": "استنفد {actor} محاولاته في الاختبار ({score}%)"
+    "quizFailed": "استنفد {actor} محاولاته في الاختبار ({score}%)",
+    "approvalRequested": "يطلب منك {actor} الموافقة على هذه الصفحة",
+    "approvalDecided": "{outcome, select, approved {تمت الموافقة: منح {actor} آخر موافقة مطلوبة} other {طلب {actor} تغييرات على هذه الصفحة}}"
   },
   "agentReply": {
     "aiOff": "لا أستطيع الرد: الذكاء الاصطناعي متوقف في مساحة العمل هذه.",

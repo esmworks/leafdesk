@@ -320,7 +320,9 @@
     "quizAssigned": "{actor} te pidió que hicieras el cuestionario",
     "quizAssignedDue": "{actor} te pidió que hicieras el cuestionario antes del {date}",
     "quizPassed": "{actor} aprobó el cuestionario con un {score} %",
-    "quizFailed": "{actor} se quedó sin intentos en el cuestionario ({score} %)"
+    "quizFailed": "{actor} se quedó sin intentos en el cuestionario ({score} %)",
+    "approvalRequested": "{actor} te pide que apruebes esta página",
+    "approvalDecided": "{outcome, select, approved {Aprobada: {actor} dio la última aprobación necesaria} other {{actor} pidió cambios en esta página}}"
   },
   "templates": {
     "title": "Plantillas",

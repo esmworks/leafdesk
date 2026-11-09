@@ -322,7 +322,9 @@
     "quizAssigned": "{actor} pyysi sinua tekemään tietovisan",
     "quizAssignedDue": "{actor} pyysi sinua tekemään tietovisan viimeistään {date}",
     "quizPassed": "{actor} läpäisi tietovisan tuloksella {score} %",
-    "quizFailed": "{actor} käytti kaikki yritykset tietovisaan ({score} %)"
+    "quizFailed": "{actor} käytti kaikki yritykset tietovisaan ({score} %)",
+    "approvalRequested": "{actor} pyytää sinua hyväksymään tämän sivun",
+    "approvalDecided": "{outcome, select, approved {Hyväksytty: {actor} antoi viimeisen tarvittavan hyväksynnän} other {{actor} pyysi muutoksia tähän sivuun}}"
   },
   "agentReply": {
     "aiOff": "En voi vastata: tekoäly on poistettu käytöstä tässä työtilassa.",

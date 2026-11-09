@@ -322,7 +322,9 @@
     "quizAssigned": "{actor} просить вас пройти тест",
     "quizAssignedDue": "{actor} просить вас пройти тест до {date}",
     "quizPassed": "{actor} — тест пройдено з результатом {score}%",
-    "quizFailed": "{actor} — спроби в тесті вичерпано ({score}%)"
+    "quizFailed": "{actor} — спроби в тесті вичерпано ({score}%)",
+    "approvalRequested": "{actor} просить вас погодити цю сторінку",
+    "approvalDecided": "{outcome, select, approved {Погоджено: {actor} дав(ла) останнє потрібне погодження} other {{actor} запитав(ла) зміни на цій сторінці}}"
   },
   "agentReply": {
     "aiOff": "Не можу відповісти: ШІ вимкнено в цьому робочому просторі.",

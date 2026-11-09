@@ -145,7 +145,8 @@
   `in:Projects` or `in:"Launch plan"` (that page and everything under it; several pages of that
   title, or several `in:`, search under any of them; a title nobody can see finds nothing) and
   `type:page`, `type:database`, `type:row` (database rows) or `type:journal` (your daily notes),
-  and `is:verified` (pages verified right now, see *Verified pages*), and `#home` or `tag:home`
+  and `is:verified` (pages verified right now, see *Verified pages*), `is:approved` (pages approved
+  and unchanged since, see *Approvals*), and `#home` or `tag:home`
   (pages carrying that tag or one under it, see *Tags*; with several tags, pages carrying each);
   filters work without words too, listing the pages they match, last edited first. While you type
   `#` and a letter, the tags of pages you can open that start so come first, most used first with
@@ -920,6 +921,25 @@
   `verified` (`week`, `month`, `quarter`, `year`, a day, `forever`, or `none` to remove it).
   Settings > Health lists the pages whose verification expired. Templates and pages in the trash
   aren't verified, and published pages don't show verification.
+- **Approvals**: someone who can edit a page or row asks people to approve it from the page's `⋯`
+  menu (*Ask for approval*): one to twenty people who can open the page, whether everyone must
+  approve or any one is enough, an optional due date and a note on what changed and why. Sending
+  saves the page as a named version, *Sent for approval*, and the request is about that exact
+  version: later edits never pass as approved. Each approver gets an inbox item and, under the
+  title, a box with who asked, the note and the due date, *Approve* and *Request changes* (which
+  needs a comment), and the version sent, opened in the page history; when the page changed since
+  it was sent, the box says the approval is of that version. Anyone requesting changes ends the
+  request; everyone approving (or one, with *Any one is enough*) ends it approved, renames the
+  version *Approved* and tells whoever asked, as does a request for changes (*Approvals* in Settings >
+  Preferences: inbox, push and Telegram). Under the title a badge reads *Approved · by A, B · 3 Nov*,
+  or *Changed since approval* once the title or body differ from the approved version; it opens the
+  history of requests (each approver's decision, comment and time, and the versions), where
+  editors ask again and the requester, or someone with full access, withdraws one still waiting. A
+  page has one request waiting at a time: a new one withdraws it. Someone who can no longer open
+  the page can't decide; if everyone must approve, the request then waits until it is withdrawn.
+  The versions sent are kept for good, requests, decisions and withdrawals are in the audit log,
+  and a copy of the page, published pages and exports carry none of it. Databases, templates and
+  pages in the trash aren't approved, and guests don't ask for approval.
 - **Page history**: versions are saved automatically while you edit and before every AI edit.
   You can preview and restore any version (those of the last week listed as "2 hours ago" or
   "yesterday", older ones by their date, the exact time on hover), and see what changed since it or

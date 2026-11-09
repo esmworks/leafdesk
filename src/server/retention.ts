@@ -169,6 +169,8 @@ export async function pruneSnapshots({ now = new Date(), workspaceIds }: Retenti
       and r.newest > 1
       and not r.named
       and not ${touchedUnderHold(sql`target.page_id`)}
+      -- A version sent for approval is what was approved, or asked about: kept for good.
+      and not exists (select 1 from page_approval pa where pa.snapshot_id = target.id)
       and case
         when r.kept then r.created_at < ${cutoff.kept.toISOString()}::timestamptz
         else r.created_at < ${cutoff.regular.toISOString()}::timestamptz or r.rank_in_kind > ${HISTORY_RETENTION.maxPerPage}

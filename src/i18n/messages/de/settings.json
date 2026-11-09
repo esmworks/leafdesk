@@ -2021,7 +2021,10 @@
         "rows_merged": "Hat {count, plural, one {# Zeile} other {# Zeilen}} mit {target} zusammengeführt",
         "publication_expiry_changed": "{change, select, removed {Hat den Ablauf des Web-Links von {target} entfernt} other {Hat den Web-Link von {target} bis {to} befristet}}",
         "reported": "Ein Besucher hat {target} gemeldet: {reason, select, spam {Spam oder Betrug} harmful {hassvolle, gewalttätige oder belästigende Inhalte} illegal {rechtswidrige Inhalte} privacy {persönliche Daten} copyright {Urheberrecht} other {etwas anderes}}",
-        "report_dismissed": "Eine Meldung zu {target} verworfen"
+        "report_dismissed": "Eine Meldung zu {target} verworfen",
+        "approval_requested": "Hat {names} gebeten, {target} freizugeben",
+        "approval_decided": "{decision, select, approved {Hat {target} freigegeben} other {Hat Änderungen an {target} angefordert}}",
+        "approval_withdrawn": "Hat die Freigabeanfrage für {target} zurückgezogen"
       },
       "property": {
         "access_changed": "Hat den Zugriff auf „{property}“ in {target} geändert",
@@ -2356,7 +2359,10 @@
     "quizAssignedChannel": "Quizze, um die du gebeten wirst: {channel}",
     "quizFinishedTitle": "Quiz-Ergebnisse",
     "quizFinishedDescription": "Jemand, den du um ein Quiz gebeten hast, besteht es oder hat keine Versuche mehr.",
-    "quizFinishedChannel": "Quiz-Ergebnisse: {channel}"
+    "quizFinishedChannel": "Quiz-Ergebnisse: {channel}",
+    "approvalTitle": "Freigaben",
+    "approvalDescription": "Jemand bittet dich, eine Seite freizugeben, oder deine Freigabeanfrage ist abgeschlossen.",
+    "approvalChannel": "Freigaben: {channel}"
   },
   "site": {
     "description": "Gib den veröffentlichten Seiten dieses Workspace eine gemeinsame, gut lesbare Adresse, eine Startseite und eine Navigation zwischen ihnen.",

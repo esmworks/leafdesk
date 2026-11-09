@@ -2021,7 +2021,10 @@
         "rows_merged": "מיזג/ה {count, plural, one {שורה אחת} other {# שורות}} לתוך {target}",
         "publication_expiry_changed": "{change, select, removed {הסרת התוקף של קישור האינטרנט של {target}} other {הגדרת קישור האינטרנט של {target} כך שיפסיק לעבוד ב־{to}}}",
         "reported": "מבקר דיווח על {target}: {reason, select, spam {ספאם או הונאה} harmful {תוכן של שנאה, אלימות או הטרדה} illegal {תוכן לא חוקי} privacy {מידע אישי} copyright {זכויות יוצרים} other {משהו אחר}}",
-        "report_dismissed": "דחה דיווח על {target}"
+        "report_dismissed": "דחה דיווח על {target}",
+        "approval_requested": "ביקש/ה מ-{names} לאשר את {target}",
+        "approval_decided": "{decision, select, approved {אישר/ה את {target}} other {ביקש/ה שינויים ב-{target}}}",
+        "approval_withdrawn": "ביטל/ה את בקשת האישור של {target}"
       },
       "property": {
         "access_changed": "שינוי הגישה ל־“{property}” ב־{target}",
@@ -2356,7 +2359,10 @@
     "quizAssignedChannel": "בחנים שהתבקשת לענות עליהם: {channel}",
     "quizFinishedTitle": "תוצאות בחנים",
     "quizFinishedDescription": "מישהו שביקשת ממנו לענות על בוחן עובר אותו או מנצל את כל הניסיונות.",
-    "quizFinishedChannel": "תוצאות בחנים: {channel}"
+    "quizFinishedChannel": "תוצאות בחנים: {channel}",
+    "approvalTitle": "אישורים",
+    "approvalDescription": "מישהו מבקש שתאשרו דף, או שבקשת אישור שלכם הסתיימה.",
+    "approvalChannel": "אישורים: {channel}"
   },
   "site": {
     "description": "כתובת קריאה אחת לדפים המפורסמים של סביבת העבודה הזו, עם דף בית וניווט ביניהם.",

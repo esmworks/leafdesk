@@ -1835,6 +1835,12 @@ export function createMcpServer(principal: McpPrincipal, options: { actor?: Writ
                             ? `${who} changed "${title}" in ${pageLabel(n.databaseTitle)}, a row the user follows`
                           : n.kind === "page_updated"
                             ? `${who} edited "${title}", a page the user watches (get_page shows it now; get_page_history what changed)`
+                          : n.kind === "approval_requested"
+                            ? `${who} asked the user to approve "${title}" (approve or request changes in the app, under the page's title)`
+                          : n.kind === "approval_decided"
+                            ? n.automationMessage === "approved"
+                              ? `The user's request to approve "${title}" ended approved (${who} decided last)`
+                              : `${who} requested changes to "${title}", which ends the user's request for approval`
                           : n.kind === "verification"
                             ? `The user's verification of "${title}" ${n.reminderDate && n.createdAt >= new Date(n.reminderDate) ? "expired" : "ends"} on ${n.reminderDate ?? "a date"} (update_page with verified renews it)`
                           : n.kind === "quiz_assigned"

@@ -596,7 +596,14 @@ several mailboxes, whose thread ids can repeat, so the list keys threads by `ite
   `{ web: true }`; pure rules in `src/lib/web-links.ts`; `runWebLinkChecks(now)`), sensitive content scans
   `sensitive-content.ts` (detectors and masking pure in `src/lib/sensitive-content.ts`; a sweep
   reads pages whose `updated_at` moved past `sensitive_scan`), verified pages `verification.ts`
-  (`activeVerification` is the SQL for search and lists; `runVerificationReminders(now)`), named
+  (`activeVerification` is the SQL for search and lists; `runVerificationReminders(now)`), approvals
+  `page-approvals.ts` (rules pure in `lib/page-approvals.ts`, tables `page_approval` and
+  `page_approval_decision`; a request saves its own snapshot through `getCollab().snapshot`, never
+  `saveVersion`, which would rename the newest one, and `retention.ts` keeps every snapshot a round
+  points at; "changed since" compares the page row's title and Markdown with the snapshot's, so it
+  lags the live document by a save; `approved-now.ts` is search's `is:approved`; the header reads it
+  as `PageHeaderInfo.approval`; inbox kinds `approval_requested`/`approval_decided` share one
+  preference), named
   page versions `page-versions.ts` (`page_snapshot.name`; `retention.ts` `pruneSnapshots` never
   deletes a named one; listing, preview and restore stay in `pages.ts`), SMTP
   `mail/`, dashboard emails `dashboard-emails.ts` (schedules of kind `dashboard_email` on
@@ -879,7 +886,7 @@ plus the `scripts/*-e2e.ts` of the area you touched (`pnpm tsx scripts/<name>-e2
 - **Needs no server on the same database**, because a server's workers would take the queued work:
   agents, agent-api, agent-approvers, agent-chat, agent-copy, agent-handoff, agent-memory, agent-mention, desktop-files,
   agent-schedule, agent-sharing, agent-guardrails, agent-skills, agent-channel, automation, button, row-buttons, timed-automation, schedule, concurrent-writes,
-  row-activity, row-follow, row-mail, ai-reminders, work-blocks, web-links, discussions, message-polls, follow-ups (starts its own GreenMail container
+  row-activity, row-follow, row-mail, ai-reminders, work-blocks, web-links, discussions, page-approvals, message-polls, follow-ups (starts its own GreenMail container
   unless given ports), page-watch, page-webhooks, quizzes, verify, wins-log, jira-sync, github-pulls-sync, sheets-sync, sprints. `connector-e2e` starts its own `next dev` against
   `<database>_peer`, which must exist; no other dev server may run in the same checkout.
 - Each script's header says what it needs. `.github/workflows/ci.yml` shows the env each step gets;

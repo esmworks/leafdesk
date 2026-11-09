@@ -2021,7 +2021,10 @@
         "rows_merged": "Об’єднано {count, plural, one {# рядок} few {# рядки} many {# рядків} other {# рядка}} з {target}",
         "publication_expiry_changed": "{change, select, removed {Прибрано термін дії вебпосилання на {target}} other {Вебпосилання на {target} перестане працювати {to}}}",
         "reported": "Відвідувач поскаржився на {target}: {reason, select, spam {спам або шахрайство} harmful {ненависть, насильство чи цькування} illegal {незаконний вміст} privacy {персональні дані} copyright {авторське право} other {інше}}",
-        "report_dismissed": "Відхилив скаргу на {target}"
+        "report_dismissed": "Відхилив скаргу на {target}",
+        "approval_requested": "Попросив(ла) {names} погодити {target}",
+        "approval_decided": "{decision, select, approved {Погодив(ла) {target}} other {Запитав(ла) зміни в {target}}}",
+        "approval_withdrawn": "Відкликав(ла) запит на погодження {target}"
       },
       "property": {
         "access_changed": "Змінено доступ до «{property}» у {target}",
@@ -2356,7 +2359,10 @@
     "quizAssignedChannel": "Тести, які вас просять пройти: {channel}",
     "quizFinishedTitle": "Результати тестів",
     "quizFinishedDescription": "Людина, яку ви попросили пройти тест, проходить його або вичерпує спроби.",
-    "quizFinishedChannel": "Результати тестів: {channel}"
+    "quizFinishedChannel": "Результати тестів: {channel}",
+    "approvalTitle": "Погодження",
+    "approvalDescription": "Вас просять погодити сторінку, або ваш запит на погодження завершився.",
+    "approvalChannel": "Погодження: {channel}"
   },
   "site": {
     "description": "Дайте опублікованим сторінкам цього робочого простору одну зручну адресу, головну сторінку й навігацію між ними.",

@@ -320,7 +320,9 @@
     "quizAssigned": "{actor} ti ha chiesto di fare il quiz",
     "quizAssignedDue": "{actor} ti ha chiesto di fare il quiz entro il {date}",
     "quizPassed": "{actor} ha superato il quiz con il {score}%",
-    "quizFailed": "{actor} ha esaurito i tentativi del quiz ({score}%)"
+    "quizFailed": "{actor} ha esaurito i tentativi del quiz ({score}%)",
+    "approvalRequested": "{actor} ti chiede di approvare questa pagina",
+    "approvalDecided": "{outcome, select, approved {Approvata: {actor} ha dato l’ultima approvazione necessaria} other {{actor} ha chiesto modifiche a questa pagina}}"
   },
   "templates": {
     "title": "Modelli",

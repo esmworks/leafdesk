@@ -322,7 +322,9 @@
     "quizAssigned": "{actor} đã đề nghị bạn làm bài kiểm tra",
     "quizAssignedDue": "{actor} đã đề nghị bạn làm bài kiểm tra trước {date}",
     "quizPassed": "{actor} đã đạt bài kiểm tra với {score}%",
-    "quizFailed": "{actor} đã hết lượt làm bài kiểm tra ({score}%)"
+    "quizFailed": "{actor} đã hết lượt làm bài kiểm tra ({score}%)",
+    "approvalRequested": "{actor} đề nghị bạn phê duyệt trang này",
+    "approvalDecided": "{outcome, select, approved {Đã duyệt: {actor} đã đưa ra phê duyệt cuối cùng cần thiết} other {{actor} đã yêu cầu thay đổi trang này}}"
   },
   "agentReply": {
     "aiOff": "Tôi không thể trả lời: AI đang tắt trong không gian làm việc này.",

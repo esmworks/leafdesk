@@ -1678,5 +1678,86 @@
         "explanation": "the explanation can be up to 500 characters."
       }
     }
+  },
+  "approval": {
+    "menu": "Ask for approval…",
+    "menuHint": "Ask people to approve this exact version of the page",
+    "title": "Ask for approval",
+    "description": "The page is saved as a version now, and approvers approve that version: later edits never count as approved.",
+    "approvers": "Approvers",
+    "noPeople": "No one else can open this page yet. Share it first.",
+    "ruleLabel": "Approved when",
+    "rules": {
+      "all": "Everyone approves",
+      "any": "Any one approves"
+    },
+    "dueLabel": "Due date (optional)",
+    "noteLabel": "Note (optional)",
+    "notePlaceholder": "What changed and why",
+    "replaces": "The request waiting now is withdrawn.",
+    "send": "Send request",
+    "sent": "Request sent",
+    "versions": {
+      "sent": "Sent for approval",
+      "approved": "Approved"
+    },
+    "banner": {
+      "asked": "{name} asks you to approve this page",
+      "someone": "Someone",
+      "due": "Due {date}",
+      "changed": "The page changed since it was sent: you are approving the version sent on {date}.",
+      "commentLabel": "Comment",
+      "commentPlaceholder": "Optional to approve, needed to request changes",
+      "commentNeeded": "Say what should change first.",
+      "approve": "Approve",
+      "requestChanges": "Request changes",
+      "seeVersion": "See the version sent"
+    },
+    "badge": {
+      "approved": "Approved · by {names} · {date}",
+      "changed": "Changed since approval",
+      "open": "{rule, select, any {Waiting for approval} other {Waiting for approval · {done} of {total}}}",
+      "changesRequested": "Changes requested",
+      "hint": "Approval history"
+    },
+    "history": {
+      "title": "Approvals",
+      "empty": "No requests yet.",
+      "loadError": "The approvals couldn’t be loaded.",
+      "status": {
+        "open": "Waiting",
+        "approved": "Approved",
+        "changes_requested": "Changes requested",
+        "withdrawn": "Withdrawn"
+      },
+      "asked": "Asked by {name}",
+      "due": "due {date}",
+      "approvedAt": "approved {date}",
+      "changesAt": "requested changes {date}",
+      "waiting": "hasn’t decided",
+      "noDecision": "didn’t decide",
+      "noAccess": "can no longer open the page",
+      "stuck": "Someone who must approve can no longer open the page: withdraw the request and ask again.",
+      "version": "Version sent",
+      "withdraw": "Withdraw",
+      "askAgain": "Ask for approval again",
+      "someone": "Someone"
+    },
+    "errors": {
+      "approvers": "Choose one to twenty people who can open the page.",
+      "rule": "Choose who must approve.",
+      "due": "Choose a due date from today on, within five years.",
+      "note": "Keep it to 1,000 characters.",
+      "decision": "Approve or request changes.",
+      "template": "Templates and the pages in them aren’t approved.",
+      "database": "Databases aren’t approved; their rows and pages are.",
+      "inTrash": "Restore the page from the trash first.",
+      "guest": "Guests can’t ask for approval.",
+      "closed": "This request is no longer waiting.",
+      "notApprover": "You weren’t asked to approve this page.",
+      "decided": "You already decided.",
+      "notRequester": "Only who asked, or someone with full access, can withdraw it.",
+      "commentNeeded": "Say what should change first."
+    }
   }
 }

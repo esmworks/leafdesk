@@ -2021,7 +2021,10 @@
         "rows_merged": "{count, plural, one {# rij} other {# rijen}} samengevoegd in {target}",
         "publication_expiry_changed": "{change, select, removed {Vervaldatum van de weblink van {target} verwijderd} other {Weblink van {target} laten verlopen op {to}}}",
         "reported": "Een bezoeker heeft {target} gemeld: {reason, select, spam {spam of oplichting} harmful {haatdragende, gewelddadige of intimiderende inhoud} illegal {illegale inhoud} privacy {persoonsgegevens} copyright {auteursrecht} other {iets anders}}",
-        "report_dismissed": "Heeft een melding over {target} genegeerd"
+        "report_dismissed": "Heeft een melding over {target} genegeerd",
+        "approval_requested": "Vroeg {names} om {target} goed te keuren",
+        "approval_decided": "{decision, select, approved {Keurde {target} goed} other {Vroeg wijzigingen aan {target}}}",
+        "approval_withdrawn": "Trok het goedkeuringsverzoek voor {target} in"
       },
       "property": {
         "access_changed": "Gewijzigd wie toegang heeft tot “{property}” in {target}",
@@ -2356,7 +2359,10 @@
     "quizAssignedChannel": "Quizzen die je moet maken: {channel}",
     "quizFinishedTitle": "Quizresultaten",
     "quizFinishedDescription": "Iemand die je vroeg een quiz te maken, slaagt of heeft geen pogingen meer.",
-    "quizFinishedChannel": "Quizresultaten: {channel}"
+    "quizFinishedChannel": "Quizresultaten: {channel}",
+    "approvalTitle": "Goedkeuringen",
+    "approvalDescription": "Iemand vraagt je een pagina goed te keuren, of een goedkeuringsverzoek van jou is afgerond.",
+    "approvalChannel": "Goedkeuringen: {channel}"
   },
   "site": {
     "description": "Geef de gepubliceerde pagina’s van deze werkruimte één leesbaar adres, een startpagina en navigatie ertussen.",

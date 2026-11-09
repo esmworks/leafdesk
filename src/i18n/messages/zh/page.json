@@ -1678,5 +1678,86 @@
         "explanation": "解析最多 500 个字符。"
       }
     }
+  },
+  "approval": {
+    "menu": "请求审批…",
+    "menuHint": "请他人审批页面的这一确切版本",
+    "title": "请求审批",
+    "description": "页面现在会保存为一个版本，审批人审批的就是这个版本：之后的编辑绝不会算作已审批。",
+    "approvers": "审批人",
+    "noPeople": "目前还没有其他人能打开此页面。请先共享。",
+    "ruleLabel": "通过条件",
+    "rules": {
+      "all": "所有人批准",
+      "any": "任意一人批准"
+    },
+    "dueLabel": "截止日期（可选）",
+    "noteLabel": "备注（可选）",
+    "notePlaceholder": "改了什么，为什么改",
+    "replaces": "当前等待中的请求将被撤回。",
+    "send": "发送请求",
+    "sent": "请求已发送",
+    "versions": {
+      "sent": "已提交审批",
+      "approved": "已批准"
+    },
+    "banner": {
+      "asked": "{name} 请你审批此页面",
+      "someone": "某人",
+      "due": "截止 {date}",
+      "changed": "页面在发送后已更改：你审批的是 {date} 发送的版本。",
+      "commentLabel": "评论",
+      "commentPlaceholder": "批准时可选，请求修改时必填",
+      "commentNeeded": "请先写明需要修改什么。",
+      "approve": "批准",
+      "requestChanges": "请求修改",
+      "seeVersion": "查看发送的版本"
+    },
+    "badge": {
+      "approved": "已批准 · {names} · {date}",
+      "changed": "批准后已更改",
+      "open": "{rule, select, any {等待审批} other {等待审批 · {done}/{total}}}",
+      "changesRequested": "已请求修改",
+      "hint": "审批记录"
+    },
+    "history": {
+      "title": "审批",
+      "empty": "还没有请求。",
+      "loadError": "无法加载审批记录。",
+      "status": {
+        "open": "等待中",
+        "approved": "已批准",
+        "changes_requested": "已请求修改",
+        "withdrawn": "已撤回"
+      },
+      "asked": "请求人：{name}",
+      "due": "截止 {date}",
+      "approvedAt": "于 {date} 批准",
+      "changesAt": "于 {date} 请求修改",
+      "waiting": "尚未决定",
+      "noDecision": "未作决定",
+      "noAccess": "已无法打开此页面",
+      "stuck": "有必须审批的人已无法打开此页面：请撤回请求后重新请求。",
+      "version": "发送的版本",
+      "withdraw": "撤回",
+      "askAgain": "再次请求审批",
+      "someone": "某人"
+    },
+    "errors": {
+      "approvers": "请选择 1 到 20 位能打开此页面的人。",
+      "rule": "请选择需要谁批准。",
+      "due": "请选择今天起五年内的截止日期。",
+      "note": "最多 1,000 个字符。",
+      "decision": "请批准或请求修改。",
+      "template": "模板及其中的页面不参与审批。",
+      "database": "数据库不参与审批；其中的行和页面可以。",
+      "inTrash": "请先从回收站恢复页面。",
+      "guest": "访客不能请求审批。",
+      "closed": "此请求已不在等待中。",
+      "notApprover": "没有人请你审批此页面。",
+      "decided": "你已经作出决定。",
+      "notRequester": "只有发起请求的人或拥有完全访问权限的人可以撤回。",
+      "commentNeeded": "请先写明需要修改什么。"
+    }
   }
 }

@@ -320,7 +320,9 @@
     "quizAssigned": "{actor}がクイズの受験を依頼しました",
     "quizAssignedDue": "{actor}が{date}までにクイズを受けるよう依頼しました",
     "quizPassed": "{actor}がクイズに{score}%で合格しました",
-    "quizFailed": "{actor}がクイズの受験回数を使い切りました（{score}%）"
+    "quizFailed": "{actor}がクイズの受験回数を使い切りました（{score}%）",
+    "approvalRequested": "{actor} さんがこのページの承認を依頼しています",
+    "approvalDecided": "{outcome, select, approved {承認されました: 最後に必要な承認を {actor} さんが行いました} other {{actor} さんがこのページへの変更を依頼しました}}"
   },
   "templates": {
     "title": "テンプレート",

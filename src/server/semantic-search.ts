@@ -24,6 +24,7 @@ import { listedPage, isOutdated } from "@/server/page-outdated";
 import { maybeSweep } from "@/server/semantic-index";
 import { passageOf, vectorLiteral } from "@/server/semantic-text";
 import { activeVerification } from "@/server/verification";
+import { approvedNow } from "@/server/approved-now";
 import { listWorkspaces, workspaceSettings } from "@/server/workspaces";
 
 /** Queries shorter than this aren't searched by meaning (they match too much). */
@@ -211,6 +212,8 @@ export type SearchScope = {
   kinds?: SearchKind[];
   includeOutdated?: boolean;
   verifiedOnly?: boolean;
+  /** Approved and unchanged since (server/page-approvals `approvedNow`). */
+  approvedOnly?: boolean;
   /** Only pages of one of these teamspaces (the search box's teamspace filter). */
   teamspaceIds?: string[];
   /** Only pages one of these people created, or edited last (lib/search-filters). */
@@ -227,7 +230,8 @@ export type SearchScope = {
  * The `and …` conditions a search scope puts on the pages of `alias`: inside `withinPageId` and
  * inside one of `withinPageIds` (each the page itself or under it), in `withinTeamspaceId`, of one of `kinds` (a row is a
  * page whose parent is a database, a journal page one of `userId`'s daily notes), and verified
- * right now with `verifiedOnly` (server/verification), in one of `teamspaceIds`, created or last
+ * right now with `verifiedOnly` (server/verification), approved and unchanged since with
+ * `approvedOnly` (server/page-approvals), in one of `teamspaceIds`, created or last
  * edited by one of `createdBy` / `editedBy`, created or last edited in `createdIn` / `editedIn`, and
  * carrying each of `tags` (`home` or one under it, `home/renovation`). Empty for no scope.
  */
@@ -238,6 +242,7 @@ export function searchScope(
     withinTeamspaceId,
     kinds = [],
     verifiedOnly = false,
+    approvedOnly = false,
     teamspaceIds = [],
     createdBy = [],
     editedBy = [],
@@ -267,6 +272,7 @@ export function searchScope(
     parts.push(sql`(${sql.join(kinds.map((k) => byKind[k]), sql` or `)})`);
   }
   if (verifiedOnly) parts.push(activeVerification(alias));
+  if (approvedOnly) parts.push(approvedNow(alias));
   if (teamspaceIds.length) parts.push(oneOf("teamspace_id", teamspaceIds));
   if (createdBy.length) parts.push(oneOf("created_by", createdBy));
   if (editedBy.length) parts.push(oneOf("updated_by", editedBy));

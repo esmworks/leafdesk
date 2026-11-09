@@ -2021,7 +2021,10 @@
         "rows_merged": "Mesclou {count, plural, one {# linha} other {# linhas}} em {target}",
         "publication_expiry_changed": "{change, select, removed {Removeu a validade do link web de {target}} other {Definiu que o link web de {target} para de funcionar em {to}}}",
         "reported": "Um visitante denunciou {target}: {reason, select, spam {spam ou golpe} harmful {conteúdo de ódio, violento ou de assédio} illegal {conteúdo ilegal} privacy {dados pessoais} copyright {direitos autorais} other {outra coisa}}",
-        "report_dismissed": "Descartou uma denúncia sobre {target}"
+        "report_dismissed": "Descartou uma denúncia sobre {target}",
+        "approval_requested": "Pediu a {names} que aprovassem {target}",
+        "approval_decided": "{decision, select, approved {Aprovou {target}} other {Pediu alterações em {target}}}",
+        "approval_withdrawn": "Retirou o pedido de aprovação de {target}"
       },
       "property": {
         "access_changed": "Alterou quem pode acessar “{property}” em {target}",
@@ -2356,7 +2359,10 @@
     "quizAssignedChannel": "Quizzes pedidos a você: {channel}",
     "quizFinishedTitle": "Resultados de quizzes",
     "quizFinishedDescription": "Alguém a quem você pediu um quiz é aprovado ou esgota as tentativas.",
-    "quizFinishedChannel": "Resultados de quizzes: {channel}"
+    "quizFinishedChannel": "Resultados de quizzes: {channel}",
+    "approvalTitle": "Aprovações",
+    "approvalDescription": "Alguém pede que você aprove uma página, ou um pedido de aprovação seu termina.",
+    "approvalChannel": "Aprovações: {channel}"
   },
   "site": {
     "description": "Dê às páginas publicadas deste espaço de trabalho um endereço legível, uma página inicial e navegação entre elas.",

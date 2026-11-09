@@ -320,7 +320,9 @@
     "quizAssigned": "{actor}님이 나에게 퀴즈 응시를 요청했습니다",
     "quizAssignedDue": "{actor}님이 나에게 {date}까지 퀴즈 응시를 요청했습니다",
     "quizPassed": "{actor}님이 퀴즈에 {score}%로 합격했습니다",
-    "quizFailed": "{actor}님이 퀴즈 응시 기회를 모두 썼습니다({score}%)"
+    "quizFailed": "{actor}님이 퀴즈 응시 기회를 모두 썼습니다({score}%)",
+    "approvalRequested": "{actor}님이 이 페이지의 승인을 요청했습니다",
+    "approvalDecided": "{outcome, select, approved {승인됨: {actor}님이 마지막으로 필요한 승인을 했습니다} other {{actor}님이 이 페이지의 변경을 요청했습니다}}"
   },
   "templates": {
     "title": "템플릿",

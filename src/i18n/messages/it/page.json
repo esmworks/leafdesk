@@ -1678,5 +1678,86 @@
         "explanation": "la spiegazione può avere al massimo 500 caratteri."
       }
     }
+  },
+  "approval": {
+    "menu": "Chiedi approvazione…",
+    "menuHint": "Chiedi ad altre persone di approvare esattamente questa versione della pagina",
+    "title": "Chiedi approvazione",
+    "description": "La pagina viene salvata ora come versione e chi approva approva quella versione: le modifiche successive non contano mai come approvate.",
+    "approvers": "Approvatori",
+    "noPeople": "Nessun altro può ancora aprire questa pagina. Condividila prima.",
+    "ruleLabel": "Approvata quando",
+    "rules": {
+      "all": "Approvano tutti",
+      "any": "Basta una persona"
+    },
+    "dueLabel": "Scadenza (facoltativa)",
+    "noteLabel": "Nota (facoltativa)",
+    "notePlaceholder": "Cosa è cambiato e perché",
+    "replaces": "La richiesta in attesa viene ritirata.",
+    "send": "Invia richiesta",
+    "sent": "Richiesta inviata",
+    "versions": {
+      "sent": "Inviata per approvazione",
+      "approved": "Approvata"
+    },
+    "banner": {
+      "asked": "{name} ti chiede di approvare questa pagina",
+      "someone": "Qualcuno",
+      "due": "Scadenza: {date}",
+      "changed": "La pagina è cambiata dall’invio: stai approvando la versione inviata il {date}.",
+      "commentLabel": "Commento",
+      "commentPlaceholder": "Facoltativo per approvare, necessario per chiedere modifiche",
+      "commentNeeded": "Scrivi prima cosa dovrebbe cambiare.",
+      "approve": "Approva",
+      "requestChanges": "Chiedi modifiche",
+      "seeVersion": "Vedi la versione inviata"
+    },
+    "badge": {
+      "approved": "Approvata · da {names} · {date}",
+      "changed": "Modificata dopo l’approvazione",
+      "open": "{rule, select, any {In attesa di approvazione} other {In attesa di approvazione · {done} di {total}}}",
+      "changesRequested": "Modifiche richieste",
+      "hint": "Cronologia delle approvazioni"
+    },
+    "history": {
+      "title": "Approvazioni",
+      "empty": "Ancora nessuna richiesta.",
+      "loadError": "Non è stato possibile caricare le approvazioni.",
+      "status": {
+        "open": "In attesa",
+        "approved": "Approvata",
+        "changes_requested": "Modifiche richieste",
+        "withdrawn": "Ritirata"
+      },
+      "asked": "Richiesta da {name}",
+      "due": "scadenza {date}",
+      "approvedAt": "ha approvato il {date}",
+      "changesAt": "ha chiesto modifiche il {date}",
+      "waiting": "non ha ancora deciso",
+      "noDecision": "non ha deciso",
+      "noAccess": "non può più aprire la pagina",
+      "stuck": "Qualcuno che deve approvare non può più aprire la pagina: ritira la richiesta e chiedi di nuovo.",
+      "version": "Versione inviata",
+      "withdraw": "Ritira",
+      "askAgain": "Chiedi di nuovo l’approvazione",
+      "someone": "Qualcuno"
+    },
+    "errors": {
+      "approvers": "Scegli da una a venti persone che possono aprire la pagina.",
+      "rule": "Scegli chi deve approvare.",
+      "due": "Scegli una scadenza da oggi in poi, entro cinque anni.",
+      "note": "Al massimo 1.000 caratteri.",
+      "decision": "Approva o chiedi modifiche.",
+      "template": "I modelli e le loro pagine non vengono approvati.",
+      "database": "I database non vengono approvati; le loro righe e pagine sì.",
+      "inTrash": "Ripristina prima la pagina dal cestino.",
+      "guest": "Gli ospiti non possono chiedere approvazione.",
+      "closed": "Questa richiesta non è più in attesa.",
+      "notApprover": "Non ti è stato chiesto di approvare questa pagina.",
+      "decided": "Hai già deciso.",
+      "notRequester": "Solo chi l’ha chiesta, o chi ha accesso completo, può ritirarla.",
+      "commentNeeded": "Scrivi prima cosa dovrebbe cambiare."
+    }
   }
 }

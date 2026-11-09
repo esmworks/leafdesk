@@ -1678,5 +1678,86 @@
         "explanation": "a explicação pode ter até 500 caracteres."
       }
     }
+  },
+  "approval": {
+    "menu": "Pedir aprovação…",
+    "menuHint": "Pedir a pessoas que aprovem esta versão exata da página",
+    "title": "Pedir aprovação",
+    "description": "A página é salva agora como versão, e os aprovadores aprovam essa versão: edições posteriores nunca contam como aprovadas.",
+    "approvers": "Aprovadores",
+    "noPeople": "Ninguém mais pode abrir esta página ainda. Compartilhe-a primeiro.",
+    "ruleLabel": "Aprovada quando",
+    "rules": {
+      "all": "Todos aprovam",
+      "any": "Uma pessoa aprova"
+    },
+    "dueLabel": "Prazo (opcional)",
+    "noteLabel": "Nota (opcional)",
+    "notePlaceholder": "O que mudou e por quê",
+    "replaces": "O pedido que espera agora é retirado.",
+    "send": "Enviar pedido",
+    "sent": "Pedido enviado",
+    "versions": {
+      "sent": "Enviada para aprovação",
+      "approved": "Aprovada"
+    },
+    "banner": {
+      "asked": "{name} pede que você aprove esta página",
+      "someone": "Alguém",
+      "due": "Prazo: {date}",
+      "changed": "A página mudou desde o envio: você está aprovando a versão enviada em {date}.",
+      "commentLabel": "Comentário",
+      "commentPlaceholder": "Opcional para aprovar, necessário para pedir alterações",
+      "commentNeeded": "Diga primeiro o que deve mudar.",
+      "approve": "Aprovar",
+      "requestChanges": "Pedir alterações",
+      "seeVersion": "Ver a versão enviada"
+    },
+    "badge": {
+      "approved": "Aprovada · por {names} · {date}",
+      "changed": "Alterada desde a aprovação",
+      "open": "{rule, select, any {Aguardando aprovação} other {Aguardando aprovação · {done} de {total}}}",
+      "changesRequested": "Alterações pedidas",
+      "hint": "Histórico de aprovações"
+    },
+    "history": {
+      "title": "Aprovações",
+      "empty": "Nenhum pedido ainda.",
+      "loadError": "Não foi possível carregar as aprovações.",
+      "status": {
+        "open": "Aguardando",
+        "approved": "Aprovada",
+        "changes_requested": "Alterações pedidas",
+        "withdrawn": "Retirado"
+      },
+      "asked": "Pedido por {name}",
+      "due": "prazo {date}",
+      "approvedAt": "aprovou em {date}",
+      "changesAt": "pediu alterações em {date}",
+      "waiting": "ainda não decidiu",
+      "noDecision": "não decidiu",
+      "noAccess": "não consegue mais abrir a página",
+      "stuck": "Alguém que precisa aprovar não consegue mais abrir a página: retire o pedido e peça novamente.",
+      "version": "Versão enviada",
+      "withdraw": "Retirar",
+      "askAgain": "Pedir aprovação novamente",
+      "someone": "Alguém"
+    },
+    "errors": {
+      "approvers": "Escolha de uma a vinte pessoas que possam abrir a página.",
+      "rule": "Escolha quem precisa aprovar.",
+      "due": "Escolha um prazo a partir de hoje, em até cinco anos.",
+      "note": "No máximo 1.000 caracteres.",
+      "decision": "Aprove ou peça alterações.",
+      "template": "Modelos e as páginas neles não são aprovados.",
+      "database": "Bancos de dados não são aprovados; suas linhas e páginas sim.",
+      "inTrash": "Restaure a página da lixeira primeiro.",
+      "guest": "Convidados não podem pedir aprovação.",
+      "closed": "Este pedido não está mais aguardando.",
+      "notApprover": "Não pediram que você aprovasse esta página.",
+      "decided": "Você já decidiu.",
+      "notRequester": "Só quem pediu, ou alguém com acesso total, pode retirá-lo.",
+      "commentNeeded": "Diga primeiro o que deve mudar."
+    }
   }
 }

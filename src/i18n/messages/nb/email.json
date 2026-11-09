@@ -322,7 +322,9 @@
     "quizAssigned": "{actor} har bedt deg ta quizen",
     "quizAssignedDue": "{actor} har bedt deg ta quizen innen {date}",
     "quizPassed": "{actor} har bestått quizen med {score} %",
-    "quizFailed": "{actor} har brukt opp forsøkene på quizen ({score} %)"
+    "quizFailed": "{actor} har brukt opp forsøkene på quizen ({score} %)",
+    "approvalRequested": "{actor} ber deg godkjenne denne siden",
+    "approvalDecided": "{outcome, select, approved {Godkjent: {actor} ga den siste nødvendige godkjenningen} other {{actor} ba om endringer på denne siden}}"
   },
   "agentReply": {
     "aiOff": "Jeg kan ikke svare: KI er slått av i dette arbeidsområdet.",

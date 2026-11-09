@@ -1678,5 +1678,86 @@
         "explanation": "selitys voi olla enintään 500 merkkiä."
       }
     }
+  },
+  "approval": {
+    "menu": "Pyydä hyväksyntää…",
+    "menuHint": "Pyydä ihmisiä hyväksymään juuri tämä sivun versio",
+    "title": "Pyydä hyväksyntää",
+    "description": "Sivu tallennetaan nyt versioksi, ja hyväksyjät hyväksyvät sen version: myöhemmät muokkaukset eivät koskaan ole hyväksyttyjä.",
+    "approvers": "Hyväksyjät",
+    "noPeople": "Kukaan muu ei vielä voi avata tätä sivua. Jaa se ensin.",
+    "ruleLabel": "Hyväksytty, kun",
+    "rules": {
+      "all": "Kaikki hyväksyvät",
+      "any": "Yksi hyväksyy"
+    },
+    "dueLabel": "Määräpäivä (valinnainen)",
+    "noteLabel": "Huomautus (valinnainen)",
+    "notePlaceholder": "Mikä muuttui ja miksi",
+    "replaces": "Nyt odottava pyyntö perutaan.",
+    "send": "Lähetä pyyntö",
+    "sent": "Pyyntö lähetetty",
+    "versions": {
+      "sent": "Lähetetty hyväksyttäväksi",
+      "approved": "Hyväksytty"
+    },
+    "banner": {
+      "asked": "{name} pyytää sinua hyväksymään tämän sivun",
+      "someone": "Joku",
+      "due": "Määräpäivä {date}",
+      "changed": "Sivu on muuttunut lähettämisen jälkeen: hyväksyt version, joka lähetettiin {date}.",
+      "commentLabel": "Kommentti",
+      "commentPlaceholder": "Valinnainen hyväksyttäessä, pakollinen muutoksia pyydettäessä",
+      "commentNeeded": "Kerro ensin, mitä pitäisi muuttaa.",
+      "approve": "Hyväksy",
+      "requestChanges": "Pyydä muutoksia",
+      "seeVersion": "Näytä lähetetty versio"
+    },
+    "badge": {
+      "approved": "Hyväksytty · {names} · {date}",
+      "changed": "Muuttunut hyväksynnän jälkeen",
+      "open": "{rule, select, any {Odottaa hyväksyntää} other {Odottaa hyväksyntää · {done}/{total}}}",
+      "changesRequested": "Muutoksia pyydetty",
+      "hint": "Hyväksyntähistoria"
+    },
+    "history": {
+      "title": "Hyväksynnät",
+      "empty": "Ei vielä pyyntöjä.",
+      "loadError": "Hyväksyntöjä ei voitu ladata.",
+      "status": {
+        "open": "Odottaa",
+        "approved": "Hyväksytty",
+        "changes_requested": "Muutoksia pyydetty",
+        "withdrawn": "Peruttu"
+      },
+      "asked": "Pyytäjä: {name}",
+      "due": "määräpäivä {date}",
+      "approvedAt": "hyväksyi {date}",
+      "changesAt": "pyysi muutoksia {date}",
+      "waiting": "ei ole vielä päättänyt",
+      "noDecision": "ei päättänyt",
+      "noAccess": "ei voi enää avata sivua",
+      "stuck": "Joku, jonka on hyväksyttävä, ei voi enää avata sivua: peru pyyntö ja pyydä uudelleen.",
+      "version": "Lähetetty versio",
+      "withdraw": "Peru",
+      "askAgain": "Pyydä hyväksyntää uudelleen",
+      "someone": "Joku"
+    },
+    "errors": {
+      "approvers": "Valitse 1–20 henkilöä, jotka voivat avata sivun.",
+      "rule": "Valitse, kenen on hyväksyttävä.",
+      "due": "Valitse määräpäivä tästä päivästä alkaen, viiden vuoden sisällä.",
+      "note": "Enintään 1 000 merkkiä.",
+      "decision": "Hyväksy tai pyydä muutoksia.",
+      "template": "Mallipohjia ja niiden sivuja ei hyväksytä.",
+      "database": "Tietokantoja ei hyväksytä; niiden rivit ja sivut hyväksytään.",
+      "inTrash": "Palauta sivu ensin roskakorista.",
+      "guest": "Vieraat eivät voi pyytää hyväksyntää.",
+      "closed": "Tämä pyyntö ei enää odota.",
+      "notApprover": "Sinua ei pyydetty hyväksymään tätä sivua.",
+      "decided": "Olet jo päättänyt.",
+      "notRequester": "Vain pyytäjä tai joku, jolla on täydet oikeudet, voi perua sen.",
+      "commentNeeded": "Kerro ensin, mitä pitäisi muuttaa."
+    }
   }
 }

@@ -320,7 +320,9 @@
     "quizAssigned": "{actor} har bedt dig om at tage quizzen",
     "quizAssignedDue": "{actor} har bedt dig om at tage quizzen senest {date}",
     "quizPassed": "{actor} har bestået quizzen med {score} %",
-    "quizFailed": "{actor} har ikke flere forsøg i quizzen ({score} %)"
+    "quizFailed": "{actor} har ikke flere forsøg i quizzen ({score} %)",
+    "approvalRequested": "{actor} beder dig godkende denne side",
+    "approvalDecided": "{outcome, select, approved {Godkendt: {actor} gav den sidste nødvendige godkendelse} other {{actor} bad om ændringer på denne side}}"
   },
   "templates": {
     "title": "Skabeloner",

@@ -24,6 +24,14 @@
   15 minutes to 12 hours; they are yours alone, move and change length on the week, open, mark
   done or are removed from their menu, show in the sidebar's Calendar panel, and hide while their
   task is in the trash. Migration 0207 adds their table.
+- **Ask people to approve a page.** From a page's or row's `⋯` menu, someone who can edit it asks
+  up to twenty people who can open it to approve it, everyone or any one, with an optional due
+  date and note. Sending saves the page as a named version and the approval is of that version:
+  approvers decide in a box under the title (requesting changes needs a comment), and a badge
+  shows *Approved · by …* or *Changed since approval* and opens the history of requests. Approvers
+  and the requester hear of it in the inbox (*Approvals* in Settings > Preferences), decisions are
+  in the audit log, and search's `is:approved` finds approved pages unchanged since. Migration
+  0208 adds its tables.
 - **Other tools can post in a channel through a webhook.** A channel's admins add one in its
   details and copy its address, shown once; anything that posts to a Slack incoming webhook (alert
   managers, build pipelines, dashboards) can post there instead, with the same payload: text,

@@ -1678,5 +1678,86 @@
         "explanation": "解説は500文字までです。"
       }
     }
+  },
+  "approval": {
+    "menu": "承認を依頼…",
+    "menuHint": "このページのこのバージョンそのものの承認を依頼します",
+    "title": "承認を依頼",
+    "description": "ページは今の状態でバージョンとして保存され、承認者はそのバージョンを承認します。後からの編集が承認済みとみなされることはありません。",
+    "approvers": "承認者",
+    "noPeople": "このページを開ける人がまだほかにいません。先に共有してください。",
+    "ruleLabel": "承認の条件",
+    "rules": {
+      "all": "全員が承認",
+      "any": "誰か 1 人が承認"
+    },
+    "dueLabel": "期限（任意）",
+    "noteLabel": "メモ（任意）",
+    "notePlaceholder": "何をなぜ変えたか",
+    "replaces": "いま待っている依頼は取り下げられます。",
+    "send": "依頼を送信",
+    "sent": "依頼を送信しました",
+    "versions": {
+      "sent": "承認依頼で送信",
+      "approved": "承認済み"
+    },
+    "banner": {
+      "asked": "{name} さんがこのページの承認を依頼しています",
+      "someone": "誰か",
+      "due": "期限 {date}",
+      "changed": "送信後にページが変更されています。{date} に送信されたバージョンを承認することになります。",
+      "commentLabel": "コメント",
+      "commentPlaceholder": "承認では任意、変更依頼では必須",
+      "commentNeeded": "先に何を変えるべきか書いてください。",
+      "approve": "承認",
+      "requestChanges": "変更を依頼",
+      "seeVersion": "送信されたバージョンを見る"
+    },
+    "badge": {
+      "approved": "承認済み · {names} · {date}",
+      "changed": "承認後に変更あり",
+      "open": "{rule, select, any {承認待ち} other {承認待ち · {done}/{total}}}",
+      "changesRequested": "変更依頼あり",
+      "hint": "承認の履歴"
+    },
+    "history": {
+      "title": "承認",
+      "empty": "依頼はまだありません。",
+      "loadError": "承認を読み込めませんでした。",
+      "status": {
+        "open": "待機中",
+        "approved": "承認済み",
+        "changes_requested": "変更依頼あり",
+        "withdrawn": "取り下げ"
+      },
+      "asked": "依頼者: {name}",
+      "due": "期限 {date}",
+      "approvedAt": "{date} に承認",
+      "changesAt": "{date} に変更を依頼",
+      "waiting": "まだ判断していません",
+      "noDecision": "判断しませんでした",
+      "noAccess": "ページを開けなくなりました",
+      "stuck": "承認が必要な人がページを開けなくなりました。依頼を取り下げて、あらためて依頼してください。",
+      "version": "送信されたバージョン",
+      "withdraw": "取り下げ",
+      "askAgain": "もう一度承認を依頼",
+      "someone": "誰か"
+    },
+    "errors": {
+      "approvers": "ページを開ける人を 1〜20 人選んでください。",
+      "rule": "誰が承認する必要があるか選んでください。",
+      "due": "今日以降、5 年以内の期限を選んでください。",
+      "note": "1,000 文字以内にしてください。",
+      "decision": "承認するか変更を依頼してください。",
+      "template": "テンプレートとその中のページは承認の対象外です。",
+      "database": "データベースは承認の対象外です。行とページは対象です。",
+      "inTrash": "先にページをゴミ箱から復元してください。",
+      "guest": "ゲストは承認を依頼できません。",
+      "closed": "この依頼はもう待機していません。",
+      "notApprover": "このページの承認は依頼されていません。",
+      "decided": "すでに判断済みです。",
+      "notRequester": "取り下げられるのは依頼した人か、フルアクセスを持つ人だけです。",
+      "commentNeeded": "先に何を変えるべきか書いてください。"
+    }
   }
 }

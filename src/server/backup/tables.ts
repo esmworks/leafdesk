@@ -71,6 +71,9 @@ export const BACKED_UP: Record<string, Scope> = {
   quiz: own,
   quiz_attempt: (ws) => sql`quiz_id in (select id from quiz where workspace_id = ${ws})`,
   quiz_assignment: (ws) => sql`quiz_id in (select id from quiz where workspace_id = ${ws})`,
+  // After page_snapshot: a round points at the version it sent.
+  page_approval: ofPages("page_id"),
+  page_approval_decision: (ws) => sql`approval_id in (select id from page_approval where page_id in ${pages(ws)})`,
   thread_mute: ofPages("page_id"),
   thread_state: ofPages("page_id"),
   row_follower: ofPages("row_id"),

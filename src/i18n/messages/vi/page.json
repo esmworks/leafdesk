@@ -1678,5 +1678,86 @@
         "explanation": "phần giải thích có tối đa 500 ký tự."
       }
     }
+  },
+  "approval": {
+    "menu": "Yêu cầu phê duyệt…",
+    "menuHint": "Yêu cầu mọi người phê duyệt đúng phiên bản này của trang",
+    "title": "Yêu cầu phê duyệt",
+    "description": "Trang được lưu thành một phiên bản ngay bây giờ và người phê duyệt duyệt phiên bản đó: các chỉnh sửa sau không bao giờ được tính là đã duyệt.",
+    "approvers": "Người phê duyệt",
+    "noPeople": "Chưa ai khác mở được trang này. Hãy chia sẻ trước.",
+    "ruleLabel": "Được duyệt khi",
+    "rules": {
+      "all": "Mọi người đều duyệt",
+      "any": "Một người duyệt"
+    },
+    "dueLabel": "Hạn chót (tùy chọn)",
+    "noteLabel": "Ghi chú (tùy chọn)",
+    "notePlaceholder": "Đã thay đổi gì và vì sao",
+    "replaces": "Yêu cầu đang chờ sẽ bị rút lại.",
+    "send": "Gửi yêu cầu",
+    "sent": "Đã gửi yêu cầu",
+    "versions": {
+      "sent": "Đã gửi để phê duyệt",
+      "approved": "Đã duyệt"
+    },
+    "banner": {
+      "asked": "{name} đề nghị bạn phê duyệt trang này",
+      "someone": "Ai đó",
+      "due": "Hạn {date}",
+      "changed": "Trang đã thay đổi kể từ khi gửi: bạn đang duyệt phiên bản được gửi lúc {date}.",
+      "commentLabel": "Bình luận",
+      "commentPlaceholder": "Tùy chọn khi duyệt, bắt buộc khi yêu cầu thay đổi",
+      "commentNeeded": "Hãy ghi rõ cần thay đổi gì trước.",
+      "approve": "Duyệt",
+      "requestChanges": "Yêu cầu thay đổi",
+      "seeVersion": "Xem phiên bản đã gửi"
+    },
+    "badge": {
+      "approved": "Đã duyệt · bởi {names} · {date}",
+      "changed": "Đã thay đổi sau khi duyệt",
+      "open": "{rule, select, any {Đang chờ duyệt} other {Đang chờ duyệt · {done}/{total}}}",
+      "changesRequested": "Đã yêu cầu thay đổi",
+      "hint": "Lịch sử phê duyệt"
+    },
+    "history": {
+      "title": "Phê duyệt",
+      "empty": "Chưa có yêu cầu nào.",
+      "loadError": "Không tải được các phê duyệt.",
+      "status": {
+        "open": "Đang chờ",
+        "approved": "Đã duyệt",
+        "changes_requested": "Đã yêu cầu thay đổi",
+        "withdrawn": "Đã rút lại"
+      },
+      "asked": "Người yêu cầu: {name}",
+      "due": "hạn {date}",
+      "approvedAt": "đã duyệt {date}",
+      "changesAt": "đã yêu cầu thay đổi {date}",
+      "waiting": "chưa quyết định",
+      "noDecision": "đã không quyết định",
+      "noAccess": "không còn mở được trang",
+      "stuck": "Một người cần duyệt không còn mở được trang: hãy rút yêu cầu và yêu cầu lại.",
+      "version": "Phiên bản đã gửi",
+      "withdraw": "Rút lại",
+      "askAgain": "Yêu cầu phê duyệt lại",
+      "someone": "Ai đó"
+    },
+    "errors": {
+      "approvers": "Chọn từ một đến hai mươi người mở được trang.",
+      "rule": "Chọn ai cần duyệt.",
+      "due": "Chọn hạn chót từ hôm nay, trong vòng năm năm.",
+      "note": "Tối đa 1.000 ký tự.",
+      "decision": "Hãy duyệt hoặc yêu cầu thay đổi.",
+      "template": "Mẫu và các trang trong mẫu không được phê duyệt.",
+      "database": "Cơ sở dữ liệu không được phê duyệt; các hàng và trang của nó thì có.",
+      "inTrash": "Hãy khôi phục trang từ thùng rác trước.",
+      "guest": "Khách không thể yêu cầu phê duyệt.",
+      "closed": "Yêu cầu này không còn chờ nữa.",
+      "notApprover": "Bạn không được đề nghị phê duyệt trang này.",
+      "decided": "Bạn đã quyết định rồi.",
+      "notRequester": "Chỉ người yêu cầu hoặc người có toàn quyền mới rút lại được.",
+      "commentNeeded": "Hãy ghi rõ cần thay đổi gì trước."
+    }
   }
 }

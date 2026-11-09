@@ -320,7 +320,9 @@
     "quizAssigned": "{actor} bad dig göra quizet",
     "quizAssignedDue": "{actor} bad dig göra quizet senast {date}",
     "quizPassed": "{actor} blev godkänd på quizet med {score} %",
-    "quizFailed": "{actor} har inga försök kvar på quizet ({score} %)"
+    "quizFailed": "{actor} har inga försök kvar på quizet ({score} %)",
+    "approvalRequested": "{actor} ber dig godkänna den här sidan",
+    "approvalDecided": "{outcome, select, approved {Godkänd: {actor} gav det sista godkännandet som behövdes} other {{actor} begärde ändringar på den här sidan}}"
   },
   "templates": {
     "title": "Mallar",
