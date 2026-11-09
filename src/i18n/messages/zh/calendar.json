@@ -18,7 +18,8 @@
     "event": "日历事件",
     "meeting": "会议",
     "task": "任务",
-    "reminder": "提醒"
+    "reminder": "提醒",
+    "block": "计划时间"
   },
   "allDay": "全天",
   "from": "{time} 起",
@@ -29,5 +30,43 @@
     "fixed": "无法移到那里",
     "noAccess": "你无法更改此项",
     "failed": "无法移动，请重试。"
+  },
+  "durationHours": "{hours} 小时",
+  "durationMinutes": "{minutes} 分钟",
+  "durationBoth": "{hours} 小时 {minutes} 分钟",
+  "toPlan": {
+    "title": "待计划",
+    "toggle": "待计划的任务",
+    "help": "将任务拖到本周，或使用“安排时间”。",
+    "filter": "筛选任务",
+    "empty": "没有未完成的任务",
+    "noMatch": "没有匹配的任务",
+    "planned": "已计划 {duration}",
+    "planTime": "安排时间",
+    "couldNotLoad": "无法加载你的任务"
+  },
+  "planDialog": {
+    "title": "安排时间",
+    "day": "日期",
+    "start": "开始",
+    "length": "时长",
+    "plan": "安排"
+  },
+  "blockMenu": {
+    "more": "更多操作",
+    "openTask": "打开任务",
+    "markDone": "将任务标记为完成",
+    "remove": "移除时间块",
+    "resize": "拖动以更改时长"
+  },
+  "blockErrors": {
+    "notFound": "此任务已无法再计划",
+    "noAccess": "你已无法打开此任务",
+    "tooShort": "计划时间至少 15 分钟",
+    "tooLong": "计划时间最多 12 小时",
+    "invalid": "请选择日期和开始时间",
+    "notTask": "这不是你的任务",
+    "tooMany": "此任务的计划时间已达上限",
+    "failed": "无法更改计划时间，请重试。"
   }
 }

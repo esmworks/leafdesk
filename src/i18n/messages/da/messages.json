@@ -125,7 +125,8 @@
     "remind60": "Mind mig om det om en time",
     "remindTomorrow": "Mind mig om det i morgen",
     "history": "Redigeringshistorik",
-    "delete": "Slet"
+    "delete": "Slet",
+    "closePoll": "Luk afstemning"
   },
   "system": {
     "created": "{actor} oprettede denne kanal.",
@@ -290,7 +291,8 @@
     "offline": "Du er offline. Det sendes, når du er tilbage.",
     "timeout": "Serveren svarede ikke i tide.",
     "ai": "AI kunne ikke svare. Prøv igen.",
-    "internal": "Noget gik galt. Prøv igen."
+    "internal": "Noget gik galt. Prøv igen.",
+    "pollClosed": "Afstemningen er lukket."
   },
   "import": {
     "button": "Importér fra Slack",
@@ -351,5 +353,42 @@
     "remove": "Slet {name}",
     "removeConfirm": "Vil du slette webhooken {name}? Adressen holder op med at virke med det samme; dens beskeder bliver.",
     "title": "Webhooks"
+  },
+  "poll": {
+    "create": "Opret en afstemning",
+    "title": "Ny afstemning",
+    "question": "Spørgsmål",
+    "questionPlaceholder": "Hvad vil du spørge om?",
+    "options": "Svarmuligheder",
+    "optionPlaceholder": "Svarmulighed {number}",
+    "addOption": "Tilføj en svarmulighed",
+    "removeOption": "Fjern svarmulighed {number}",
+    "multiple": "Tillad flere svar",
+    "anonymous": "Anonym",
+    "anonymousHint": "Andre ser, hvor mange der valgte hver mulighed, aldrig hvem.",
+    "closes": "Lukker",
+    "closesNever": "Aldrig",
+    "closesDay": "Om 1 dag",
+    "closesWeek": "Om 1 uge",
+    "closesAt": "På en dato og et tidspunkt",
+    "closesAtLabel": "Hvornår afstemningen lukker",
+    "send": "Send afstemning",
+    "severalAnswers": "Flere svar",
+    "voteFor": "Stem på {option}",
+    "takeBack": "Træk din stemme på {option} tilbage",
+    "votedBy": "Valgte {option}: {people}",
+    "voters": "{count, plural, =0 {Ingen stemmer endnu} one {# person har stemt} other {# personer har stemt}}",
+    "closed": "Lukket",
+    "closesIn": "Lukker {when}",
+    "closeConfirm": "Luk afstemningen? Derefter kan ingen stemme.",
+    "errors": {
+      "question": "Skriv et spørgsmål.",
+      "questionTooLong": "Et spørgsmål har højst {max} tegn.",
+      "tooFewOptions": "Angiv mindst to svarmuligheder.",
+      "tooManyOptions": "En afstemning har højst {max} svarmuligheder.",
+      "optionTooLong": "En svarmulighed har højst {max} tegn.",
+      "duplicateOptions": "To svarmuligheder siger det samme.",
+      "closesAt": "Vælg et lukketidspunkt inden for det næste år."
+    }
   }
 }

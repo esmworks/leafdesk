@@ -318,7 +318,13 @@
     "limitRequestNote": "“{note}”",
     "limitRequestApprove": "{tokens, number} tokene çıkar",
     "limitRequestDecline": "Reddet",
-    "limitRequestFailed": "İstek yanıtlanamadı. Yeniden deneyin."
+    "limitRequestFailed": "İstek yanıtlanamadı. Yeniden deneyin.",
+    "quizAssigned": "{actor} testi çözmenizi istedi",
+    "quizAssignedDue": "{actor} testi {date} tarihine kadar çözmenizi istedi",
+    "quizPassed": "{actor} testi %{score} ile geçti",
+    "quizFailed": "{actor} testte deneme haklarını bitirdi (%{score})",
+    "approvalRequested": "{actor} bu sayfayı onaylamanızı istiyor",
+    "approvalDecided": "{outcome, select, approved {Onaylandı: gereken son onayı {actor} verdi} other {{actor} bu sayfada değişiklik istedi}}"
   },
   "templates": {
     "title": "Şablonlar",

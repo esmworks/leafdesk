@@ -181,8 +181,13 @@ import { gzipSync } from "node:zlib";
  * The Library is a route of its own (its tabs' lists, search and new buttons; New agent's dialog
  * loads when opened), and the Memory page laid out like a database (tabs, toolbar, groups, a note's
  * dialog): about 6 kB to all first loads together, for which that budget rose 8 kB.
+ * Polls in messages (sending one, its card's loader), planning time on the Calendar (dragging,
+ * moving and resizing blocks on the week), the inbox's quiz and approval items and a page's
+ * approval state and menu item add about 3 kB to all first loads together, which stood at their
+ * budget: it rose 4 kB. Their dialogs, the To plan list, a quiz and the approval badge, history and
+ * banner load when shown.
  */
-const BUDGET = { routeFirstLoad: 804, firstLoadShared: 1268, onDemandChunk: 450 };
+const BUDGET = { routeFirstLoad: 804, firstLoadShared: 1272, onDemandChunk: 450 };
 
 const NEXT = ".next";
 const kB = (bytes: number) => bytes / 1024;

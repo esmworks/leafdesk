@@ -9,7 +9,9 @@ import { getThreadAction, listMailboxesAction, listThreadsAction, openDraftActio
 import { sidebarMeetingsAction } from "@/app/actions/meetings";
 import { backlinksAction, unlinkedMentionsAction } from "@/app/actions/mentions";
 import { arrivalsAction, dueRemindersAction, listInboxAction, unreadCountAction } from "@/app/actions/notifications";
+import { approvalCandidatesAction, approvalHistoryAction } from "@/app/actions/page-approvals";
 import { recordPageViewAction } from "@/app/actions/page-views";
+import { quizAction, quizPeopleAction, quizResultsAction } from "@/app/actions/quizzes";
 import { placeAtAction } from "@/app/actions/places";
 import { getPageReviewAction, listTrashAction, recentSearchAction, searchAction, searchFilterOptionsAction } from "@/app/actions/pages";
 import { relatedPagesAction } from "@/app/actions/related-pages";
@@ -19,6 +21,7 @@ import { settingsSearchAction } from "@/app/actions/settings-search";
 import { usableSnippetsAction } from "@/app/actions/snippets";
 import { tagSuggestionsAction } from "@/app/actions/tags";
 import { listTriggersAction } from "@/app/actions/triggers";
+import { tasksToPlanAction } from "@/app/actions/work-blocks";
 
 /**
  * Server actions that components call on their own (as a page opens, on a timer, as a box fills)
@@ -32,6 +35,8 @@ export const READS = {
   backlinks: backlinksAction,
   unlinkedMentions: unlinkedMentionsAction,
   relatedPages: relatedPagesAction,
+  approvalCandidates: approvalCandidatesAction,
+  approvalHistory: approvalHistoryAction,
   pageReview: getPageReviewAction,
   usableSnippets: usableSnippetsAction,
   recordPageView: recordPageViewAction,
@@ -45,6 +50,7 @@ export const READS = {
   sidebarAgents: sidebarAgentsAction,
   sidebarMeetings: sidebarMeetingsAction,
   calendarItems: calendarItemsAction,
+  tasksToPlan: tasksToPlanAction,
   agentCreation: agentCreationAction,
   agentLimitRequest: pendingAgentLimitRequestAction,
   agentMailboxes: agentMailboxesAction,
@@ -79,6 +85,9 @@ export const READS = {
   mailAddresses: suggestAddressesAction,
   mailDraft: openDraftAction,
   mailSend: sendStatusAction,
+  quiz: quizAction,
+  quizResults: quizResultsAction,
+  quizPeople: quizPeopleAction,
 };
 
 export type Reads = typeof READS;

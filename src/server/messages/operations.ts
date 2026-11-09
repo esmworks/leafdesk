@@ -14,6 +14,7 @@ import * as z from "zod";
 import { db } from "@/db";
 import { channel, channelMember, user } from "@/db/schema";
 import { env } from "@/lib/env";
+import { pollClosed } from "@/lib/message-polls";
 import { MESSAGE_LIMITS, messagesPath } from "@/lib/messages";
 import type { MessageView } from "@/lib/message-wire";
 import { AccessError, requireMembership } from "@/server/access";
@@ -138,6 +139,7 @@ function describe(m: MessageView, workspaceId: string, names: Map<string, string
     ...(m.threadId ? {} : { reply_count: m.replyCount, last_reply_at: m.lastReplyAt }),
     ...(m.files.length ? { files: m.files.map((f) => ({ id: f.id, name: f.name, type: f.contentType, size: f.size, url: f.url.startsWith("/") ? `${env.appUrl}${f.url}` : f.url })) } : {}),
     ...(m.reactions.length ? { reactions: m.reactions.map((r) => ({ emoji: r.emoji, count: r.userIds.length })) } : {}),
+    ...(m.poll ? { poll: { options: m.poll.options.map((o) => ({ text: o.text, votes: o.count })), multiple: m.poll.multiple, closed: pollClosed(m.poll) } } : {}),
     url: link(workspaceId, { channelId: m.channelId, threadId: m.threadId ?? undefined, messageId: m.id }),
   };
 }

@@ -125,7 +125,8 @@
     "remind60": "Herinner me over een uur",
     "remindTomorrow": "Herinner me morgen",
     "history": "Bewerkingsgeschiedenis",
-    "delete": "Verwijderen"
+    "delete": "Verwijderen",
+    "closePoll": "Peiling sluiten"
   },
   "system": {
     "created": "{actor} heeft dit kanaal gemaakt.",
@@ -290,7 +291,8 @@
     "offline": "Je bent offline. Het gaat weg zodra je weer online bent.",
     "timeout": "De server antwoordde niet op tijd.",
     "ai": "De AI kon niet antwoorden. Probeer het opnieuw.",
-    "internal": "Er ging iets mis. Probeer het opnieuw."
+    "internal": "Er ging iets mis. Probeer het opnieuw.",
+    "pollClosed": "De peiling is gesloten."
   },
   "import": {
     "button": "Importeren uit Slack",
@@ -351,5 +353,42 @@
     "remove": "{name} verwijderen",
     "removeConfirm": "De webhook “{name}” verwijderen? Het adres werkt meteen niet meer; de berichten blijven staan.",
     "title": "Webhooks"
+  },
+  "poll": {
+    "create": "Peiling maken",
+    "title": "Nieuwe peiling",
+    "question": "Vraag",
+    "questionPlaceholder": "Wat wil je vragen?",
+    "options": "Opties",
+    "optionPlaceholder": "Optie {number}",
+    "addOption": "Optie toevoegen",
+    "removeOption": "Optie {number} verwijderen",
+    "multiple": "Meerdere antwoorden toestaan",
+    "anonymous": "Anoniem",
+    "anonymousHint": "Anderen zien hoeveel mensen elke optie kozen, nooit wie.",
+    "closes": "Sluit",
+    "closesNever": "Nooit",
+    "closesDay": "Over 1 dag",
+    "closesWeek": "Over 1 week",
+    "closesAt": "Op een datum en tijd",
+    "closesAtLabel": "Wanneer de peiling sluit",
+    "send": "Peiling versturen",
+    "severalAnswers": "Meerdere antwoorden",
+    "voteFor": "Stem op {option}",
+    "takeBack": "Je stem op {option} intrekken",
+    "votedBy": "Kozen {option}: {people}",
+    "voters": "{count, plural, =0 {Nog geen stemmen} one {# persoon heeft gestemd} other {# personen hebben gestemd}}",
+    "closed": "Gesloten",
+    "closesIn": "Sluit {when}",
+    "closeConfirm": "Deze peiling sluiten? Daarna kan niemand meer stemmen.",
+    "errors": {
+      "question": "Schrijf een vraag.",
+      "questionTooLong": "Een vraag heeft hooguit {max} tekens.",
+      "tooFewOptions": "Geef minstens twee opties.",
+      "tooManyOptions": "Een peiling heeft hooguit {max} opties.",
+      "optionTooLong": "Een optie heeft hooguit {max} tekens.",
+      "duplicateOptions": "Twee opties zeggen hetzelfde.",
+      "closesAt": "Kies een sluitingstijd binnen het komende jaar."
+    }
   }
 }

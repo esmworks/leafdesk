@@ -2021,7 +2021,10 @@
         "rows_merged": "دمج {count, plural, zero {# صف} one {صفًا واحدًا} two {صفين} few {# صفوف} many {# صفًا} other {# صف}} في {target}",
         "publication_expiry_changed": "{change, select, removed {أزال صلاحية رابط الويب للصفحة {target}} other {جعل رابط الويب للصفحة {target} يتوقف عن العمل في {to}}}",
         "reported": "أبلغ زائر عن {target}: {reason, select, spam {رسائل مزعجة أو احتيال} harmful {محتوى يحض على الكراهية أو العنف أو التحرش} illegal {محتوى غير قانوني} privacy {معلومات شخصية} copyright {حقوق النشر} other {شيء آخر}}",
-        "report_dismissed": "تجاهل بلاغًا عن {target}"
+        "report_dismissed": "تجاهل بلاغًا عن {target}",
+        "approval_requested": "طلب من {names} الموافقة على {target}",
+        "approval_decided": "{decision, select, approved {وافق على {target}} other {طلب تغييرات على {target}}}",
+        "approval_withdrawn": "سحب طلب الموافقة على {target}"
       },
       "property": {
         "access_changed": "غيّر من يمكنه الوصول إلى «{property}» في {target}",
@@ -2350,7 +2353,16 @@
         "step3": "فعّل الإشعارات لهذا الموقع.",
         "step4": "أعد تحميل هذه الصفحة وفعّل الإشعارات الفورية هنا."
       }
-    }
+    },
+    "quizAssignedTitle": "الاختبارات المطلوبة منك",
+    "quizAssignedDescription": "يطلب منك أحدهم إجراء اختبار في صفحة.",
+    "quizAssignedChannel": "الاختبارات المطلوبة منك: {channel}",
+    "quizFinishedTitle": "نتائج الاختبارات",
+    "quizFinishedDescription": "ينجح شخص طلبت منه إجراء اختبار أو تنفد محاولاته.",
+    "quizFinishedChannel": "نتائج الاختبارات: {channel}",
+    "approvalTitle": "الموافقات",
+    "approvalDescription": "يطلب منك أحدهم الموافقة على صفحة، أو ينتهي طلب موافقة قدّمته.",
+    "approvalChannel": "الموافقات: {channel}"
   },
   "site": {
     "description": "امنح الصفحات المنشورة لمساحة العمل هذه عنوانًا واحدًا سهل القراءة، وصفحة رئيسية، وتنقلًا بينها.",

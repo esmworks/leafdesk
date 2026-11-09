@@ -27,6 +27,7 @@ import {
 import { parseTabMarker, TAB_BLOCK, TAB_LIST_BLOCK, tabMarkerBlock, tabMarkerLine, tabTitle, type TabMarker } from "./tabs";
 import { DASHBOARD_BLOCK, dashboardLine, parseDashboardLine } from "./dashboard";
 import { AGENT_CHAT_BLOCK, agentChatLine, newChatId, parseAgentChatLine } from "./agent-chat";
+import { parseQuizLine, QUIZ_BLOCK, quizLine } from "./quiz-block";
 import { BUTTON_BLOCK, buttonLine, cleanButtonLabel, parseButtonLine } from "./buttons";
 import { isMeetingEnd, MEETING_BLOCK, meetingMarkdown, parseMeetingBegin } from "./meetings";
 import { BLOCK_COLORS } from "./block-colors";
@@ -325,6 +326,9 @@ export function prepareMarkdownExport<B extends MdBlock>(
           const markdown = meetingMarkdown(block.props);
           return paragraph(markdown ? blockToken(markdown) : "");
         }
+        case QUIZ_BLOCK:
+          // Only its id: the questions and answers stay in the quiz table (server/quizzes.ts).
+          return paragraph(blockToken(quizLine(String(block.props?.quizId ?? ""))));
         case AGENT_CHAT_BLOCK: {
           // Only its ids; a block whose agent isn't chosen yet has nothing to write.
           const agentId = String(block.props?.agentId ?? "");
@@ -520,6 +524,7 @@ type Pending =
   | { type: typeof DASHBOARD_BLOCK; id: string }
   | { type: typeof BUTTON_BLOCK; id: string; label: string }
   | { type: typeof AGENT_CHAT_BLOCK; agentId: string; chatId: string }
+  | { type: typeof QUIZ_BLOCK; quizId: string }
   | { type: typeof IMAGE_BLOCK; url: string; name: string; caption: string; link: string }
   | { type: typeof MEETING_BLOCK; meetingId: string; markdown: string }
   | { type: typeof SYNCED_BLOCK; pageId: string; syncId: string }
@@ -623,6 +628,11 @@ export function prepareMarkdownImport(markdown: string, nonce: string, { appUrl 
     const agentChat = parseAgentChatLine(line);
     if (agentChat) {
       blockLine({ type: AGENT_CHAT_BLOCK, ...agentChat });
+      continue;
+    }
+    const quizId = parseQuizLine(line);
+    if (quizId !== null) {
+      blockLine({ type: QUIZ_BLOCK, quizId });
       continue;
     }
     const image = parseLinkedImageLine(line, appUrl);
@@ -956,6 +966,8 @@ export async function finishMarkdownImport<B extends MdBlock>(
         return { type: COMMENT_PREVIEW_BLOCK, props: { pageId: pending.pageId, threadId: pending.threadId }, children: [] } as unknown as B;
       case SYNCED_BLOCK:
         return { type: SYNCED_BLOCK, props: { pageId: pending.pageId, syncId: pending.syncId }, children: [] } as unknown as B;
+      case QUIZ_BLOCK:
+        return { type: QUIZ_BLOCK, props: { quizId: pending.quizId }, children: [] } as unknown as B;
       case AGENT_CHAT_BLOCK:
         // A line without a chat id (written by hand, or by MCP) starts the block's conversations afresh.
         return { type: AGENT_CHAT_BLOCK, props: { agentId: pending.agentId, chatId: pending.chatId || newChatId() }, children: [] } as unknown as B;

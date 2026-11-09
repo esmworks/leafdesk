@@ -12,6 +12,8 @@ import { timestampDay } from "@/lib/time-zone";
 import { valueType } from "@/lib/derived";
 import { mapReferenceLines, markdownReferences } from "@/lib/embed-blocks";
 import { mapAgentChatLines } from "@/lib/agent-chat";
+import { mapQuizLines } from "@/lib/quiz-block";
+import { quizQuestionCounts } from "@/server/quizzes";
 import { mapButtonLines } from "@/lib/buttons";
 import { env } from "@/lib/env";
 import { commentsMarkdown, ENGLISH_COMMENT_LABELS, exportedThreads, type CommentExportLabels, type ExportedThread } from "@/lib/export-comments";
@@ -68,6 +70,8 @@ export type ExportLabels = {
   agentChat: (name: string) => string;
   /** A button's line, naming its label (or "" without one): what it does stays in the app. */
   button: (label: string) => string;
+  /** A quiz block's line, with how many questions it has (null when it isn't the page's own): never its answers. */
+  quiz: (count: number | null) => string;
   comments: CommentExportLabels;
 };
 
@@ -79,6 +83,7 @@ export const ENGLISH_EXPORT_LABELS: ExportLabels = {
   synced: ENGLISH_SYNCED_LABELS,
   agentChat: (name) => (name ? `Agent chat: ${name}` : "Agent chat"),
   button: (label) => `Button “${label || "Button"}”`,
+  quiz: (count) => (count === null ? "Quiz" : `Quiz (${count} ${count === 1 ? "question" : "questions"})`),
   comments: ENGLISH_COMMENT_LABELS,
 };
 
@@ -102,7 +107,8 @@ export async function pageMarkdown(
   const expanded = await expandSyncedMarkdown(userId, pageId, content.markdown.trim(), labels.synced);
   const labelled = await labelPageLinks(userId, expanded, labels);
   const named = await nameAgentChats(pageId, await linkEmbeds(userId, labelled, labels), labels);
-  const body = mapButtonLines(named, ({ label }) => `*${labels.button(label).replace(/[*_[\]]/g, "\\$&")}*`);
+  const buttons = mapButtonLines(named, ({ label }) => `*${labels.button(label).replace(/[*_[\]]/g, "\\$&")}*`);
+  const body = await nameQuizzes(pageId, buttons, labels);
   const section = comments ? commentsMarkdown(await pageThreads(userId, pageId, labels.comments), labels.comments) : "";
   return { title: content.title, body: section ? `${body}\n\n${section}`.trimStart() : body };
 }
@@ -133,6 +139,21 @@ async function nameAgentChats(pageId: string, markdown: string, labels: ExportLa
   const [found] = await db.select({ workspaceId: page.workspaceId }).from(page).where(eq(page.id, pageId));
   const names = await agentNames(found ? [found.workspaceId] : [], [...ids]);
   return mapAgentChatLines(markdown, ({ agentId }) => `*${labels.agentChat(names.get(agentId) ?? "").replace(/[*_[\]]/g, "\\$&")}*`);
+}
+
+/**
+ * Quiz blocks as a plain line saying how many questions the quiz has: its questions, answers and
+ * who took it stay in the app (server/quizzes.ts).
+ */
+async function nameQuizzes(pageId: string, markdown: string, labels: ExportLabels) {
+  const ids: string[] = [];
+  mapQuizLines(markdown, (id) => {
+    ids.push(id);
+    return "";
+  });
+  if (!ids.length) return markdown;
+  const counts = await quizQuestionCounts(pageId, ids);
+  return mapQuizLines(markdown, (id) => `*${labels.quiz(counts.get(id) ?? null).replace(/[*_[\]]/g, "\\$&")}*`);
 }
 
 /** Title heading and body, as one Markdown file. */

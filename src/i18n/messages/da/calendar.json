@@ -18,7 +18,8 @@
     "event": "Kalenderbegivenheder",
     "meeting": "Møder",
     "task": "Opgaver",
-    "reminder": "Påmindelser"
+    "reminder": "Påmindelser",
+    "block": "Planlagt tid"
   },
   "allDay": "Hele dagen",
   "from": "Fra {time}",
@@ -29,5 +30,43 @@
     "fixed": "Dette kan ikke flyttes dertil",
     "noAccess": "Du kan ikke ændre dette",
     "failed": "Kunne ikke flytte det. Prøv igen."
+  },
+  "durationHours": "{hours} t",
+  "durationMinutes": "{minutes} min",
+  "durationBoth": "{hours} t {minutes} min",
+  "toPlan": {
+    "title": "Skal planlægges",
+    "toggle": "Opgaver der skal planlægges",
+    "help": "Træk en opgave ind på ugen, eller brug Planlæg tid.",
+    "filter": "Filtrér opgaver",
+    "empty": "Ingen åbne opgaver",
+    "noMatch": "Ingen opgaver matcher",
+    "planned": "{duration} planlagt",
+    "planTime": "Planlæg tid",
+    "couldNotLoad": "Dine opgaver kunne ikke indlæses"
+  },
+  "planDialog": {
+    "title": "Planlæg tid",
+    "day": "Dag",
+    "start": "Start",
+    "length": "Varighed",
+    "plan": "Planlæg"
+  },
+  "blockMenu": {
+    "more": "Flere handlinger",
+    "openTask": "Åbn opgave",
+    "markDone": "Markér opgave som færdig",
+    "remove": "Fjern blok",
+    "resize": "Træk for at ændre varigheden"
+  },
+  "blockErrors": {
+    "notFound": "Denne opgave kan ikke længere planlægges",
+    "noAccess": "Du kan ikke længere åbne denne opgave",
+    "tooShort": "Planlagt tid er mindst 15 minutter",
+    "tooLong": "Planlagt tid er højst 12 timer",
+    "invalid": "Vælg en dag og et starttidspunkt",
+    "notTask": "Det er ikke en af dine opgaver",
+    "tooMany": "Denne opgave har allerede så meget planlagt tid, som den kan have",
+    "failed": "Den planlagte tid kunne ikke ændres. Prøv igen."
   }
 }

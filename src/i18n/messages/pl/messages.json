@@ -125,7 +125,8 @@
     "remind60": "Przypomnij za godzinę",
     "remindTomorrow": "Przypomnij jutro",
     "history": "Historia edycji",
-    "delete": "Usuń"
+    "delete": "Usuń",
+    "closePoll": "Zamknij ankietę"
   },
   "system": {
     "created": "{actor} tworzy ten kanał.",
@@ -290,7 +291,8 @@
     "offline": "Jesteś offline. Wyślemy, gdy wrócisz.",
     "timeout": "Serwer nie odpowiedział na czas.",
     "ai": "AI nie mogła odpowiedzieć. Spróbuj ponownie.",
-    "internal": "Coś poszło nie tak. Spróbuj ponownie."
+    "internal": "Coś poszło nie tak. Spróbuj ponownie.",
+    "pollClosed": "Ankieta jest zamknięta."
   },
   "import": {
     "button": "Importuj ze Slacka",
@@ -351,5 +353,42 @@
     "remove": "Usuń {name}",
     "removeConfirm": "Usunąć webhook „{name}”? Jego adres od razu przestanie działać; jego wiadomości pozostaną.",
     "title": "Webhooki"
+  },
+  "poll": {
+    "create": "Utwórz ankietę",
+    "title": "Nowa ankieta",
+    "question": "Pytanie",
+    "questionPlaceholder": "O co chcesz zapytać?",
+    "options": "Odpowiedzi",
+    "optionPlaceholder": "Odpowiedź {number}",
+    "addOption": "Dodaj odpowiedź",
+    "removeOption": "Usuń odpowiedź {number}",
+    "multiple": "Zezwól na kilka odpowiedzi",
+    "anonymous": "Anonimowa",
+    "anonymousHint": "Inni widzą, ile osób wybrało każdą odpowiedź, nigdy kto.",
+    "closes": "Zamknięcie",
+    "closesNever": "Nigdy",
+    "closesDay": "Za 1 dzień",
+    "closesWeek": "Za 1 tydzień",
+    "closesAt": "O wybranej dacie i godzinie",
+    "closesAtLabel": "Kiedy ankieta się zamyka",
+    "send": "Wyślij ankietę",
+    "severalAnswers": "Kilka odpowiedzi",
+    "voteFor": "Głosuj na {option}",
+    "takeBack": "Wycofaj swój głos na {option}",
+    "votedBy": "Wybrali {option}: {people}",
+    "voters": "{count, plural, =0 {Brak głosów} one {# osoba zagłosowała} few {# osoby zagłosowały} many {# osób zagłosowało} other {# osoby zagłosowało}}",
+    "closed": "Zamknięta",
+    "closesIn": "Zamyka się {when}",
+    "closeConfirm": "Zamknąć tę ankietę? Potem nikt nie będzie mógł głosować.",
+    "errors": {
+      "question": "Wpisz pytanie.",
+      "questionTooLong": "Pytanie może mieć najwyżej {max} znaków.",
+      "tooFewOptions": "Podaj co najmniej dwie odpowiedzi.",
+      "tooManyOptions": "Ankieta może mieć najwyżej {max} odpowiedzi.",
+      "optionTooLong": "Odpowiedź może mieć najwyżej {max} znaków.",
+      "duplicateOptions": "Dwie odpowiedzi mówią to samo.",
+      "closesAt": "Wybierz zamknięcie w ciągu najbliższego roku."
+    }
   }
 }

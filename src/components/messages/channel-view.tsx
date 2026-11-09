@@ -90,9 +90,11 @@ export function ChannelView({
   }, [ready, channel, channelId]);
 
   const writes = !!member && !!channel && !channel.archivedAt && (channel.posting === "everyone" || member.role === "admin" || owner);
+  // Polls take votes from everyone in the channel, even where only its admins post.
+  const votes = !!member && !!channel && !channel.archivedAt;
   const ctx = useMemo<ItemContext>(
-    () => ({ workspaceId, openThread, forward, moderates: owner || member?.role === "admin", writes }),
-    [workspaceId, openThread, forward, owner, member?.role, writes],
+    () => ({ workspaceId, openThread, forward, moderates: owner || member?.role === "admin", writes, votes }),
+    [workspaceId, openThread, forward, owner, member?.role, writes, votes],
   );
 
   // ↑ in an empty box: the person's last message in the list, if it is loaded.
@@ -101,7 +103,8 @@ export function ChannelView({
     const ids = s.timelines.get(channelId)?.ids ?? [];
     for (let i = ids.length - 1; i >= Math.max(0, ids.length - 50); i--) {
       const m = s.messages.get(ids[i]);
-      if (m && m.authorId === s.me && m.kind === "message" && !m.deletedAt) {
+      // A poll's question stays as people voted on it: ↑ edits the message before it.
+      if (m && m.authorId === s.me && m.kind === "message" && !m.deletedAt && !m.poll) {
         setEditing(m.id);
         document.querySelector(`[data-message-id="${m.id}"]`)?.scrollIntoView({ block: "nearest" });
         return;

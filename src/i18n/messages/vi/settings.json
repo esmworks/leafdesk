@@ -2021,7 +2021,10 @@
         "rows_merged": "Đã gộp {count, plural, other {# hàng}} vào {target}",
         "publication_expiry_changed": "{change, select, removed {Đã bỏ thời hạn của liên kết web {target}} other {Đã đặt liên kết web {target} ngừng hoạt động vào {to}}}",
         "reported": "Một khách truy cập đã báo cáo {target}: {reason, select, spam {spam hoặc lừa đảo} harmful {nội dung thù ghét, bạo lực hoặc quấy rối} illegal {nội dung bất hợp pháp} privacy {thông tin cá nhân} copyright {bản quyền} other {vấn đề khác}}",
-        "report_dismissed": "Đã bỏ qua một báo cáo về {target}"
+        "report_dismissed": "Đã bỏ qua một báo cáo về {target}",
+        "approval_requested": "Đã đề nghị {names} phê duyệt {target}",
+        "approval_decided": "{decision, select, approved {Đã duyệt {target}} other {Đã yêu cầu thay đổi {target}}}",
+        "approval_withdrawn": "Đã rút lại yêu cầu phê duyệt {target}"
       },
       "property": {
         "access_changed": "Đã thay đổi ai có thể truy cập “{property}” trong {target}",
@@ -2350,7 +2353,16 @@
         "step3": "Bật thông báo cho trang web này.",
         "step4": "Tải lại trang này và bật thông báo đẩy tại đây."
       }
-    }
+    },
+    "quizAssignedTitle": "Bài kiểm tra được giao cho bạn",
+    "quizAssignedDescription": "Có người đề nghị bạn làm một bài kiểm tra trên trang.",
+    "quizAssignedChannel": "Bài kiểm tra được giao cho bạn: {channel}",
+    "quizFinishedTitle": "Kết quả bài kiểm tra",
+    "quizFinishedDescription": "Người bạn đề nghị làm bài kiểm tra đã đạt hoặc hết lượt làm bài.",
+    "quizFinishedChannel": "Kết quả bài kiểm tra: {channel}",
+    "approvalTitle": "Phê duyệt",
+    "approvalDescription": "Ai đó đề nghị bạn phê duyệt một trang, hoặc một yêu cầu phê duyệt của bạn kết thúc.",
+    "approvalChannel": "Phê duyệt: {channel}"
   },
   "site": {
     "description": "Cho các trang đã xuất bản của không gian làm việc này một địa chỉ dễ đọc, một trang chủ và điều hướng giữa chúng.",

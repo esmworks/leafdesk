@@ -318,7 +318,13 @@
     "messageFile": "Envió un archivo",
     "newMessage": "Nuevo mensaje",
     "inThread": "En un hilo",
-    "messageReminder": "Recordatorio sobre un mensaje"
+    "messageReminder": "Recordatorio sobre un mensaje",
+    "quizAssigned": "{actor} te pidió que hicieras el cuestionario",
+    "quizAssignedDue": "{actor} te pidió que hicieras el cuestionario antes del {date}",
+    "quizPassed": "{actor} aprobó el cuestionario con un {score} %",
+    "quizFailed": "{actor} se quedó sin intentos en el cuestionario ({score} %)",
+    "approvalRequested": "{actor} te pide que apruebes esta página",
+    "approvalDecided": "{outcome, select, approved {Aprobada: {actor} dio la última aprobación necesaria} other {{actor} pidió cambios en esta página}}"
   },
   "agentReply": {
     "aiOff": "No puedo responder: la IA está desactivada en este espacio de trabajo.",

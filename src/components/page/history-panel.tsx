@@ -72,6 +72,7 @@ export function HistoryPanel({
   onClose,
   readOnly,
   canName,
+  selectId,
 }: {
   pageId: string;
   onClose: () => void;
@@ -79,6 +80,8 @@ export function HistoryPanel({
   readOnly: boolean;
   /** Versions can be saved and named (edit access, outside the trash; a locked page too). */
   canName: boolean;
+  /** The version to show first (one sent for approval), instead of the newest. */
+  selectId?: string;
 }) {
   const [items, setItems] = useState<SnapshotItem[] | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
@@ -86,7 +89,7 @@ export function HistoryPanel({
   const [namedOnly, setNamedOnly] = useState(false);
   const [reload, setReload] = useState(0);
   // The version to select once the list comes back (one just saved or named).
-  const selectNext = useRef<string | null>(null);
+  const selectNext = useRef<string | null>(selectId ?? null);
   const [naming, setNaming] = useState<VersionNameTarget | null>(null);
   const [preview, setPreview] = useState<{ title: string; markdown: string } | null>(null);
   const [mode, setMode] = useState<Mode>("version");

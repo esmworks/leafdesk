@@ -125,7 +125,8 @@
     "remind60": "Bir saat sonra hatırlat",
     "remindTomorrow": "Yarın hatırlat",
     "history": "Düzenleme geçmişi",
-    "delete": "Sil"
+    "delete": "Sil",
+    "closePoll": "Anketi kapat"
   },
   "system": {
     "created": "{actor} bu kanalı açtı.",
@@ -290,7 +291,8 @@
     "offline": "Çevrimdışısınız. Bağlantı geri gelince gönderilecek.",
     "timeout": "Sunucu zamanında yanıt vermedi.",
     "ai": "AI yanıt veremedi. Tekrar deneyin.",
-    "internal": "Bir şeyler ters gitti. Tekrar deneyin."
+    "internal": "Bir şeyler ters gitti. Tekrar deneyin.",
+    "pollClosed": "Anket kapandı."
   },
   "import": {
     "button": "Slack'ten içe aktar",
@@ -351,5 +353,42 @@
     "remove": "“{name}” webhook’unu sil",
     "removeConfirm": "“{name}” webhook’u silinsin mi? Adresi hemen çalışmayı bırakır; mesajları kalır.",
     "title": "Webhook’lar"
+  },
+  "poll": {
+    "create": "Anket oluştur",
+    "title": "Yeni anket",
+    "question": "Soru",
+    "questionPlaceholder": "Ne sormak istiyorsunuz?",
+    "options": "Seçenekler",
+    "optionPlaceholder": "Seçenek {number}",
+    "addOption": "Seçenek ekle",
+    "removeOption": "{number}. seçeneği kaldır",
+    "multiple": "Birden fazla yanıta izin ver",
+    "anonymous": "Anonim",
+    "anonymousHint": "Diğerleri her seçeneği kaç kişinin seçtiğini görür, kimin seçtiğini asla görmez.",
+    "closes": "Kapanış",
+    "closesNever": "Hiçbir zaman",
+    "closesDay": "1 gün sonra",
+    "closesWeek": "1 hafta sonra",
+    "closesAt": "Bir tarih ve saatte",
+    "closesAtLabel": "Anketin kapanacağı zaman",
+    "send": "Anketi gönder",
+    "severalAnswers": "Birden fazla yanıt",
+    "voteFor": "{option} için oy ver",
+    "takeBack": "{option} için verdiğiniz oyu geri al",
+    "votedBy": "{option} seçenler: {people}",
+    "voters": "{count, plural, =0 {Henüz oy yok} one {# kişi oy verdi} other {# kişi oy verdi}}",
+    "closed": "Kapandı",
+    "closesIn": "{when} kapanır",
+    "closeConfirm": "Bu anket kapatılsın mı? Bundan sonra kimse oy veremez.",
+    "errors": {
+      "question": "Bir soru yazın.",
+      "questionTooLong": "Soru en fazla {max} karakter olabilir.",
+      "tooFewOptions": "En az iki seçenek girin.",
+      "tooManyOptions": "Bir ankette en fazla {max} seçenek olabilir.",
+      "optionTooLong": "Bir seçenek en fazla {max} karakter olabilir.",
+      "duplicateOptions": "İki seçenek aynı şeyi söylüyor.",
+      "closesAt": "Önümüzdeki bir yıl içinde bir kapanış zamanı seçin."
+    }
   }
 }

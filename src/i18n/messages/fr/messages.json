@@ -125,7 +125,8 @@
     "remind60": "Me le rappeler dans une heure",
     "remindTomorrow": "Me le rappeler demain",
     "history": "Historique des modifications",
-    "delete": "Supprimer"
+    "delete": "Supprimer",
+    "closePoll": "Clore le sondage"
   },
   "system": {
     "created": "{actor} a créé ce canal.",
@@ -290,7 +291,8 @@
     "offline": "Vous êtes hors ligne. L’envoi se fera à votre retour.",
     "timeout": "Le serveur n’a pas répondu à temps.",
     "ai": "L'IA n'a pas pu répondre. Réessayez.",
-    "internal": "Une erreur s’est produite. Réessayez."
+    "internal": "Une erreur s’est produite. Réessayez.",
+    "pollClosed": "Le sondage est clos."
   },
   "import": {
     "button": "Importer depuis Slack",
@@ -351,5 +353,42 @@
     "remove": "Supprimer {name}",
     "removeConfirm": "Supprimer le webhook {name} ? Son adresse cesse aussitôt de fonctionner ; ses messages restent.",
     "title": "Webhooks"
+  },
+  "poll": {
+    "create": "Créer un sondage",
+    "title": "Nouveau sondage",
+    "question": "Question",
+    "questionPlaceholder": "Que voulez-vous demander ?",
+    "options": "Choix",
+    "optionPlaceholder": "Choix {number}",
+    "addOption": "Ajouter un choix",
+    "removeOption": "Retirer le choix {number}",
+    "multiple": "Autoriser plusieurs réponses",
+    "anonymous": "Anonyme",
+    "anonymousHint": "Les autres voient combien ont choisi chaque option, jamais qui.",
+    "closes": "Clôture",
+    "closesNever": "Jamais",
+    "closesDay": "Dans 1 jour",
+    "closesWeek": "Dans 1 semaine",
+    "closesAt": "À une date et une heure",
+    "closesAtLabel": "Quand le sondage se clôt",
+    "send": "Envoyer le sondage",
+    "severalAnswers": "Plusieurs réponses",
+    "voteFor": "Voter pour {option}",
+    "takeBack": "Retirer votre vote pour {option}",
+    "votedBy": "Ont choisi {option} : {people}",
+    "voters": "{count, plural, =0 {Aucun vote pour l’instant} one {# personne a voté} other {# personnes ont voté}}",
+    "closed": "Clos",
+    "closesIn": "Se clôt {when}",
+    "closeConfirm": "Clore ce sondage ? Personne ne pourra plus voter.",
+    "errors": {
+      "question": "Écrivez une question.",
+      "questionTooLong": "Une question compte au plus {max} caractères.",
+      "tooFewOptions": "Donnez au moins deux choix.",
+      "tooManyOptions": "Un sondage a au plus {max} choix.",
+      "optionTooLong": "Un choix compte au plus {max} caractères.",
+      "duplicateOptions": "Deux choix disent la même chose.",
+      "closesAt": "Choisissez une clôture dans l’année qui vient."
+    }
   }
 }

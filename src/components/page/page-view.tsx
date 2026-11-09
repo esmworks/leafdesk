@@ -67,6 +67,15 @@ const MarkdownSourceView = lazyPart(() => import("./markdown-source").then((m) =
 // Loaded when it opens, likewise.
 const Presentation = lazyPart(() => import("./presentation").then((m) => m.default));
 const VerifyDialog = lazyPart(() => import("./verify-dialog").then((m) => m.VerifyDialog));
+// The approval badge under the title, on the few pages with a request; until its code is there a
+// line of its height stands in, so the body doesn't move down when it comes.
+const ApprovalBadge = lazyPart(
+  () => import("./approval-badge").then((m) => m.ApprovalBadge),
+  <span aria-hidden className="mt-2 inline-block h-5 w-px" />,
+);
+const ApprovalDialog = lazyPart(() => import("./approval-dialog").then((m) => m.ApprovalDialog));
+// Loaded when a request waits for the reader's decision.
+const ApprovalBanner = lazyPart(() => import("./approval-banner").then((m) => m.ApprovalBanner));
 const ReadAloud = lazyPart(() => import("./read-aloud").then((m) => m.ReadAloud));
 // Loaded with the page, after it: the list asks for itself once it scrolls into view.
 const RelatedPages = lazyPart(() => import("./related-pages").then((m) => m.RelatedPages));
@@ -200,6 +209,13 @@ export function PageView({
   // Whether it is verified (server/verification), likewise, and the dialog that changes it.
   const [verifiedNow, setVerifiedNow] = useState(info.verified);
   const [verifyOpen, setVerifyOpen] = useState(false);
+  // How its approval stands (server/page-approvals), likewise, and the dialog that asks for one.
+  const [approvalNow, setApprovalNow] = useState(info.approval);
+  const [approvalOpen, setApprovalOpen] = useState(false);
+  // Editors ask people to approve a page or row; not a database, a template or a page in the trash.
+  const canRequestApproval = canEditStructure && !info.guest && !info.template && !page.archived && page.kind !== "database" && !offline;
+  // The version the history opens at: one sent for approval.
+  const [historyAt, setHistoryAt] = useState<string | undefined>(undefined);
   // The collab server drops edits from people who may only view, and from everyone while the page
   // is locked, so don't let them type at all. Offline edits are kept in this browser: the doc syncs
   // them when the connection comes back.
@@ -221,6 +237,11 @@ export function PageView({
     if (panelRef.current) panelRef.current.onRefresh();
     else router.refresh();
   }, [router]);
+  // The page history, open at a version sent for approval.
+  const seeVersion = useCallback((snapshotId: string) => {
+    setHistoryAt(snapshotId);
+    setHistoryOpen(true);
+  }, []);
   const rootRef = useRef<HTMLDivElement>(null);
   // The page's width, for wide column lists (globals.css `--page-area`). Measured rather than a
   // size container, which would hold the page's fixed-position parts inside it.
@@ -248,6 +269,7 @@ export function PageView({
   useEffect(() => setSkillNow(info.skill), [info.skill]);
   useEffect(() => setOutdatedNow(info.outdated), [info.outdated]);
   useEffect(() => setVerifiedNow(info.verified), [info.verified]);
+  useEffect(() => setApprovalNow(info.approval), [info.approval]);
   useEffect(() => setBackground(page.background), [page.background]);
   // A link to one of the page's threads (`#comment-<id>`) opens the comments; the panel selects it.
   useEffect(() => {
@@ -672,6 +694,8 @@ export function PageView({
               onAnswerAll={canEdit && !locked && !page.archived && pendingSuggestions.length ? answerAllSuggestions : undefined}
               onVerified={setVerifiedNow}
               onVerify={canVerify ? () => setVerifyOpen(true) : undefined}
+              onApproval={setApprovalNow}
+              onRequestApproval={canRequestApproval ? () => setApprovalOpen(true) : undefined}
             />
           </div>
         </header>
@@ -777,8 +801,37 @@ export function PageView({
             {info.template === "row" && editable && !page.archived && (
               <p className="mt-1 text-xs text-fg-faint">{t("template.titleMarkers")}</p>
             )}
-            {verifiedNow && !page.archived && (
-              <VerificationBadge verification={verifiedNow} onChange={canVerify ? () => setVerifyOpen(true) : undefined} />
+            {((verifiedNow && !page.archived) || (approvalNow && !page.archived && !info.template)) && (
+              <div className="flex flex-wrap items-center gap-x-2">
+                {verifiedNow && !page.archived && (
+                  <VerificationBadge verification={verifiedNow} onChange={canVerify ? () => setVerifyOpen(true) : undefined} />
+                )}
+                {approvalNow && !page.archived && !info.template && (
+                  <ApprovalBadge
+                    approval={approvalNow}
+                    pageId={page.id}
+                    workspaceId={workspaceId}
+                    currentUserId={user.id}
+                    canRequest={canRequestApproval}
+                    canWithdrawAny={canDelete && !offline}
+                    onAsk={() => setApprovalOpen(true)}
+                    onSeeVersion={seeVersion}
+                    onChanged={refresh}
+                  />
+                )}
+              </div>
+            )}
+            {approvalNow?.ask && !page.archived && !offline && (
+              <ApprovalBanner workspaceId={workspaceId} approval={{ ...approvalNow, ask: approvalNow.ask }} onSeeVersion={seeVersion} onDone={refresh} />
+            )}
+            {canRequestApproval && approvalOpen && (
+              <ApprovalDialog
+                workspaceId={workspaceId}
+                pageId={page.id}
+                replacing={approvalNow?.status === "open"}
+                onClose={() => setApprovalOpen(false)}
+                onDone={refresh}
+              />
             )}
             {canVerify && verifyOpen && (
               <VerifyDialog
@@ -886,10 +939,15 @@ export function PageView({
         )}
         {historyOpen && page.kind !== "database" && (
           <HistoryPanel
+            key={historyAt ?? "newest"}
             pageId={page.id}
             readOnly={page.archived || !canEdit || locked}
             canName={canSaveVersion}
-            onClose={() => setHistoryOpen(false)}
+            selectId={historyAt}
+            onClose={() => {
+              setHistoryOpen(false);
+              setHistoryAt(undefined);
+            }}
           />
         )}
         {savingVersion && canSaveVersion && (

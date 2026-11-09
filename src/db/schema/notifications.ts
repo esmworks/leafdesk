@@ -80,6 +80,13 @@ export const userPreference = pgTable("user_preference", {
    */
   followUpInbox: boolean("follow_up_inbox").notNull().default(true),
   followUpEmails: boolean("follow_up_emails").notNull().default(false),
+  /**
+   * Requests to approve a page and their outcomes (server/page-approvals.ts): show them in my inbox.
+   * One choice covers both kinds (`approval_requested`, `approval_decided`). No email goes out about
+   * them (`approvalEmails` is kept for the shape every kind has, and unused).
+   */
+  approvalInbox: boolean("approval_inbox").notNull().default(true),
+  approvalEmails: boolean("approval_emails").notNull().default(false),
   /** Show reminders that a page I verified is about to stop being verified, or did, in my inbox. */
   verificationInbox: boolean("verification_inbox").notNull().default(true),
   /** Email me those reminders. */
@@ -114,6 +121,18 @@ export const userPreference = pgTable("user_preference", {
   aiChatWaitingInbox: boolean("ai_chat_waiting_inbox").notNull().default(true),
   aiChatWaitingEmails: boolean("ai_chat_waiting_emails").notNull().default(false),
   /**
+   * Someone asked me to take a quiz on a page (server/quizzes.ts): show it in my inbox. No email
+   * goes out about it (`quizAssignedEmails` is kept for the shape every kind has, and unused).
+   */
+  quizAssignedInbox: boolean("quiz_assigned_inbox").notNull().default(true),
+  quizAssignedEmails: boolean("quiz_assigned_emails").notNull().default(false),
+  /**
+   * Someone I asked to take a quiz passed it or ran out of attempts: show it in my inbox. No email
+   * goes out about it (`quizFinishedEmails` is kept for the shape every kind has, and unused).
+   */
+  quizFinishedInbox: boolean("quiz_finished_inbox").notNull().default(true),
+  quizFinishedEmails: boolean("quiz_finished_emails").notNull().default(false),
+  /**
    * Reactions to my comments: show them in my inbox. No email goes out about them (`reactionEmails`
    * is kept for the shape every kind has, and unused); push and Telegram are off until turned on.
    */
@@ -143,6 +162,9 @@ export const userPreference = pgTable("user_preference", {
   agentTaskPush: boolean("agent_task_push").notNull().default(true),
   schedulePausedPush: boolean("schedule_paused_push").notNull().default(true),
   aiChatWaitingPush: boolean("ai_chat_waiting_push").notNull().default(true),
+  quizAssignedPush: boolean("quiz_assigned_push").notNull().default(true),
+  quizFinishedPush: boolean("quiz_finished_push").notNull().default(true),
+  approvalPush: boolean("approval_push").notNull().default(true),
   /**
    * Telegram messages per kind, to the Telegram account the person linked (see telegram_link,
    * server/telegram/notify.ts). They follow the inbox as push does.
@@ -166,6 +188,9 @@ export const userPreference = pgTable("user_preference", {
   agentTaskTelegram: boolean("agent_task_telegram").notNull().default(true),
   schedulePausedTelegram: boolean("schedule_paused_telegram").notNull().default(true),
   aiChatWaitingTelegram: boolean("ai_chat_waiting_telegram").notNull().default(true),
+  quizAssignedTelegram: boolean("quiz_assigned_telegram").notNull().default(true),
+  quizFinishedTelegram: boolean("quiz_finished_telegram").notNull().default(true),
+  approvalTelegram: boolean("approval_telegram").notNull().default(true),
   /**
    * Leafdesk's links opened in a browser go on to the desktop app (lib/desktop-links.ts): "off",
    * "ask" (the page offers to) or "always" (it tries at once, and stays in the browser if no app
@@ -428,6 +453,10 @@ export const NOTIFICATION_KINDS = [
   "agent_task",
   "schedule_paused",
   "ai_chat_waiting",
+  "quiz_assigned",
+  "quiz_finished",
+  "approval_requested",
+  "approval_decided",
 ] as const;
 export type NotificationKind = (typeof NOTIFICATION_KINDS)[number];
 /**
@@ -532,6 +561,14 @@ export type PreferenceKind = Exclude<NotificationKind, OwnerKind>;
  * "ai_chat_waiting": the user's own AI chat answer, run `agentRunId` (no agent), asks them about a
  * change while no page of theirs follows it (server/ai-chat.ts); it opens the conversation, has no
  * page, and goes once they decide (or with the run).
+ * "quiz_assigned": `actorId` asked the user to take a quiz on page `pageId` (server/quizzes.ts),
+ * by `date` (YYYY-MM-DD) when it has one.
+ * "quiz_finished": `actorId`, whom the user asked to take a quiz on page `pageId`, passed it or ran
+ * out of attempts; `message` holds the score and which (lib/quiz-block.ts quizNoticeMessage).
+ * "approval_requested": `actorId` asks the user to approve page `pageId` (server/page-approvals.ts);
+ * unread ones go once the request ends or is withdrawn. "approval_decided": the user's request to
+ * approve page `pageId` ended, `message` saying how ("approved" or "changes_requested"), `actorId`
+ * the approver whose decision ended it.
  * Unread ones are dropped when the change is
  * undone (or the request decided). Rows are recorded
  * whatever the user's preferences; the inbox leaves out the kinds they turned off.

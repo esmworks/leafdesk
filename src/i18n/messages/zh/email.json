@@ -318,7 +318,13 @@
     "messageFile": "发送了一个文件",
     "newMessage": "新消息",
     "inThread": "在话题中",
-    "messageReminder": "消息提醒"
+    "messageReminder": "消息提醒",
+    "quizAssigned": "{actor} 请你完成测验",
+    "quizAssignedDue": "{actor} 请你在 {date} 前完成测验",
+    "quizPassed": "{actor} 以 {score}% 通过了测验",
+    "quizFailed": "{actor} 用完了测验的作答次数（{score}%）",
+    "approvalRequested": "{actor} 请你审批此页面",
+    "approvalDecided": "{outcome, select, approved {已批准：{actor} 给出了最后一个所需的批准} other {{actor} 请求修改此页面}}"
   },
   "agentReply": {
     "aiOff": "我无法回答：此工作区已关闭 AI。",

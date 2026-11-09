@@ -18,7 +18,8 @@
     "event": "Sự kiện lịch",
     "meeting": "Cuộc họp",
     "task": "Công việc",
-    "reminder": "Lời nhắc"
+    "reminder": "Lời nhắc",
+    "block": "Thời gian đã lên kế hoạch"
   },
   "allDay": "Cả ngày",
   "from": "Từ {time}",
@@ -29,5 +30,43 @@
     "fixed": "Không thể chuyển mục này đến đó",
     "noAccess": "Bạn không thể thay đổi mục này",
     "failed": "Không thể chuyển. Hãy thử lại."
+  },
+  "durationHours": "{hours} giờ",
+  "durationMinutes": "{minutes} phút",
+  "durationBoth": "{hours} giờ {minutes} phút",
+  "toPlan": {
+    "title": "Cần lên kế hoạch",
+    "toggle": "Công việc cần lên kế hoạch",
+    "help": "Kéo một công việc vào tuần, hoặc dùng Lên lịch thời gian.",
+    "filter": "Lọc công việc",
+    "empty": "Không có công việc đang mở",
+    "noMatch": "Không có công việc phù hợp",
+    "planned": "Đã lên kế hoạch {duration}",
+    "planTime": "Lên lịch thời gian",
+    "couldNotLoad": "Không thể tải công việc của bạn"
+  },
+  "planDialog": {
+    "title": "Lên lịch thời gian",
+    "day": "Ngày",
+    "start": "Bắt đầu",
+    "length": "Thời lượng",
+    "plan": "Lên lịch"
+  },
+  "blockMenu": {
+    "more": "Thao tác khác",
+    "openTask": "Mở công việc",
+    "markDone": "Đánh dấu công việc đã xong",
+    "remove": "Xóa khối",
+    "resize": "Kéo để đổi thời lượng"
+  },
+  "blockErrors": {
+    "notFound": "Không thể lên kế hoạch cho công việc này nữa",
+    "noAccess": "Bạn không thể mở công việc này nữa",
+    "tooShort": "Thời gian lên kế hoạch tối thiểu 15 phút",
+    "tooLong": "Thời gian lên kế hoạch tối đa 12 giờ",
+    "invalid": "Hãy chọn ngày và giờ bắt đầu",
+    "notTask": "Đây không phải công việc của bạn",
+    "tooMany": "Công việc này đã có tối đa thời gian lên kế hoạch",
+    "failed": "Không thể thay đổi thời gian đã lên kế hoạch. Hãy thử lại."
   }
 }

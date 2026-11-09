@@ -67,11 +67,20 @@ export const BACKED_UP: Record<string, Scope> = {
   page_task: ofPages("page_id"),
   page_watch: ofPages("page_id"),
   page_verification: ofPages("page_id"),
+  // Quizzes with what people answered and who was asked: the page's training record.
+  quiz: own,
+  quiz_attempt: (ws) => sql`quiz_id in (select id from quiz where workspace_id = ${ws})`,
+  quiz_assignment: (ws) => sql`quiz_id in (select id from quiz where workspace_id = ${ws})`,
+  // After page_snapshot: a round points at the version it sent.
+  page_approval: ofPages("page_id"),
+  page_approval_decision: (ws) => sql`approval_id in (select id from page_approval where page_id in ${pages(ws)})`,
   thread_mute: ofPages("page_id"),
   thread_state: ofPages("page_id"),
   row_follower: ofPages("row_id"),
   row_reminder: ofPages("row_id"),
   row_repeat: ofPages("row_id"),
+  // People's planned time for their tasks: theirs alone, like task_list and daily_note, kept with the workspace.
+  work_block: own,
   page_publication: ofPages("page_id"),
   form_publication: (ws) => sql`view_id in (select id from database_view where database_id in ${pages(ws)})`,
   form_submission: ofPages("row_id"),
@@ -131,6 +140,8 @@ export const BACKED_UP: Record<string, Scope> = {
   message_mention: ofChannelMessages,
   message_version: ofChannelMessages,
   message_reaction: ofChannelMessages,
+  message_poll: ofChannelMessages,
+  message_poll_vote: ofChannelMessages,
   message_thread: ofChannels,
   message_file: ofChannels,
 };

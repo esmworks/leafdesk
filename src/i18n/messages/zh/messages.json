@@ -125,7 +125,8 @@
     "remind60": "1 小时后提醒我",
     "remindTomorrow": "明天提醒我",
     "history": "编辑历史",
-    "delete": "删除"
+    "delete": "删除",
+    "closePoll": "结束投票"
   },
   "system": {
     "created": "{actor} 创建了此频道。",
@@ -290,7 +291,8 @@
     "offline": "你已离线。恢复连接后会自动发送。",
     "timeout": "服务器未及时响应。",
     "ai": "AI 无法回答。请重试。",
-    "internal": "出了点问题，请重试。"
+    "internal": "出了点问题，请重试。",
+    "pollClosed": "投票已结束。"
   },
   "import": {
     "button": "从 Slack 导入",
@@ -351,5 +353,42 @@
     "remove": "删除“{name}”",
     "removeConfirm": "要删除 Webhook“{name}”吗？其地址将立即失效，已发的消息会保留。",
     "title": "Webhook"
+  },
+  "poll": {
+    "create": "发起投票",
+    "title": "新投票",
+    "question": "问题",
+    "questionPlaceholder": "你想问什么？",
+    "options": "选项",
+    "optionPlaceholder": "选项 {number}",
+    "addOption": "添加选项",
+    "removeOption": "删除选项 {number}",
+    "multiple": "允许多选",
+    "anonymous": "匿名",
+    "anonymousHint": "其他人只能看到每个选项的人数，看不到是谁。",
+    "closes": "结束时间",
+    "closesNever": "永不",
+    "closesDay": "1 天后",
+    "closesWeek": "1 周后",
+    "closesAt": "指定日期和时间",
+    "closesAtLabel": "投票结束的时间",
+    "send": "发送投票",
+    "severalAnswers": "多选",
+    "voteFor": "投给 {option}",
+    "takeBack": "撤回对 {option} 的投票",
+    "votedBy": "选择 {option} 的人：{people}",
+    "voters": "{count, plural, =0 {还没有人投票} other {# 人已投票}}",
+    "closed": "已结束",
+    "closesIn": "{when}结束",
+    "closeConfirm": "要结束这个投票吗？结束后任何人都不能再投票。",
+    "errors": {
+      "question": "请填写问题。",
+      "questionTooLong": "问题最多 {max} 个字符。",
+      "tooFewOptions": "请至少填写两个选项。",
+      "tooManyOptions": "投票最多有 {max} 个选项。",
+      "optionTooLong": "选项最多 {max} 个字符。",
+      "duplicateOptions": "有两个选项内容相同。",
+      "closesAt": "请选择一年以内的结束时间。"
+    }
   }
 }

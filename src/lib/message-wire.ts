@@ -54,6 +54,24 @@ export type MembershipView = {
 export type FileView = { id: string; url: string; name: string; contentType: string; size: number; width: number | null; height: number | null };
 export type ReactionView = { emoji: string; userIds: string[] };
 
+/**
+ * A poll on its message (lib/message-polls.ts), as one person sees it: how many chose each option,
+ * who (null for everyone when the poll is anonymous), and `mine`, the options this person chose.
+ * `mine` is the only part that differs between people: announce.ts fills it for each.
+ */
+export type PollView = {
+  question: string;
+  options: { id: string; text: string; count: number; voters: string[] | null }[];
+  multiple: boolean;
+  anonymous: boolean;
+  /** People who chose anything. */
+  voters: number;
+  closesAt: string | null;
+  closedAt: string | null;
+  closedBy: string | null;
+  mine: string[];
+};
+
 export type MessageView = {
   id: string;
   channelId: string;
@@ -75,6 +93,8 @@ export type MessageView = {
   createdAt: string;
   reactions: ReactionView[];
   files: FileView[];
+  /** The message is a poll (its body is the question); null otherwise, and once deleted. */
+  poll: PollView | null;
   rev: number;
 };
 
@@ -152,6 +172,8 @@ export type MessageErrorCode =
   | "held"
   | "policy"
   | "rateLimited"
+  /** The poll is closed: it takes no more votes. */
+  | "pollClosed"
   /** An AI request failed; `message` is its AiErrorCode (lib/ai.ts). */
   | "ai"
   | "internal";

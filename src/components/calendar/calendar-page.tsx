@@ -1,13 +1,15 @@
 "use client";
 
-import { AlarmClock, CalendarDays, ChevronLeft, ChevronRight, CircleCheck, List, NotebookPen } from "lucide-react";
+import { AlarmClock, CalendarClock, CalendarDays, ChevronLeft, ChevronRight, CircleCheck, List, ListTodo, MoreHorizontal, NotebookPen } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useFormatter, useLocale, useTranslations } from "next-intl";
-import { useEffect, useMemo, useRef, useState, type DragEvent } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type DragEvent, type PointerEvent as ReactPointerEvent } from "react";
 import { moveCalendarItemAction } from "@/app/actions/calendar";
+import { planWorkBlockAction } from "@/app/actions/work-blocks";
 import { useCalendarItems } from "@/components/calendar/use-calendar-items";
 import { ItemLink } from "@/components/calendar/item-link";
-import { KIND_TINT } from "@/components/calendar/item-tint";
+import { BLOCK_FILL, BLOCK_LOOK, KIND_TINT } from "@/components/calendar/item-tint";
+import { lazyPart } from "@/components/lazy-part";
 import { PlaceTopBar } from "@/components/place-top-bar";
 import { showToast } from "@/components/toast";
 import { CalendarIcon } from "@/components/sidebar/rail-icons";
@@ -16,8 +18,9 @@ import { Button, cn } from "@/components/ui";
 import { PHONE_QUERY, useMediaQuery } from "@/components/use-media-query";
 import { dayBlocks, firstDayOfWeek, isAllDay, MINUTES_PER_DAY, weekBars, weekDays } from "@/lib/calendar";
 import { droppedDate, isoWeek, itemMinutes, placeItems, type CalendarDrop, type CalendarItem, type CalendarItemKind, type PlacedItem } from "@/lib/calendar-items";
-import { isDay } from "@/lib/date-value";
-import { dayNumber, dayString, localDay, wallClock } from "@/lib/time-zone";
+import { isDay, parseDateValue } from "@/lib/date-value";
+import { dayNumber, dayString, localDay, wallClock, zonedInstant } from "@/lib/time-zone";
+import { resizedEnd, WORK_BLOCK_DEFAULT_MINUTES, WORK_BLOCK_STEP_MINUTES, type TaskToPlan } from "@/lib/work-blocks";
 
 /** Height of an hour in the week's hours, in pixels. */
 const HOUR_HEIGHT = 48;
@@ -30,8 +33,18 @@ const SNAP = 15;
  * to-do's date reaches the index only with its page's save.
  */
 const MOVE_HOLD_MS = 2 * 60_000;
-const KINDS: CalendarItemKind[] = ["event", "meeting", "task", "reminder"];
-const KIND_ICONS: Record<CalendarItemKind, typeof CalendarDays> = { event: CalendarDays, meeting: NotebookPen, task: CircleCheck, reminder: AlarmClock };
+const KINDS: CalendarItemKind[] = ["event", "meeting", "task", "block", "reminder"];
+const KIND_ICONS: Record<CalendarItemKind, typeof CalendarDays> = { event: CalendarDays, meeting: NotebookPen, task: CircleCheck, reminder: AlarmClock, block: CalendarClock };
+/** Where the person's choice to show the To plan list is kept in this browser. */
+const TO_PLAN_KEY = "leafdesk:calendar-to-plan";
+
+const ToPlanListPart = lazyPart(() => import("./to-plan-list").then((m) => m.ToPlanList));
+const PlanTimePart = lazyPart(() => import("./plan-time-dialog").then((m) => m.PlanTimeDialog));
+const BlockMenuPart = lazyPart(() => import("./block-menu").then((m) => m.BlockMenu));
+
+/** Where a block's menu opens: at a right click, or under its ⋯. */
+type MenuAt = { item: CalendarItem; at: { x: number; y: number } | Element };
+type OnMenu = (item: CalendarItem, at: MenuAt["at"]) => void;
 
 /** A day number as a Date at its midnight in UTC: days are formatted in UTC so zones never shift them. */
 const utcDay = (day: number) => new Date(day * 86_400_000);
@@ -73,6 +86,45 @@ export function CalendarPage({ workspaceId }: { workspaceId: string }) {
   );
   const placed = useMemo(() => placeItems(shown, timeZone), [shown, timeZone]);
 
+  // The To plan list: shown unless the person hid it in this browser, read again as `planVersion` changes.
+  const [toPlanOpen, setToPlanOpen] = useState(true);
+  useEffect(() => {
+    try {
+      if (localStorage.getItem(TO_PLAN_KEY) === "0") setToPlanOpen(false);
+    } catch {}
+  }, []);
+  const toggleToPlan = () => {
+    setToPlanOpen((open) => {
+      try {
+        localStorage.setItem(TO_PLAN_KEY, open ? "0" : "1");
+      } catch {}
+      return !open;
+    });
+  };
+  const [planVersion, setPlanVersion] = useState(0);
+  const [taskDrag, setTaskDrag] = useState<TaskToPlan | null>(null);
+  const [planning, setPlanning] = useState<TaskToPlan | null>(null);
+  const [menu, setMenu] = useState<MenuAt | null>(null);
+  const onMenu = useCallback<OnMenu>((item, at) => setMenu({ item, at }), []);
+
+  /** Reads the items and the list again, and once more after a page's save. */
+  const changed = () => {
+    reload();
+    setPlanVersion((v) => v + 1);
+    setTimeout(reload, 2_500);
+  };
+
+  const plan = async (task: TaskToPlan, drop: CalendarDrop) => {
+    if (drop.minutes === null) return;
+    const at = new Date(zonedInstant(drop.day, drop.minutes, timeZone)).toISOString();
+    const result = await planWorkBlockAction(workspaceId, task.ref, at, WORK_BLOCK_DEFAULT_MINUTES).catch(() => ({ ok: false, error: "failed" }) as const);
+    if (!result.ok) {
+      showToast({ message: t(`blockErrors.${result.error}`) });
+      return;
+    }
+    changed();
+  };
+
   const move = async (item: CalendarItem, date: string) => {
     setMoved((m) => ({ ...m, [item.id]: { date, at: Date.now() } }));
     const result = await moveCalendarItemAction(workspaceId, item.id, date).catch(() => ({ ok: false, error: "failed" }) as const);
@@ -82,9 +134,25 @@ export function CalendarPage({ workspaceId }: { workspaceId: string }) {
       return;
     }
     reload();
+    if (item.kind === "block") setPlanVersion((v) => v + 1);
     // A to-do's page saves a moment after its date mention changes.
     setTimeout(reload, 2_500);
   };
+
+  /** A block pulled to end at `endMinutes` of `day`, its start kept. */
+  const resize = (p: PlacedItem, day: number, endMinutes: number) => {
+    const start = parseDateValue(p.item.date)?.start;
+    if (!start) return;
+    void move(p.item, `${start}/${new Date(zonedInstant(day, endMinutes, timeZone)).toISOString()}`);
+  };
+
+  // The Plan time dialog opens on today when the week shown holds it, else on its first day; at the
+  // next quarter hour today, at 9 on another day.
+  const planDay = today >= first && today <= last ? today : first;
+  const planStart =
+    planDay === today
+      ? Math.min(Math.ceil((wallClock(now, timeZone).minutes + 1) / WORK_BLOCK_STEP_MINUTES) * WORK_BLOCK_STEP_MINUTES, MINUTES_PER_DAY - WORK_BLOCK_STEP_MINUTES)
+      : 9 * 60;
 
   const go = (changes: { d?: number | null; view?: Mode }) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -150,6 +218,16 @@ export function CalendarPage({ workspaceId }: { workspaceId: string }) {
             );
           })}
         </div>
+        <button
+          type="button"
+          aria-pressed={toPlanOpen}
+          aria-label={t("toPlan.toggle")}
+          title={t("toPlan.toggle")}
+          onClick={toggleToPlan}
+          className={cn("flex h-7 w-7 items-center justify-center rounded-md text-fg-icon hover:bg-bg-hover hover:text-fg", toPlanOpen && "bg-bg-hover text-fg")}
+        >
+          <ListTodo className="h-4 w-4" aria-hidden />
+        </button>
       </PlaceTopBar>
       <div className="page-gutter pt-6 pb-12">
       <header className="mb-4 flex min-w-0 items-baseline gap-3">
@@ -159,29 +237,58 @@ export function CalendarPage({ workspaceId }: { workspaceId: string }) {
       <ul aria-label={t("legend")} className="mb-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-fg-muted">
         {KINDS.map((kind) => (
           <li key={kind} className={cn("flex items-center gap-1.5", KIND_TINT[kind])}>
-            <span aria-hidden className="h-2.5 w-2.5 rounded-sm" style={{ background: "var(--opt-bg)" }} />
+            <span aria-hidden className={cn("h-2.5 w-2.5 rounded-sm border", kind === "block" && BLOCK_FILL)} style={kind === "block" ? BLOCK_LOOK : { background: "var(--opt-bg)", borderColor: "var(--opt-bg)" }} />
             {t(`kinds.${kind}`)}
           </li>
         ))}
       </ul>
-      {mode === "week" ? (
-        <WeekGrid
-          days={days}
-          placed={placed}
-          today={today}
-          now={now}
+      <div className="flex flex-col gap-8 xl:flex-row xl:items-start">
+        <div className="min-w-0 flex-1">
+          {mode === "week" ? (
+            <WeekGrid
+              days={days}
+              placed={placed}
+              today={today}
+              now={now}
+              timeZone={timeZone}
+              whenOn={whenOn}
+              loaded={items !== null}
+              taskDrag={taskDrag}
+              onDrop={(p, drop, grabDays) => {
+                const date = droppedDate(p, drop, timeZone, grabDays);
+                if (date) void move(p.item, date);
+              }}
+              onPlan={(task, drop) => void plan(task, drop)}
+              onResize={resize}
+              onMenu={onMenu}
+            />
+          ) : (
+            <DayList days={days} placed={placed} today={today} whenOn={whenOn} loaded={items !== null} onMenu={onMenu} />
+          )}
+        </div>
+        {toPlanOpen && (
+          <div className="xl:w-72 xl:shrink-0">
+            <ToPlanListPart workspaceId={workspaceId} version={planVersion} onDragTask={setTaskDrag} onPlan={setPlanning} />
+          </div>
+        )}
+      </div>
+      </div>
+      {planning && (
+        <PlanTimePart
+          workspaceId={workspaceId}
+          task={planning}
           timeZone={timeZone}
-          whenOn={whenOn}
-          loaded={items !== null}
-          onDrop={(p, drop, grabDays) => {
-            const date = droppedDate(p, drop, timeZone, grabDays);
-            if (date) void move(p.item, date);
+          day={planDay}
+          start={planStart}
+          onClose={() => setPlanning(null)}
+          onPlanned={(day) => {
+            setPlanning(null);
+            if (day < first || day > last) go({ d: day });
+            changed();
           }}
         />
-      ) : (
-        <DayList days={days} placed={placed} today={today} whenOn={whenOn} loaded={items !== null} />
       )}
-      </div>
+      {menu && <BlockMenuPart workspaceId={workspaceId} item={menu.item} at={menu.at} onClose={() => setMenu(null)} onChanged={changed} />}
     </>
   );
 }
@@ -206,7 +313,11 @@ function WeekGrid({
   timeZone,
   whenOn,
   loaded,
+  taskDrag,
   onDrop,
+  onPlan,
+  onResize,
+  onMenu,
 }: {
   days: number[];
   placed: PlacedItem[];
@@ -215,13 +326,22 @@ function WeekGrid({
   timeZone: string;
   whenOn: WhenOn;
   loaded: boolean;
+  /** A task of the To plan list being dragged over the week. */
+  taskDrag: TaskToPlan | null;
   onDrop: (placed: PlacedItem, drop: CalendarDrop, grabDays: number) => void;
+  /** A task dropped on a time: a block of WORK_BLOCK_DEFAULT_MINUTES there. */
+  onPlan: (task: TaskToPlan, drop: CalendarDrop) => void;
+  /** A block's bottom edge pulled to `endMinutes` of `day`. */
+  onResize: (placed: PlacedItem, day: number, endMinutes: number) => void;
+  onMenu: OnMenu;
 }) {
   const t = useTranslations("calendar");
   const format = useFormatter();
   const hours = useRef<HTMLDivElement>(null);
   const [drag, setDrag] = useState<Drag | null>(null);
   const [target, setTarget] = useState<CalendarDrop | null>(null);
+  // A block whose bottom edge is being pulled: where the pointer started and the end it has now.
+  const [resizing, setResizing] = useState<{ id: string; startY: number; startMinutes: number; fromEnd: number; endMinutes: number } | null>(null);
   const clock = (minutes: number) => format.dateTime(new Date(minutes * 60_000), { hour: "numeric", minute: "2-digit", timeZone: "UTC" });
   const first = days[0];
   const allDay = placed.filter(isAllDay);
@@ -250,20 +370,21 @@ function WeekGrid({
     setTarget(null);
   };
   const over = (e: DragEvent<HTMLElement>, drop: CalendarDrop | null) => {
-    if (!drag || !drop) return;
+    if (!(drag || taskDrag) || !drop) return;
     e.preventDefault();
-    e.dataTransfer.dropEffect = "move";
+    e.dataTransfer.dropEffect = drag ? "move" : "copy";
     if (target?.day !== drop.day || target.minutes !== drop.minutes) setTarget(drop);
   };
   const dropHere = (e: DragEvent<HTMLElement>) => {
     e.preventDefault();
     if (drag && target) onDrop(drag.placed, target, drag.grabDays);
+    else if (taskDrag && target) onPlan(taskDrag, target);
     endDrag();
   };
   /** The time on `day`'s column the dragged block's top is over, snapped. */
   const slotAt = (e: DragEvent<HTMLElement>, day: number): CalendarDrop | null => {
-    if (!drag) return null;
-    const raw = ((e.clientY - e.currentTarget.getBoundingClientRect().top) / HOUR_HEIGHT) * 60 - drag.grabMinutes;
+    if (!drag && !taskDrag) return null;
+    const raw = ((e.clientY - e.currentTarget.getBoundingClientRect().top) / HOUR_HEIGHT) * 60 - (drag?.grabMinutes ?? 0);
     return { day, minutes: Math.min(MINUTES_PER_DAY - SNAP, Math.max(0, Math.round(raw / SNAP) * SNAP)) };
   };
   /** The day of the all-day strip the pointer is over, when the dragged item may become whole days. */
@@ -278,7 +399,25 @@ function WeekGrid({
           return end >= start ? { col: start - first, span: end - start + 1 } : null;
         })()
       : null;
-  const ghostMinutes = drag ? (itemMinutes(drag.placed) ?? 30) : 0;
+  const ghostMinutes = drag ? (itemMinutes(drag.placed) ?? 30) : WORK_BLOCK_DEFAULT_MINUTES;
+  const ghostKind: CalendarItemKind = drag ? drag.placed.item.kind : "block";
+
+  const startResize = (e: ReactPointerEvent<HTMLElement>, p: PlacedItem) => {
+    if (p.endMinutes === null) return;
+    e.preventDefault();
+    e.stopPropagation();
+    e.currentTarget.setPointerCapture(e.pointerId);
+    setResizing({ id: p.item.id, startY: e.clientY, startMinutes: p.startMinutes, fromEnd: p.endMinutes, endMinutes: p.endMinutes });
+  };
+  const pullResize = (e: ReactPointerEvent<HTMLElement>) => {
+    if (!resizing) return;
+    const endMinutes = resizedEnd(resizing.startMinutes, resizing.fromEnd + ((e.clientY - resizing.startY) / HOUR_HEIGHT) * 60);
+    if (endMinutes !== resizing.endMinutes) setResizing({ ...resizing, endMinutes });
+  };
+  const endResize = (p: PlacedItem, day: number) => {
+    if (resizing && resizing.endMinutes !== resizing.fromEnd) onResize(p, day, resizing.endMinutes);
+    setResizing(null);
+  };
 
   return (
     <div className="-mx-2 overflow-x-auto px-2">
@@ -328,14 +467,23 @@ function WeekGrid({
                   draggable={!!bar.event.item.moves}
                   onDragStart={(e) => startDrag(e, bar.event, first + bar.col + columnAt(e, e.currentTarget, bar.span) - bar.event.start)}
                   onDragEnd={endDrag}
+                  onContextMenu={
+                    bar.event.item.kind === "block"
+                      ? (e) => {
+                          e.preventDefault();
+                          onMenu(bar.event.item, { x: e.clientX, y: e.clientY });
+                        }
+                      : undefined
+                  }
                   className={cn(
-                    "flex h-6 items-center gap-1.5 truncate rounded-md border-s-2 px-1.5 text-xs font-medium color-mark mark-hover",
+                    "flex h-6 items-center gap-1.5 truncate rounded-md px-1.5 text-xs font-medium",
+                    bar.event.item.kind === "block" ? cn("border hover:bg-bg-hover", BLOCK_FILL) : "border-s-2 color-mark mark-hover",
                     KIND_TINT[bar.event.item.kind],
                     drag?.placed.item.id === bar.event.item.id && "opacity-40",
                   )}
-                  style={{ borderInlineStartColor: "var(--opt-bg)" }}
+                  style={bar.event.item.kind === "block" ? BLOCK_LOOK : { borderInlineStartColor: "var(--opt-bg)" }}
                 >
-                  <span className="truncate">{bar.event.item.title.trim() || t("untitled")}</span>
+                  <span className={cn("truncate", bar.event.item.done && "text-fg-muted line-through")}>{bar.event.item.title.trim() || t("untitled")}</span>
                 </ItemLink>
               </div>
             ))}
@@ -361,8 +509,62 @@ function WeekGrid({
                   <div key={h} aria-hidden className="absolute inset-x-0 border-t border-border" style={{ top: (h + 1) * HOUR_HEIGHT }} />
                 ))}
                 {dayBlocks(timed.filter((p) => p.start === day)).map((b) => {
-                  const height = ((b.bottom - b.top) / 60) * HOUR_HEIGHT - 2;
                   const { item } = b.event;
+                  const pulled = resizing?.id === item.id ? resizing.endMinutes : null;
+                  const height = (((pulled ?? b.bottom) - b.top) / 60) * HOUR_HEIGHT - 2;
+                  const placeStyle = {
+                    top: (b.top / 60) * HOUR_HEIGHT + 1,
+                    height,
+                    insetInlineStart: `calc(${(b.col / b.cols) * 100}% + 2px)`,
+                    width: `calc(${100 / b.cols}% - 4px)`,
+                  };
+                  if (item.kind === "block") {
+                    const when = pulled === null ? whenOn(b.event, day) : `${clock(b.event.startMinutes)} – ${clock(Math.min(pulled, MINUTES_PER_DAY - 1))}`;
+                    return (
+                      <div
+                        key={item.id}
+                        className={cn("group absolute", pulled !== null && "z-20", drag?.placed.item.id === item.id && "opacity-40")}
+                        style={placeStyle}
+                        onContextMenu={(e) => {
+                          e.preventDefault();
+                          onMenu(item, { x: e.clientX, y: e.clientY });
+                        }}
+                      >
+                        <ItemLink
+                          href={item.href}
+                          title={[item.title, when, item.detail].filter(Boolean).join(" · ")}
+                          draggable={pulled === null}
+                          onDragStart={(e) => startDrag(e, b.event, 0)}
+                          onDragEnd={endDrag}
+                          style={BLOCK_LOOK}
+                          className={cn("absolute inset-0 flex flex-col overflow-hidden rounded-md border px-1.5 py-0.5 pe-6 text-xs leading-4 hover:bg-bg-hover", BLOCK_FILL, KIND_TINT.block)}
+                        >
+                          <span className={cn("truncate font-medium", item.done && "text-fg-muted line-through")}>{item.title.trim() || t("untitled")}</span>
+                          {height >= 30 && <span className="truncate text-[11px] text-fg-muted tabular-nums">{when}</span>}
+                          {height >= 46 && item.detail && <span className="truncate text-[11px] text-fg-muted">{item.detail}</span>}
+                        </ItemLink>
+                        <button
+                          type="button"
+                          aria-label={t("blockMenu.more")}
+                          title={t("blockMenu.more")}
+                          aria-haspopup="menu"
+                          onClick={(e) => onMenu(item, e.currentTarget)}
+                          className="absolute top-0.5 inset-e-0.5 flex h-5 w-5 items-center justify-center rounded text-fg-muted opacity-0 group-hover:opacity-100 hover:bg-bg-active hover:text-fg focus-visible:opacity-100 [@media(hover:none)]:opacity-100"
+                        >
+                          <MoreHorizontal className="h-3.5 w-3.5" aria-hidden />
+                        </button>
+                        <div
+                          aria-hidden
+                          title={t("blockMenu.resize")}
+                          onPointerDown={(e) => startResize(e, b.event)}
+                          onPointerMove={pullResize}
+                          onPointerUp={() => endResize(b.event, day)}
+                          onPointerCancel={() => setResizing(null)}
+                          className="absolute inset-x-1 -bottom-0.5 h-2 cursor-ns-resize touch-none rounded-full group-hover:bg-[color-mix(in_srgb,var(--opt-bg)_60%,transparent)]"
+                        />
+                      </div>
+                    );
+                  }
                   return (
                     <ItemLink
                       key={item.id}
@@ -371,13 +573,7 @@ function WeekGrid({
                       draggable={!!item.moves}
                       onDragStart={(e) => startDrag(e, b.event, 0)}
                       onDragEnd={endDrag}
-                      style={{
-                        top: (b.top / 60) * HOUR_HEIGHT + 1,
-                        height,
-                        insetInlineStart: `calc(${(b.col / b.cols) * 100}% + 2px)`,
-                        width: `calc(${100 / b.cols}% - 4px)`,
-                        borderInlineStartColor: "var(--opt-bg)",
-                      }}
+                      style={{ ...placeStyle, borderInlineStartColor: "var(--opt-bg)" }}
                       className={cn(
                         "absolute flex flex-col overflow-hidden rounded-md border-s-2 px-1.5 py-0.5 text-xs leading-4 color-mark mark-hover",
                         KIND_TINT[item.kind],
@@ -390,10 +586,10 @@ function WeekGrid({
                     </ItemLink>
                   );
                 })}
-                {drag && target && target.minutes !== null && target.day === day && (
+                {(drag || taskDrag) && target && target.minutes !== null && target.day === day && (
                   <div
                     aria-hidden
-                    className={cn("pointer-events-none absolute inset-x-0.5 z-20 rounded-md border border-dashed px-1.5 py-0.5 text-xs leading-4 tabular-nums", KIND_TINT[drag.placed.item.kind])}
+                    className={cn("pointer-events-none absolute inset-x-0.5 z-20 rounded-md border border-dashed px-1.5 py-0.5 text-xs leading-4 tabular-nums", KIND_TINT[ghostKind])}
                     style={{
                       top: (target.minutes / 60) * HOUR_HEIGHT + 1,
                       height: (Math.max(ghostMinutes, 30) / 60) * HOUR_HEIGHT - 2,
@@ -419,7 +615,21 @@ function WeekGrid({
   );
 }
 
-function DayList({ days, placed, today, whenOn, loaded }: { days: number[]; placed: PlacedItem[]; today: number; whenOn: WhenOn; loaded: boolean }) {
+function DayList({
+  days,
+  placed,
+  today,
+  whenOn,
+  loaded,
+  onMenu,
+}: {
+  days: number[];
+  placed: PlacedItem[];
+  today: number;
+  whenOn: WhenOn;
+  loaded: boolean;
+  onMenu: OnMenu;
+}) {
   const t = useTranslations("calendar");
   const format = useFormatter();
   const listed = days.map((day) => ({ day, items: placed.filter((p) => p.start <= day && p.end >= day) })).filter((d) => d.items.length > 0);
@@ -438,16 +648,46 @@ function DayList({ days, placed, today, whenOn, loaded }: { days: number[]; plac
             {order(items).map((p) => {
               const Icon = KIND_ICONS[p.item.kind];
               return (
-                <li key={p.item.id}>
-                  <ItemLink href={p.item.href} className={cn("flex min-h-10 items-center gap-3 rounded-md px-2 py-2 hover:bg-bg-hover", KIND_TINT[p.item.kind])}>
+                <li
+                  key={p.item.id}
+                  className="group relative"
+                  onContextMenu={
+                    p.item.kind === "block"
+                      ? (e) => {
+                          e.preventDefault();
+                          onMenu(p.item, { x: e.clientX, y: e.clientY });
+                        }
+                      : undefined
+                  }
+                >
+                  <ItemLink
+                    href={p.item.href}
+                    className={cn("flex min-h-10 items-center gap-3 rounded-md px-2 py-2 hover:bg-bg-hover", p.item.kind === "block" && "pe-10", KIND_TINT[p.item.kind])}
+                  >
                     <span className="w-28 shrink-0 text-xs tabular-nums text-fg-muted">{whenOn(p, day)}</span>
-                    <span aria-hidden className="w-1 self-stretch rounded-full" style={{ background: "var(--opt-bg)" }} />
+                    <span
+                      aria-hidden
+                      className={cn("w-1 self-stretch rounded-full", p.item.kind === "block" && cn("border", BLOCK_FILL))}
+                      style={p.item.kind === "block" ? BLOCK_LOOK : { background: "var(--opt-bg)" }}
+                    />
                     <Icon className="h-4 w-4 shrink-0 text-fg-icon" aria-hidden />
                     <span className="min-w-0 flex-1">
-                      <span className="block truncate text-sm text-fg">{p.item.title.trim() || t("untitled")}</span>
+                      <span className={cn("block truncate text-sm text-fg", p.item.done && "text-fg-muted line-through")}>{p.item.title.trim() || t("untitled")}</span>
                       {p.item.detail && <span className="block truncate text-xs text-fg-faint">{p.item.detail}</span>}
                     </span>
                   </ItemLink>
+                  {p.item.kind === "block" && (
+                    <button
+                      type="button"
+                      aria-label={t("blockMenu.more")}
+                      title={t("blockMenu.more")}
+                      aria-haspopup="menu"
+                      onClick={(e) => onMenu(p.item, e.currentTarget)}
+                      className="absolute inset-e-2 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-md text-fg-muted opacity-0 group-hover:opacity-100 hover:bg-bg-active hover:text-fg focus-visible:opacity-100 [@media(hover:none)]:opacity-100"
+                    >
+                      <MoreHorizontal className="h-4 w-4" aria-hidden />
+                    </button>
+                  )}
                 </li>
               );
             })}

@@ -6,12 +6,14 @@
 import { calendarEvent, eventsOn, type CalendarEvent } from "./calendar";
 import { moveDateStart, parseDateValue } from "./date-value";
 import { dayNumber, dayString, weekdayOf, zonedInstant } from "./time-zone";
+import type { WorkTaskRef } from "./work-blocks";
 
 /**
  * Where an item comes from: a synced calendar's event, a meeting note, a row or to-do assigned to
- * the person, a reminder an agent or the AI chat set them (server/ai-reminders.ts) still to come.
+ * the person, a reminder an agent or the AI chat set them (server/ai-reminders.ts) still to come,
+ * time the person planned for one of their tasks (server/work-blocks.ts).
  */
-export type CalendarItemKind = "event" | "meeting" | "task" | "reminder";
+export type CalendarItemKind = "event" | "meeting" | "task" | "reminder" | "block";
 
 export type CalendarItem = {
   /** Unique among the items: the kind and the id of what it is. */
@@ -31,7 +33,41 @@ export type CalendarItem = {
    * does an event of a calendar read without writing back.
    */
   moves: { allDay: boolean } | null;
+  /** A planned block's task is done (its row's status, its to-do ticked): it still shows, struck through. */
+  done?: boolean;
+  /** A planned block's task, and whether it can be marked done from the block (a status with a done option, or a to-do still open). */
+  task?: { ref: WorkTaskRef; markable: boolean };
 };
+
+/**
+ * Time planned for a task, as an item: at its times, with the task's title and place, opening the
+ * task. It moves and changes its length on the hours, never becoming whole days.
+ */
+export function workBlockItem(block: {
+  id: string;
+  startsAt: Date;
+  endsAt: Date;
+  title: string;
+  icon: string | null;
+  href: string;
+  detail: string | null;
+  done: boolean;
+  ref: WorkTaskRef;
+  markable: boolean;
+}): CalendarItem {
+  return {
+    id: `block:${block.id}`,
+    kind: "block",
+    title: block.title,
+    icon: block.icon,
+    date: `${block.startsAt.toISOString()}/${block.endsAt.toISOString()}`,
+    href: block.href,
+    detail: block.detail,
+    moves: { allDay: false },
+    done: block.done,
+    task: { ref: block.ref, markable: block.markable && !block.done },
+  };
+}
 
 /** The longest a reminder's text is as an item's title. */
 const REMINDER_TITLE_CHARS = 200;

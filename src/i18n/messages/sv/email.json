@@ -318,7 +318,13 @@
     "messageFile": "Skickade en fil",
     "newMessage": "Nytt meddelande",
     "inThread": "I en tråd",
-    "messageReminder": "Påminnelse om ett meddelande"
+    "messageReminder": "Påminnelse om ett meddelande",
+    "quizAssigned": "{actor} bad dig göra quizet",
+    "quizAssignedDue": "{actor} bad dig göra quizet senast {date}",
+    "quizPassed": "{actor} blev godkänd på quizet med {score} %",
+    "quizFailed": "{actor} har inga försök kvar på quizet ({score} %)",
+    "approvalRequested": "{actor} ber dig godkänna den här sidan",
+    "approvalDecided": "{outcome, select, approved {Godkänd: {actor} gav det sista godkännandet som behövdes} other {{actor} begärde ändringar på den här sidan}}"
   },
   "agentReply": {
     "aiOff": "Jag kan inte svara: AI är avstängt i den här arbetsytan.",

@@ -732,6 +732,24 @@ export function sendMessage(input: { channelId: string; threadId?: string | null
   return deliver(p);
 }
 
+/** Sends a poll (lib/message-polls.ts checks it on both sides): it shows once the server has it. */
+export async function sendPoll(input: {
+  channelId: string;
+  threadId: string | null;
+  alsoInChannel: boolean;
+  poll: { question: string; options: string[]; multiple: boolean; anonymous: boolean; closesAt: string | null };
+}) {
+  const result = await call<{ message: MessageView; notInChannel: string[] }>("sendPoll", {
+    id: crypto.randomUUID(),
+    channelId: input.channelId,
+    threadId: input.threadId,
+    alsoInChannel: !!input.threadId && input.alsoInChannel,
+    poll: input.poll,
+  });
+  apply({ rev: 0, messages: [result.message] }, "live");
+  return result;
+}
+
 export function retrySend(id: string) {
   const p = state.pending.get(id);
   if (!p) return;

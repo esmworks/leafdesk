@@ -9,6 +9,8 @@ import { voiceNoteLimits } from "@/server/voice-notes";
 import { AccessError, isGuest, pageVisibleTo, requireMembership, resolvePageAccess, type AccessLevel } from "@/server/access";
 import { isOutdated, outdatedState, type OutdatedState } from "@/server/page-outdated";
 import { verificationOf } from "@/server/verification";
+import { approvalHeader } from "@/server/page-approvals";
+import type { ApprovalHeader } from "@/lib/page-approvals";
 import type { VerificationView } from "@/lib/verification";
 import { isWatching } from "@/server/page-watch";
 import { isFollowing } from "@/server/row-follow";
@@ -65,6 +67,8 @@ export type PageHeaderInfo = {
   outdated: OutdatedState | null;
   /** Set when someone verified the page, expired or not: by whom, until when (server/verification). */
   verified: VerificationView | null;
+  /** The page's latest approval round that wasn't withdrawn, and the reader's decision to make in it (server/page-approvals). */
+  approval: ApprovalHeader | null;
   /** Whether the user may turn the page into a teamspace (server/teamspace-from-page.ts). */
   teamspace: boolean;
   /**
@@ -80,7 +84,7 @@ export async function getPageHeaderInfo(userId: string, pageId: string): Promise
   const creator = alias(user, "creator");
   const editor = alias(user, "editor");
   const isSkill = found.isSkill && !found.inTemplate;
-  const [[names], [star], membership, topLevel, ai, voice, reach, accessRequests, following, watching, outdated, skillProperty, verified, teamspace, deletesForever] = await Promise.all([
+  const [[names], [star], membership, topLevel, ai, voice, reach, accessRequests, following, watching, outdated, skillProperty, verified, approval, teamspace, deletesForever] = await Promise.all([
     db
       .select({
         createdBy: creator.name,
@@ -107,6 +111,7 @@ export async function getPageHeaderInfo(userId: string, pageId: string): Promise
     outdatedState(userId, pageId),
     isSkill && found.parentId ? skillDescriptionProperty(found.parentId) : null,
     verificationOf(pageId),
+    found.kind === "database" || found.isTemplate || found.inTemplate ? null : approvalHeader(userId, pageId),
     canTurnIntoTeamspace(userId, found, level),
     found.archivedAt && level === "full" ? deleteForeverAllowed(found.workspaceId, userId) : false,
   ]);
@@ -134,6 +139,7 @@ export async function getPageHeaderInfo(userId: string, pageId: string): Promise
     watching,
     outdated,
     verified,
+    approval,
     teamspace,
     deletesForever,
   };

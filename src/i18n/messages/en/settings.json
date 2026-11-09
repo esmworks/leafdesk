@@ -2021,7 +2021,10 @@
         "rows_merged": "Merged {count, plural, one {# row} other {# rows}} into {target}",
         "publication_expiry_changed": "{change, select, removed {Removed the expiry of the web link of {target}} other {Set the web link of {target} to stop working on {to}}}",
         "reported": "A visitor reported {target}: {reason, select, spam {spam or a scam} harmful {hateful, violent or harassing content} illegal {illegal content} privacy {personal information} copyright {copyright} other {something else}}",
-        "report_dismissed": "Dismissed a report about {target}"
+        "report_dismissed": "Dismissed a report about {target}",
+        "approval_requested": "Asked {names} to approve {target}",
+        "approval_decided": "{decision, select, approved {Approved {target}} other {Requested changes to {target}}}",
+        "approval_withdrawn": "Withdrew the request to approve {target}"
       },
       "property": {
         "access_changed": "Changed who can access “{property}” in {target}",
@@ -2350,7 +2353,16 @@
         "step3": "Turn notifications on for this site.",
         "step4": "Reload this page and turn push notifications on here."
       }
-    }
+    },
+    "quizAssignedTitle": "Quizzes asked of you",
+    "quizAssignedDescription": "Someone asks you to take a quiz on a page.",
+    "quizAssignedChannel": "Quizzes asked of you: {channel}",
+    "quizFinishedTitle": "Quiz results",
+    "quizFinishedDescription": "Someone you asked to take a quiz passes it or runs out of attempts.",
+    "quizFinishedChannel": "Quiz results: {channel}",
+    "approvalTitle": "Approvals",
+    "approvalDescription": "Someone asks you to approve a page, or a request of yours to approve one ends.",
+    "approvalChannel": "Approvals: {channel}"
   },
   "site": {
     "description": "Give this workspace's published pages one readable address, a home page and navigation between them.",

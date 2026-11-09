@@ -10,7 +10,7 @@ import { channel, channelMember, channelMessage, channelSection, messageDraft, m
 import type { Changes } from "@/lib/message-wire";
 import { setAnnouncer, type Touched } from "./core";
 import { connectedPeople, connectionsIn, sendToPeople } from "./hub";
-import { channelViews, draftViews, membershipViews, messageViews, savedViews, scheduledViews, sectionViews, statusViews, threadViews } from "./views";
+import { channelViews, draftViews, membershipViews, messageViews, pollChoices, savedViews, scheduledViews, sectionViews, statusViews, threadViews, withChoices } from "./views";
 
 /** Read marks go to channels this small or less: in a large one they are noise and many frames. */
 const READ_MARKS_UP_TO = 30;
@@ -35,7 +35,10 @@ async function tell(t: Touched, people: Map<string, { guest: boolean; knows: Set
   };
 
   // Channels touched, those of touched messages, rosters and read marks: who of the connected sees each.
+  // Read once for everyone; each person's own choices in polls are put in for them below.
   const messages = t.messages.size ? await messageViews(inArray(channelMessage.id, [...t.messages])) : [];
+  const polls = messages.filter((m) => m.poll).map((m) => m.id);
+  const choices = polls.length ? await pollChoices(polls, ids) : new Map<string, Map<string, Set<string>>>();
   const channelIds = new Set([...t.channels, ...t.roster, ...messages.map((m) => m.channelId), ...t.reads.map((r) => r.channelId)]);
   for (const set of t.left.values()) for (const id of set) channelIds.add(id);
   const channels = channelIds.size ? await channelViews(inArray(channel.id, [...channelIds])) : [];
@@ -67,7 +70,7 @@ async function tell(t: Touched, people: Map<string, { guest: boolean; knows: Set
     put(
       userId,
       "messages",
-      messages.filter((m) => keepsMessages(userId, m.channelId)),
+      messages.filter((m) => keepsMessages(userId, m.channelId)).map((m) => withChoices(m, choices.get(userId))),
     );
     put(
       userId,

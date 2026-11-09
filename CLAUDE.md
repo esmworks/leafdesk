@@ -186,7 +186,11 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   `core.ts` `requireChannel`; views are `views.ts` (unread and member counts are subqueries there,
   see *Conventions*). Leaving the workspace keeps one's `channel_member` rows (their direct
   conversations come back with them), so a list of a channel's people that notifies or counts
-  adds `core.ts` `stillInWorkspace`. A guest's connection carries `knows` (`sync.ts` `peopleFor`):
+  adds `core.ts` `stillInWorkspace`. Polls (`polls.ts`, rules pure in `lib/message-polls.ts`, tables
+  `message_poll` and `message_poll_vote`) ride on the message's view, whose `poll.mine` is the
+  reader's own choices: `views.ts` reads views for one `viewer`, and `announce.ts`, reading a
+  change's messages once for everyone, puts each person's in (`pollChoices`, `withChoices`), so a
+  new place sending message views to a person passes `viewer`. A guest's connection carries `knows` (`sync.ts` `peopleFor`):
   presence and statuses about anyone else don't go to it. In the browser `components/messages/store.ts` holds what the socket brought:
   unread is the server's count plus live messages past `countedTo`, the seq it counted. Pages
   change the query with `history.pushState` (`lib/messages.ts` `messagesPath`), never the router.
@@ -445,6 +449,10 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   (`lib/inbox-event.ts` `openInbox`, which `sidebar.tsx` listens for). A to-do's time
   is its mention's reminder on the mention's own day (`page_task.remind_at`, `timedOnItsDay`): date
   mentions hold only days, as their Markdown `@YYYY-MM-DD` does.
+  Time a person plans for a task (item kind `block`, table `work_block`) is `server/work-blocks.ts`
+  (pure part `lib/work-blocks.ts`): theirs alone, read with the page's access each time, moved and
+  resized through `moveCalendarItem`; a ticked to-do leaves `page_task`, so a block keeps the
+  title it was planned with. The page's To plan list is `read("tasksToPlan")`.
 - **The Library** (`app/w/[workspaceId]/library`, `components/library/library-page.tsx`, the rail's
   link beside the settings, go key L): one tab per list (`?tab=`), loaded on the server only for the
   tab shown; teamspaces and agents are left out for guests. A new list is a tab there.
@@ -591,7 +599,14 @@ several mailboxes, whose thread ids can repeat, so the list keys threads by `ite
   `{ web: true }`; pure rules in `src/lib/web-links.ts`; `runWebLinkChecks(now)`), sensitive content scans
   `sensitive-content.ts` (detectors and masking pure in `src/lib/sensitive-content.ts`; a sweep
   reads pages whose `updated_at` moved past `sensitive_scan`), verified pages `verification.ts`
-  (`activeVerification` is the SQL for search and lists; `runVerificationReminders(now)`), named
+  (`activeVerification` is the SQL for search and lists; `runVerificationReminders(now)`), approvals
+  `page-approvals.ts` (rules pure in `lib/page-approvals.ts`, tables `page_approval` and
+  `page_approval_decision`; a request saves its own snapshot through `getCollab().snapshot`, never
+  `saveVersion`, which would rename the newest one, and `retention.ts` keeps every snapshot a round
+  points at; "changed since" compares the page row's title and Markdown with the snapshot's, so it
+  lags the live document by a save; `approved-now.ts` is search's `is:approved`; the header reads it
+  as `PageHeaderInfo.approval`; inbox kinds `approval_requested`/`approval_decided` share one
+  preference), named
   page versions `page-versions.ts` (`page_snapshot.name`; `retention.ts` `pruneSnapshots` never
   deletes a named one; listing, preview and restore stay in `pages.ts`), SMTP
   `mail/`, dashboard emails `dashboard-emails.ts` (schedules of kind `dashboard_email` on
@@ -661,6 +676,14 @@ several mailboxes, whose thread ids can repeat, so the list keys threads by `ite
   server SVG for favicons and PDF is `lib/builtin-icon-svg.ts`. Emoji data and names per locale are
   static files in `public/emoji/` written by `scripts/emoji-data.ts`, fetched by the picker and the
   editor's ":" menu, never imported.
+- **Quizzes** (`server/quizzes.ts`, pure part `lib/quizzes.ts`, tables in `db/schema/quizzes.ts`):
+  the block (`lib/quiz-block.ts`, Markdown line `<!-- leafdesk:quiz <id> -->`) holds only the
+  quiz's id; every read and write checks the quiz row's own `page_id`, never the page showing the
+  block (one on another page is `foreign` and offers a copy). Right answers and explanations leave
+  the server only through `quizView` (editors at `QUIZ_EDIT_LEVEL`, or someone `quizDone`); published
+  bodies, print, PDF and Word drop the block and Markdown exports name it (`export.ts` `nameQuizzes`).
+  A duplicated page gets its own quizzes in `duplicate.ts` through `copyQuizzesForCopies`, which
+  rewrites the copies' ids in their documents and Markdown.
 - **Reports about published pages** (`server/page-reports.ts`, table `page_report`): the form is
   its own route, `s/[token]/report`, on the app's address like `duplicate` (a site's domain
   redirects there, `routeOnSiteHost`); `servedPublication` decides whether the page is served.
@@ -866,8 +889,8 @@ plus the `scripts/*-e2e.ts` of the area you touched (`pnpm tsx scripts/<name>-e2
 - **Needs no server on the same database**, because a server's workers would take the queued work:
   agents, agent-api, agent-approvers, agent-chat, agent-copy, agent-handoff, agent-memory, agent-mention, desktop-files,
   agent-schedule, agent-sharing, agent-guardrails, agent-skills, agent-channel, automation, button, row-buttons, timed-automation, schedule, concurrent-writes,
-  row-activity, row-follow, row-mail, ai-reminders, web-links, discussions, follow-ups (starts its own GreenMail container
-  unless given ports), page-watch, page-webhooks, verify, wins-log, jira-sync, github-pulls-sync, sheets-sync, sprints. `connector-e2e` starts its own `next dev` against
+  row-activity, row-follow, row-mail, ai-reminders, work-blocks, web-links, discussions, page-approvals, message-polls, follow-ups (starts its own GreenMail container
+  unless given ports), page-watch, page-webhooks, quizzes, verify, wins-log, jira-sync, github-pulls-sync, sheets-sync, sprints. `connector-e2e` starts its own `next dev` against
   `<database>_peer`, which must exist; no other dev server may run in the same checkout.
 - Each script's header says what it needs. `.github/workflows/ci.yml` shows the env each step gets;
   not every e2e script is in CI.

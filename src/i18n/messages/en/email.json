@@ -318,7 +318,13 @@
     "messageFile": "Sent a file",
     "newMessage": "New message",
     "inThread": "In a thread",
-    "messageReminder": "Reminder about a message"
+    "messageReminder": "Reminder about a message",
+    "quizAssigned": "{actor} asked you to take the quiz",
+    "quizAssignedDue": "{actor} asked you to take the quiz by {date}",
+    "quizPassed": "{actor} passed the quiz with {score}%",
+    "quizFailed": "{actor} ran out of attempts at the quiz ({score}%)",
+    "approvalRequested": "{actor} asks you to approve this page",
+    "approvalDecided": "{outcome, select, approved {Approved: {actor} gave the last approval needed} other {{actor} requested changes to this page}}"
   },
   "agentReply": {
     "aiOff": "I can’t answer: AI is off in this workspace.",

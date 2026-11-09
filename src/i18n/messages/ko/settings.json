@@ -2021,7 +2021,10 @@
         "rows_merged": "행 {count}개를 {target}에 병합",
         "publication_expiry_changed": "{change, select, removed {{target}의 웹 링크 만료를 제거했습니다} other {{target}의 웹 링크가 {to}에 작동을 멈추도록 설정했습니다}}",
         "reported": "방문자가 {target}을(를) 신고했습니다: {reason, select, spam {스팸 또는 사기} harmful {혐오, 폭력 또는 괴롭힘} illegal {불법 콘텐츠} privacy {개인정보} copyright {저작권} other {기타}}",
-        "report_dismissed": "{target}에 대한 신고를 무시함"
+        "report_dismissed": "{target}에 대한 신고를 무시함",
+        "approval_requested": "{names}에게 {target} 승인을 요청함",
+        "approval_decided": "{decision, select, approved {{target} 승인함} other {{target} 변경을 요청함}}",
+        "approval_withdrawn": "{target} 승인 요청을 철회함"
       },
       "property": {
         "access_changed": "{target}에서 “{property}”에 액세스할 수 있는 사람을 변경했습니다",
@@ -2350,7 +2353,16 @@
         "step3": "이 사이트의 알림을 켭니다.",
         "step4": "이 페이지를 새로고침하고 여기에서 푸시 알림을 켭니다."
       }
-    }
+    },
+    "quizAssignedTitle": "요청받은 퀴즈",
+    "quizAssignedDescription": "누군가 나에게 페이지의 퀴즈 응시를 요청합니다.",
+    "quizAssignedChannel": "요청받은 퀴즈: {channel}",
+    "quizFinishedTitle": "퀴즈 결과",
+    "quizFinishedDescription": "내가 퀴즈 응시를 요청한 사람이 합격하거나 응시 기회를 모두 씁니다.",
+    "quizFinishedChannel": "퀴즈 결과: {channel}",
+    "approvalTitle": "승인",
+    "approvalDescription": "누군가 페이지 승인을 요청하거나, 내 승인 요청이 끝났을 때.",
+    "approvalChannel": "승인: {channel}"
   },
   "site": {
     "description": "이 워크스페이스의 게시된 페이지에 읽기 쉬운 하나의 주소, 홈 페이지, 페이지 간 탐색을 제공합니다.",

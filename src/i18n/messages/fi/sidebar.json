@@ -318,7 +318,13 @@
     "limitRequestNote": "”{note}”",
     "limitRequestApprove": "Nosta määrään {tokens, number}",
     "limitRequestDecline": "Hylkää",
-    "limitRequestFailed": "Pyyntöön ei voitu vastata. Yritä uudelleen."
+    "limitRequestFailed": "Pyyntöön ei voitu vastata. Yritä uudelleen.",
+    "quizAssigned": "{actor} pyysi sinua tekemään tietovisan",
+    "quizAssignedDue": "{actor} pyysi sinua tekemään tietovisan viimeistään {date}",
+    "quizPassed": "{actor} läpäisi tietovisan tuloksella {score} %",
+    "quizFailed": "{actor} käytti kaikki yritykset tietovisaan ({score} %)",
+    "approvalRequested": "{actor} pyytää sinua hyväksymään tämän sivun",
+    "approvalDecided": "{outcome, select, approved {Hyväksytty: {actor} antoi viimeisen tarvittavan hyväksynnän} other {{actor} pyysi muutoksia tähän sivuun}}"
   },
   "templates": {
     "title": "Mallit",

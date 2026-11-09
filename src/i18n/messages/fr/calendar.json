@@ -18,7 +18,8 @@
     "event": "Événements d’agenda",
     "meeting": "Réunions",
     "task": "Tâches",
-    "reminder": "Rappels"
+    "reminder": "Rappels",
+    "block": "Temps planifié"
   },
   "allDay": "Toute la journée",
   "from": "À partir de {time}",
@@ -29,5 +30,43 @@
     "fixed": "Impossible de le déplacer à cet endroit",
     "noAccess": "Vous ne pouvez pas modifier cet élément",
     "failed": "Déplacement impossible. Réessayez."
+  },
+  "durationHours": "{hours} h",
+  "durationMinutes": "{minutes} min",
+  "durationBoth": "{hours} h {minutes} min",
+  "toPlan": {
+    "title": "À planifier",
+    "toggle": "Tâches à planifier",
+    "help": "Fais glisser une tâche sur la semaine, ou utilise Planifier du temps.",
+    "filter": "Filtrer les tâches",
+    "empty": "Aucune tâche ouverte",
+    "noMatch": "Aucune tâche ne correspond",
+    "planned": "{duration} planifié",
+    "planTime": "Planifier du temps",
+    "couldNotLoad": "Impossible de charger tes tâches"
+  },
+  "planDialog": {
+    "title": "Planifier du temps",
+    "day": "Jour",
+    "start": "Début",
+    "length": "Durée",
+    "plan": "Planifier"
+  },
+  "blockMenu": {
+    "more": "Plus d’actions",
+    "openTask": "Ouvrir la tâche",
+    "markDone": "Marquer la tâche comme terminée",
+    "remove": "Retirer le bloc",
+    "resize": "Fais glisser pour changer la durée"
+  },
+  "blockErrors": {
+    "notFound": "Cette tâche ne peut plus être planifiée",
+    "noAccess": "Tu ne peux plus ouvrir cette tâche",
+    "tooShort": "Le temps planifié dure au moins 15 minutes",
+    "tooLong": "Le temps planifié dure au plus 12 heures",
+    "invalid": "Choisis un jour et une heure de début",
+    "notTask": "Ce n’est pas une de tes tâches",
+    "tooMany": "Cette tâche a déjà autant de temps planifié que possible",
+    "failed": "Impossible de modifier le temps planifié. Réessaie."
   }
 }

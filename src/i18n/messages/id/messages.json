@@ -125,7 +125,8 @@
     "remind60": "Ingatkan saya dalam satu jam",
     "remindTomorrow": "Ingatkan saya besok",
     "history": "Riwayat edit",
-    "delete": "Hapus"
+    "delete": "Hapus",
+    "closePoll": "Tutup polling"
   },
   "system": {
     "created": "{actor} membuat kanal ini.",
@@ -290,7 +291,8 @@
     "offline": "Anda sedang offline. Pesan akan terkirim saat Anda kembali online.",
     "timeout": "Server tidak menjawab tepat waktu.",
     "ai": "AI tidak dapat menjawab. Coba lagi.",
-    "internal": "Terjadi kesalahan. Coba lagi."
+    "internal": "Terjadi kesalahan. Coba lagi.",
+    "pollClosed": "Polling sudah ditutup."
   },
   "import": {
     "button": "Impor dari Slack",
@@ -351,5 +353,42 @@
     "remove": "Hapus {name}",
     "removeConfirm": "Hapus webhook {name}? Alamatnya langsung berhenti berfungsi; pesannya tetap ada.",
     "title": "Webhook"
+  },
+  "poll": {
+    "create": "Buat polling",
+    "title": "Polling baru",
+    "question": "Pertanyaan",
+    "questionPlaceholder": "Apa yang ingin Anda tanyakan?",
+    "options": "Pilihan",
+    "optionPlaceholder": "Pilihan {number}",
+    "addOption": "Tambah pilihan",
+    "removeOption": "Hapus pilihan {number}",
+    "multiple": "Izinkan beberapa jawaban",
+    "anonymous": "Anonim",
+    "anonymousHint": "Orang lain melihat berapa yang memilih setiap pilihan, tidak pernah siapa.",
+    "closes": "Ditutup",
+    "closesNever": "Tidak pernah",
+    "closesDay": "Dalam 1 hari",
+    "closesWeek": "Dalam 1 minggu",
+    "closesAt": "Pada tanggal dan waktu tertentu",
+    "closesAtLabel": "Kapan polling ditutup",
+    "send": "Kirim polling",
+    "severalAnswers": "Beberapa jawaban",
+    "voteFor": "Pilih {option}",
+    "takeBack": "Tarik pilihan Anda untuk {option}",
+    "votedBy": "Memilih {option}: {people}",
+    "voters": "{count, plural, =0 {Belum ada suara} other {# orang memberi suara}}",
+    "closed": "Ditutup",
+    "closesIn": "Ditutup {when}",
+    "closeConfirm": "Tutup polling ini? Setelah itu tidak ada yang bisa memberi suara.",
+    "errors": {
+      "question": "Tulis pertanyaan.",
+      "questionTooLong": "Pertanyaan berisi paling banyak {max} karakter.",
+      "tooFewOptions": "Berikan minimal dua pilihan.",
+      "tooManyOptions": "Polling berisi paling banyak {max} pilihan.",
+      "optionTooLong": "Pilihan berisi paling banyak {max} karakter.",
+      "duplicateOptions": "Dua pilihan sama.",
+      "closesAt": "Pilih waktu penutupan dalam setahun ke depan."
+    }
   }
 }

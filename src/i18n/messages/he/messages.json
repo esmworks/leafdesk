@@ -125,7 +125,8 @@
     "remind60": "תזכורת בעוד שעה",
     "remindTomorrow": "תזכורת מחר",
     "history": "היסטוריית עריכות",
-    "delete": "מחיקה"
+    "delete": "מחיקה",
+    "closePoll": "סגירת הסקר"
   },
   "system": {
     "created": "{actor} פתח/ה את הערוץ הזה.",
@@ -290,7 +291,8 @@
     "offline": "אין חיבור. זה יישלח כשהחיבור יחזור.",
     "timeout": "השרת לא ענה בזמן.",
     "ai": "ה-AI לא הצליח לענות. נסה שוב.",
-    "internal": "משהו השתבש. יש לנסות שוב."
+    "internal": "משהו השתבש. יש לנסות שוב.",
+    "pollClosed": "הסקר סגור."
   },
   "import": {
     "button": "ייבוא מ-Slack",
@@ -351,5 +353,42 @@
     "remove": "מחיקת {name}",
     "removeConfirm": "למחוק את ה־webhook {name}? הכתובת שלו תפסיק לעבוד מיד; ההודעות שלו יישארו.",
     "title": "Webhooks"
+  },
+  "poll": {
+    "create": "יצירת סקר",
+    "title": "סקר חדש",
+    "question": "שאלה",
+    "questionPlaceholder": "מה ברצונך לשאול?",
+    "options": "אפשרויות",
+    "optionPlaceholder": "אפשרות {number}",
+    "addOption": "הוספת אפשרות",
+    "removeOption": "הסרת אפשרות {number}",
+    "multiple": "לאפשר כמה תשובות",
+    "anonymous": "אנונימי",
+    "anonymousHint": "אחרים רואים כמה בחרו בכל אפשרות, אף פעם לא מי.",
+    "closes": "נסגר",
+    "closesNever": "אף פעם",
+    "closesDay": "בעוד יום",
+    "closesWeek": "בעוד שבוע",
+    "closesAt": "בתאריך ובשעה",
+    "closesAtLabel": "מתי הסקר נסגר",
+    "send": "שליחת הסקר",
+    "severalAnswers": "כמה תשובות",
+    "voteFor": "הצבעה עבור {option}",
+    "takeBack": "ביטול ההצבעה שלך עבור {option}",
+    "votedBy": "בחרו {option}: {people}",
+    "voters": "{count, plural, =0 {אין עדיין הצבעות} one {אדם אחד הצביע} two {# אנשים הצביעו} other {# אנשים הצביעו}}",
+    "closed": "סגור",
+    "closesIn": "נסגר {when}",
+    "closeConfirm": "לסגור את הסקר? אחרי זה אף אחד לא יוכל להצביע.",
+    "errors": {
+      "question": "נא לכתוב שאלה.",
+      "questionTooLong": "שאלה מכילה לכל היותר {max} תווים.",
+      "tooFewOptions": "נא לתת לפחות שתי אפשרויות.",
+      "tooManyOptions": "בסקר יש לכל היותר {max} אפשרויות.",
+      "optionTooLong": "אפשרות מכילה לכל היותר {max} תווים.",
+      "duplicateOptions": "שתי אפשרויות זהות.",
+      "closesAt": "נא לבחור מועד סגירה בתוך השנה הקרובה."
+    }
   }
 }
