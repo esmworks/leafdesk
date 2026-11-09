@@ -4,16 +4,19 @@ import { Bookmark, BookmarkCheck, CircleCheck, Copy, Download, FileText, Forward
 import { useFormatter, useLocale, useNow, useTranslations } from "next-intl";
 import { memo, useEffect, useRef, useState, type MouseEvent } from "react";
 import { plainClick, useFileViewer } from "@/components/file-viewer";
+import { lazyPart } from "@/components/lazy-part";
 import { showToast } from "@/components/toast";
 import { cn, MenuItem, MenuSeparator, Popover, textareaClass } from "@/components/ui";
 import { formatBytes } from "@/lib/files";
 import type { FileView, MessageView } from "@/lib/message-wire";
 import { messagesPath, type SystemEvent } from "@/lib/messages";
 import { EmojiPicker, QUICK_REACTIONS, rememberEmoji } from "./emoji-picker";
-import { LinkCards } from "./link-cards";
 import { MessageBody } from "./message-body";
 import { PersonFace } from "./person";
 import { call, channelTitle, dropPending, patchMessage, personName, retrySend, useView, type Pending, type View } from "./store";
+
+/** Link cards load with the first message that has them: their bookmark card brings the embed rules along. */
+const LinkCards = lazyPart(() => import("./link-cards").then((m) => m.LinkCards));
 
 /** What a message row may do in the place it shows (a channel's list, a thread, a result list). */
 export type ItemContext = {
