@@ -99,7 +99,8 @@
       "domainPeople": "dominio account utenti azienda email shadow non gestiti",
       "openOnStart": "avvio apertura prima pagina ultima visitata recente",
       "pageReports": "segnala segnalazione abuso reclamo rimozione pubblicata pubblica web pagine",
-      "dashboardEmails": "iscrizione report programmazione settimanale riepilogo email dashboard"
+      "dashboardEmails": "iscrizione report programmazione settimanale riepilogo email dashboard",
+      "phoneSignIn": "codice qr telefono cellulare scansiona dispositivo accedi"
     }
   },
   "workspace": {
@@ -2185,6 +2186,9 @@
         "note_added": "Ha aggiunto una nota alla memoria IA di {target}: “{to}”",
         "note_changed": "Ha modificato una nota nella memoria IA di {target}: “{from}” → “{to}”",
         "note_deleted": "{count, plural, one {Ha eliminato una nota dalla memoria IA di {target}: “{from}”} other {Ha eliminato # note dalla memoria IA di {target}}}"
+      },
+      "account": {
+        "phone_signed_in": "Ha usato un codice QR per accedere da un altro dispositivo"
       }
     },
     "decisions": {

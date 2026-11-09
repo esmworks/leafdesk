@@ -44,6 +44,7 @@ export const SETTINGS_SEARCH_ENTRIES: readonly SettingsSearchEntry[] = [
   { id: "password", tab: "accountSecurity", label: "account:password.heading", keywords: true },
   { id: "twoFactor", tab: "accountSecurity", label: "security:twoFactor.heading", keywords: true },
   { id: "passkeys", tab: "accountSecurity", label: "security:passkeys.heading", keywords: true },
+  { id: "phoneSignIn", tab: "accountSecurity", label: "account:phoneSignIn.title", keywords: true, when: online },
   { id: "sessions", tab: "accountSecurity", label: "account:sessions.heading", keywords: true },
   { id: "language", tab: "preferences", label: "settings:language.heading", keywords: true },
   { id: "theme", tab: "preferences", label: "settings:theme.heading", keywords: true },

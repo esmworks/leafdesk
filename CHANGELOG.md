@@ -4,6 +4,12 @@
 
 ### Added
 
+- **Sign in on your phone with a QR code.** My account → Security shows, after the same proof as a
+  password change, a QR code whose link signs the phone's browser in as you once the page there is
+  confirmed. Each code works once, for two minutes, and only its hash is stored; the phone still
+  enters a two-step code when the account has one. People a workspace holds to single sign-on, or
+  to two-step verification they haven't turned on, get no code, with the reason, and each of the
+  person's workspaces records the sign-in in its audit log. Migration 0202 adds its table.
 - **The admin page says when a newer Leafdesk is out.** Twice a day the server asks GitHub's public
   API for the latest release and `/admin` (and an administrator's About tab) names it, with a link
   to its release notes. `UPDATE_CHECK=off` stops the check; the desktop app never makes it.

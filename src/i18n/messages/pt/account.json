@@ -171,7 +171,9 @@
     "samePassword": "Escolha uma senha diferente da antiga.",
     "resetStepExpired": "Esta etapa expirou. Entre com sua senha antiga de novo.",
     "storageStuck": "Os arquivos de {workspaces} estão no seu armazenamento e não têm para onde ser movidos. Peça aos proprietários que configurem um armazenamento ou mova os arquivos primeiro.",
-    "legalHold": "Uma retenção legal em {workspaces} preserva sua conta. Peça primeiro a um proprietário de lá para liberá-la."
+    "legalHold": "Uma retenção legal em {workspaces} preserva sua conta. Peça primeiro a um proprietário de lá para liberá-la.",
+    "phoneSignInSso": "{workspaces} pede que você entre com login único, então um código QR não pode conectar seu celular.",
+    "phoneSignInTwoFactor": "{workspaces} exige verificação em duas etapas. Ative-a primeiro para sua conta."
   },
   "mail": {
     "description": "Suas caixas de e-mail e endereços de calendário, em todos os seus espaços de trabalho.",
@@ -252,5 +254,31 @@
     "unlinkConfirm": "Desconectar Telegram",
     "unlinking": "Desconectando…",
     "unreachable": "O servidor não consegue acessar o Telegram agora. Tente mais tarde."
+  },
+  "phoneSignIn": {
+    "heading": "Outros dispositivos",
+    "title": "Entrar no seu celular",
+    "description": "Mostre um código QR e escaneie-o com a câmera do celular para entrar nele sem digitar sua senha. Cada código funciona uma vez, por dois minutos.",
+    "show": "Mostrar código QR",
+    "blockedSso": "{workspaces} pede que você entre com login único, então um código QR não pode conectar seu celular. Entre no celular com o login único.",
+    "blockedTwoFactor": "{workspaces} exige verificação em duas etapas. Ative-a para sua conta acima; depois de escanear, o celular pedirá um código.",
+    "dialogTitle": "Entrar no seu celular",
+    "confirmBody": "Primeiro confirme que é você. Quem escanear o código entra na sua conta, então mostre-o só para o seu próprio celular.",
+    "showCode": "Mostrar código",
+    "scan": "Aponte a câmera do celular para o código, abra o link encontrado e confirme.",
+    "codeLabel": "Código QR que conecta um celular à sua conta",
+    "validFor": "Funciona uma vez, por mais {seconds, plural, one {# segundo} other {# segundos}}.",
+    "expired": "Este código expirou.",
+    "expiredNote": "Mostre um novo código para tentar de novo.",
+    "newCode": "Novo código",
+    "metaTitle": "Entrar neste dispositivo",
+    "invalidTitle": "Este código não funciona",
+    "invalidBody": "Ele expirou ou já foi usado. Mostre um novo código na página da sua conta e escaneie-o de novo.",
+    "phoneTitle": "Entrar neste dispositivo?",
+    "phoneBody": "Este dispositivo vai entrar no Leafdesk como {name} ({email}).",
+    "phoneConfirm": "Entrar",
+    "phoneWarning": "Continue só se você acabou de escanear este código na sua própria tela.",
+    "refusedSso": "Um espaço de trabalho do qual você participa exige login único. Entre neste dispositivo com o login único.",
+    "refusedTwoFactor": "Um espaço de trabalho do qual você participa exige verificação em duas etapas. Ative-a primeiro para sua conta e depois mostre um novo código."
   }
 }

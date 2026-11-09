@@ -99,7 +99,8 @@
       "domainPeople": "domain konten benutzer firma e-mail schatten-it unverwaltet",
       "openOnStart": "start starten erste seite zuletzt besucht",
       "pageReports": "melden meldung missbrauch beschwerde entfernen veröffentlicht öffentlich web seiten",
-      "dashboardEmails": "Abo Bericht Zeitplan wöchentlich Zusammenfassung Report E-Mail"
+      "dashboardEmails": "Abo Bericht Zeitplan wöchentlich Zusammenfassung Report E-Mail",
+      "phoneSignIn": "qr code smartphone handy mobil scannen gerät anmelden"
     }
   },
   "workspace": {
@@ -2185,6 +2186,9 @@
         "note_added": "Hat dem KI-Gedächtnis von {target} eine Notiz hinzugefügt: „{to}“",
         "note_changed": "Hat eine Notiz im KI-Gedächtnis von {target} geändert: „{from}“ → „{to}“",
         "note_deleted": "{count, plural, one {Hat eine Notiz aus dem KI-Gedächtnis von {target} gelöscht: „{from}“} other {Hat # Notizen aus dem KI-Gedächtnis von {target} gelöscht}}"
+      },
+      "account": {
+        "phone_signed_in": "Mit einem QR-Code auf einem anderen Gerät angemeldet"
       }
     },
     "decisions": {

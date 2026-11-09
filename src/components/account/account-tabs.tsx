@@ -7,6 +7,7 @@ import { AboutLeafdesk } from "@/components/account/about";
 import { DeleteAccountSettings } from "@/components/account/delete-account";
 import { PasswordSettings } from "@/components/account/password-settings";
 import { ProfileSettings } from "@/components/account/profile-settings";
+import { PhoneSignIn } from "@/components/account/phone-sign-in";
 import { SessionList } from "@/components/account/session-list";
 import { PasskeySettings } from "@/components/security/passkeys";
 import { TwoFactorSettings } from "@/components/security/two-factor";
@@ -31,6 +32,7 @@ import { isLocale, LOCALE_COOKIE } from "@/i18n/config";
 import { CONTRAST_COOKIE, isContrast, isTheme, THEME_COOKIE } from "@/lib/theme";
 import { getAccountOverview, deletionPlanFor, emailChangeEnabled, proofSetupOf } from "@/server/account";
 import { getAccountSecurity } from "@/server/account-security";
+import { phoneSignInRefusal } from "@/server/phone-sign-in";
 import { myDashboardEmails } from "@/server/dashboard-emails";
 import { getDesktopLinks } from "@/server/desktop-links";
 import { getOpenOnStart } from "@/server/open-on-start";
@@ -173,10 +175,12 @@ async function ProfileTab({ session }: { session: Session }) {
 }
 
 async function SecurityTab({ session }: { session: Session }) {
-  const [overview, security, proof, t, ts] = await Promise.all([
+  const [overview, security, proof, phoneBlock, t, ts] = await Promise.all([
     getAccountOverview(session),
     getAccountSecurity(session.user.id),
     proofSetupOf(session),
+    // On one computer no phone can reach the server.
+    env.localMode ? null : phoneSignInRefusal(session.user.id),
     getTranslations("account"),
     getTranslations("security"),
   ]);
@@ -193,6 +197,11 @@ async function SecurityTab({ session }: { session: Session }) {
         <SettingsGroup anchor="passkeys" title={ts("passkeys.heading")} description={ts("passkeys.headingDescription")}>
           <PasskeySettings passkeys={security.passkeys} />
         </SettingsGroup>
+        {!env.localMode && (
+          <SettingsGroup title={t("phoneSignIn.heading")}>
+            <PhoneSignIn proof={proof} block={phoneBlock} />
+          </SettingsGroup>
+        )}
         <SessionList sessions={overview.sessions} />
         <p className="text-sm text-fg-muted">{ts("connectedAppsNote")}</p>
       </div>

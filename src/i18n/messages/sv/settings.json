@@ -99,7 +99,8 @@
       "domainPeople": "domän konton användare företag e-post skugg-it ohanterade",
       "openOnStart": "start uppstart första sida senast besökt senaste",
       "pageReports": "anmäl anmälan missbruk klagomål ta bort publicerad offentlig webb sidor",
-      "dashboardEmails": "prenumeration rapport schema veckovis sammanfattning e-post"
+      "dashboardEmails": "prenumeration rapport schema veckovis sammanfattning e-post",
+      "phoneSignIn": "qr kod telefon mobil skanna enhet logga in"
     }
   },
   "workspace": {
@@ -2185,6 +2186,9 @@
         "note_added": "Lade till en anteckning i AI-minnet för {target}: ”{to}”",
         "note_changed": "Ändrade en anteckning i AI-minnet för {target}: ”{from}” → ”{to}”",
         "note_deleted": "{count, plural, one {Raderade en anteckning från AI-minnet för {target}: ”{from}”} other {Raderade # anteckningar från AI-minnet för {target}}}"
+      },
+      "account": {
+        "phone_signed_in": "Använde en QR-kod för att logga in på en annan enhet"
       }
     },
     "decisions": {

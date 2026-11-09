@@ -171,7 +171,9 @@
     "samePassword": "Choisissez un mot de passe différent de l'ancien.",
     "resetStepExpired": "Cette étape a expiré. Reconnectez-vous avec votre ancien mot de passe.",
     "storageStuck": "Les fichiers de {workspaces} sont dans votre stockage et ne peuvent être déplacés nulle part. Demandez à leurs propriétaires de configurer un stockage, ou déplacez d’abord les fichiers.",
-    "legalHold": "Une conservation légale dans {workspaces} protège votre compte. Demandez d'abord à un propriétaire de la lever."
+    "legalHold": "Une conservation légale dans {workspaces} protège votre compte. Demandez d'abord à un propriétaire de la lever.",
+    "phoneSignInSso": "{workspaces} vous demande de vous connecter par authentification unique : un code QR ne peut donc pas connecter votre téléphone.",
+    "phoneSignInTwoFactor": "{workspaces} exige la validation en deux étapes. Activez-la d’abord pour votre compte."
   },
   "mail": {
     "description": "Vos boîtes mail et adresses de calendrier, dans tous vos espaces de travail.",
@@ -252,5 +254,31 @@
     "unlinkConfirm": "Délier Telegram",
     "unlinking": "Déliaison…",
     "unreachable": "Le serveur ne parvient pas à joindre Telegram pour le moment. Réessayez plus tard."
+  },
+  "phoneSignIn": {
+    "heading": "Autres appareils",
+    "title": "Se connecter sur votre téléphone",
+    "description": "Affichez un code QR et scannez-le avec l’appareil photo de votre téléphone pour vous y connecter sans saisir votre mot de passe. Chaque code ne sert qu’une fois, pendant deux minutes.",
+    "show": "Afficher le code QR",
+    "blockedSso": "{workspaces} vous demande de vous connecter par authentification unique : un code QR ne peut donc pas connecter votre téléphone. Connectez-vous plutôt sur votre téléphone par authentification unique.",
+    "blockedTwoFactor": "{workspaces} exige la validation en deux étapes. Activez-la pour votre compte ci-dessus ; votre téléphone demandera alors un code après le scan.",
+    "dialogTitle": "Se connecter sur votre téléphone",
+    "confirmBody": "Confirmez d’abord votre identité. Quiconque scanne le code accède à votre compte : montrez-le uniquement à votre propre téléphone.",
+    "showCode": "Afficher le code",
+    "scan": "Pointez l’appareil photo de votre téléphone vers le code, ouvrez le lien trouvé et confirmez.",
+    "codeLabel": "Code QR qui connecte un téléphone à votre compte",
+    "validFor": "Ne sert qu’une fois, encore {seconds, plural, one {# seconde} other {# secondes}}.",
+    "expired": "Ce code a expiré.",
+    "expiredNote": "Affichez un nouveau code pour réessayer.",
+    "newCode": "Nouveau code",
+    "metaTitle": "Se connecter sur cet appareil",
+    "invalidTitle": "Ce code ne fonctionne pas",
+    "invalidBody": "Il a expiré ou a déjà été utilisé. Affichez un nouveau code depuis la page de votre compte et scannez-le à nouveau.",
+    "phoneTitle": "Se connecter sur cet appareil ?",
+    "phoneBody": "Cet appareil sera connecté à Leafdesk en tant que {name} ({email}).",
+    "phoneConfirm": "Se connecter",
+    "phoneWarning": "Continuez seulement si vous venez de scanner ce code sur votre propre écran.",
+    "refusedSso": "Un espace de travail dont vous faites partie exige l’authentification unique. Connectez-vous plutôt sur cet appareil par authentification unique.",
+    "refusedTwoFactor": "Un espace de travail dont vous faites partie exige la validation en deux étapes. Activez-la d’abord pour votre compte, puis affichez un nouveau code."
   }
 }

@@ -99,7 +99,8 @@
       "domainPeople": "域名 账户 用户 公司 邮箱 未管理",
       "openOnStart": "启动 开始 首页 上次访问 最近",
       "pageReports": "举报 滥用 投诉 撤下 已发布 公开 网络 页面",
-      "dashboardEmails": "订阅 报告 计划 每周 摘要 邮件 仪表板 定时"
+      "dashboardEmails": "订阅 报告 计划 每周 摘要 邮件 仪表板 定时",
+      "phoneSignIn": "二维码 qr 手机 移动 扫描 设备 登录"
     }
   },
   "workspace": {
@@ -2185,6 +2186,9 @@
         "note_added": "向 {target} 的 AI 记忆添加了一条笔记：“{to}”",
         "note_changed": "更改了 {target} 的 AI 记忆中的一条笔记：“{from}” → “{to}”",
         "note_deleted": "{count, plural, =1 {从 {target} 的 AI 记忆中删除了一条笔记：“{from}”} other {从 {target} 的 AI 记忆中删除了 # 条笔记}}"
+      },
+      "account": {
+        "phone_signed_in": "使用二维码在另一台设备上登录"
       }
     },
     "decisions": {

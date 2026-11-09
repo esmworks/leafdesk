@@ -99,7 +99,8 @@
       "domainPeople": "domein accounts gebruikers bedrijf e-mail schaduw onbeheerd",
       "openOnStart": "start opstarten eerste pagina laatst bezocht recent",
       "pageReports": "melden melding misbruik klacht verwijderen gepubliceerd openbaar web pagina's",
-      "dashboardEmails": "abonnement rapport schema planning wekelijks samenvatting e-mail dashboard"
+      "dashboardEmails": "abonnement rapport schema planning wekelijks samenvatting e-mail dashboard",
+      "phoneSignIn": "qr code telefoon mobiel scannen apparaat inloggen"
     }
   },
   "workspace": {
@@ -2185,6 +2186,9 @@
         "note_added": "Een notitie toegevoegd aan het AI-geheugen van {target}: “{to}”",
         "note_changed": "Een notitie in het AI-geheugen van {target} gewijzigd: “{from}” → “{to}”",
         "note_deleted": "{count, plural, one {Een notitie verwijderd uit het AI-geheugen van {target}: “{from}”} other {# notities verwijderd uit het AI-geheugen van {target}}}"
+      },
+      "account": {
+        "phone_signed_in": "Gebruikte een QR-code om op een ander apparaat in te loggen"
       }
     },
     "decisions": {

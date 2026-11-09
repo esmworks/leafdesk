@@ -99,7 +99,8 @@
       "domainPeople": "alan adı hesaplar kullanıcılar şirket e-posta gölge yönetilmeyen",
       "openOnStart": "başlangıç açılış ilk sayfa son ziyaret edilen son",
       "pageReports": "bildir bildirim şikayet kötüye kullanım yayından kaldır yayımlanan herkese açık web sayfaları",
-      "dashboardEmails": "abonelik rapor zamanlama haftalık özet e-posta gösterge paneli"
+      "dashboardEmails": "abonelik rapor zamanlama haftalık özet e-posta gösterge paneli",
+      "phoneSignIn": "qr kod telefon mobil tara cihaz giriş oturum"
     }
   },
   "workspace": {
@@ -2185,6 +2186,9 @@
         "note_added": "{target} için yapay zekâ hafızasına not eklendi: “{to}”",
         "note_changed": "{target} için yapay zekâ hafızasındaki bir not değiştirildi: “{from}” → “{to}”",
         "note_deleted": "{count, plural, one {{target} için yapay zekâ hafızasından bir not silindi: “{from}”} other {{target} için yapay zekâ hafızasından # not silindi}}"
+      },
+      "account": {
+        "phone_signed_in": "Başka bir cihazda giriş yapmak için QR kodu kullandı"
       }
     },
     "decisions": {

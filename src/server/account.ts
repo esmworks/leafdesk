@@ -43,6 +43,7 @@ import { closeEndedDesktopSessions } from "@/server/desktop-bridge/registry";
 import { emailChangedEmail, emailChangeEmail, mailStatus, passwordChangedEmail, sendMail } from "@/server/mail";
 import { recipientLocale, requestLocale } from "@/server/mail/locale";
 import { clearPasswordResetRequirement, consumeResetStep, resetStepUser } from "@/server/required-password";
+import { issuePhoneSignIn, phoneSignInRefusal } from "@/server/phone-sign-in";
 import { afterCutOff, cutOffConnection } from "@/server/sso";
 import { instanceStorage } from "@/server/storage";
 import { accountDeletionPlan, afterAiAccountReleased, withdrawFromWorkspaces } from "@/server/workspaces";
@@ -82,6 +83,8 @@ const LIMITS = {
   avatar: [20, 60 * 60_000],
   profile: [30, 60 * 60_000],
   sessions: [30, 60_000],
+  /** QR codes signing a phone in. */
+  phone: [5, 10 * 60_000],
 } as const;
 
 function limit(kind: keyof typeof LIMITS, userId: string) {
@@ -553,6 +556,21 @@ export async function confirmEmailChange(token: string) {
 
 // ---------------------------------------------------------------------------------------------
 // Sessions
+
+/**
+ * A QR code that signs the person's phone in (server/phone-sign-in.ts): a new session is a
+ * sensitive thing to hand out, so it asks for proof like a new password does. Refused, with the
+ * workspaces' names, when a workspace's policy would hold the phone's session back.
+ */
+export async function startPhoneSignIn(current: AccountSession, proof: Proof) {
+  if (env.localMode) throw new Error("No phone sign-in on one computer");
+  const userId = current.user.id;
+  limit("phone", userId);
+  await reauthenticate(current, proof);
+  const refusal = await phoneSignInRefusal(userId);
+  if (refusal) throw new AccountError(refusal.hold === "sso" ? "phoneSignInSso" : "phoneSignInTwoFactor", refusal.workspaces);
+  return issuePhoneSignIn(userId);
+}
 
 export async function revokeSession(current: AccountSession, sessionId: string) {
   if (sessionId === current.session.id) throw new AccountError("currentSession");

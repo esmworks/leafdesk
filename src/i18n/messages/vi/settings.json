@@ -99,7 +99,8 @@
       "domainPeople": "tên miền tài khoản người dùng công ty email không được quản lý",
       "openOnStart": "khởi động mở đầu trang đầu tiên truy cập gần nhất gần đây",
       "pageReports": "báo cáo lạm dụng khiếu nại gỡ xuất bản công khai web trang",
-      "dashboardEmails": "đăng ký báo cáo lịch hàng tuần tóm tắt email bảng điều khiển"
+      "dashboardEmails": "đăng ký báo cáo lịch hàng tuần tóm tắt email bảng điều khiển",
+      "phoneSignIn": "mã qr điện thoại di động quét thiết bị đăng nhập"
     }
   },
   "workspace": {
@@ -2185,6 +2186,9 @@
         "note_added": "Đã thêm một ghi chú vào bộ nhớ AI của {target}: “{to}”",
         "note_changed": "Đã thay đổi một ghi chú trong bộ nhớ AI của {target}: “{from}” → “{to}”",
         "note_deleted": "{count, plural, =1 {Đã xóa một ghi chú khỏi bộ nhớ AI của {target}: “{from}”} other {Đã xóa # ghi chú khỏi bộ nhớ AI của {target}}}"
+      },
+      "account": {
+        "phone_signed_in": "Đã dùng mã QR để đăng nhập trên thiết bị khác"
       }
     },
     "decisions": {

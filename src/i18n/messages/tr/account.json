@@ -171,7 +171,9 @@
     "samePassword": "Eskisinden farklı bir parola seçin.",
     "resetStepExpired": "Bu adımın süresi doldu. Eski parolanızla yeniden giriş yapın.",
     "storageStuck": "Şu çalışma alanlarının dosyaları sizin depolamanızda ve taşınabilecekleri bir yer yok: {workspaces}. Sahiplerinden depolama kurmalarını isteyin ya da önce dosyaları taşıyın.",
-    "legalHold": "{workspaces} içindeki yasal saklama hesabınızı koruyor. Önce oradaki bir sahipten saklamayı kaldırmasını isteyin."
+    "legalHold": "{workspaces} içindeki yasal saklama hesabınızı koruyor. Önce oradaki bir sahipten saklamayı kaldırmasını isteyin.",
+    "phoneSignInSso": "{workspaces} çoklu oturum açma ile giriş yapmanızı istiyor, bu yüzden QR kodu telefonunuzda giriş yapamaz.",
+    "phoneSignInTwoFactor": "{workspaces} iki adımlı doğrulama istiyor. Önce hesabınız için açın."
   },
   "mail": {
     "description": "Posta kutularınız ve takvim adresleriniz, bulunduğunuz tüm çalışma alanlarında.",
@@ -252,5 +254,31 @@
     "unlinkConfirm": "Telegram bağlantısını kaldır",
     "unlinking": "Bağlantı kaldırılıyor…",
     "unreachable": "Sunucu şu an Telegram’a ulaşamıyor. Daha sonra yeniden deneyin."
+  },
+  "phoneSignIn": {
+    "heading": "Diğer cihazlar",
+    "title": "Telefonunuzda giriş yapın",
+    "description": "Bir QR kodu gösterin ve telefonunuzun kamerasıyla tarayarak şifrenizi yazmadan orada giriş yapın. Her kod bir kez, iki dakika boyunca çalışır.",
+    "show": "QR kodunu göster",
+    "blockedSso": "{workspaces} çoklu oturum açma ile giriş yapmanızı istiyor, bu yüzden QR kodu telefonunuzda giriş yapamaz. Telefonunuzda bunun yerine çoklu oturum açma ile giriş yapın.",
+    "blockedTwoFactor": "{workspaces} iki adımlı doğrulama istiyor. Yukarıdan hesabınız için açın; telefonunuz taramadan sonra bir kod ister.",
+    "dialogTitle": "Telefonunuzda giriş yapın",
+    "confirmBody": "Önce siz olduğunuzu doğrulayın. Kodu tarayan herkes hesabınıza girer; kodu yalnızca kendi telefonunuza gösterin.",
+    "showCode": "Kodu göster",
+    "scan": "Telefonunuzun kamerasını koda tutun, bulduğu bağlantıyı açın ve onaylayın.",
+    "codeLabel": "Bir telefonu hesabınızda oturum açtıran QR kodu",
+    "validFor": "Bir kez çalışır, {seconds} saniye daha.",
+    "expired": "Bu kodun süresi doldu.",
+    "expiredNote": "Yeniden denemek için yeni bir kod gösterin.",
+    "newCode": "Yeni kod",
+    "metaTitle": "Bu cihazda giriş yapın",
+    "invalidTitle": "Bu kod çalışmıyor",
+    "invalidBody": "Süresi dolmuş ya da daha önce kullanılmış. Hesap sayfanızda yeni bir kod gösterip tekrar tarayın.",
+    "phoneTitle": "Bu cihazda giriş yapılsın mı?",
+    "phoneBody": "Bu cihaz Leafdesk'e {name} ({email}) olarak giriş yapacak.",
+    "phoneConfirm": "Giriş yap",
+    "phoneWarning": "Yalnızca bu kodu az önce kendi ekranınızda taradıysanız devam edin.",
+    "refusedSso": "Üyesi olduğunuz bir çalışma alanı çoklu oturum açma istiyor. Bu cihazda bunun yerine çoklu oturum açma ile giriş yapın.",
+    "refusedTwoFactor": "Üyesi olduğunuz bir çalışma alanı iki adımlı doğrulama istiyor. Önce hesabınız için açın, sonra yeni bir kod gösterin."
   }
 }

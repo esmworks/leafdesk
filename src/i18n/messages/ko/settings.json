@@ -99,7 +99,8 @@
       "domainPeople": "도메인 계정 사용자 회사 이메일 관리되지 않는",
       "openOnStart": "시작 실행 첫 페이지 마지막 방문 최근",
       "pageReports": "신고 악용 불만 게시 중단 게시된 공개 웹 페이지",
-      "dashboardEmails": "구독 보고서 일정 매주 요약 이메일 대시보드"
+      "dashboardEmails": "구독 보고서 일정 매주 요약 이메일 대시보드",
+      "phoneSignIn": "qr 코드 휴대폰 모바일 스캔 기기 로그인"
     }
   },
   "workspace": {
@@ -2185,6 +2186,9 @@
         "note_added": "{target}의 AI 메모리에 메모를 추가했습니다: “{to}”",
         "note_changed": "{target}의 AI 메모리에서 메모를 변경했습니다: “{from}” → “{to}”",
         "note_deleted": "{count, plural, =1 {{target}의 AI 메모리에서 메모를 삭제했습니다: “{from}”} other {{target}의 AI 메모리에서 메모 #개를 삭제했습니다}}"
+      },
+      "account": {
+        "phone_signed_in": "QR 코드로 다른 기기에서 로그인함"
       }
     },
     "decisions": {

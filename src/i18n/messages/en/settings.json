@@ -99,7 +99,8 @@
       "domainPeople": "domain accounts users company email shadow unmanaged",
       "openOnStart": "startup launch first page last visited recent",
       "pageReports": "report abuse flag complaint takedown published public web pages",
-      "dashboardEmails": "subscription report schedule weekly summary"
+      "dashboardEmails": "subscription report schedule weekly summary",
+      "phoneSignIn": "qr code phone mobile scan device sign in"
     }
   },
   "workspace": {
@@ -2185,6 +2186,9 @@
         "note_added": "Added a note to the AI memory of {target}: “{to}”",
         "note_changed": "Changed a note in the AI memory of {target}: “{from}” → “{to}”",
         "note_deleted": "{count, plural, one {Deleted a note from the AI memory of {target}: “{from}”} other {Deleted # notes from the AI memory of {target}}}"
+      },
+      "account": {
+        "phone_signed_in": "Signed in on another device with a QR code"
       }
     },
     "decisions": {

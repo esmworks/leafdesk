@@ -154,3 +154,21 @@ export const pageReport = pgTable(
     check("page_report_status_check", sql`${t.status} in ('open', 'dismissed', 'unpublished')`),
   ],
 );
+
+/**
+ * Links that sign a phone in as the person who showed them (server/phone-sign-in.ts): the account
+ * page draws one as a QR code, valid for PHONE_SIGN_IN_SECONDS. Only the token's SHA-256 is kept,
+ * and the row goes as the link is used, so it signs in once.
+ */
+export const phoneSignIn = pgTable(
+  "phone_sign_in",
+  {
+    tokenHash: text("token_hash").primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("phone_sign_in_user_idx").on(t.userId)],
+);

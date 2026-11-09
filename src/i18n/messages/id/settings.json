@@ -99,7 +99,8 @@
       "domainPeople": "domain akun pengguna perusahaan email tidak dikelola",
       "openOnStart": "mulai buka halaman pertama terakhir dikunjungi terbaru",
       "pageReports": "laporkan laporan penyalahgunaan keluhan turunkan diterbitkan publik web halaman",
-      "dashboardEmails": "langganan laporan jadwal mingguan ringkasan email dasbor"
+      "dashboardEmails": "langganan laporan jadwal mingguan ringkasan email dasbor",
+      "phoneSignIn": "kode qr ponsel hp seluler pindai perangkat masuk"
     }
   },
   "workspace": {
@@ -2185,6 +2186,9 @@
         "note_added": "Menambahkan catatan ke memori AI {target}: “{to}”",
         "note_changed": "Mengubah catatan di memori AI {target}: “{from}” → “{to}”",
         "note_deleted": "{count, plural, =1 {Menghapus catatan dari memori AI {target}: “{from}”} other {Menghapus # catatan dari memori AI {target}}}"
+      },
+      "account": {
+        "phone_signed_in": "Memakai kode QR untuk masuk di perangkat lain"
       }
     },
     "decisions": {

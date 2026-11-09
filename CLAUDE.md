@@ -64,7 +64,10 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   helper that skips them (`pageAccessOf`, `findMembership`, `rowMailAccess`) asks `sessionHeldBack`
   too; row email has `requestRowMailAccess`. Every session Better Auth deletes closes its collab
   connections (`session.delete.after` in `lib/auth.ts`); one deleted with raw SQL needs
-  `disconnectEndedSessions`.
+  `disconnectEndedSessions`. A new way to create sessions goes through Better Auth's
+  `internalAdapter.createSession` inside an auth endpoint, as `server/phone-sign-in.ts` (QR codes
+  signing phones in) does: its path goes into `AUTH_METHOD_BY_PATH` and the two-factor challenge's
+  matcher in `lib/auth-security.ts`, and its session never copies another's `ssoProviderId`.
 - **Page content.** The Yjs document is the source of truth. Writes from the server go through
   `getCollab()` (`src/server/collab/bridge.ts`: `replaceContent`, `editBlocks`, `setTitle` …), which
   only exists when the app runs through `server.ts`. A block whose data is all in its props, written

@@ -99,7 +99,8 @@
       "domainPeople": "דומיין חשבונות משתמשים חברה אימייל לא מנוהלים shadow it",
       "openOnStart": "הפעלה פתיחה דף ראשון ביקור אחרון אחרונים",
       "pageReports": "דיווח תלונה שימוש לרעה הסרה פורסם ציבורי רשת דפים",
-      "dashboardEmails": "מנוי דוח לוח זמנים שבועי סיכום דוא״ל ניוזלטר"
+      "dashboardEmails": "מנוי דוח לוח זמנים שבועי סיכום דוא״ל ניוזלטר",
+      "phoneSignIn": "קוד qr טלפון נייד סריקה מכשיר כניסה"
     }
   },
   "workspace": {
@@ -2185,6 +2186,9 @@
         "note_added": "הוספת הערה לזיכרון ה־AI של {target}: “{to}”",
         "note_changed": "שינוי הערה בזיכרון ה־AI של {target}: “{from}” → “{to}”",
         "note_deleted": "{count, plural, one {מחיקת הערה מזיכרון ה־AI של {target}: “{from}”} other {מחיקת # הערות מזיכרון ה־AI של {target}}}"
+      },
+      "account": {
+        "phone_signed_in": "השתמש בקוד QR כדי להיכנס במכשיר אחר"
       }
     },
     "decisions": {

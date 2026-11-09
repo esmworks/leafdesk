@@ -99,7 +99,8 @@
       "domainPeople": "domena konta użytkownicy firma e-mail shadow niezarządzane",
       "openOnStart": "start uruchomienie pierwsza strona ostatnio odwiedzona",
       "pageReports": "zgłoś zgłoszenie nadużycie skarga usunięcie opublikowana publiczna sieć strony",
-      "dashboardEmails": "subskrypcja raport harmonogram cotygodniowe podsumowanie e-mail"
+      "dashboardEmails": "subskrypcja raport harmonogram cotygodniowe podsumowanie e-mail",
+      "phoneSignIn": "kod qr telefon komórka skanuj urządzenie zaloguj"
     }
   },
   "workspace": {
@@ -2185,6 +2186,9 @@
         "note_added": "Dodano notatkę do pamięci AI {target}: „{to}”",
         "note_changed": "Zmieniono notatkę w pamięci AI {target}: „{from}” → „{to}”",
         "note_deleted": "{count, plural, one {Usunięto notatkę z pamięci AI {target}: „{from}”} few {Usunięto # notatki z pamięci AI {target}} many {Usunięto # notatek z pamięci AI {target}} other {Usunięto # notatki z pamięci AI {target}}}"
+      },
+      "account": {
+        "phone_signed_in": "Użył kodu QR, aby zalogować się na innym urządzeniu"
       }
     },
     "decisions": {

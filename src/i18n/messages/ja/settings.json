@@ -99,7 +99,8 @@
       "domainPeople": "ドメイン アカウント ユーザー 会社 メール シャドー 管理外",
       "openOnStart": "起動 スタート 最初のページ 最後に開いた 最近",
       "pageReports": "報告 通報 不正利用 苦情 取り下げ 公開 ウェブ ページ",
-      "dashboardEmails": "購読 レポート スケジュール 毎週 サマリー メール ダッシュボード"
+      "dashboardEmails": "購読 レポート スケジュール 毎週 サマリー メール ダッシュボード",
+      "phoneSignIn": "qr コード スマートフォン 携帯 読み取り デバイス サインイン"
     }
   },
   "workspace": {
@@ -2185,6 +2186,9 @@
         "note_added": "{target}のAIメモリーにメモを追加しました：「{to}」",
         "note_changed": "{target}のAIメモリーのメモを変更しました：「{from}」→「{to}」",
         "note_deleted": "{count, plural, =1 {{target}のAIメモリーからメモを削除しました：「{from}」} other {{target}のAIメモリーから#件のメモを削除しました}}"
+      },
+      "account": {
+        "phone_signed_in": "QR コードを使って別のデバイスでサインインしました"
       }
     },
     "decisions": {

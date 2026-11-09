@@ -171,7 +171,9 @@
     "samePassword": "Pilih kata sandi yang berbeda dari yang lama.",
     "resetStepExpired": "Langkah ini sudah kedaluwarsa. Masuk lagi dengan kata sandi lama Anda.",
     "storageStuck": "Berkas {workspaces} berada di penyimpanan Anda dan tidak punya tujuan pemindahan. Minta pemiliknya mengatur penyimpanan, atau pindahkan berkasnya terlebih dahulu.",
-    "legalHold": "Penahanan hukum di {workspaces} menahan akun Anda. Minta pemilik di sana untuk melepasnya terlebih dahulu."
+    "legalHold": "Penahanan hukum di {workspaces} menahan akun Anda. Minta pemilik di sana untuk melepasnya terlebih dahulu.",
+    "phoneSignInSso": "{workspaces} meminta Anda masuk dengan single sign-on, jadi kode QR tidak dapat memasukkan ponsel Anda.",
+    "phoneSignInTwoFactor": "{workspaces} mewajibkan verifikasi dua langkah. Aktifkan dulu untuk akun Anda."
   },
   "mail": {
     "description": "Kotak surat dan alamat kalender Anda, di setiap ruang kerja yang Anda ikuti.",
@@ -252,5 +254,31 @@
     "unlinkConfirm": "Putuskan tautan Telegram",
     "unlinking": "Memutuskan tautan…",
     "unreachable": "Server tidak dapat menjangkau Telegram saat ini. Coba lagi nanti."
+  },
+  "phoneSignIn": {
+    "heading": "Perangkat lain",
+    "title": "Masuk di ponsel Anda",
+    "description": "Tampilkan kode QR dan pindai dengan kamera ponsel untuk masuk di sana tanpa mengetik kata sandi. Setiap kode berlaku sekali, selama dua menit.",
+    "show": "Tampilkan kode QR",
+    "blockedSso": "{workspaces} meminta Anda masuk dengan single sign-on, jadi kode QR tidak dapat memasukkan ponsel Anda. Masuklah di ponsel dengan single sign-on.",
+    "blockedTwoFactor": "{workspaces} mewajibkan verifikasi dua langkah. Aktifkan untuk akun Anda di atas; ponsel lalu meminta kode setelah memindai.",
+    "dialogTitle": "Masuk di ponsel Anda",
+    "confirmBody": "Konfirmasikan dulu bahwa ini Anda. Siapa pun yang memindai kode akan masuk ke akun Anda, jadi tunjukkan hanya ke ponsel Anda sendiri.",
+    "showCode": "Tampilkan kode",
+    "scan": "Arahkan kamera ponsel ke kode, buka tautan yang ditemukan, lalu konfirmasi.",
+    "codeLabel": "Kode QR yang memasukkan ponsel ke akun Anda",
+    "validFor": "Berlaku sekali, {seconds} detik lagi.",
+    "expired": "Kode ini sudah kedaluwarsa.",
+    "expiredNote": "Tampilkan kode baru untuk mencoba lagi.",
+    "newCode": "Kode baru",
+    "metaTitle": "Masuk di perangkat ini",
+    "invalidTitle": "Kode ini tidak berfungsi",
+    "invalidBody": "Kode sudah kedaluwarsa atau sudah dipakai. Tampilkan kode baru di halaman akun Anda dan pindai lagi.",
+    "phoneTitle": "Masuk di perangkat ini?",
+    "phoneBody": "Perangkat ini akan masuk ke Leafdesk sebagai {name} ({email}).",
+    "phoneConfirm": "Masuk",
+    "phoneWarning": "Lanjutkan hanya jika Anda baru saja memindai kode ini di layar Anda sendiri.",
+    "refusedSso": "Ruang kerja yang Anda ikuti mewajibkan single sign-on. Masuklah di perangkat ini dengan single sign-on.",
+    "refusedTwoFactor": "Ruang kerja yang Anda ikuti mewajibkan verifikasi dua langkah. Aktifkan dulu untuk akun Anda, lalu tampilkan kode baru."
   }
 }

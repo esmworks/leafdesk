@@ -99,7 +99,8 @@
       "domainPeople": "verkkotunnus tilit käyttäjät yritys sähköposti varjo hallitsemattomat",
       "openOnStart": "käynnistys aloitus ensimmäinen sivu viimeksi avattu viimeisin",
       "pageReports": "ilmoita ilmoitus väärinkäyttö valitus poisto julkaistu julkinen verkko sivut",
-      "dashboardEmails": "tilaus raportti aikataulu viikoittain yhteenveto sähköposti"
+      "dashboardEmails": "tilaus raportti aikataulu viikoittain yhteenveto sähköposti",
+      "phoneSignIn": "qr koodi puhelin mobiili skannaa laite kirjaudu"
     }
   },
   "workspace": {
@@ -2185,6 +2186,9 @@
         "note_added": "Lisäsi muistiinpanon kohteen {target} tekoälymuistiin: ”{to}”",
         "note_changed": "Muutti muistiinpanoa kohteen {target} tekoälymuistissa: ”{from}” → ”{to}”",
         "note_deleted": "{count, plural, one {Poisti muistiinpanon kohteen {target} tekoälymuistista: ”{from}”} other {Poisti # muistiinpanoa kohteen {target} tekoälymuistista}}"
+      },
+      "account": {
+        "phone_signed_in": "Kirjautui toisella laitteella QR-koodilla"
       }
     },
     "decisions": {

@@ -99,7 +99,8 @@
       "domainPeople": "domaine comptes utilisateurs entreprise e-mail shadow it non gérés",
       "openOnStart": "démarrage lancement première page dernière visitée récente",
       "pageReports": "signaler signalement abus plainte retrait publié public web pages",
-      "dashboardEmails": "abonnement rapport calendrier hebdomadaire résumé e-mail planification"
+      "dashboardEmails": "abonnement rapport calendrier hebdomadaire résumé e-mail planification",
+      "phoneSignIn": "code qr téléphone mobile scanner appareil connexion"
     }
   },
   "workspace": {
@@ -2185,6 +2186,9 @@
         "note_added": "A ajouté une note à la mémoire IA de {target} : « {to} »",
         "note_changed": "A modifié une note de la mémoire IA de {target} : « {from} » → « {to} »",
         "note_deleted": "{count, plural, one {A supprimé une note de la mémoire IA de {target} : « {from} »} other {A supprimé # notes de la mémoire IA de {target}}}"
+      },
+      "account": {
+        "phone_signed_in": "A utilisé un code QR pour se connecter sur un autre appareil"
       }
     },
     "decisions": {

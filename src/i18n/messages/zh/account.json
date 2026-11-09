@@ -171,7 +171,9 @@
     "samePassword": "请选择与旧密码不同的密码。",
     "resetStepExpired": "此步骤已过期。请重新使用旧密码登录。",
     "storageStuck": "{workspaces} 的文件存放在你的存储中，没有可以移动的去处。请让其所有者设置存储，或先移动这些文件。",
-    "legalHold": "{workspaces} 中的法律保留保留着你的账户。请先请那里的所有者解除。"
+    "legalHold": "{workspaces} 中的法律保留保留着你的账户。请先请那里的所有者解除。",
+    "phoneSignInSso": "{workspaces} 要求通过单点登录登录，因此二维码无法让你的手机登录。",
+    "phoneSignInTwoFactor": "{workspaces} 要求两步验证。请先为你的账户开启。"
   },
   "mail": {
     "description": "你所在的所有工作区中的邮箱和日历地址。",
@@ -252,5 +254,31 @@
     "unlinkConfirm": "取消关联 Telegram",
     "unlinking": "正在取消关联…",
     "unreachable": "服务器暂时无法连接 Telegram。请稍后再试。"
+  },
+  "phoneSignIn": {
+    "heading": "其他设备",
+    "title": "在手机上登录",
+    "description": "显示二维码，用手机相机扫描后即可在手机上登录，无需输入密码。每个二维码只能使用一次，有效期两分钟。",
+    "show": "显示二维码",
+    "blockedSso": "{workspaces} 要求通过单点登录登录，因此二维码无法让你的手机登录。请在手机上改用单点登录。",
+    "blockedTwoFactor": "{workspaces} 要求两步验证。请先在上方为你的账户开启；扫描后手机会要求输入验证码。",
+    "dialogTitle": "在手机上登录",
+    "confirmBody": "请先确认是你本人。任何扫描二维码的人都能进入你的账户，因此只给你自己的手机看。",
+    "showCode": "显示二维码",
+    "scan": "将手机相机对准二维码，打开识别出的链接并确认。",
+    "codeLabel": "让手机登录你账户的二维码",
+    "validFor": "只能使用一次，还剩 {seconds} 秒。",
+    "expired": "此二维码已过期。",
+    "expiredNote": "请显示新的二维码再试一次。",
+    "newCode": "新二维码",
+    "metaTitle": "在此设备上登录",
+    "invalidTitle": "此二维码无效",
+    "invalidBody": "它已过期或已被使用。请在账户页面显示新的二维码并重新扫描。",
+    "phoneTitle": "在此设备上登录？",
+    "phoneBody": "此设备将以 {name}（{email}）的身份登录 Leafdesk。",
+    "phoneConfirm": "登录",
+    "phoneWarning": "只有在你刚刚扫描了自己屏幕上的二维码时才继续。",
+    "refusedSso": "你所在的一个工作区要求单点登录。请在此设备上改用单点登录。",
+    "refusedTwoFactor": "你所在的一个工作区要求两步验证。请先为你的账户开启，然后显示新的二维码。"
   }
 }

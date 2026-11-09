@@ -99,7 +99,8 @@
       "domainPeople": "domæne konti brugere firma e-mail skygge-it ikke-administreret",
       "openOnStart": "start opstart første side sidst besøgt seneste",
       "pageReports": "anmeld anmeldelse misbrug klage fjern publiceret offentlig web sider",
-      "dashboardEmails": "abonnement rapport tidsplan ugentlig oversigt e-mail dashboard"
+      "dashboardEmails": "abonnement rapport tidsplan ugentlig oversigt e-mail dashboard",
+      "phoneSignIn": "qr kode telefon mobil scan enhed log ind"
     }
   },
   "workspace": {
@@ -2185,6 +2186,9 @@
         "note_added": "Tilføjede en note til AI-hukommelsen for {target}: “{to}”",
         "note_changed": "Ændrede en note i AI-hukommelsen for {target}: “{from}” → “{to}”",
         "note_deleted": "{count, plural, one {Slettede en note fra AI-hukommelsen for {target}: “{from}”} other {Slettede # noter fra AI-hukommelsen for {target}}}"
+      },
+      "account": {
+        "phone_signed_in": "Brugte en QR-kode til at logge ind på en anden enhed"
       }
     },
     "decisions": {

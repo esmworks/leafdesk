@@ -171,7 +171,9 @@
     "samePassword": "Hãy chọn mật khẩu khác với mật khẩu cũ.",
     "resetStepExpired": "Bước này đã hết hạn. Hãy đăng nhập lại bằng mật khẩu cũ.",
     "storageStuck": "Tệp của {workspaces} đang nằm trong kho lưu trữ của bạn và không có nơi nào để chuyển đi. Hãy nhờ các chủ sở hữu thiết lập kho lưu trữ, hoặc chuyển các tệp trước.",
-    "legalHold": "Một lệnh lưu giữ pháp lý trong {workspaces} đang giữ tài khoản của bạn. Hãy nhờ chủ sở hữu ở đó gỡ bỏ lệnh trước."
+    "legalHold": "Một lệnh lưu giữ pháp lý trong {workspaces} đang giữ tài khoản của bạn. Hãy nhờ chủ sở hữu ở đó gỡ bỏ lệnh trước.",
+    "phoneSignInSso": "{workspaces} yêu cầu đăng nhập một lần (SSO), nên mã QR không thể đăng nhập điện thoại của bạn.",
+    "phoneSignInTwoFactor": "{workspaces} yêu cầu xác minh hai bước. Hãy bật nó cho tài khoản trước."
   },
   "mail": {
     "description": "Các hộp thư và địa chỉ lịch của bạn, trong mọi không gian làm việc bạn tham gia.",
@@ -252,5 +254,31 @@
     "unlinkConfirm": "Hủy liên kết Telegram",
     "unlinking": "Đang hủy liên kết…",
     "unreachable": "Máy chủ hiện không kết nối được với Telegram. Hãy thử lại sau."
+  },
+  "phoneSignIn": {
+    "heading": "Thiết bị khác",
+    "title": "Đăng nhập trên điện thoại",
+    "description": "Hiển thị mã QR và quét bằng camera điện thoại để đăng nhập ở đó mà không cần gõ mật khẩu. Mỗi mã chỉ dùng được một lần, trong hai phút.",
+    "show": "Hiện mã QR",
+    "blockedSso": "{workspaces} yêu cầu đăng nhập một lần (SSO), nên mã QR không thể đăng nhập điện thoại của bạn. Hãy đăng nhập trên điện thoại bằng SSO.",
+    "blockedTwoFactor": "{workspaces} yêu cầu xác minh hai bước. Hãy bật nó cho tài khoản ở phía trên; sau khi quét, điện thoại sẽ hỏi mã.",
+    "dialogTitle": "Đăng nhập trên điện thoại",
+    "confirmBody": "Hãy xác nhận bạn là chính chủ trước. Ai quét mã cũng vào được tài khoản của bạn, nên chỉ đưa mã cho điện thoại của chính bạn.",
+    "showCode": "Hiện mã",
+    "scan": "Hướng camera điện thoại vào mã, mở liên kết tìm được rồi xác nhận.",
+    "codeLabel": "Mã QR đăng nhập điện thoại vào tài khoản của bạn",
+    "validFor": "Dùng được một lần, còn {seconds} giây.",
+    "expired": "Mã này đã hết hạn.",
+    "expiredNote": "Hiện mã mới để thử lại.",
+    "newCode": "Mã mới",
+    "metaTitle": "Đăng nhập trên thiết bị này",
+    "invalidTitle": "Mã này không dùng được",
+    "invalidBody": "Mã đã hết hạn hoặc đã được dùng. Hãy hiện mã mới trên trang tài khoản và quét lại.",
+    "phoneTitle": "Đăng nhập trên thiết bị này?",
+    "phoneBody": "Thiết bị này sẽ đăng nhập Leafdesk với tư cách {name} ({email}).",
+    "phoneConfirm": "Đăng nhập",
+    "phoneWarning": "Chỉ tiếp tục nếu bạn vừa quét mã này trên màn hình của chính mình.",
+    "refusedSso": "Một không gian làm việc bạn tham gia yêu cầu đăng nhập một lần. Hãy đăng nhập trên thiết bị này bằng SSO.",
+    "refusedTwoFactor": "Một không gian làm việc bạn tham gia yêu cầu xác minh hai bước. Hãy bật nó cho tài khoản trước, rồi hiện mã mới."
   }
 }

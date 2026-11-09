@@ -171,7 +171,9 @@
     "samePassword": "Vælg en anden adgangskode end den gamle.",
     "resetStepExpired": "Dette trin er udløbet. Log ind med din gamle adgangskode igen.",
     "storageStuck": "Filerne i {workspaces} ligger i din lagring og har ikke noget sted at flytte hen. Bed ejerne om at sætte lagring op, eller flyt filerne først.",
-    "legalHold": "En juridisk tilbageholdelse i {workspaces} bevarer din konto. Bed først en ejer dér om at ophæve den."
+    "legalHold": "En juridisk tilbageholdelse i {workspaces} bevarer din konto. Bed først en ejer dér om at ophæve den.",
+    "phoneSignInSso": "{workspaces} beder dig logge ind med single sign-on, så en QR-kode kan ikke logge din telefon ind.",
+    "phoneSignInTwoFactor": "{workspaces} kræver totrinsbekræftelse. Slå det først til for din konto."
   },
   "mail": {
     "description": "Dine postkasser og kalenderadresser i alle de arbejdsområder, du er med i.",
@@ -252,5 +254,31 @@
     "unlinkConfirm": "Afbryd forbindelsen til Telegram",
     "unlinking": "Afbryder forbindelse…",
     "unreachable": "Serveren kan ikke nå Telegram lige nu. Prøv igen senere."
+  },
+  "phoneSignIn": {
+    "heading": "Andre enheder",
+    "title": "Log ind på din telefon",
+    "description": "Vis en QR-kode, og scan den med din telefons kamera for at logge ind der uden at skrive din adgangskode. Hver kode virker én gang i to minutter.",
+    "show": "Vis QR-kode",
+    "blockedSso": "{workspaces} beder dig logge ind med single sign-on, så en QR-kode kan ikke logge din telefon ind. Log i stedet ind på telefonen med single sign-on.",
+    "blockedTwoFactor": "{workspaces} kræver totrinsbekræftelse. Slå det til for din konto ovenfor; din telefon beder så om en kode efter scanningen.",
+    "dialogTitle": "Log ind på din telefon",
+    "confirmBody": "Bekræft først, at det er dig. Den, der scanner koden, kommer ind på din konto, så vis den kun til din egen telefon.",
+    "showCode": "Vis kode",
+    "scan": "Ret din telefons kamera mod koden, åbn det link, den finder, og bekræft.",
+    "codeLabel": "QR-kode, der logger en telefon ind på din konto",
+    "validFor": "Virker én gang i {seconds, plural, one {# sekund mere} other {# sekunder mere}}.",
+    "expired": "Denne kode er udløbet.",
+    "expiredNote": "Vis en ny kode for at prøve igen.",
+    "newCode": "Ny kode",
+    "metaTitle": "Log ind på denne enhed",
+    "invalidTitle": "Denne kode virker ikke",
+    "invalidBody": "Den er udløbet eller allerede brugt. Vis en ny kode på din kontoside, og scan den igen.",
+    "phoneTitle": "Log ind på denne enhed?",
+    "phoneBody": "Denne enhed logges ind i Leafdesk som {name} ({email}).",
+    "phoneConfirm": "Log ind",
+    "phoneWarning": "Fortsæt kun, hvis du lige har scannet denne kode på din egen skærm.",
+    "refusedSso": "Et arbejdsområde, du er med i, kræver single sign-on. Log i stedet ind på denne enhed med single sign-on.",
+    "refusedTwoFactor": "Et arbejdsområde, du er med i, kræver totrinsbekræftelse. Slå det først til for din konto, og vis så en ny kode."
   }
 }
