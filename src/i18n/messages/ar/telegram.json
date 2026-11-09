@@ -87,6 +87,8 @@
     "source": "الصفوف من {name}.",
     "remember": "هل أتذكر هذا عنك؟",
     "remind": "أذكّرك بهذا؟",
+    "cancelReminder": "أألغي هذا التذكير؟",
+    "moveReminder": "أأنقل هذا التذكير؟",
     "forget": "نسيان هذه الملاحظة؟",
     "connection": "إرسال هذا إلى {connection} ({tool})؟",
     "tool": "هل تريد إجراء هذا التغيير ({tool})؟",

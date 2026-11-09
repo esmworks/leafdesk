@@ -340,7 +340,16 @@
       },
       "reminder": {
         "done": "Påminnelse inställd på {when}:",
-        "declined": "Avböjde en påminnelse på {when}:"
+        "declined": "Avböjde en påminnelse på {when}:",
+        "listed": "Tittade på dina påminnelser · {count, plural, =0 {inga väntar} one {# väntar} other {# väntar}}",
+        "cancel": {
+          "done": "Påminnelsen till {when} är inställd:",
+          "declined": "Avböjde att ställa in påminnelsen till {when}:"
+        },
+        "move": {
+          "done": "Påminnelsen flyttad till {when}:",
+          "declined": "Avböjde att flytta påminnelsen till {when}:"
+        }
       },
       "mail": {
         "searched": "Sökte i mejlen efter ”{query}” · {count, plural, =0 {inget hittades} one {# konversation} other {# konversationer}}",
@@ -385,6 +394,8 @@
         "remember": "Komma ihåg det här om dig?",
         "forget": "Glömma den här anteckningen?",
         "remind": "Påminna dig om det här?",
+        "cancelReminder": "Ställa in den här påminnelsen?",
+        "moveReminder": "Flytta den här påminnelsen?",
         "editPage": "Ändra den här sidans text?",
         "createPdf": "Skapa en PDF av den här sidan och bifoga den?",
         "createDocx": "Skapa ett Word-dokument av den här sidan och bifoga det?",
@@ -403,6 +414,8 @@
       "topLevel": "Högst upp i arbetsytan, privat för dig",
       "memoryHint": "Minne: skickas med dina senare frågor i den här arbetsytan",
       "remindHint": "{when}: över sidan du har öppen, i inkorgen och på din telefon",
+      "cancelReminderHint": "{when}: den kommer inte",
+      "moveReminderHint": "{was} → {when}",
       "cleared": "(rensat)",
       "approve": "Ja",
       "always": "Ja, och fråga inte igen (Auto)",

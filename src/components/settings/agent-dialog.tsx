@@ -55,7 +55,7 @@ import { AgentGuardrailFields, dailyLimitOf, quietHoursDraft, quietHoursOf } fro
 import { AskedByLine, HandoffStepLine, type OpenAgentRun } from "./agent-handoff-step";
 import { AgentHelpersField } from "./agent-helpers-field";
 import { PagePicker, useShareablePages } from "./agent-page-picker";
-import { REMIND_TOOL_NAME } from "@/lib/ai-reminders";
+import { CHANGE_REMINDER_TOOL_NAME, LIST_REMINDERS_TOOL_NAME, REMIND_TOOL_NAME } from "@/lib/ai-reminders";
 
 /** The section of an agent's settings page a tab of it opens (lib/agent-settings.ts). */
 export type { AgentTab } from "@/lib/agent-settings";
@@ -865,6 +865,14 @@ export function AgentStepLine({
   if (step.kind === "tool" && said > 0) {
     const reminder = { kind: "reminder", when: step.input.slice(0, said), text: step.input.slice(said + 3), outcome: "done" } as const;
     return <StepLine step={reminder} onSource={noSource} />;
+  }
+  // Its reminders listed (input: how many), or one cancelled or moved ("<action> <when> · <text>").
+  if (step.kind === "tool" && step.connectionId === null && step.outcome === "done" && step.tool === LIST_REMINDERS_TOOL_NAME) {
+    return <StepLine step={{ kind: "reminder", action: "list", results: Number(step.input) || 0, others: false }} onSource={noSource} />;
+  }
+  const changed = step.kind === "tool" && step.connectionId === null && step.outcome === "done" && step.tool === CHANGE_REMINDER_TOOL_NAME ? /^(cancel|move) (.+?) · (.*)$/s.exec(step.input) : null;
+  if (changed) {
+    return <StepLine step={{ kind: "reminder", action: changed[1] as "cancel" | "move", when: changed[2], text: changed[3], outcome: "done" }} onSource={noSource} />;
   }
   if (step.kind === "tool" && step.connectionId === null && (isComputerTool(step.tool) || step.tool === COMPUTER_EARLIER)) return <ComputerStepLine step={step} />;
   if (step.kind === "tool") {

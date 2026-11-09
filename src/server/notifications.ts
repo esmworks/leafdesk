@@ -1604,14 +1604,45 @@ export async function listPending(userId: string, workspaceId: string): Promise<
 }
 
 /**
+ * Which of the user's reminders a cancel or move may touch: an AI reminder still to come, in
+ * `workspaceId` and set by `actorId` when given (the AI chat holds to its workspace, an agent's
+ * run to the reminders that agent set).
+ */
+type ReminderHold = { now?: Date; workspaceId?: string; actorId?: string };
+
+function pendingReminder(userId: string, notificationId: string, { now = new Date(), workspaceId, actorId }: ReminderHold) {
+  return and(
+    eq(notification.id, notificationId),
+    eq(notification.userId, userId),
+    eq(notification.kind, "ai_reminder"),
+    gt(notification.snoozedUntil, now),
+    workspaceId ? eq(notification.workspaceId, workspaceId) : undefined,
+    actorId ? eq(notification.actorId, actorId) : undefined,
+  );
+}
+
+/**
  * Cancels one of the user's AI reminders that hasn't come yet: it is deleted, so it never comes
  * and no longer counts toward MAX_WAITING_REMINDERS. False when there is no such reminder (it came
- * meanwhile, or isn't theirs).
+ * meanwhile, or isn't theirs, or isn't held to as `hold` says).
  */
-export async function cancelReminder(userId: string, notificationId: string, now = new Date()) {
+export async function cancelReminder(userId: string, notificationId: string, hold: ReminderHold = {}) {
+  const [row] = await db.delete(notification).where(pendingReminder(userId, notificationId, hold)).returning({ workspaceId: notification.workspaceId });
+  if (!row) return false;
+  signal(row.workspaceId);
+  return true;
+}
+
+/**
+ * Moves one of the user's AI reminders that hasn't come yet to `until` (checked by the caller:
+ * lib/ai-reminders.ts reminderTime). Unlike snoozeNotification, it touches nothing but a reminder
+ * still to come. False when there is no such reminder.
+ */
+export async function moveReminder(userId: string, notificationId: string, until: Date, hold: ReminderHold = {}) {
   const [row] = await db
-    .delete(notification)
-    .where(and(eq(notification.id, notificationId), eq(notification.userId, userId), eq(notification.kind, "ai_reminder"), gt(notification.snoozedUntil, now)))
+    .update(notification)
+    .set({ snoozedUntil: until })
+    .where(pendingReminder(userId, notificationId, hold))
     .returning({ workspaceId: notification.workspaceId });
   if (!row) return false;
   signal(row.workspaceId);

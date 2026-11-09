@@ -340,7 +340,16 @@
       },
       "reminder": {
         "done": "Đã đặt lời nhắc lúc {when}:",
-        "declined": "Đã từ chối lời nhắc lúc {when}:"
+        "declined": "Đã từ chối lời nhắc lúc {when}:",
+        "listed": "Đã xem lời nhắc của bạn · {count, plural, =0 {không có lời nhắc nào đang chờ} other {# đang chờ}}",
+        "cancel": {
+          "done": "Đã hủy lời nhắc lúc {when}:",
+          "declined": "Đã từ chối hủy lời nhắc lúc {when}:"
+        },
+        "move": {
+          "done": "Đã dời lời nhắc sang {when}:",
+          "declined": "Đã từ chối dời lời nhắc sang {when}:"
+        }
       },
       "mail": {
         "searched": "Đã tìm trong thư “{query}” · {count, plural, =0 {không tìm thấy gì} other {# chuỗi thư}}",
@@ -385,6 +394,8 @@
         "remember": "Ghi nhớ điều này về bạn?",
         "forget": "Quên ghi chú này?",
         "remind": "Nhắc bạn điều này?",
+        "cancelReminder": "Hủy lời nhắc này?",
+        "moveReminder": "Dời lời nhắc này?",
         "editPage": "Thay đổi nội dung của trang này?",
         "createPdf": "Tạo PDF của trang này và đính kèm?",
         "createDocx": "Tạo tài liệu Word của trang này và đính kèm?",
@@ -403,6 +414,8 @@
       "topLevel": "Ở cấp cao nhất của không gian làm việc, riêng tư cho bạn",
       "memoryHint": "Bộ nhớ: gửi kèm các câu hỏi sau đó của bạn trong không gian làm việc này",
       "remindHint": "{when}: phía trên trang bạn đang mở, trong hộp thư đến và trên điện thoại của bạn",
+      "cancelReminderHint": "{when}: sẽ không đến nữa",
+      "moveReminderHint": "{was} → {when}",
       "cleared": "(đã xóa)",
       "approve": "Có",
       "always": "Có, và đừng hỏi lại (Tự động)",

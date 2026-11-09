@@ -340,7 +340,16 @@
       },
       "reminder": {
         "done": "{when} にリマインダーを設定しました：",
-        "declined": "{when} のリマインダーを断りました："
+        "declined": "{when} のリマインダーを断りました：",
+        "listed": "リマインダーを確認しました · {count, plural, =0 {待機中のものはありません} other {{count}件待機中}}",
+        "cancel": {
+          "done": "{when} のリマインダーを取り消しました：",
+          "declined": "{when} のリマインダーの取り消しを断りました："
+        },
+        "move": {
+          "done": "リマインダーを {when} に移動しました：",
+          "declined": "リマインダーの {when} への移動を断りました："
+        }
       },
       "mail": {
         "searched": "メールで「{query}」を検索 · {count, plural, =0 {見つかりませんでした} other {# 件のスレッド}}",
@@ -385,6 +394,8 @@
         "remember": "あなたについてこれを記憶しますか？",
         "forget": "このメモを忘れますか？",
         "remind": "これをリマインドしますか？",
+        "cancelReminder": "このリマインダーを取り消しますか？",
+        "moveReminder": "このリマインダーを移動しますか？",
         "editPage": "このページのテキストを変更しますか？",
         "createPdf": "このページの PDF を作成して添付しますか？",
         "createDocx": "このページの Word 文書を作成して添付しますか？",
@@ -403,6 +414,8 @@
       "topLevel": "ワークスペースの最上位（あなただけに表示）",
       "memoryHint": "メモリー：このワークスペースでの以降の質問と一緒に送信されます",
       "remindHint": "{when}：開いているページの上、受信トレイ、スマートフォンに表示",
+      "cancelReminderHint": "{when}：届かなくなります",
+      "moveReminderHint": "{was} → {when}",
       "cleared": "（クリア済み）",
       "approve": "はい",
       "always": "はい、今後は確認しない（自動）",

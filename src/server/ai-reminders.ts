@@ -12,14 +12,25 @@
 import { and, count, eq, gt, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { notification } from "@/db/schema";
-import { MAX_REMINDER_AHEAD_MS, MAX_REMINDER_CHARS, MAX_REMINDERS_PER_RUN, MAX_WAITING_REMINDERS, REMIND_TOOL_NAME, reminderText, reminderTime } from "@/lib/ai-reminders";
+import {
+  CHANGE_REMINDER_TOOL_NAME,
+  LIST_REMINDERS_TOOL_NAME,
+  MAX_REMINDER_AHEAD_MS,
+  MAX_REMINDER_CHARS,
+  MAX_REMINDERS_PER_RUN,
+  MAX_WAITING_REMINDERS,
+  REMIND_TOOL_NAME,
+  reminderText,
+  reminderTime,
+} from "@/lib/ai-reminders";
 import type { AgentRunSource, AgentStepRecord, AgentToolRecord } from "@/lib/agents";
 import { clockText, dayString, localDay, wallClock } from "@/lib/time-zone";
 import { hasLevel, pageAccessOf } from "@/server/access";
 import type { AiTool, AiToolCall } from "@/server/ai";
 import { nowLine } from "@/server/ai/prompts";
+import { cancelReminder, listPending, moveReminder } from "@/server/notifications";
 
-export { REMIND_TOOL_NAME };
+export { CHANGE_REMINDER_TOOL_NAME, LIST_REMINDERS_TOOL_NAME, REMIND_TOOL_NAME };
 
 /** Who a run may remind: whoever wrote to the agent, asked for the run, set its schedule or mentioned it. Nobody on other runs. */
 export function remindedPerson(source: AgentRunSource): string | null {
@@ -74,7 +85,7 @@ export function remindTool(now: Date, timeZone: string, chat = false): AiTool {
 
 type Outcome = { content: string; isError?: boolean; step?: AgentToolRecord };
 
-const TIME_ERRORS = {
+export const TIME_ERRORS = {
   format: 'Give "at" as a date and time on their clock, such as 2026-11-02T09:00.',
   past: "That time has passed. Give a time from now on.",
   tooFar: `A reminder can be set at most ${MAX_REMINDER_AHEAD_MS / 86_400_000} days ahead.`,
@@ -149,4 +160,154 @@ export async function setReminder(
 export function reminderWhen(at: Date, timeZone: string) {
   const { day, minutes } = wallClock(at.getTime(), timeZone);
   return `${dayString(day)} ${clockText(minutes)}`;
+}
+
+/**
+ * The tool listing the person's reminders still to come; `chat`: offered by the AI chat, listing
+ * all of the person's (an agent's run lists only those its agent set).
+ */
+export function listRemindersTool(chat = false): AiTool {
+  return {
+    name: LIST_REMINDERS_TOOL_NAME,
+    description:
+      (chat
+        ? "Lists the reminders still to come for the person asking, soonest first: what each says, when on their clock, the page it is about and who set it (they, in this chat or another, or an agent). "
+        : "Lists the reminders you set for the person this run works for that are still to come, soonest first: what each says, when on their clock and the page it is about. ") +
+      `Use it when they ask what reminders they have, or before ${CHANGE_REMINDER_TOOL_NAME}, which takes an id from this list. Notifications they snoozed aren't listed: they see those under Scheduled in their inbox.`,
+    parameters: { type: "object", properties: {}, additionalProperties: false },
+  };
+}
+
+/** The tool cancelling or moving one of the reminders list_reminders lists; `chat` as for listRemindersTool. */
+export function changeReminderTool(now: Date, timeZone: string, chat = false): AiTool {
+  const example = `${dayString(localDay(now.getTime() + 86_400_000, timeZone))}T09:00`;
+  return {
+    name: CHANGE_REMINDER_TOOL_NAME,
+    description:
+      `Cancels one of ${chat ? "the person's reminders" : "the reminders you set for the person"} that hasn't come yet, or moves it to another time. ` +
+      `Take its id from ${LIST_REMINDERS_TOOL_NAME} first; never guess one. Use it only when they ask to cancel, drop or move a reminder. ` +
+      `${nowLine(now, timeZone)} For "move", give the new time on their clock, as "${example}" for tomorrow at 9:00 there, at most ${MAX_REMINDER_AHEAD_MS / 86_400_000} days ahead.`,
+    parameters: {
+      type: "object",
+      properties: {
+        action: { type: "string", enum: ["cancel", "move"], description: '"cancel": it never comes. "move": it comes at "at" instead.' },
+        reminder_id: { type: "string", description: `The reminder's id, from ${LIST_REMINDERS_TOOL_NAME}.` },
+        at: { type: "string", description: `For "move": when, on their clock in ${timeZone}: "YYYY-MM-DDTHH:MM".` },
+      },
+      required: ["action", "reminder_id"],
+      additionalProperties: false,
+    },
+  };
+}
+
+/** One of the person's reminders still to come, as the tools tell of it. */
+export type PendingReminder = {
+  id: string;
+  at: Date;
+  text: string;
+  pageId: string | null;
+  pageTitle: string | null;
+  /** Who set it: the person themselves (their AI chat), an agent by name, or an agent since removed (null). */
+  by: { own: true } | { own: false; agentName: string | null };
+};
+
+/**
+ * Whose reminders to read: `personId`'s in the workspace, all of them (the AI chat) or only those
+ * `actorId` set (an agent's run, whose user also must still open a reminder's page for its title
+ * to be told).
+ */
+type ReminderScope = { workspaceId: string; personId: string; timeZone: string; actorId?: string };
+
+/** The person's reminders still to come in the scope, soonest first. */
+export async function pendingReminders(scope: ReminderScope): Promise<PendingReminder[]> {
+  const items = (await listPending(scope.personId, scope.workspaceId).catch(() => [])).filter(
+    (n) => n.kind === "ai_reminder" && n.snoozedUntil && (!scope.actorId || n.actorId === scope.actorId),
+  );
+  // An agent learns no title of a page it can no longer open (the person still may).
+  const hidden = new Set<string>();
+  if (scope.actorId) {
+    const pageIds = [...new Set(items.flatMap((n) => (n.pageId ? [n.pageId] : [])))];
+    const access = await Promise.all(pageIds.map((id) => pageAccessOf(scope.actorId!, id)));
+    pageIds.forEach((id, i) => {
+      if (!hasLevel(access[i].level, "view")) hidden.add(id);
+    });
+  }
+  return items.map((n) => {
+    const shown = n.pageId && !hidden.has(n.pageId) ? n.pageId : null;
+    return {
+      id: n.id,
+      at: n.snoozedUntil!,
+      text: n.aiReminder?.text ?? "",
+      pageId: shown,
+      pageTitle: shown ? (n.pageTitle ?? "") : null,
+      by: n.aiReminder?.own ? { own: true } : { own: false, agentName: n.aiReminder?.agentName ?? null },
+    };
+  });
+}
+
+/**
+ * What list_reminders answers: each reminder on the person's clock, with its id for
+ * change_reminder. `others`: one was set by someone other than the person (an agent), whose
+ * words the AI chat then has read (lib/agents.ts readOthersWords).
+ */
+export async function listReminders(scope: ReminderScope): Promise<{ content: string; count: number; others: boolean }> {
+  const list = await pendingReminders(scope);
+  const zone = `on their clock in ${scope.timeZone}`;
+  if (!list.length) {
+    return {
+      content: scope.actorId ? "You have no reminders waiting for them." : "They have no reminders still to come in this workspace.",
+      count: 0,
+      others: false,
+    };
+  }
+  const lines = list.map((r) => {
+    const parts = [`id ${r.id}`, reminderWhen(r.at, scope.timeZone), JSON.stringify(r.text)];
+    if (r.pageId) parts.push(`about the page ${JSON.stringify(r.pageTitle || "Untitled")} (page_id ${r.pageId})`);
+    if (!scope.actorId) parts.push(r.by.own ? "set by them" : r.by.agentName ? `set by the agent ${JSON.stringify(r.by.agentName)}` : "set by an agent since removed");
+    return `- ${parts.join(" · ")}`;
+  });
+  return {
+    content: `${list.length} reminder${list.length === 1 ? "" : "s"} still to come, soonest first (times ${zone}):\n${lines.join("\n")}`,
+    count: list.length,
+    others: list.some((r) => !r.by.own),
+  };
+}
+
+/**
+ * What a change_reminder call asks for, checked against the person's reminders in the scope
+ * before anyone is asked: the reminder as it is and, for a move, its new time. Refused with a
+ * reason the model can act on otherwise.
+ */
+export async function prepareReminderChange(
+  scope: ReminderScope,
+  call: AiToolCall,
+  now = new Date(),
+): Promise<{ action: "cancel" | "move"; reminder: PendingReminder; at: Date | null; when: string; was: string } | Outcome> {
+  const { action, reminder_id: id } = call.arguments;
+  if (action !== "cancel" && action !== "move") return { content: 'Give "action": "cancel" or "move".', isError: true };
+  if (typeof id !== "string" || !id) return { content: `Give "reminder_id", from ${LIST_REMINDERS_TOOL_NAME}.`, isError: true };
+  const reminder = (await pendingReminders(scope)).find((r) => r.id === id);
+  if (!reminder) {
+    return { content: `There is no reminder still to come with that id${scope.actorId ? " that you set" : ""}: it may have come already. Call ${LIST_REMINDERS_TOOL_NAME} for the ids.`, isError: true };
+  }
+  const was = reminderWhen(reminder.at, scope.timeZone);
+  if (action === "cancel") return { action, reminder, at: null, when: was, was };
+  const time = reminderTime(call.arguments.at, now, scope.timeZone);
+  if ("error" in time) return { content: TIME_ERRORS[time.error], isError: true };
+  return { action, reminder, at: time.at, when: reminderWhen(time.at, scope.timeZone), was };
+}
+
+/** Cancels or moves the reminder prepareReminderChange found, held to the same scope. */
+export async function applyReminderChange(scope: ReminderScope, change: { action: "cancel" | "move"; reminder: PendingReminder; at: Date | null; when: string }): Promise<Outcome> {
+  const hold = { workspaceId: scope.workspaceId, actorId: scope.actorId };
+  const done =
+    change.action === "cancel" ? await cancelReminder(scope.personId, change.reminder.id, hold) : await moveReminder(scope.personId, change.reminder.id, change.at!, hold);
+  if (!done) return { content: "That reminder came meanwhile, or is gone: nothing was changed.", isError: true };
+  return {
+    content:
+      change.action === "cancel"
+        ? `Cancelled: ${JSON.stringify(change.reminder.text)} won't come.`
+        : `Moved: ${JSON.stringify(change.reminder.text)} now comes at ${change.when} (${scope.timeZone}).`,
+    step: { kind: "tool", connectionId: null, tool: CHANGE_REMINDER_TOOL_NAME, input: `${change.action} ${change.when} · ${change.reminder.text}`.slice(0, 400), outcome: "done" },
+  };
 }

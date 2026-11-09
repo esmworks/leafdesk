@@ -446,9 +446,10 @@ export function approvalText(t: Translator, action: ChatActionView): string {
     lines.push(html(t, "approval.connection", { connection: escapeHtml(action.connection?.name ?? ""), tool: escapeHtml(action.title ?? "") }));
   } else if (action.action === "tool") {
     lines.push(html(t, "approval.tool", { tool: escapeHtml(action.title ?? "") }));
-  } else if (action.action === "remind") {
-    // Its text, then when, on the person's clock.
-    lines.push(escapeHtml(t("approval.remind")), `<blockquote>${escapeHtml(action.title ?? "")}</blockquote>`, `🕘 ${escapeHtml(action.content ?? "")}`);
+  } else if (action.action === "remind" || action.action === "cancelReminder" || action.action === "moveReminder") {
+    // Its text, then when, on the person's clock (a moved one's time then and now).
+    const when = action.action === "moveReminder" ? `${action.reminderWas ?? ""} → ${action.content ?? ""}` : (action.content ?? "");
+    lines.push(escapeHtml(t(`approval.${action.action}`)), `<blockquote>${escapeHtml(action.title ?? "")}</blockquote>`, `🕘 ${escapeHtml(when)}`);
     return lines.join("\n");
   } else if (action.action === "remember" || action.action === "forget") {
     lines.push(escapeHtml(t(`approval.${action.action}`)), `<blockquote>${escapeHtml(action.title ?? "")}</blockquote>`);

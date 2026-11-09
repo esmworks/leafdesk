@@ -87,6 +87,8 @@
     "source": "Righe di {name}.",
     "remember": "Ricordo questo di te?",
     "remind": "Te lo ricordo?",
+    "cancelReminder": "Annullare questo promemoria?",
+    "moveReminder": "Spostare questo promemoria?",
     "forget": "Dimenticare questa nota?",
     "connection": "Inviare questo a {connection} ({tool})?",
     "tool": "Fare questa modifica ({tool})?",

@@ -66,7 +66,20 @@ import { ATTACH_FILE, ATTACH_FILE_TOOL, attachChatFile } from "@/server/agents/c
 import { chatRunTyped } from "@/server/agents/chat-store";
 import { approversOf } from "@/server/agents/approvers";
 import { AGENT_MEMORY_TOOL_NAMES, AGENT_MEMORY_TOOLS, HANDOFF_TOOL, runAgentMemoryTool, runHandoffTool } from "@/server/agents/memory";
-import { REMIND_TOOL_NAME, remindedPerson, remindersSet, remindTool, setReminder } from "@/server/ai-reminders";
+import {
+  applyReminderChange,
+  CHANGE_REMINDER_TOOL_NAME,
+  changeReminderTool,
+  LIST_REMINDERS_TOOL_NAME,
+  listReminders,
+  listRemindersTool,
+  prepareReminderChange,
+  REMIND_TOOL_NAME,
+  remindedPerson,
+  remindersSet,
+  remindTool,
+  setReminder,
+} from "@/server/ai-reminders";
 import { MAX_REMINDERS_PER_RUN } from "@/lib/ai-reminders";
 import { isTimeZone } from "@/lib/time-zone";
 import { runWebTool, webToolsFor } from "@/server/agents/web";
@@ -196,13 +209,15 @@ export const EVENT_TOOLS: AiTool[] = [...CHAT_TOOLS, CREATE_ROW];
 const EVENT_APPROVED_TOOLS: ReadonlySet<string> = new Set([CREATE_ROW.name]);
 
 /**
- * The reminder tool of a run, on the clock of the zone the run came with
- * (their browser's for a chat message, the schedule's for a schedule's run), else UTC.
+ * The reminder tools of a run (setting one, listing those it set and cancelling or moving one), on
+ * the clock of the zone the run came with (their browser's for a chat message, the schedule's for
+ * a schedule's run), else UTC.
  */
 function reminderFor(run: Run) {
   const zone = "timeZone" in run.context ? run.context.timeZone : undefined;
   const timeZone = isTimeZone(zone) ? zone : "UTC";
-  return { tool: remindTool(new Date(), timeZone), timeZone };
+  const now = new Date();
+  return { tools: [remindTool(now, timeZone), listRemindersTool(), changeReminderTool(now, timeZone)], timeZone };
 }
 
 /**
@@ -362,7 +377,7 @@ export async function setUpRun(
     // A channel's run asks before a web call carrying words the member didn't type: with no one to answer, it gets none.
     ...(channelRun && unanswered ? [] : webTools),
     ...(handoff ? handoff.tools : []),
-    ...(reminder ? [reminder.tool] : []),
+    ...(reminder ? reminder.tools : []),
     // A chat's answer may carry files for the person (chat-files.ts).
     ...(chat ? [ATTACH_FILE_TOOL] : []),
     ...(computer ? computerTools(computer) : []),
@@ -716,6 +731,18 @@ export function createDispatch(
       const out = await setReminder({ workspaceId: run.workspaceId, actorId: agent.userId, personId: reminded, timeZone: reminder.timeZone }, call);
       if (!out.isError) reminders += 1;
       return out;
+    }
+    // Its own reminders for that person, as they are now: what the person or another agent set
+    // stays out of its sight and reach. Cancelling or moving one changes nothing in the workspace either.
+    if (call.name === LIST_REMINDERS_TOOL_NAME || call.name === CHANGE_REMINDER_TOOL_NAME) {
+      if (!reminder || !reminded) return { content: `There is no tool "${call.name}" in this run.`, isError: true };
+      const scope = { workspaceId: run.workspaceId, personId: reminded, timeZone: reminder.timeZone, actorId: agent.userId };
+      if (call.name === LIST_REMINDERS_TOOL_NAME) {
+        const listed = await listReminders(scope);
+        return { content: listed.content, step: { kind: "tool", connectionId: null, tool: LIST_REMINDERS_TOOL_NAME, input: String(listed.count), outcome: "done" } };
+      }
+      const change = await prepareReminderChange(scope, call);
+      return "action" in change ? applyReminderChange(scope, change) : change;
     }
     // Reading the web changes nothing: it counts as reading from outside, not as a change.
     if (webNames.has(call.name)) {

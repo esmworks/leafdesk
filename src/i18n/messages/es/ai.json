@@ -340,7 +340,16 @@
       },
       "reminder": {
         "done": "Recordatorio para el {when}:",
-        "declined": "Recordatorio rechazado para el {when}:"
+        "declined": "Recordatorio rechazado para el {when}:",
+        "listed": "Revisó tus recordatorios · {count, plural, =0 {ninguno pendiente} one {# pendiente} other {# pendientes}}",
+        "cancel": {
+          "done": "Recordatorio del {when} cancelado:",
+          "declined": "Rechazó cancelar el recordatorio del {when}:"
+        },
+        "move": {
+          "done": "Recordatorio movido al {when}:",
+          "declined": "Rechazó mover el recordatorio al {when}:"
+        }
       },
       "mail": {
         "searched": "Se buscó en el correo «{query}» · {count, plural, =0 {sin resultados} one {# conversación} other {# conversaciones}}",
@@ -385,6 +394,8 @@
         "remember": "¿Recordar esto sobre ti?",
         "forget": "¿Olvidar esta nota?",
         "remind": "¿Te lo recuerdo?",
+        "cancelReminder": "¿Cancelar este recordatorio?",
+        "moveReminder": "¿Mover este recordatorio?",
         "editPage": "¿Cambiar el texto de esta página?",
         "createPdf": "¿Crear un PDF de esta página y adjuntarlo?",
         "createDocx": "¿Crear un documento de Word de esta página y adjuntarlo?",
@@ -403,6 +414,8 @@
       "topLevel": "Arriba del espacio de trabajo, privada",
       "memoryHint": "Memoria: se envía con tus próximas preguntas en este espacio de trabajo",
       "remindHint": "{when}: sobre la página que tienes abierta, en tu bandeja de entrada y en tu teléfono",
+      "cancelReminderHint": "{when}: ya no llegará",
+      "moveReminderHint": "{was} → {when}",
       "cleared": "(vacío)",
       "approve": "Sí",
       "always": "Sí, y no volver a preguntar (Automático)",

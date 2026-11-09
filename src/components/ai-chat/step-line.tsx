@@ -84,11 +84,27 @@ export function StepLine({ step, onSource }: { step: ChatStepView; onSource: (so
     );
   }
   if (step.kind === "reminder") {
+    // The person's reminders listed, or one set, cancelled or moved (one icon for all: each icon here is in every first load).
+    if (step.action === "list") {
+      return (
+        <>
+          <AlarmClock className={icon} />
+          <span className="min-w-0 break-words">{t("steps.reminder.listed", { count: step.results })}</span>
+        </>
+      );
+    }
+    const when = reminderLabel(step.when, locale);
+    const label =
+      step.action === "cancel"
+        ? t(`steps.reminder.cancel.${step.outcome}`, { when })
+        : step.action === "move"
+          ? t(`steps.reminder.move.${step.outcome}`, { when })
+          : t(`steps.reminder.${step.outcome}`, { when });
     return (
       <>
         {step.outcome === "declined" ? <Ban className={icon} /> : <AlarmClock className={icon} />}
         <span className="min-w-0 break-words">
-          {t(`steps.reminder.${step.outcome}`, { when: reminderLabel(step.when, locale) })} <span className="text-fg">“{step.text}”</span>
+          {label} <span className="text-fg">“{step.text}”</span>
         </span>
       </>
     );

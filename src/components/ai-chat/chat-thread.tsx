@@ -1345,8 +1345,8 @@ function ChangePrompt({
   const { action } = pending;
   const comment = action.action === "addComment";
   const memory = isMemory(action);
-  // A reminder for the person: its text, and when, on their clock.
-  const reminder = action.action === "remind";
+  // A reminder for the person: its text, and when, on their clock (one of theirs cancelled or moved too).
+  const reminder = action.action === "remind" || action.action === "cancelReminder" || action.action === "moveReminder";
   // A call to a connection's tool or to one of Leafdesk's further tools: shown as what it is given.
   const call = action.action === "connection" || action.action === "tool";
   // A web call: the address or the words, exactly as they would leave the workspace.
@@ -1407,7 +1407,11 @@ function ChangePrompt({
           ) : memory ? (
             t("memoryHint")
           ) : reminder ? (
-            t("remindHint", { when: reminderLabel(action.content ?? "", locale) })
+            action.action === "moveReminder" ? (
+              t("moveReminderHint", { was: reminderLabel(action.reminderWas ?? "", locale), when: reminderLabel(action.content ?? "", locale) })
+            ) : (
+              t(action.action === "cancelReminder" ? "cancelReminderHint" : "remindHint", { when: reminderLabel(action.content ?? "", locale) })
+            )
           ) : call ? (
             action.action === "tool" ? t("toolHint") : t("connectionHint", { connection: action.connection?.name ?? "" })
           ) : web ? (

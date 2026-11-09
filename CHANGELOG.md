@@ -10,6 +10,11 @@
   about: move one to another time (a snooze choice or a time typed in words), cancel a reminder, or
   bring a snoozed notification back now. The chat and agents are told where a reminder they set
   waits, so they can point you there.
+- **The AI chat lists your reminders, and cancels or moves one.** Ask "which reminders do I have?"
+  and it lists those still to come, yours and those agents set for you, with their time on your
+  clock, page and who set it; ask it to cancel or move one and it asks first (unless on *Auto*),
+  showing the reminder and its time. Agents can list, cancel and move the reminders they set for
+  you, never yours or another agent's.
 
 ### Changed
 

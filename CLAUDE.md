@@ -360,7 +360,12 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   Until then it is listed, with snoozed notifications, in the inbox's Scheduled tab
   (`notifications.ts` `listPending`; `cancelReminder` deletes one, freeing its place under the limit). The
   AI chat offers the same tool to the person asking (`ai-chat.ts` `remind`, a `reminder` step): its
-  actor is that person, which the inbox reads as `InboxAiReminder.own`.
+  actor is that person, which the inbox reads as `InboxAiReminder.own`. `list_reminders` and
+  `change_reminder` (cancel or move, `ai-reminders.ts` `prepareReminderChange`) list and change the
+  person's reminders: all of theirs in the chat (`chat-dispatch.ts` `changeReminder`, asked about
+  as setting one is; a list holding an agent's reminder counts as outside words), only the agent's
+  own in its runs (`notifications.ts` `cancelReminder`/`moveReminder` take `actorId`; never
+  `snoozeNotification`, which moves any kind). Reminder steps carry `action` (none: set).
   A schedule's run may end itself with `finish_run` (`lib/agents.ts` `finishRunCall`): `nothing_new`
   sets `agent_run.quiet` and `reportRun` sends nothing; `failed` is code `selfReported`; the reason
   is the run's `answer` either way. A schedule's run that isn't quiet also goes to its setter's

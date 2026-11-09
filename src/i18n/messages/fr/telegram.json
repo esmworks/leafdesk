@@ -87,6 +87,8 @@
     "source": "Lignes de {name}.",
     "remember": "Retenir ceci à votre sujet ?",
     "remind": "Vous le rappeler ?",
+    "cancelReminder": "Annuler ce rappel ?",
+    "moveReminder": "Déplacer ce rappel ?",
     "forget": "Oublier cette note ?",
     "connection": "Envoyer ceci à {connection} ({tool}) ?",
     "tool": "Faire ce changement ({tool}) ?",

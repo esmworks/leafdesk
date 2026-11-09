@@ -5,6 +5,10 @@ import { dayNumber, dayString, zonedInstant } from "./time-zone";
 
 /** The tool that sets one, in agents' runs and the AI chat alike. */
 export const REMIND_TOOL_NAME = "remind_person";
+/** The tool listing the person's reminders still to come (the AI chat: all of them; an agent's run: those it set). */
+export const LIST_REMINDERS_TOOL_NAME = "list_reminders";
+/** The tool that cancels or moves one of them (`action`), from the same list. */
+export const CHANGE_REMINDER_TOOL_NAME = "change_reminder";
 
 /** The most a reminder says. */
 export const MAX_REMINDER_CHARS = 300;

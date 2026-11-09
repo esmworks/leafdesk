@@ -87,6 +87,8 @@
     "source": "Linhas de {name}.",
     "remember": "Lembrar isto sobre você?",
     "remind": "Lembrar você disto?",
+    "cancelReminder": "Cancelar este lembrete?",
+    "moveReminder": "Mover este lembrete?",
     "forget": "Esquecer esta nota?",
     "connection": "Enviar isto para {connection} ({tool})?",
     "tool": "Fazer esta alteração ({tool})?",

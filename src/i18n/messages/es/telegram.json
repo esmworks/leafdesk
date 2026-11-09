@@ -87,6 +87,8 @@
     "source": "Filas de {name}.",
     "remember": "¿Recuerdo esto sobre ti?",
     "remind": "¿Te lo recuerdo?",
+    "cancelReminder": "¿Cancelar este recordatorio?",
+    "moveReminder": "¿Mover este recordatorio?",
     "forget": "¿Olvidar esta nota?",
     "connection": "¿Enviar esto a {connection} ({tool})?",
     "tool": "¿Hacer este cambio ({tool})?",

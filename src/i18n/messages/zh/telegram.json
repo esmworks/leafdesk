@@ -87,6 +87,8 @@
     "source": "行来自 {name}。",
     "remember": "要记住关于你的这件事吗？",
     "remind": "要提醒你这件事吗？",
+    "cancelReminder": "要取消这个提醒吗？",
+    "moveReminder": "要移动这个提醒吗？",
     "forget": "要忘记这条笔记吗？",
     "connection": "要将此内容发送到 {connection}（{tool}）吗？",
     "tool": "要进行此更改吗（{tool}）？",

@@ -340,7 +340,16 @@
       },
       "reminder": {
         "done": "Muistutus asetettu ajalle {when}:",
-        "declined": "Hylätty muistutus ajalle {when}:"
+        "declined": "Hylätty muistutus ajalle {when}:",
+        "listed": "Muistutukset katsottu · {count, plural, =0 {ei odottavia} one {# odottaa} other {# odottaa}}",
+        "cancel": {
+          "done": "Muistutus ajalle {when} peruttu:",
+          "declined": "Muistutuksen ({when}) peruminen hylättiin:"
+        },
+        "move": {
+          "done": "Muistutus siirretty ajalle {when}:",
+          "declined": "Muistutuksen siirto ajalle {when} hylättiin:"
+        }
       },
       "mail": {
         "searched": "Haettiin postista ”{query}” · {count, plural, =0 {ei tuloksia} one {# keskustelu} other {# keskustelua}}",
@@ -385,6 +394,8 @@
         "remember": "Muistetaanko tämä sinusta?",
         "forget": "Unohdetaanko tämä muistiinpano?",
         "remind": "Muistutetaanko tästä?",
+        "cancelReminder": "Perutaanko tämä muistutus?",
+        "moveReminder": "Siirretäänkö tämä muistutus?",
         "editPage": "Muutetaanko tämän sivun tekstiä?",
         "createPdf": "Luodaanko tästä sivusta PDF ja liitetäänkö se?",
         "createDocx": "Luodaanko tästä sivusta Word-asiakirja ja liitetäänkö se?",
@@ -403,6 +414,8 @@
       "topLevel": "Työtilan ylimmällä tasolla, vain sinulle näkyvänä",
       "memoryHint": "Muisti: lähetetään myöhempien kysymystesi mukana tässä työtilassa",
       "remindHint": "{when}: avoimen sivun päällä, saapuneissa ja puhelimessasi",
+      "cancelReminderHint": "{when}: sitä ei tule",
+      "moveReminderHint": "{was} → {when}",
       "cleared": "(tyhjennetty)",
       "approve": "Kyllä",
       "always": "Kyllä, äläkä kysy uudelleen (Automaattinen)",

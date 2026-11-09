@@ -340,7 +340,16 @@
       },
       "reminder": {
         "done": "Påmindelse sat til {when}:",
-        "declined": "Afviste en påmindelse til {when}:"
+        "declined": "Afviste en påmindelse til {when}:",
+        "listed": "Så på dine påmindelser · {count, plural, =0 {ingen venter} one {# venter} other {# venter}}",
+        "cancel": {
+          "done": "Påmindelsen til {when} er annulleret:",
+          "declined": "Afviste at annullere påmindelsen til {when}:"
+        },
+        "move": {
+          "done": "Påmindelsen er flyttet til {when}:",
+          "declined": "Afviste at flytte påmindelsen til {when}:"
+        }
       },
       "mail": {
         "searched": "Søgte i mail efter “{query}” · {count, plural, =0 {intet fundet} one {# tråd} other {# tråde}}",
@@ -385,6 +394,8 @@
         "remember": "Skal jeg huske dette om dig?",
         "forget": "Skal jeg glemme denne note?",
         "remind": "Skal jeg minde dig om dette?",
+        "cancelReminder": "Annuller denne påmindelse?",
+        "moveReminder": "Flyt denne påmindelse?",
         "editPage": "Vil du ændre denne sides tekst?",
         "createPdf": "Vil du lave en PDF af denne side og vedhæfte den?",
         "createDocx": "Vil du lave et Word-dokument af denne side og vedhæfte det?",
@@ -403,6 +414,8 @@
       "topLevel": "Øverst i arbejdsområdet, privat for dig",
       "memoryHint": "Hukommelse: sendes med dine senere spørgsmål i dette arbejdsområde",
       "remindHint": "{when}: over den side, du har åben, i din indbakke og på din telefon",
+      "cancelReminderHint": "{when}: den kommer ikke",
+      "moveReminderHint": "{was} → {when}",
       "cleared": "(ryddet)",
       "approve": "Ja",
       "always": "Ja, og spørg ikke igen (Auto)",
