@@ -72,6 +72,8 @@ export const BACKED_UP: Record<string, Scope> = {
   row_follower: ofPages("row_id"),
   row_reminder: ofPages("row_id"),
   row_repeat: ofPages("row_id"),
+  // People's planned time for their tasks: theirs alone, like task_list and daily_note, kept with the workspace.
+  work_block: own,
   page_publication: ofPages("page_id"),
   form_publication: (ws) => sql`view_id in (select id from database_view where database_id in ${pages(ws)})`,
   form_submission: ofPages("row_id"),

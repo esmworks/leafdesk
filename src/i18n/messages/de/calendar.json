@@ -18,7 +18,8 @@
     "event": "Kalendertermine",
     "meeting": "Besprechungen",
     "task": "Aufgaben",
-    "reminder": "Erinnerungen"
+    "reminder": "Erinnerungen",
+    "block": "Geplante Zeit"
   },
   "allDay": "Ganztägig",
   "from": "Ab {time}",
@@ -29,5 +30,43 @@
     "fixed": "Das lässt sich nicht dorthin verschieben",
     "noAccess": "Du kannst das nicht ändern",
     "failed": "Konnte nicht verschoben werden. Versuche es erneut."
+  },
+  "durationHours": "{hours} Std.",
+  "durationMinutes": "{minutes} Min.",
+  "durationBoth": "{hours} Std. {minutes} Min.",
+  "toPlan": {
+    "title": "Zu planen",
+    "toggle": "Zu planende Aufgaben",
+    "help": "Ziehe eine Aufgabe in die Woche oder nutze „Zeit planen“.",
+    "filter": "Aufgaben filtern",
+    "empty": "Keine offenen Aufgaben",
+    "noMatch": "Keine passenden Aufgaben",
+    "planned": "{duration} geplant",
+    "planTime": "Zeit planen",
+    "couldNotLoad": "Deine Aufgaben konnten nicht geladen werden"
+  },
+  "planDialog": {
+    "title": "Zeit planen",
+    "day": "Tag",
+    "start": "Beginn",
+    "length": "Dauer",
+    "plan": "Planen"
+  },
+  "blockMenu": {
+    "more": "Weitere Aktionen",
+    "openTask": "Aufgabe öffnen",
+    "markDone": "Aufgabe als erledigt markieren",
+    "remove": "Block entfernen",
+    "resize": "Ziehen, um die Dauer zu ändern"
+  },
+  "blockErrors": {
+    "notFound": "Diese Aufgabe kann nicht mehr geplant werden",
+    "noAccess": "Du kannst diese Aufgabe nicht mehr öffnen",
+    "tooShort": "Geplante Zeit dauert mindestens 15 Minuten",
+    "tooLong": "Geplante Zeit dauert höchstens 12 Stunden",
+    "invalid": "Wähle einen Tag und eine Startzeit",
+    "notTask": "Das ist keine deiner Aufgaben",
+    "tooMany": "Für diese Aufgabe ist schon so viel Zeit geplant wie möglich",
+    "failed": "Die geplante Zeit konnte nicht geändert werden. Versuche es erneut."
   }
 }

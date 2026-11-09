@@ -120,6 +120,17 @@
   ways (a held meeting and a calendar address's events stay put). A to-do's time is a reminder on
   its date's own day: dropping it on an hour sets one then, which also reminds you; dropping it on a
   whole day takes that reminder off. Add events where they come from.
+  *Plan time for a task*: the *To plan* list beside the week (under it on narrower windows; the
+  list button in the top bar hides it, remembered in your browser) holds your open tasks from *My
+  tasks*, by due date then title, each with the time already planned for it, and a filter box.
+  Drag a task onto an hour of the week to block out an hour there, or use its *Plan time* button
+  (a day, a start and a length; works on phones and from the keyboard). A task may have several
+  blocks, from 15 minutes to 12 hours each; its own date stays as it is. Blocks are drawn in an
+  outlined green, are yours alone (nobody else sees them) and show in the sidebar's panel like
+  other items. Drag a block to move it, pull its bottom edge to change its length in 15-minute
+  steps, and right-click it (or use its ⋯) to open the task, mark it done (a row's status, a to-do
+  ticked) or remove the block. A block of a done task stays, struck through; one whose task went
+  to the trash, or that you can no longer open, stops showing (a restore brings it back).
 - **Messages** (on the sidebar's rail): the workspace's own conversations, live over a websocket:
   public and private channels, direct messages, threads, mentions, reactions, pins, saved and
   scheduled messages, search, push notifications, agents that answer in channels and *Catch up*

@@ -4,6 +4,12 @@
 
 ### Added
 
+- **Plan time for your tasks on the Calendar.** A *To plan* list beside the week holds your open
+  tasks from My tasks with the time already planned for each; drag one onto an hour, or use *Plan
+  time* (a day, a start and a length), to block out time for it. A task may have several blocks of
+  15 minutes to 12 hours; they are yours alone, move and change length on the week, open, mark
+  done or are removed from their menu, show in the sidebar's Calendar panel, and hide while their
+  task is in the trash. Migration 0205 adds their table.
 - **Other tools can post in a channel through a webhook.** A channel's admins add one in its
   details and copy its address, shown once; anything that posts to a Slack incoming webhook (alert
   managers, build pipelines, dashboards) can post there instead, with the same payload: text,

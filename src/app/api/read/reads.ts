@@ -19,6 +19,7 @@ import { settingsSearchAction } from "@/app/actions/settings-search";
 import { usableSnippetsAction } from "@/app/actions/snippets";
 import { tagSuggestionsAction } from "@/app/actions/tags";
 import { listTriggersAction } from "@/app/actions/triggers";
+import { tasksToPlanAction } from "@/app/actions/work-blocks";
 
 /**
  * Server actions that components call on their own (as a page opens, on a timer, as a box fills)
@@ -45,6 +46,7 @@ export const READS = {
   sidebarAgents: sidebarAgentsAction,
   sidebarMeetings: sidebarMeetingsAction,
   calendarItems: calendarItemsAction,
+  tasksToPlan: tasksToPlanAction,
   agentCreation: agentCreationAction,
   agentLimitRequest: pendingAgentLimitRequestAction,
   agentMailboxes: agentMailboxesAction,

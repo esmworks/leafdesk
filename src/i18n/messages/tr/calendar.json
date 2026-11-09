@@ -18,7 +18,8 @@
     "event": "Takvim etkinlikleri",
     "meeting": "Toplantılar",
     "task": "Görevler",
-    "reminder": "Hatırlatmalar"
+    "reminder": "Hatırlatmalar",
+    "block": "Planlanan zaman"
   },
   "allDay": "Tüm gün",
   "from": "{time} itibarıyla",
@@ -29,5 +30,43 @@
     "fixed": "Bu oraya taşınamaz",
     "noAccess": "Bunu değiştiremezsin",
     "failed": "Taşınamadı. Yeniden dene."
+  },
+  "durationHours": "{hours} sa",
+  "durationMinutes": "{minutes} dk",
+  "durationBoth": "{hours} sa {minutes} dk",
+  "toPlan": {
+    "title": "Planlanacaklar",
+    "toggle": "Planlanacak görevler",
+    "help": "Bir görevi haftanın üzerine sürükle ya da Zaman planla'yı kullan.",
+    "filter": "Görevleri süz",
+    "empty": "Açık görev yok",
+    "noMatch": "Eşleşen görev yok",
+    "planned": "{duration} planlandı",
+    "planTime": "Zaman planla",
+    "couldNotLoad": "Görevlerin yüklenemedi"
+  },
+  "planDialog": {
+    "title": "Zaman planla",
+    "day": "Gün",
+    "start": "Başlangıç",
+    "length": "Süre",
+    "plan": "Planla"
+  },
+  "blockMenu": {
+    "more": "Diğer işlemler",
+    "openTask": "Görevi aç",
+    "markDone": "Görevi tamamlandı olarak işaretle",
+    "remove": "Bloğu kaldır",
+    "resize": "Süreyi değiştirmek için sürükle"
+  },
+  "blockErrors": {
+    "notFound": "Bu görev artık planlanamaz",
+    "noAccess": "Bu görevi artık açamıyorsun",
+    "tooShort": "Planlanan zaman en az 15 dakikadır",
+    "tooLong": "Planlanan zaman en fazla 12 saattir",
+    "invalid": "Bir gün ve başlangıç saati seç",
+    "notTask": "Bu senin görevlerinden biri değil",
+    "tooMany": "Bu görev alabileceği kadar planlanmış zamana sahip",
+    "failed": "Planlanan zaman değiştirilemedi. Yeniden dene."
   }
 }

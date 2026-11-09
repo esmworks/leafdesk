@@ -1,6 +1,6 @@
 "use client";
 
-import { AlarmClock, CalendarDays, ChevronLeft, ChevronRight, CircleCheck, NotebookPen } from "lucide-react";
+import { AlarmClock, CalendarClock, CalendarDays, ChevronLeft, ChevronRight, CircleCheck, NotebookPen } from "lucide-react";
 import Link from "next/link";
 import { useFormatter, useLocale, useTranslations } from "next-intl";
 import { useEffect, useMemo, useState } from "react";
@@ -14,7 +14,7 @@ import { firstDayOfWeek, monthWeeks } from "@/lib/calendar";
 import { agendaDays, CALENDAR_MAX_DAYS, CALENDAR_PANEL_DAYS, placeItems, type CalendarItemKind, type PlacedItem } from "@/lib/calendar-items";
 import { dayString, localDay } from "@/lib/time-zone";
 
-const KIND_ICONS: Record<CalendarItemKind, typeof CalendarDays> = { event: CalendarDays, meeting: NotebookPen, task: CircleCheck, reminder: AlarmClock };
+const KIND_ICONS: Record<CalendarItemKind, typeof CalendarDays> = { event: CalendarDays, meeting: NotebookPen, task: CircleCheck, reminder: AlarmClock, block: CalendarClock };
 
 /** A day number as a Date at its midnight in UTC: days are formatted in UTC so zones never shift them. */
 const utcDay = (day: number) => new Date(day * 86_400_000);
@@ -163,7 +163,7 @@ export function CalendarPanel({ workspaceId, pathname, offline, onPages }: Calen
                           <span className="flex h-4 w-4 shrink-0 items-center justify-center text-fg-icon">
                             {p.item.icon ? <IconGlyph icon={p.item.icon} className="text-sm" /> : <Icon className="h-4 w-4" aria-hidden />}
                           </span>
-                          <span className="min-w-0 flex-1 truncate">{p.item.title.trim() || t("untitled")}</span>
+                          <span className={cn("min-w-0 flex-1 truncate", p.item.done && "text-fg-muted line-through")}>{p.item.title.trim() || t("untitled")}</span>
                           {time && <span className={cn("shrink-0", panelMeta)}>{time}</span>}
                         </ItemLink>
                       </li>

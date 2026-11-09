@@ -18,7 +18,8 @@
     "event": "カレンダーの予定",
     "meeting": "会議",
     "task": "タスク",
-    "reminder": "リマインダー"
+    "reminder": "リマインダー",
+    "block": "予定した時間"
   },
   "allDay": "終日",
   "from": "{time}から",
@@ -29,5 +30,43 @@
     "fixed": "ここには移動できません",
     "noAccess": "これは変更できません",
     "failed": "移動できませんでした。もう一度お試しください。"
+  },
+  "durationHours": "{hours}時間",
+  "durationMinutes": "{minutes}分",
+  "durationBoth": "{hours}時間{minutes}分",
+  "toPlan": {
+    "title": "予定に入れる",
+    "toggle": "予定に入れるタスク",
+    "help": "タスクを週にドラッグするか、「時間を確保」を使います。",
+    "filter": "タスクを絞り込む",
+    "empty": "未完了のタスクはありません",
+    "noMatch": "一致するタスクはありません",
+    "planned": "{duration}確保済み",
+    "planTime": "時間を確保",
+    "couldNotLoad": "タスクを読み込めませんでした"
+  },
+  "planDialog": {
+    "title": "時間を確保",
+    "day": "日付",
+    "start": "開始",
+    "length": "長さ",
+    "plan": "確保"
+  },
+  "blockMenu": {
+    "more": "その他の操作",
+    "openTask": "タスクを開く",
+    "markDone": "タスクを完了にする",
+    "remove": "ブロックを削除",
+    "resize": "ドラッグして長さを変更"
+  },
+  "blockErrors": {
+    "notFound": "このタスクはもう予定に入れられません",
+    "noAccess": "このタスクはもう開けません",
+    "tooShort": "確保する時間は15分以上です",
+    "tooLong": "確保する時間は12時間以内です",
+    "invalid": "日付と開始時刻を選んでください",
+    "notTask": "これはあなたのタスクではありません",
+    "tooMany": "このタスクにはこれ以上時間を確保できません",
+    "failed": "確保した時間を変更できませんでした。もう一度お試しください。"
   }
 }

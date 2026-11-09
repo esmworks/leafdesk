@@ -1436,6 +1436,13 @@
       "when": 1794250537319,
       "tag": "0204_qr_sign_in",
       "breakpoints": true
+    },
+    {
+      "idx": 205,
+      "version": "7",
+      "when": 1794256243935,
+      "tag": "0205_work_blocks",
+      "breakpoints": true
     }
   ]
 }
