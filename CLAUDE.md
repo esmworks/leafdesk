@@ -601,7 +601,7 @@ several mailboxes, whose thread ids can repeat, so the list keys threads by `ite
   workspace drives), import `import/` (readers in `src/lib/import/` take untrusted files of up to
   100 MB on the one process: no regex that retries a quantified run against what follows, as
   `\s+X$` or adjacent `\s*`; scan by hand (`link-scan.ts`) and add a `fast()` test from
-  `linear-fixtures.ts`; an import checks its place first, `server/import/place.ts`; TextBundles: `lib/import/textbundle.ts` turns each into a Markdown file of the upload;
+  `linear-fixtures.ts`; an import checks its place first, `server/import/place.ts`; TextBundles: `lib/import/textbundle.ts` turns each into a Markdown file of the upload, as `lib/import/logseq.ts` does a Logseq graph's pages (then read as a vault) and `lib/import/joplin.ts` a Joplin `.jex` (a tar, unpacked by `archive.ts` through `lib/import/tar.ts`);
   OneNote and other `.mht` files: `lib/import/mhtml.ts` reads the MIME parts, `mhtml-convert.ts` the HTML; a web page: `web-clip.ts`, fetched through `connections/fetch.ts` with `{ web: true }`, read by
   `web-clip-extract.ts`, recipes by `src/lib/recipe.ts`), export `export.ts`, server-made PDFs `pdf.ts` (reads a page like `print.ts`; `export-pdf.ts` zips one per page for the workspace export)
   and `pdf-document.ts` (pure pdfmake layout; pdfmake must stay in `serverExternalPackages` in

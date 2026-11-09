@@ -17,6 +17,8 @@ import {
   withoutFrontMatter,
   type PlanNode,
 } from "@/lib/import/markdown";
+import { unpackJoplinExports } from "@/lib/import/joplin";
+import { unpackLogseqGraphs } from "@/lib/import/logseq";
 import { blockReferences, frontMatterAliases, hasWikilink, obsidianMarkdown, rewriteWikilinks, VaultIndex } from "@/lib/import/obsidian";
 import {
   notionId,
@@ -65,6 +67,11 @@ import { requireTopLevelPlace } from "./place";
  * whose links lead to rows of the upload as relations (linked once every row exists), links to
  * notion.so pages of the upload pointed at the imported pages, and a line linking to a subpage as
  * a link-to-page block where it was.
+ *
+ * A Logseq graph (its folder, found by `logseq/config.edn`; see lib/import/logseq) comes in as such
+ * a vault: its pages and journal days as Markdown, links by page name and alias, block references
+ * as the blocks' text, to-dos with their days. A Joplin export (`.jex`, see lib/import/joplin) comes
+ * in as its notebooks' folders of notes, with links between notes and to resources, to-dos and tags.
  *
  * TextBundles (`Name.textbundle/` folders, and TextPacks, the same zipped) come in as a page each,
  * titled by the heading their text starts with or else by the bundle's name, with the pictures and
@@ -115,8 +122,11 @@ export async function importPages(actor: WriteActor, input: MarkdownImportInput)
   const warnings = new WarningList();
   const collected = collectFiles(input.files);
   const bundled = unpackTextBundles(collected.files);
-  const files = bundled.files;
+  const joplin = unpackJoplinExports(bundled.files, input.timeZone);
+  const logseq = unpackLogseqGraphs(joplin.files);
+  const files = logseq.files;
   for (const s of collected.skipped) warnings.add({ code: "skipped", path: s.path, reason: s.reason });
+  for (const e of joplin.encrypted) warnings.add({ code: "encryptedText", page: e.export });
   // Markdown files over the limit are left out rather than read.
   for (const [path, bytes] of files) {
     if (importFileKind(path) === "markdown" && bytes.byteLength > IMPORT_LIMITS.markdownBytes) {
@@ -133,9 +143,9 @@ export async function importPages(actor: WriteActor, input: MarkdownImportInput)
     throw new ImportError(`An import can create at most ${IMPORT_LIMITS.pages} pages`, "tooManyPages", { limit: IMPORT_LIMITS.pages });
   }
   const nodeByKey = new Map(plan.nodes.map((n) => [n.key, n]));
-  // An Obsidian vault: its settings folder came along, or a note has a wikilink.
+  // An Obsidian vault: its settings folder came along, or a note has a wikilink. A Logseq graph is read as one.
   const isVault =
-    collected.vault || input.vault || plan.nodes.some((n) => n.source && importFileKind(n.source) === "markdown" && hasWikilink(text(files.get(n.source)!)));
+    collected.vault || input.vault || logseq.graphs > 0 || plan.nodes.some((n) => n.source && importFileKind(n.source) === "markdown" && hasWikilink(text(files.get(n.source)!)));
 
   // Block ids the vault's links point at: those are left out of the notes where they are set.
   const referencedBlocks = new Set(
@@ -396,7 +406,17 @@ export async function importPages(actor: WriteActor, input: MarkdownImportInput)
     moreWarnings: warnings.more,
   };
   const fromNotion = plan.nodes.some((n) => n.source && notionId(n.source));
-  const format = bundled.bundles ? "textbundle" : isVault ? "obsidian" : fromNotion ? "notion" : "markdown";
+  const format = bundled.bundles
+    ? "textbundle"
+    : joplin.exports
+      ? "joplin"
+      : logseq.graphs
+        ? "logseq"
+        : isVault
+          ? "obsidian"
+          : fromNotion
+            ? "notion"
+            : "markdown";
   await recordImport(userId, workspaceId, result, format);
   return result;
 }

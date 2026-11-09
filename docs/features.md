@@ -1174,6 +1174,29 @@
   wikilink or its ZIP holds the `.obsidian` folder; other Markdown keeps `%%`, `^` and `==` as
   written. A note whose first line is a heading other than its file name takes the heading as its
   title (links still find it by file name).
+- **Import from Logseq**: choose the graph's folder (or a ZIP of it) on Import's *Markdown & ZIP*
+  tab; it is recognised by its `logseq/config.edn`. Pages come in at the top of the graph's page,
+  a namespace's pages (`Projects/Launch`) under a page of the namespace, and journal days under
+  *journals*, titled as the graph titles them (its `:journal/page-title-format`). Links to pages,
+  to their `alias::` names and to journal days become page links; a link to a page the graph has no
+  file for (Logseq makes those on the fly) stays as its text, and `#[[two words]]` becomes the tag
+  `#two-words`. The outline stays a bulleted list, except headings (with code, tables, quotes and
+  pictures) at the top of it, which come out as headings and blocks of their own. TODO, DOING,
+  LATER and NOW become to-dos, DONE ticked ones and CANCELED ticked and struck through; a
+  SCHEDULED or DEADLINE day becomes a date mention on the to-do, so it shows in My tasks. Block
+  references and block embeds become the referenced block's text, a page embed a link to the page
+  on a line of its own, and pictures and files from `assets/` are uploaded. Macros the editor has
+  nothing for (`{{query …}}`) stay visible as code. Left out: the `logseq/` settings and backups,
+  drawings and whiteboards, internal block properties (`id::`, `collapsed::` …) and logbooks;
+  other properties stay as `key: value` lines in their block. Pages kept as Org files aren't read.
+  An import makes at most 500 pages, journal days included, so a larger graph doesn't go in at once.
+- **Import from Joplin**: in Joplin choose *File → Export all → JEX* (or export one notebook as
+  JEX) and pick the `.jex` file on Import's *Markdown & ZIP* tab. Each notebook becomes a page
+  with its notebooks and notes under it, each note a page with its Markdown. Links between notes
+  become page links, pictures and attachments are uploaded, a to-do note starts with its checkbox
+  (ticked when done) and its due day as a date mention, and a note's tags end it as `#tags`.
+  Notes and notebooks in Joplin's trash and conflict copies are left out; encrypted notes can't be
+  read and are counted in the result. A Markdown export from Joplin imports as plain Markdown.
 - **Import from Confluence**: in Confluence, open a space's settings and choose *Export space →
   HTML*, then pick the downloaded ZIP on Import's Confluence tab. Each page of the space becomes a
   page, nested as the space's index lists them (a page it leaves out goes under the parent its

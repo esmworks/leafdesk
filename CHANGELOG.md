@@ -4,6 +4,12 @@
 
 ### Added
 
+- **Logseq graphs and Joplin exports can be imported.** On Import's Markdown & ZIP tab, a Logseq
+  graph's folder (or a ZIP of it) brings its pages, namespaces and journal days with links between
+  them, block references, to-dos with their scheduled days and pictures from `assets/`; a Joplin
+  `.jex` export brings its notebooks as pages over their notes, with links between notes,
+  attachments, to-dos with their due days and tags.
+
 - **A library lists the whole workspace in one place.** The rail's new Library (`g` then `l`)
   shows teamspaces, recently opened pages, favorites, shared and private pages, meeting notes,
   agents and skills, one tab each, with a search over the tab's list and the button that makes

@@ -46,7 +46,7 @@ can search, read and edit your workspace after you approve them over OAuth.
   tell it and sets reminders, reusable skills, and agents that work on database rows, read the
   mailboxes you open to them, chat on Telegram and keep to the rules and limits owners set, with
   Anthropic, OpenAI, Google, OpenRouter or a local model.
-- **Bring your pages**: import a Notion *Markdown & CSV* export, an Obsidian vault, a Confluence space, Evernote notebooks,
+- **Bring your pages**: import a Notion *Markdown & CSV* export, an Obsidian vault, a Logseq graph, Joplin notebooks, a Confluence space, Evernote notebooks,
   OneNote pages and sections, a Trello board, an Asana project, a Monday.com board, Markdown files, TextBundles, Word
   documents, Google documents, PDFs, web pages saved as one file, a folder or CSV, and keep a database of Jira issues,
   GitHub pull requests, a calendar's events (both ways for Google Calendar), a PostgreSQL table or a Google Sheets
@@ -250,7 +250,7 @@ published under the Apache License 2.0 and stay available under it.
 
 Notion is a trademark of Notion Labs, Inc. Leafdesk is an independent project, not affiliated with,
 endorsed by or sponsored by Notion Labs, Inc. The name appears only to describe what Leafdesk is an
-alternative to and what it imports from. Obsidian, Evernote, Trello, Asana, Monday.com, Jira, Confluence, Atlassian, Slack and GitHub are trademarks of their owners;
+alternative to and what it imports from. Obsidian, Logseq, Joplin, Evernote, Trello, Asana, Monday.com, Jira, Confluence, Atlassian, Slack and GitHub are trademarks of their owners;
 Leafdesk is not affiliated with them either, and names them only to describe what it imports or syncs. The names and logos of
 the services in the connection catalog are trademarks of their owners; Leafdesk shows them only to
 identify the service a connection reaches, and is not affiliated with or endorsed by them.

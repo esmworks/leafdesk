@@ -1,7 +1,9 @@
 import { strToU8, unzipSync } from "fflate";
 import { IMPORT_LIMITS, importFileKind, isIgnoredPath, normalizePath } from "@/lib/import/markdown";
+import { isJex } from "@/lib/import/joplin";
 import { isVaultSettingsPath } from "@/lib/import/obsidian";
 import { ImportError } from "@/lib/import/result";
+import { readTar, TarError } from "@/lib/import/tar";
 import { isTextPack, textPackFolder } from "@/lib/import/textbundle";
 
 /**
@@ -10,7 +12,8 @@ import { isTextPack, textPackFolder } from "@/lib/import/textbundle";
  * large exports into parts) merge into one tree, and ZIPs inside a ZIP are unpacked once more
  * (Notion's `Export-<id>.zip` holding `Export-<id>-Part-1.zip`, `…-Part-2.zip`). A TextPack (a
  * zipped TextBundle, see lib/import/textbundle) is unpacked into its bundle folder where it was,
- * counting as a ZIP for the nesting.
+ * counting as a ZIP for the nesting. A Joplin export (`.jex`, a tar archive, see lib/import/joplin)
+ * is unpacked the same way into a folder of its own name, `Notes.jex/`.
  *
  * Unpacking is bounded before it starts: entry sizes come from the ZIP's directory and the
  * decompressor never writes past them, so a ZIP bomb can't take more memory than the limits. An
@@ -113,7 +116,8 @@ function unzip(
       if (depth >= 1) skipped.push({ path, reason: "nestedZip" });
       else if (pack) unpackTextPack(path, bytes, budget, depth + 1, out, skipped, seen);
       else unzip(bytes, budget, depth + 1, out, skipped, seen);
-    } else out.set(path, bytes);
+    } else if (isJex(path)) untarJex(path, bytes, budget, out, skipped);
+    else out.set(path, bytes);
   }
 }
 
@@ -131,6 +135,30 @@ function unpackTextPack(
   unzip(data, budget, depth, inner, skipped, seen);
   const folder = textPackFolder(path, [...inner.keys()]);
   for (const [entry, bytes] of inner) out.set(`${folder}${entry}`, bytes);
+}
+
+/**
+ * Unpacks the Joplin export at `path` into a folder of its name (`Notes.jex/<entry>`), within the
+ * budget; its entries count as files of the upload. One that isn't a tar archive is reported.
+ */
+function untarJex(path: string, data: Uint8Array, budget: Budget, out: Map<string, Uint8Array>, skipped: SkippedFile[]) {
+  let entries;
+  try {
+    entries = readTar(data, (name, size) => {
+      const inner = normalizePath(name);
+      if (!inner || isIgnoredPath(inner)) return false;
+      if (tooDeep(`${path}/${inner}`)) {
+        skipped.push({ path: shown(`${path}/${inner}`), reason: "deepPath" });
+        return false;
+      }
+      take(budget, size);
+      return true;
+    });
+  } catch (error) {
+    if (error instanceof TarError) throw new ImportError("The Joplin export can't be read", "badJex", { name: path.slice(path.lastIndexOf("/") + 1) });
+    throw error;
+  }
+  for (const entry of entries) out.set(`${path}/${normalizePath(entry.name)}`, entry.data);
 }
 
 /**
@@ -164,6 +192,7 @@ export function collectFiles(files: UploadedFile[]): { files: Map<string, Uint8A
     }
     if (importFileKind(path) === "zip") unzip(file.data, budget, 0, out, skipped, seen);
     else if (isTextPack(path)) unpackTextPack(path, file.data, budget, 0, out, skipped, seen);
+    else if (isJex(path)) untarJex(path, file.data, budget, out, skipped);
     else {
       take(budget, file.data.byteLength);
       out.set(path, file.data);

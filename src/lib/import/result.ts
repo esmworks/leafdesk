@@ -38,6 +38,8 @@ export const IMPORT_ERROR_CODES = [
   "badEnex",
   /** A file (`name`) that isn't a single-file web page (.mht, .mhtml) or holds no HTML. */
   "badMhtml",
+  /** A Joplin export (`name`, .jex) that isn't a tar archive or is cut short. */
+  "badJex",
   /** The file isn't a Trello board's JSON export. */
   "badTrello",
   /** The file isn't an Asana project's CSV or JSON export. */

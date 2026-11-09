@@ -72,9 +72,21 @@ export function normalizePath(path: string): string | null {
   return out.length ? out.join("/") : null;
 }
 
-/** Files every OS leaves in archives and folders that aren't anyone's content. */
+/**
+ * Files every OS leaves in archives and folders that aren't anyone's content, and a Logseq graph's
+ * backups (`logseq/bak/`, `logseq/version-files/`), which a graph in use fills with thousands of
+ * files: left out before they count toward the import's limits.
+ */
 export function isIgnoredPath(path: string): boolean {
-  return path.split("/").some((s) => s.startsWith(".") || s === "__MACOSX" || s === "Thumbs.db" || s === "desktop.ini");
+  const segments = path.split("/");
+  return segments.some(
+    (s, i) =>
+      s.startsWith(".") ||
+      s === "__MACOSX" ||
+      s === "Thumbs.db" ||
+      s === "desktop.ini" ||
+      (s === "logseq" && i < segments.length - 2 && (segments[i + 1] === "bak" || segments[i + 1] === "version-files")),
+  );
 }
 
 const dirname = (path: string) => (path.includes("/") ? path.slice(0, path.lastIndexOf("/")) : "");
