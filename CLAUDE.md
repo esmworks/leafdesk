@@ -78,7 +78,7 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   sends carry `base` (`lib/list-merge.ts`). Editor-side rewrites that must ride along with the change that caused them (toggle headings
   taking their section, `components/page/toggle-headings.ts`; column cleanup) are ProseMirror
   `appendTransaction` plugins that skip transactions carrying `ySyncPluginKey` meta (others' edits
-  and undo), so they make one undo step and never run twice. Saves derive markdown and text (`collab/service.ts` `persistPage`) and announce `pageChanged()` (`page-events.ts`); row value
+  and undo), so they make one undo step and never run twice. Saves derive markdown, text and the headings' text (`collab/service.ts` `persistPage`; a copy that writes `content_text` itself writes `heading_text` with it, which search weighs above the body) and announce `pageChanged()` (`page-events.ts`); row value
   changes announce through `row-events.ts`. Page tree operations: `src/server/pages.ts`; databases,
   rows and properties: `databases.ts`; formulas and rollups: `derived.ts` (pure part in
   `src/lib/derived.ts`). Row values are checked in `databases.ts` `normalizeRowProperties` (types,

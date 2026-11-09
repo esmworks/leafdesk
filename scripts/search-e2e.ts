@@ -198,6 +198,9 @@ try {
   const inHeading = await body("Planning notes", "## Zephyrine rollout\n\nDates, owners, risks and the order the teams move in, with what each one needs first.");
   const zephyr = idsOf(await search("zephyrine"));
   check(zephyr.indexOf(inHeading.id) === 0 && zephyr.includes(inBody.id), "a page with the word in a heading comes before one with it in the body", titlesOf(await search("zephyrine")));
+  const headingCopy = await duplicatePage(owner, inHeading.id);
+  const [copied] = await db.select({ headingText: page.headingText }).from(page).where(eq(page.id, headingCopy.id));
+  check(copied?.headingText === "Zephyrine rollout", "a copy keeps its headings' text for search", copied);
 
   // Turkish: "I" lowers to "ı" and "İ" to "i", which the database (lowering the English way) doesn't
   // do. Page and query are folded alike, so the dotted and dotless i find each other either way.
