@@ -4,19 +4,26 @@ import { telegramMessages } from "@/i18n/messages/telegram";
 import { sourceHref, type ChatSourceView, type ChatStepView } from "@/lib/ai-chat";
 import { env } from "@/lib/env";
 import { pageLabel } from "@/lib/labels";
-import { escapeHtml, htmlToText } from "@/lib/telegram-format";
+import { escapeHtml, packMessages } from "@/lib/telegram-format";
 import { savedLocale } from "@/server/mail/locale";
-import { sendMessage, TelegramApiError, type InlineKeyboard } from "./api";
+import type { ChatLinkRow } from "./links";
+import type { Buttons, ChatChannel, Transport } from "./transport";
+import { transportOf } from "./transports";
 
 /** The bot's texts and how it sends them, shared by the bot (bot.ts) and its chats with agents (agent-chat.ts). */
 
-export type Translator = ReturnType<typeof translatorFor>;
+const baseTranslator = (locale: Locale) => createTranslator({ locale, messages: { telegram: telegramMessages[locale] }, namespace: "telegram" });
+type BaseTranslator = ReturnType<typeof baseTranslator>;
+export type TextKey = Parameters<BaseTranslator>[0];
+export type Translator = (key: TextKey, values?: Record<string, string | number>) => string;
 
-export function translatorFor(locale: Locale) {
-  return createTranslator({ locale, messages: { telegram: telegramMessages[locale] }, namespace: "telegram" });
+/** The bot's texts in a language, as a chat app shows them. */
+export function translatorFor(locale: Locale, _channel: ChatChannel = "telegram"): Translator {
+  const t = baseTranslator(locale);
+  return (key, values) => t(key, values);
 }
 
-/** The person's language: the one they last used Leafdesk in, else their Telegram app's. */
+/** The person's language: the one they last used Leafdesk in, else their chat app's. */
 export async function localeOf(userId: string | null, languageCode?: string): Promise<Locale> {
   const saved = userId ? await savedLocale(userId).catch(() => null) : null;
   return saved ?? (languageCode ? negotiateLocale(languageCode) : DEFAULT_LOCALE);
@@ -26,28 +33,33 @@ export async function localeOf(userId: string | null, languageCode?: string): Pr
  * A translated text as HTML with its values put in as given HTML: the text is escaped, the values
  * aren't (escape them with escapeHtml unless they are markup).
  */
-export function html(t: Translator, key: Parameters<Translator>[0], values: Record<string, string> = {}): string {
+export function html(t: Translator, key: TextKey, values: Record<string, string> = {}): string {
   const tokens = Object.fromEntries(Object.keys(values).map((name, i) => [name, `\u0001${i}\u0001`]));
   const list = Object.values(values);
   return escapeHtml(t(key, tokens)).replace(/\u0001(\d+)\u0001/g, (_, i: string) => list[Number(i)]);
 }
 
-/** Sends HTML messages, each again as plain text when Telegram can't parse its markup. */
-export async function sendHtml(chatId: string, messages: string[], keyboard?: InlineKeyboard): Promise<number | null> {
-  let last: number | null = null;
-  for (const [i, text] of messages.entries()) {
-    const options = i === messages.length - 1 && keyboard ? { keyboard } : {};
-    try {
-      last = await sendMessage(chatId, text, options);
-    } catch (error) {
-      if (!(error instanceof TelegramApiError && error.code === 400)) throw error;
-      last = await sendMessage(chatId, htmlToText(text), { ...options, plain: true });
-    }
-  }
+/** A chat the bot writes in: a chat app's transport and the chat's id there. */
+export type Chat = { transport: Transport; id: string };
+
+/** The link's own chat; throws when its chat app isn't set up here any more (nothing can reach it). */
+export function chatOf(link: Pick<ChatLinkRow, "channel" | "chatId">): Chat {
+  const transport = transportOf(link.channel);
+  if (!transport) throw new Error(`${link.channel} is not set up on this server`);
+  return { transport, id: link.chatId };
+}
+
+/** Sends messages of the HTML subset, the buttons under the last; the last one's id. */
+export async function sendHtml(chat: Chat, messages: string[], buttons?: Buttons): Promise<string | null> {
+  let last: string | null = null;
+  for (const [i, text] of messages.entries()) last = await chat.transport.send(chat.id, text, i === messages.length - 1 && buttons ? { buttons } : {});
   return last;
 }
 
-export const send = (chatId: string, text: string, keyboard?: InlineKeyboard) => sendHtml(chatId, [text], keyboard);
+export const send = (chat: Chat, text: string, buttons?: Buttons) => sendHtml(chat, [text], buttons);
+
+/** Blocks of HTML (lib/telegram-format.ts) packed into as few messages as the chat app's length allows. */
+export const packFor = (chat: Chat, blocks: string[]) => packMessages(blocks, chat.transport.messageLimit);
 
 /** A page of the workspace as an address in the app. */
 export const appPageUrl = (source: Pick<ChatSourceView, "workspaceId" | "pageId" | "blockId">) => {

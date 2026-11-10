@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import { createTranslator } from "next-intl";
 import { and, eq, inArray, isNull } from "drizzle-orm";
 import { db } from "@/db";
-import { notification, telegramLink } from "@/db/schema";
+import { notification } from "@/db/schema";
 import type { Locale } from "@/i18n/config";
 import { telegramMessages } from "@/i18n/messages/telegram";
 import { env } from "@/lib/env";
@@ -16,14 +16,16 @@ import { recipientLocale } from "@/server/mail/locale";
 import { emailTranslator } from "@/server/mail/templates";
 import { getNotificationPreferences, telegramWanted } from "@/server/notification-preferences";
 import { listNotifications, markRead, snoozeNotification, type InboxApproval, type InboxItem } from "@/server/notifications";
-import { TelegramApiError, type InlineKeyboard } from "./api";
-import { setTelegramNotifications } from "./links";
-import { send } from "./say";
+import { notifiedLinks, setChatNotifications } from "./links";
+import { send, type Chat } from "./say";
+import { ChannelError, type Buttons, type ChatChannel } from "./transport";
+import { anyChatApp, transportOf } from "./transports";
 
 /**
- * Inbox notifications in Telegram: each new one also goes, as a message, to the Telegram chat its
- * recipient linked (links.ts), when they left notifications on there and the kind on in their
- * preferences (user_preference's `…Telegram` columns, which follow the inbox as push does). Called
+ * Inbox notifications in chat apps: each new one also goes, as a message, to each chat its
+ * recipient linked (links.ts) in a chat app set up here, when they left notifications on there and
+ * the kind on in their preferences (user_preference's `…Telegram` columns, which now mean every
+ * chat app and follow the inbox as push does). Called
  * with the push notifications (server/push.ts), after the notification is saved; it never holds up
  * or fails what caused it.
  *
@@ -41,19 +43,19 @@ import { send } from "./say";
  * connected-apps setting as a write: a workspace that lets apps only read is answered in the app.
  */
 
-export async function deliverTelegram(ids: string[]): Promise<void> {
-  if (!ids.length || !env.telegramBotToken) return;
+export async function deliverChatApps(ids: string[]): Promise<void> {
+  if (!ids.length || !anyChatApp()) return;
   const rows = await db
     .select({ id: notification.id, userId: notification.userId, kind: notification.kind, locale: notification.emailLocale })
     .from(notification)
     .where(and(inArray(notification.id, ids), isNull(notification.readAt)));
   if (!rows.length) return;
-  const links = await db
-    .select()
-    .from(telegramLink)
-    .where(and(inArray(telegramLink.userId, [...new Set(rows.map((r) => r.userId))]), eq(telegramLink.notifications, true)));
+  const links = await notifiedLinks([...new Set(rows.map((r) => r.userId))]);
   await Promise.all(
     links.map(async (link) => {
+      const transport = transportOf(link.channel);
+      if (!transport) return;
+      const chat: Chat = { transport, id: link.chatId };
       const preferences = await getNotificationPreferences(link.userId);
       const theirs = rows.filter((r) => r.userId === link.userId && telegramWanted(preferences, r.kind));
       if (!theirs.length) return;
@@ -70,11 +72,11 @@ export async function deliverTelegram(ids: string[]): Promise<void> {
         const message = itemMessage(item, texts);
         if (!message) continue;
         try {
-          await send(link.chatId, message.text, message.keyboard);
+          await send(chat, message.text, message.buttons);
         } catch (error) {
-          // 403: the person blocked the bot or deleted the chat; stop until they turn it on again.
-          if (error instanceof TelegramApiError && error.code === 403) {
-            await setTelegramNotifications(link.userId, false);
+          // The person blocked the bot or deleted the chat; stop until they turn it on again.
+          if (error instanceof ChannelError && error.kind === "blocked") {
+            await setChatNotifications(link.channel, link.userId, false);
             return;
           }
           throw error;
@@ -93,8 +95,8 @@ function notifyTexts(locale: Locale) {
   return { locale, push, t: createTranslator({ locale, messages: { telegram: telegramMessages[locale] }, namespace: "telegram.notify" }) };
 }
 
-/** A notification as a Telegram message: what its push notification says, with its buttons; null for one that has none. */
-function itemMessage(item: InboxItem, { locale, push, t }: NotifyTexts): { text: string; keyboard: InlineKeyboard } | null {
+/** A notification as a chat message: what its push notification says, with its buttons; null for one that has none. */
+function itemMessage(item: InboxItem, { locale, push, t }: NotifyTexts): { text: string; buttons: Buttons } | null {
   const payload = pushPayload(item, push, (date, timeZone) => formatIsoDate(date, locale, "medium", timeZone));
   if (!payload) return null;
   if (item.approval) return approvalMessage(item, item.approval, payload, t);
@@ -103,24 +105,22 @@ function itemMessage(item: InboxItem, { locale, push, t }: NotifyTexts): { text:
     escapeHtml(payload.body),
     `<i>${escapeHtml(item.workspaceName)}</i> · <a href="${escapeHtml(`${env.appUrl}${payload.url}`)}">${escapeHtml(t("open"))}</a>`,
   ].join("\n");
-  const keyboard = {
-    inline_keyboard: [
-      [
-        { text: t("markRead"), callback_data: `nr:${item.id}` },
-        ...(payload.snooze ? [{ text: payload.snooze, callback_data: `nz:${item.id}` }] : []),
-      ],
+  const buttons: Buttons = [
+    [
+      { text: t("markRead"), data: `nr:${item.id}` },
+      ...(payload.snooze ? [{ text: payload.snooze, data: `nz:${item.id}` }] : []),
     ],
-  };
-  return { text, keyboard };
+  ];
+  return { text, buttons };
 }
 
 /**
- * Sends the person the approval message of the call a run waits on for them, as deliverTelegram
- * would (for a chat with an agent from Telegram whose person doesn't get their notifications
+ * Sends the person the approval message of the call a run waits on for them, as deliverChatApps
+ * would (for a chat with an agent from a chat app whose person doesn't get their notifications
  * there). False when they have no such notification: the run waits on someone else, or was answered.
  * Runs inside the person's connected-app call.
  */
-export async function sendApprovalHere(userId: string, chatId: string, runId: string): Promise<boolean> {
+export async function sendApprovalHere(userId: string, chat: Chat, runId: string): Promise<boolean> {
   const [found] = await db
     .select({ id: notification.id, locale: notification.emailLocale })
     .from(notification)
@@ -130,7 +130,7 @@ export async function sendApprovalHere(userId: string, chatId: string, runId: st
   const [item] = await listNotifications(userId, { ids: [found.id] });
   const message = item?.approval ? itemMessage(item, notifyTexts(await recipientLocale(userId, found.locale))) : null;
   if (!message) return false;
-  await send(chatId, message.text, message.keyboard);
+  await send(chat, message.text, message.buttons);
   return true;
 }
 
@@ -138,7 +138,7 @@ export async function sendApprovalHere(userId: string, chatId: string, runId: st
 export const SNOOZE_MS = 60 * 60_000;
 
 /**
- * A notification's button pressed in Telegram: marks it read, or snoozes it for SNOOZE_MS. False
+ * A notification's button pressed in a chat app: marks it read, or snoozes it for SNOOZE_MS. False
  * when it isn't the person's or no longer can be (gone, or in a workspace they left or that
  * turned connected apps off).
  */
@@ -165,7 +165,7 @@ export async function answerNotification(userId: string, notificationId: string,
 // ---------------------------------------------------------------------------------- agents' calls
 
 /** The most of a call's input a message shows: a longer call is approved from its run. */
-export const TELEGRAM_CALL_CHARS = 3_000;
+export const CALL_CHARS = 3_000;
 
 /**
  * A short fingerprint of the call a message shows, carried by its buttons (Telegram keeps a button's
@@ -175,8 +175,8 @@ export const callGuard = (callId: string) => createHash("sha256").update(callId)
 
 /** What a message shows of a call, and whether that is all of what would be sent. */
 export function shownCall(approval: Pick<InboxApproval, "input" | "whole">): { input: string; whole: boolean } {
-  const cut = approval.input.length > TELEGRAM_CALL_CHARS;
-  return { input: cut ? `${approval.input.slice(0, TELEGRAM_CALL_CHARS - 1)}…` : approval.input, whole: approval.whole && !cut };
+  const cut = approval.input.length > CALL_CHARS;
+  return { input: cut ? `${approval.input.slice(0, CALL_CHARS - 1)}…` : approval.input, whole: approval.whole && !cut };
 }
 
 type NotifyTranslator = (key: "approve" | "decline" | "redo" | "notWhole" | "openRun") => string;
@@ -191,27 +191,27 @@ function approvalMessage(item: InboxItem, approval: InboxApproval, payload: { ti
     `<i>${escapeHtml(item.workspaceName)}</i> · <a href="${escapeHtml(`${env.appUrl}${payload.url}`)}">${escapeHtml(t("openRun"))}</a>`,
   ].join("\n");
   const data = (choice: string) => `a${choice}:${item.id}:${callGuard(approval.callId)}`;
-  const keyboard = {
-    inline_keyboard: [
-      [...(whole ? [{ text: t("approve"), callback_data: data("a") }] : []), { text: t("decline"), callback_data: data("d") }],
-      [{ text: t("redo"), callback_data: data("r") }],
-    ],
-  };
-  return { text, keyboard };
+  const buttons: Buttons = [
+    [...(whole ? [{ text: t("approve"), data: data("a") }] : []), { text: t("decline"), data: data("d") }],
+    [{ text: t("redo"), data: data("r") }],
+  ];
+  return { text, buttons };
 }
 
-/** How an answer to an agent's call from Telegram went (`telegram.notify.call.*`). */
+/** How an answer to an agent's call from a chat app went (`telegram.notify.call.*`). */
 export type CallAnswer = "approved" | "declined" | "sentBack" | "decided" | "gone" | "changed" | "forbidden" | "readOnly" | "notWhole" | "emptyNote";
 
 /**
- * An owner's answer from Telegram to the call an approval notification shows: `guard` (callGuard)
- * names the call they saw. Approving needs the call shown whole, as in the inbox.
+ * An owner's answer from a chat app (`via`, for the audit log) to the call an approval notification
+ * shows: `guard` (callGuard) names the call they saw. Approving needs the call shown whole, as in
+ * the inbox.
  */
 export async function answerCall(
   userId: string,
   notificationId: string,
   guard: string,
   decision: "approve" | "decline" | "redo",
+  via: ChatChannel,
   note?: string,
 ): Promise<CallAnswer> {
   if (decision === "redo" && !note?.trim()) return "emptyNote";
@@ -230,7 +230,7 @@ export async function answerCall(
     if (callGuard(approval.callId) !== guard) return "changed";
     if (decision === "approve" && !shownCall(approval).whole) return "notWhole";
     try {
-      await asWrite(() => decideApproval(userId, { runId: approval.runId, callId: approval.callId, decision, note, via: "telegram" }));
+      await asWrite(() => decideApproval(userId, { runId: approval.runId, callId: approval.callId, decision, note, via }));
       return decision === "approve" ? "approved" : decision === "decline" ? "declined" : "sentBack";
     } catch (error) {
       if (error instanceof ApprovalError) return error.code === "decided" ? "decided" : error.code === "forbidden" ? "forbidden" : error.code === "invalid" ? "emptyNote" : "gone";

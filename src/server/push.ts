@@ -14,7 +14,8 @@ import { recipientLocale } from "@/server/mail/locale";
 import { emailTranslator } from "@/server/mail/templates";
 import { getNotificationPreferences, pushWanted } from "@/server/notification-preferences";
 import { listNotifications, unreadCount } from "@/server/notifications";
-import { deliverTelegram } from "@/server/telegram/notify";
+import { deliverChatApps } from "@/server/chat-apps/notify";
+import { anyChatApp } from "@/server/chat-apps/transports";
 
 /**
  * Push notifications: each new inbox notification also goes, as a push message, to the browsers
@@ -59,13 +60,13 @@ const sending = new Set<Promise<void>>();
 
 /**
  * Pushes the notifications just saved (by id) to their recipients' devices, and sends them to the
- * Telegram chats they linked (server/telegram/notify.ts), without waiting: returns at once and never
+ * chat-app chats they linked (Telegram, Slack: server/chat-apps/notify.ts), without waiting: returns at once and never
  * throws. Unread notifications only, of the kinds each person wants there, that their inbox shows
  * them.
  */
 export function pushNotifications(ids: string[]) {
   if (!ids.length) return;
-  if (env.telegramBotToken) track(deliverTelegram(ids), "could not send notifications to Telegram");
+  if (anyChatApp()) track(deliverChatApps(ids), "could not send notifications to chat apps");
   if (env.vapid) track(deliver(ids), "could not send push notifications");
 }
 
@@ -74,7 +75,7 @@ function track(work: Promise<void>, failure: string) {
   sending.add(delivery);
 }
 
-/** Scripts and tests: wait for the push notifications (and Telegram messages) being sent. */
+/** Scripts and tests: wait for the push notifications (and chat-app messages) being sent. */
 export async function flushPush() {
   while (sending.size) await Promise.all(sending);
 }

@@ -1,4 +1,5 @@
 import { env } from "@/lib/env";
+import { ChannelError, type ChannelErrorKind } from "@/server/chat-apps/transport";
 
 /**
  * The few Bot API methods the Telegram bridge uses (https://core.telegram.org/bots/api), over
@@ -6,18 +7,29 @@ import { env } from "@/lib/env";
  * code and description; the token is never part of an error or a log line.
  */
 
-export class TelegramApiError extends Error {
+export class TelegramApiError extends ChannelError {
   constructor(
-    readonly method: string,
+    method: string,
     /** Telegram's error_code (an HTTP status), 0 when the request didn't get an answer. */
     readonly code: number,
     message: string,
     /** Seconds to wait before asking again (429). */
     readonly retryAfter?: number,
   ) {
-    super(`${method}: ${message}`);
+    super("telegram", method, kindOf(code, message), message, retryAfter === undefined ? undefined : retryAfter * 1000);
     this.name = "TelegramApiError";
   }
+}
+
+/** A Bot API error as the chat-app core tells them apart. */
+function kindOf(code: number, message: string): ChannelErrorKind {
+  if (code === 0) return "network";
+  if (code === 401 || code === 404) return "unauthorized";
+  if (code === 403) return "blocked";
+  if (code === 413) return "tooLarge";
+  if (code === 429) return "rateLimited";
+  if (code === 400) return /not modified/i.test(message) ? "notModified" : /not found/i.test(message) ? "notFound" : "badRequest";
+  return "other";
 }
 
 export type TelegramUser = { id: number; is_bot: boolean; first_name: string; last_name?: string; username?: string; language_code?: string };
