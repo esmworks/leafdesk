@@ -2501,5 +2501,16 @@
       "accessLost": "Die nächste Zeile konnte nicht angelegt werden: Wer die Wiederholung eingerichtet hat, darf hier keine Zeilen mehr hinzufügen.",
       "tooMany": "Für heute angehalten: Diese Zeile wurde zu oft erledigt und neu geöffnet."
     }
+  },
+  "connectedView": {
+    "open": "In Leafdesk öffnen",
+    "more": "Mehr anzeigen",
+    "showing": "{shown} von {total}",
+    "empty": "Keine Zeilen vorhanden.",
+    "failed": "Weitere Zeilen konnten nicht geladen werden. Versuchen Sie es erneut.",
+    "checked": "Angehakt",
+    "unchecked": "Nicht angehakt",
+    "loading": "Zeilen werden geladen…",
+    "unavailable": "Diese Zeilen können nicht angezeigt werden."
   }
 }

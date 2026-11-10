@@ -2501,5 +2501,16 @@
       "accessLost": "De volgende kon niet worden toegevoegd: wie de herhaling instelde, mag hier geen rijen meer toevoegen.",
       "tooMany": "Gestopt voor vandaag: deze rij is te vaak afgerond en opnieuw geopend."
     }
+  },
+  "connectedView": {
+    "open": "Openen in Leafdesk",
+    "more": "Meer tonen",
+    "showing": "{shown} van {total}",
+    "empty": "Geen rijen om te tonen.",
+    "failed": "Kon geen rijen meer laden. Probeer het opnieuw.",
+    "checked": "Aangevinkt",
+    "unchecked": "Niet aangevinkt",
+    "loading": "Rijen laden…",
+    "unavailable": "Deze rijen kunnen niet worden getoond."
   }
 }

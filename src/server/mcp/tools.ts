@@ -129,7 +129,10 @@ import { pdfThemeSchema } from "@/lib/pdf-themes";
 import { checkedTheme, createLetterhead, listLetterheads, setDefaultLetterhead, setLetterheadTheme } from "@/server/letterheads";
 import { pdfThemeDoc } from "@/server/pdf-theme-docs";
 import { briefly, checked, DOC_TOPICS, docTopicOf, docUri, schemaText, see, type Doc, type DocTopic } from "./docs";
-import { idsFromLinks, jsonResult, MAX_MARKDOWN_CHARS, pageUrl, runTool, sliceText, ToolInputError, toolErrorFor } from "./format";
+import { idsFromLinks, jsonResult, MAX_MARKDOWN_CHARS, pageUrl, runAppTool, runTool, sliceText, ToolInputError, toolErrorFor } from "./format";
+import { RESOURCE_MIME_TYPE, RESOURCE_URI_META_KEY } from "@modelcontextprotocol/ext-apps/server";
+import { DATABASE_VIEW_URI } from "@/lib/mcp-view";
+import { databaseViewResource } from "./app-view";
 import { CORE_TOOLS, type ToolList } from "./catalog";
 import { registerGates, type HeldTool } from "./gates";
 import { refusingUnknownArguments } from "./strict-arguments";
@@ -2322,6 +2325,22 @@ export function createMcpServer(principal: McpPrincipal, options: { actor?: Writ
       annotations: READ,
     },
     (args) => runTool(() => ops.queryDatabase(ctx, args)),
+  );
+
+  // Drawn by the view at DATABASE_VIEW_URI in apps that show MCP Apps (app-view.ts).
+  server.registerTool(
+    "show_database",
+    {
+      title: "Show database rows",
+      description: `Show the user a database's rows as a table in the conversation, a page at a time, in apps that draw Leafdesk's views; elsewhere it returns them as query_database does. Use it when the user wants to see rows; to read rows for yourself, use query_database. Takes query_database's arguments; limit is 1-${ops.MAX_SHOWN_ROWS}, default ${ops.SHOWN_ROWS}. Without properties the table shows the view's columns (every property without view_id).`,
+      inputSchema: ops.inputs.queryDatabase.extend({
+        filters: filtersParam.optional(),
+        limit: z.number().int().min(1).max(ops.MAX_SHOWN_ROWS).default(ops.SHOWN_ROWS),
+      }),
+      annotations: READ,
+      _meta: { ui: { resourceUri: DATABASE_VIEW_URI }, [RESOURCE_URI_META_KEY]: DATABASE_VIEW_URI },
+    },
+    (args) => runAppTool(() => ops.showDatabase(ctx, args)),
   );
 
   server.registerTool(
@@ -4807,22 +4826,36 @@ export function createMcpServer(principal: McpPrincipal, options: { actor?: Writ
     (args) => runTool(() => ops.listSnippets(ctx, args)),
   );
 
-  // The docs topics the tool list points at, read on demand (see docs.ts).
+  // The docs topics the tool list points at, read on demand (see docs.ts), and the view that draws
+  // show_database's result in apps that show MCP Apps (app-view.ts).
   server.server.registerCapabilities({ resources: { listChanged: false } });
   server.server.setRequestHandler("resources/list", async () => ({
-    resources: DOC_TOPICS.map((topic) => ({
-      uri: docUri(topic),
-      name: topic,
-      title: allDocs()[topic].title,
-      description: allDocs()[topic].description,
-      mimeType: "text/markdown",
-    })),
+    resources: [
+      ...DOC_TOPICS.map((topic) => ({
+        uri: docUri(topic),
+        name: topic,
+        title: allDocs()[topic].title,
+        description: allDocs()[topic].description,
+        mimeType: "text/markdown",
+      })),
+      {
+        uri: DATABASE_VIEW_URI,
+        name: "database-view",
+        title: "Database rows",
+        description: "The table show_database's rows are drawn in, for apps that show MCP Apps.",
+        mimeType: RESOURCE_MIME_TYPE,
+      },
+    ],
   }));
   server.server.setRequestHandler("resources/templates/list", async () => ({ resourceTemplates: [] }));
   server.server.setRequestHandler("resources/read", async (request) => {
+    if (request.params.uri === DATABASE_VIEW_URI) return { contents: [await databaseViewResource(userId)] };
     const doc = readDocs(request.params.uri);
     if (!doc) {
-      throw new ProtocolError(ProtocolErrorCode.InvalidParams, `No such resource: ${request.params.uri}. resources/list names the docs topics.`);
+      throw new ProtocolError(
+        ProtocolErrorCode.InvalidParams,
+        `No such resource: ${request.params.uri}. resources/list names the docs topics and views.`,
+      );
     }
     return { contents: [{ uri: doc.uri, mimeType: "text/markdown", text: `# ${doc.title}\n\n${doc.text}` }] };
   });

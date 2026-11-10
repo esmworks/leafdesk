@@ -2501,5 +2501,16 @@
       "accessLost": "다음 행을 추가하지 못했습니다: 반복을 설정한 사람이 더 이상 여기에 행을 추가할 수 없습니다.",
       "tooMany": "오늘은 멈췄습니다: 이 행이 너무 여러 번 완료되고 다시 열렸습니다."
     }
+  },
+  "connectedView": {
+    "open": "Leafdesk에서 열기",
+    "more": "더 보기",
+    "showing": "{total}개 중 {shown}개 표시",
+    "empty": "표시할 행이 없습니다.",
+    "failed": "행을 더 불러오지 못했습니다. 다시 시도하세요.",
+    "checked": "선택됨",
+    "unchecked": "선택 안 됨",
+    "loading": "행을 불러오는 중…",
+    "unavailable": "이 행을 표시할 수 없습니다."
   }
 }

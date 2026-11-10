@@ -2501,5 +2501,16 @@
       "accessLost": "Den neste kunne ikke legges til: den som satte opp gjentakelsen, kan ikke lenger legge til rader her.",
       "tooMany": "Stoppet for i dag: raden er fullført og åpnet igjen for mange ganger."
     }
+  },
+  "connectedView": {
+    "open": "Åpne i Leafdesk",
+    "more": "Vis flere",
+    "showing": "Viser {shown} av {total}",
+    "empty": "Ingen rader å vise.",
+    "failed": "Kunne ikke laste inn flere rader. Prøv igjen.",
+    "checked": "Avkrysset",
+    "unchecked": "Ikke avkrysset",
+    "loading": "Laster inn rader…",
+    "unavailable": "Disse radene kan ikke vises."
   }
 }

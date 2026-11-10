@@ -2501,5 +2501,16 @@
       "accessLost": "Sonraki eklenemedi: tekrarı ayarlayan kişi artık buraya satır ekleyemiyor.",
       "tooMany": "Bugünlük durdu: bu satır çok kez bitirilip yeniden açıldı."
     }
+  },
+  "connectedView": {
+    "open": "Leafdesk'te aç",
+    "more": "Daha fazla göster",
+    "showing": "{total} satırdan {shown} tanesi gösteriliyor",
+    "empty": "Gösterilecek satır yok.",
+    "failed": "Daha fazla satır yüklenemedi. Yeniden dene.",
+    "checked": "İşaretli",
+    "unchecked": "İşaretsiz",
+    "loading": "Satırlar yükleniyor…",
+    "unavailable": "Bu satırlar gösterilemiyor."
   }
 }

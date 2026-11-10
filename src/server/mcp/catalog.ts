@@ -20,6 +20,8 @@ export const CORE_TOOLS: ReadonlySet<string> = new Set([
   "attach_file",
   "get_database",
   "query_database",
+  // In the list itself: apps draw a tool's view only from the list's own definitions (app-view.ts).
+  "show_database",
   "create_database",
   "create_database_row",
   "create_database_rows",

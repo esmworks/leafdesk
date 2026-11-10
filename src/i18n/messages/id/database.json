@@ -2501,5 +2501,16 @@
       "accessLost": "Berikutnya tidak dapat ditambahkan: orang yang mengatur pengulangan tidak lagi boleh menambahkan baris di sini.",
       "tooMany": "Dihentikan untuk hari ini: baris ini terlalu sering diselesaikan dan dibuka lagi."
     }
+  },
+  "connectedView": {
+    "open": "Buka di Leafdesk",
+    "more": "Tampilkan lebih banyak",
+    "showing": "Menampilkan {shown} dari {total}",
+    "empty": "Tidak ada baris untuk ditampilkan.",
+    "failed": "Tidak dapat memuat baris lainnya. Coba lagi.",
+    "checked": "Dicentang",
+    "unchecked": "Tidak dicentang",
+    "loading": "Memuat baris…",
+    "unavailable": "Baris ini tidak dapat ditampilkan."
   }
 }

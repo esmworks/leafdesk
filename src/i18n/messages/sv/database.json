@@ -2501,5 +2501,16 @@
       "accessLost": "Nästa kunde inte läggas till: den som ställde in upprepningen får inte längre lägga till rader här.",
       "tooMany": "Stoppad för i dag: raden har markerats klar och öppnats igen för många gånger."
     }
+  },
+  "connectedView": {
+    "open": "Öppna i Leafdesk",
+    "more": "Visa fler",
+    "showing": "Visar {shown} av {total}",
+    "empty": "Inga rader att visa.",
+    "failed": "Det gick inte att läsa in fler rader. Försök igen.",
+    "checked": "Markerad",
+    "unchecked": "Inte markerad",
+    "loading": "Läser in rader…",
+    "unavailable": "De här raderna kan inte visas."
   }
 }

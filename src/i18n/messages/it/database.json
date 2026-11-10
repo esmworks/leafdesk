@@ -2501,5 +2501,16 @@
       "accessLost": "Impossibile aggiungere la prossima: chi ha impostato la ripetizione non può più aggiungere righe qui.",
       "tooMany": "Fermata per oggi: questa riga è stata completata e riaperta troppe volte."
     }
+  },
+  "connectedView": {
+    "open": "Apri in Leafdesk",
+    "more": "Mostra altro",
+    "showing": "{shown} di {total}",
+    "empty": "Nessuna riga da mostrare.",
+    "failed": "Impossibile caricare altre righe. Riprova.",
+    "checked": "Selezionato",
+    "unchecked": "Non selezionato",
+    "loading": "Caricamento righe…",
+    "unavailable": "Queste righe non possono essere mostrate."
   }
 }

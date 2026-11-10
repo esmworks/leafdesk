@@ -2501,5 +2501,16 @@
       "accessLost": "Seuraavaa ei voitu lisätä: toiston asettaja ei voi enää lisätä rivejä tänne.",
       "tooMany": "Pysäytetty tältä päivältä: rivi on merkitty valmiiksi ja avattu uudelleen liian monta kertaa."
     }
+  },
+  "connectedView": {
+    "open": "Avaa Leafdeskissä",
+    "more": "Näytä lisää",
+    "showing": "Näytetään {shown}/{total}",
+    "empty": "Ei näytettäviä rivejä.",
+    "failed": "Lisää rivejä ei voitu ladata. Yritä uudelleen.",
+    "checked": "Valittu",
+    "unchecked": "Ei valittu",
+    "loading": "Ladataan rivejä…",
+    "unavailable": "Näitä rivejä ei voi näyttää."
   }
 }

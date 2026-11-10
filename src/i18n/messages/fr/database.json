@@ -2501,5 +2501,16 @@
       "accessLost": "La suivante n’a pas pu être ajoutée : la personne qui a réglé la répétition ne peut plus ajouter de lignes ici.",
       "tooMany": "Arrêté pour aujourd’hui : cette ligne a été terminée puis rouverte trop de fois."
     }
+  },
+  "connectedView": {
+    "open": "Ouvrir dans Leafdesk",
+    "more": "Afficher plus",
+    "showing": "{shown} sur {total}",
+    "empty": "Aucune ligne à afficher.",
+    "failed": "Impossible de charger plus de lignes. Réessayez.",
+    "checked": "Coché",
+    "unchecked": "Non coché",
+    "loading": "Chargement des lignes…",
+    "unavailable": "Ces lignes ne peuvent pas être affichées."
   }
 }

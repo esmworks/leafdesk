@@ -4,6 +4,12 @@
 
 ### Added
 
+- **Database rows as a table inside Claude and other apps showing MCP Apps.** The new MCP tool
+  `show_database` takes `query_database`'s arguments and draws the rows in the conversation: the
+  view's columns with their number formats, dates and option colors, in the person's language, in
+  light and dark, with *Show more* (full screen, the next page) and *Open in Leafdesk*. Apps that
+  don't show MCP Apps get the rows as text. It is one of the core tools apps list (28 of 30).
+
 - **Agents work as a team.** An agent's *Agents it can ask* is now *No agents*, *Chosen agents* or
   *All agents* (every other agent the person who chose it may use, agents added later too). *Reports
   to* puts an agent under a manager agent, which may always ask its team and give them tasks, and

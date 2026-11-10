@@ -2501,5 +2501,16 @@
       "accessLost": "无法添加下一条：设置重复的人已不能在此添加行。",
       "tooMany": "今天已暂停：这一行完成后又重新打开的次数过多。"
     }
+  },
+  "connectedView": {
+    "open": "在 Leafdesk 中打开",
+    "more": "显示更多",
+    "showing": "显示 {total} 行中的 {shown} 行",
+    "empty": "没有可显示的行。",
+    "failed": "无法加载更多行，请重试。",
+    "checked": "已勾选",
+    "unchecked": "未勾选",
+    "loading": "正在加载行…",
+    "unavailable": "无法显示这些行。"
   }
 }

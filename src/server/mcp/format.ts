@@ -137,6 +137,19 @@ export async function runTool(fn: () => Promise<unknown>): Promise<CallToolResul
   }
 }
 
+/**
+ * runTool for a tool a view draws (an MCP App, app-view.ts): the same object as text, which models
+ * read, and as structuredContent, which the view reads.
+ */
+export async function runAppTool(fn: () => Promise<object>): Promise<CallToolResult> {
+  try {
+    const data = await fn();
+    return { ...jsonResult(data), structuredContent: data as Record<string, unknown> };
+  } catch (error) {
+    return toolErrorFor(error);
+  }
+}
+
 /** Returns a window of `text` starting at `offset`, bounded to `max` characters. */
 export function sliceText(text: string, offset = 0, max = MAX_MARKDOWN_CHARS) {
   const start = Math.max(0, Math.min(offset, text.length));

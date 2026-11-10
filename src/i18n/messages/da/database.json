@@ -2501,5 +2501,16 @@
       "accessLost": "Den næste kunne ikke tilføjes: den, der satte gentagelsen op, må ikke længere tilføje rækker her.",
       "tooMany": "Stoppet for i dag: rækken er udført og åbnet igen for mange gange."
     }
+  },
+  "connectedView": {
+    "open": "Åbn i Leafdesk",
+    "more": "Vis flere",
+    "showing": "Viser {shown} af {total}",
+    "empty": "Ingen rækker at vise.",
+    "failed": "Kunne ikke indlæse flere rækker. Prøv igen.",
+    "checked": "Markeret",
+    "unchecked": "Ikke markeret",
+    "loading": "Indlæser rækker…",
+    "unavailable": "Disse rækker kan ikke vises."
   }
 }

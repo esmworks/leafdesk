@@ -2501,5 +2501,16 @@
       "accessLost": "No se pudo añadir la siguiente: quien configuró la repetición ya no puede añadir filas aquí.",
       "tooMany": "Detenido por hoy: esta fila se terminó y se volvió a abrir demasiadas veces."
     }
+  },
+  "connectedView": {
+    "open": "Abrir en Leafdesk",
+    "more": "Mostrar más",
+    "showing": "Mostrando {shown} de {total}",
+    "empty": "No hay filas que mostrar.",
+    "failed": "No se pudieron cargar más filas. Inténtalo de nuevo.",
+    "checked": "Marcado",
+    "unchecked": "Sin marcar",
+    "loading": "Cargando filas…",
+    "unavailable": "No se pueden mostrar estas filas."
   }
 }

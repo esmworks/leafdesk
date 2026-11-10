@@ -357,6 +357,15 @@ The tools cover:
   value from the row picked for it (or every row's together), pointing other rows' links at the
   kept row and bringing comments, activity, files, email and content along; the merged rows go to
   the trash.
+- **Rows shown in the conversation:** `show_database` takes `query_database`'s arguments and returns
+  the same rows, 10 at a time by default (up to 50), with each column's kind. Apps that show MCP
+  Apps (Claude's among them) draw them as a table in the conversation, in the person's language,
+  number formats and option colors, with *Show more*, which opens the table full screen and reads
+  on from the cursor, and *Open in Leafdesk*. Without `properties` the table shows the view's
+  columns in its order, or every property without `view_id`. Other apps get the rows as text, as
+  from `query_database`. The table's page (`ui://leafdesk/database-view.html`) loads nothing from
+  other sites but the app's own fonts, and opens only Leafdesk's links. Leafdesk's own AI chat
+  doesn't get this tool.
 - **Dashboards:** `add_dashboard` adds a dashboard of widgets (each a database and the settings of
   a view, as for `create_database_view`; a number is a chart with `chart_type: "number"`) to the end
   of a page (`layout: "tabs"` shows one widget at a time, as tabs), and `update_dashboard_widget`

@@ -184,6 +184,12 @@ try {
   leaks("get_database", await ops.getDatabase(ctx, { database_id: staff.id }));
   leaks("query_database", await ops.queryDatabase(ctx, { database_id: staff.id, limit: 50 }));
   leaks("a row as MCP shows it", await ops.getDatabaseRow(ctx, { row_id: bob.id }));
+  // show_database's columns carry names, options and formats besides the values.
+  const shown = await ops.showDatabase(ctx, { database_id: staff.id, limit: 50 });
+  leaks("show_database", shown);
+  check(shown.columns.some((c) => c.name === "Salary"), "show_database keeps a column whose values some rows show", shown.columns);
+  const askedHidden = await ops.showDatabase(ctx, { database_id: staff.id, limit: 50, properties: ["Secret"] }).catch((error: unknown) => error);
+  leaks("show_database asked for a hidden property", askedHidden instanceof Error ? askedHidden.message : askedHidden);
   leaks("CSV export", await databaseCsv(ids.editor, staff.id));
   const csvOwner = await databaseCsv(ids.owner, staff.id);
   check(JSON.stringify(csvOwner).includes("654321"), "the owner's export is whole");

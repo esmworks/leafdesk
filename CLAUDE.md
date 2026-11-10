@@ -241,6 +241,15 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   in `mcp/`, not there. A tool refuses an argument it doesn't take (`mcp/strict-arguments.ts`,
   applied to every tool in `createMcpServer`; the list still shows the schema as written), so a
   test or script passing an extra key gets an error.
+  MCP Apps: `show_database` (`operations.ts` `showDatabase`, columns `lib/mcp-view-columns.ts`)
+  names its view in `_meta.ui.resourceUri`, served by `mcp/app-view.ts` as one self-contained HTML
+  page in the person's language. Apps draw a view only from the tool list itself, so such a tool
+  stays in `CORE_TOOLS`. The view's code is `src/mcp-app/` (cells shared with tests in
+  `lib/mcp-view-cells.ts`; `lib/mcp-view.ts` stays import-free, or the bundle pulls in the formula
+  engine). It is bundled by `pnpm tsx scripts/mcp-app.ts` into the committed `mcp/app-bundle.ts`.
+  The bundle also holds `lib/date-value.ts`, `number-format.ts` and `time-zone.ts`
+  (`DATABASE_VIEW_SOURCES`), so `app-bundle.test.ts` fails until the script runs again after any
+  change to them, including after a merge.
 - **REST API.** One route table, `API_ROUTES` in `src/server/api/routes.ts` (`defineRoute`); the
   OpenAPI document is generated from it. Bearer tokens only (`api/tokens.ts`). `defineRoute` makes
   each query and body schema `.strict()`, so a field a route doesn't name answers 400 (a script

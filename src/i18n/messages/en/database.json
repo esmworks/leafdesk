@@ -2501,5 +2501,16 @@
       "accessLost": "The next one couldn’t be added: whoever set the repeat may no longer add rows here.",
       "tooMany": "Stopped for today: this row was done and opened again too many times."
     }
+  },
+  "connectedView": {
+    "open": "Open in Leafdesk",
+    "more": "Show more",
+    "showing": "Showing {shown} of {total}",
+    "empty": "No rows to show.",
+    "failed": "Couldn’t load more rows. Try again.",
+    "checked": "Checked",
+    "unchecked": "Not checked",
+    "loading": "Loading rows…",
+    "unavailable": "These rows can’t be shown."
   }
 }

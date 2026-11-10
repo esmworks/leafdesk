@@ -19,14 +19,16 @@ import { NOTIFICATIONS_SCOPE, READ_SCOPE, WRITE_SCOPE } from "@/server/mcp/princ
 
 /**
  * MCP tools the chat has its own of (search_pages, read_page, query_database, create_row…), whose
- * changes it shows in full before they're made; the person's notes, kept apart and approved
- * one by one (ai-memory.ts); a file fetched from an address, which would carry data out; and team
- * messages, outside words that only a run started from a channel reads (messages/operations.ts).
+ * changes it shows in full before they're made; show_database, whose table only apps showing MCP
+ * Apps draw; the person's notes, kept apart and approved one by one (ai-memory.ts); a file fetched
+ * from an address, which would carry data out; and team messages, outside words that only a run
+ * started from a channel reads (messages/operations.ts).
  */
 const HIDDEN: ReadonlySet<string> = new Set([
   "search",
   "get_page",
   "query_database",
+  "show_database",
   "create_page",
   "update_page",
   "create_database",

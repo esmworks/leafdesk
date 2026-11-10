@@ -2501,5 +2501,16 @@
       "accessLost": "Không thể thêm lần tiếp theo: người đặt lặp lại không còn được thêm hàng ở đây.",
       "tooMany": "Đã dừng hôm nay: hàng này đã được hoàn thành và mở lại quá nhiều lần."
     }
+  },
+  "connectedView": {
+    "open": "Mở trong Leafdesk",
+    "more": "Hiển thị thêm",
+    "showing": "Đang hiển thị {shown}/{total}",
+    "empty": "Không có hàng nào để hiển thị.",
+    "failed": "Không tải được thêm hàng. Hãy thử lại.",
+    "checked": "Đã chọn",
+    "unchecked": "Chưa chọn",
+    "loading": "Đang tải hàng…",
+    "unavailable": "Không thể hiển thị các hàng này."
   }
 }

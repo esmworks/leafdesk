@@ -71,7 +71,7 @@ import * as templates from "@/server/templates";
 import { builtinTemplate, isBuiltinTemplateKey } from "@/lib/builtin-templates";
 import { mapFilterRules } from "@/lib/filters";
 import { atLeast, PROPERTY_LEVELS } from "@/lib/property-access";
-import { normalizeValue } from "@/lib/properties";
+import { isHiddenInView, normalizeValue, orderProperties } from "@/lib/properties";
 import { REPEAT_FROMS } from "@/lib/row-repeat";
 import { MAX_REPEAT_INTERVAL, REPEAT_FREQUENCIES } from "@/lib/schedule";
 import * as rowRepeats from "@/server/row-repeat";
@@ -79,6 +79,8 @@ import { idFromLink, pageUrl, sliceText, ToolInputError, VersionConflictError } 
 import { dashboardsOutput } from "./mcp/dashboards";
 import { markdownDashboards } from "@/lib/dashboard";
 import { withViewSorts } from "@/lib/views";
+import type { DatabaseViewData, ViewRequest } from "@/lib/mcp-view";
+import { viewColumn } from "@/lib/mcp-view-columns";
 import {
   describeAccessSettings,
   describeChartSeries,
@@ -1444,9 +1446,11 @@ export function decodeRowCursor(cursor: string): RowCursor {
 export async function queryDatabase(
   ctx: OperationContext,
   { database_id, filters, filter_combinator, sorts, view_id, limit, cursor, properties: only, include_archived }: Args<"queryDatabase">,
+  /** The database as `databases.getDatabase` read it for this caller, when the caller has it already. */
+  loaded?: Awaited<ReturnType<typeof databases.getDatabase>>,
 ) {
   const { userId } = ctx;
-  const { database, properties, views, propertyAccess: levels } = await databases.getDatabase(userId, database_id);
+  const { database, properties, views, propertyAccess: levels } = loaded ?? (await databases.getDatabase(userId, database_id));
   const props: PropertyDef[] = properties;
   const lookups = await databases.getLookups(userId, properties);
   const view = view_id ? views.find((v) => v.id === view_id) : undefined;
@@ -1534,6 +1538,57 @@ export async function queryDatabase(
           },
         }
       : {}),
+  };
+}
+
+/** Rows show_database shows a page at a time unless asked for more, and at most. */
+export const SHOWN_ROWS = 10;
+export const MAX_SHOWN_ROWS = 50;
+
+/**
+ * Rows of a database for the view that draws them in a connected app (an MCP App,
+ * server/mcp/app-view.ts): query_database's page of rows, narrowed to the columns shown (the
+ * properties asked for, else the view's, else every one), with how each column shows.
+ */
+export async function showDatabase(ctx: OperationContext, args: Args<"queryDatabase">): Promise<DatabaseViewData> {
+  const loaded = await databases.getDatabase(ctx.userId, args.database_id);
+  const { database, properties: props, views, propertyAccess: levels } = loaded;
+  const view = args.view_id ? views.find((v) => v.id === args.view_id) : undefined;
+  const blind = (p: PropertyDef) => {
+    const info = levels?.[p.id];
+    return !!info && !info.perRow && !atLeast(info.level, "view");
+  };
+  const shown = (
+    args.properties
+      ? projectedProperties(props, args.properties)
+      : view
+        ? orderProperties(props, view.config.propertyOrder).filter((p) => !isHiddenInView(view, p))
+        : props
+  ).filter((p) => !blind(p));
+  const columns = shown.flatMap((p) => viewColumn(p) ?? []);
+  const named = new Set(columns.map((c) => c.name));
+  const ids = shown.filter((p) => named.has(p.name)).map((p) => p.id);
+  const page = await queryDatabase(ctx, { ...args, properties: ids }, loaded);
+  // What the view sends again with next_cursor: the cursor holds to the same filters and sorts.
+  const request: ViewRequest = {
+    database_id: args.database_id,
+    limit: args.limit,
+    ...(args.view_id ? { view_id: args.view_id } : {}),
+    ...(args.filters ? { filters: args.filters } : {}),
+    ...(args.filter_combinator ? { filter_combinator: args.filter_combinator } : {}),
+    ...(args.sorts ? { sorts: args.sorts } : {}),
+    ...(args.properties ? { properties: args.properties } : {}),
+    ...(args.include_archived !== undefined ? { include_archived: args.include_archived } : {}),
+  };
+  return {
+    database: { id: database.id, title: page.title, url: pageUrl(database.workspaceId, database.id) },
+    view: view ? { id: view.id, name: view.name } : null,
+    columns,
+    rows: page.rows.map((r) => ({ id: r.id, title: r.title, url: r.url, properties: r.properties })),
+    total: page.total,
+    next_cursor: page.next_cursor,
+    request,
+    note: "Apps that show Leafdesk's views show these rows to the user as a table, with a button to read on: there, don't list them again.",
   };
 }
 

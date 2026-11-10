@@ -425,7 +425,7 @@ async function main() {
   const toolNames: string[] = list.message?.result?.tools?.map((t: { name: string }) => t.name) ?? [];
   const expected = [
     "list_workspaces", "search", "list_pages", "get_page", "create_page", "update_page", "archive_page",
-    "get_database", "query_database", "create_database_row", "create_database_rows", "update_database_row", "create_database", "add_database_property",
+    "get_database", "query_database", "show_database", "create_database_row", "create_database_rows", "update_database_row", "create_database", "add_database_property",
     "update_database_property", "change_database_property_type", "delete_database_property", "create_database_view", "update_database_view", "move_page", "change_comment", "list_meeting_notes", "chat_with_agent", "get_agent_chat",
     "list_recent_pages", "check_workspace", "list_users", "list_trash", "restore_page", "get_page_history", "restore_page_version",
     "list_notifications", "attach_file", "invite_member", "set_property_access", "get_file", "duplicate_page",
@@ -677,6 +677,30 @@ async function main() {
   check(sorted.rows[0].id === rowB.id && sorted.rows[1].id === rowA.id, "query_database sorts", sorted);
   const big = await mcp.ok("query_database", { database_id: dbPage.id, filters: [{ property: "Estimate", op: "gt", value: 5 }] });
   check(big.total === 1 && big.rows[0].id === rowB.id, "query_database numeric gt", big);
+
+  // show_database: the same rows as query_database, with the columns the app's view draws them in.
+  const shownCall = await mcp.request("tools/call", {
+    name: "show_database",
+    arguments: { database_id: dbPage.id, sorts: [{ property: "Estimate", direction: "desc" }], limit: 1 },
+  });
+  const shownResult = shownCall.message?.result as { isError?: boolean; content: { text: string }[]; structuredContent?: any } | undefined;
+  const shown = shownResult?.structuredContent;
+  check(!shownResult?.isError && shown && JSON.stringify(shown) === JSON.stringify(JSON.parse(shownResult.content[0].text)), "show_database's text is its structured content", shownCall.message);
+  check(shown?.total === 2 && shown.rows.length === 1 && shown.rows[0].id === rowB.id && shown.next_cursor, "show_database pages through sorted rows", shown);
+  const columns = new Map<string, any>(shown?.columns.map((c: { name: string }) => [c.name, c]));
+  check(
+    columns.get("Estimate")?.kind === "number" && columns.get("Estimate")?.format?.currency === "TRY" && columns.get("Priority")?.kind === "options" && columns.get("Status")?.colors?.Done,
+    "show_database names each column's kind, format and colors",
+    shown?.columns,
+  );
+  check(shown?.request?.database_id === dbPage.id && !("cursor" in (shown?.request ?? {})), "show_database returns the request to read on with", shown?.request);
+  const shownMore = await mcp.ok("show_database", { ...shown.request, cursor: shown.next_cursor });
+  check(shownMore.rows.length === 1 && shownMore.rows[0].id === rowA.id && !shownMore.next_cursor, "show_database reads on from its cursor", shownMore);
+  const shownTool = coreList.message?.result?.tools?.find((t: { name: string }) => t.name === "show_database");
+  check(shownTool?._meta?.ui?.resourceUri === "ui://leafdesk/database-view.html", "show_database names its view in the core list", shownTool);
+  const viewRead = await mcp.request("resources/read", { uri: "ui://leafdesk/database-view.html" });
+  const viewPage = viewRead.message?.result?.contents?.[0];
+  check(viewPage?.mimeType === "text/html;profile=mcp-app" && viewPage.text.startsWith("<!doctype html>"), "the view is read as an MCP App page", viewPage?.mimeType);
 
   const updated = await mcp.ok("update_database_row", { row_id: rowA.id, title: "Row A renamed", properties: { Status: "Done", Priority: "Low" } });
   check(updated.properties.Status === "Done" && updated.properties.Priority === "Low" && updated.title === "Row A renamed", "update_database_row updates", updated);

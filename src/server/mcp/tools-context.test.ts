@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 import { DOC_TOPICS, docUri } from "./docs";
 import { CORE_TOOLS, GATE_TOOLS, toolCategory, type ToolList } from "./catalog";
 import { createMcpServer } from "./tools";
+import { DATABASE_VIEW_URI } from "@/lib/mcp-view";
 
 // Most apps send every listed tool's schema to the model on every session, so the core list
 // (catalog.ts) has a budget; the rest is reached through find_tools. Raise a number only on
@@ -128,7 +129,7 @@ describe("the docs topics", () => {
       ...DOC_TOPICS.map((topic) => ({ method: "resources/read", params: { uri: docUri(topic) } })),
     ]);
     const resources = list.result?.resources as { uri: string; title: string }[];
-    expect(resources.map((r) => r.uri)).toEqual(DOC_TOPICS.map(docUri));
+    expect(resources.map((r) => r.uri)).toEqual([...DOC_TOPICS.map(docUri), DATABASE_VIEW_URI]);
     const text = Object.fromEntries(
       reads.map((read, i) => [DOC_TOPICS[i], ((read.result?.contents as { text: string }[])[0]).text] as const),
     );
@@ -152,6 +153,29 @@ describe("the docs topics", () => {
     const [call] = await session([{ method: "tools/call", params: { name: "get_page", arguments: { page_id: docUri("filters") } } }]);
     const content = (call.result?.content as { text: string }[])[0].text;
     expect(JSON.parse(content)).toMatchObject({ uri: docUri("filters"), title: "Filters and sorts" });
+  });
+});
+
+describe("show_database's view", () => {
+  it("is named by the tool in the list apps draw it from", async () => {
+    const tools = (await listTools("core")) as (Tool & { _meta?: Record<string, unknown> })[];
+    const tool = tools.find((t) => t.name === "show_database");
+    expect(tool?._meta).toEqual({ ui: { resourceUri: DATABASE_VIEW_URI }, "ui/resourceUri": DATABASE_VIEW_URI });
+  });
+
+  it("is read as an MCP App page that loads nothing but the app's fonts", async () => {
+    const [read] = await session([{ method: "resources/read", params: { uri: DATABASE_VIEW_URI } }]);
+    const [page] = read.result?.contents as { uri: string; mimeType: string; text: string; _meta: unknown }[];
+    expect(page).toMatchObject({
+      uri: DATABASE_VIEW_URI,
+      mimeType: "text/html;profile=mcp-app",
+      _meta: { ui: { prefersBorder: false, csp: { resourceDomains: ["https://assets.claude.ai"] } } },
+    });
+    expect(page.text).toMatch(/^<!doctype html>/);
+    // No address of another site: no src or href attributes, scripts and styles inline.
+    expect(page.text).not.toMatch(/\s(src|href)=/);
+    // The language is the default one: the user's saved language can't be read without a database.
+    expect(page.text).toContain('"open":"Open in Leafdesk"');
   });
 });
 

@@ -2501,5 +2501,16 @@
       "accessLost": "Nie udało się dodać następnego: osoba, która ustawiła powtarzanie, nie może już dodawać tu wierszy.",
       "tooMany": "Wstrzymane na dziś: ten wiersz był wykonywany i otwierany ponownie zbyt wiele razy."
     }
+  },
+  "connectedView": {
+    "open": "Otwórz w Leafdesk",
+    "more": "Pokaż więcej",
+    "showing": "{shown} z {total}",
+    "empty": "Brak wierszy do wyświetlenia.",
+    "failed": "Nie udało się wczytać kolejnych wierszy. Spróbuj ponownie.",
+    "checked": "Zaznaczone",
+    "unchecked": "Niezaznaczone",
+    "loading": "Wczytywanie wierszy…",
+    "unavailable": "Nie można wyświetlić tych wierszy."
   }
 }
