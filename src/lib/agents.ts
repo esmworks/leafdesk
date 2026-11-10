@@ -4,6 +4,7 @@
 import { agentPagePath } from "./agent-page";
 import { agentSettingsPath } from "./agent-settings";
 import type { AgentShareLevel } from "./agent-sharing";
+import type { AgentHelpersMode } from "./agent-team";
 import type { ChatAttachmentRecord, ChatStepRecord, MemoryKind, MemoryStatus } from "@/db/schema/ai";
 import type { ChatActionView, ChatMode, ChatScope, ChatThinking } from "./ai-chat";
 import type { QuietHours } from "./quiet-hours";
@@ -628,6 +629,12 @@ export type AgentView = {
   quietHours: QuietHours | null;
   /** The most changes its runs may make in a day, together; null: no limit. */
   dailyChangeLimit: number | null;
+  /** Which other agents it may ask (lib/agent-team.ts). */
+  helpersMode: AgentHelpersMode;
+  /** The agent it reports to, its manager; null: none. */
+  reportsTo: string | null;
+  /** It works only through its manager (never without one). */
+  viaManagerOnly: boolean;
   /** The viewer's level on it (lib/agent-sharing): owners of the workspace always have full access. */
   access: AgentShareLevel;
   createdAt: string;

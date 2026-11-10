@@ -533,7 +533,21 @@
       "dailyChangeLimitPlaceholder": "Ingen gräns",
       "dailyChangeLimitHelp": "Det högsta antalet ändringar den gör på en dag: rader, sidor, kommentarer, e-post den skickar och anslutningsanrop som ändrar något. Fler avvisas. Dagen följer de tysta timmarnas tidszon, annars UTC.",
       "dailyChangeLimitInvalid": "Ange ett heltal från 1 till {max}.",
-      "guardrailsOwnersOnly": "Bara arbetsytans ägare ställer in tysta timmar och den dagliga ändringsgränsen."
+      "guardrailsOwnersOnly": "Bara arbetsytans ägare ställer in tysta timmar och den dagliga ändringsgränsen.",
+      "helpersModes": {
+        "none": "Inga",
+        "chosen": "Valda agenter",
+        "all": "Alla agenter"
+      },
+      "helpersNoneHelp": "Den frågar inga andra agenter, utom dem som rapporterar till den.",
+      "helpersAllHelp": "Den kan lämna över en del av sin uppgift till vilken annan agent du får använda, upp till {max} gånger per körning, även agenter som läggs till senare.",
+      "reportsTo": "Rapporterar till",
+      "reportsToNone": "Ingen",
+      "reportsToHelp": "Dess chef kan ge den uppgifter och se dess färdiga arbete.",
+      "viaManagerOnly": "Arbeta bara genom sin chef",
+      "viaManagerOnlyHelp": "Resultaten går till chefen, och personer som inte kan redigera den skickas till chefen.",
+      "team": "Rapporterar till den här agenten",
+      "teamHelp": "Den här agenten kan alltid fråga dem och se deras färdiga arbete."
     },
     "describe": {
       "button": "Beskriv en agent",
@@ -898,7 +912,9 @@
         "noLimit": "Den här agenten har ingen gräns att höja.",
         "mailbox": "Välj en av dina brevlådor i den här arbetsytan.",
         "quietHours": "Tysta timmar kräver två olika tider (TT:MM) och en tidszon.",
-        "dailyChangeLimit": "Ange en daglig ändringsgräns som ett heltal från 1 till 10 000."
+        "dailyChangeLimit": "Ange en daglig ändringsgräns som ett heltal från 1 till 10 000.",
+        "manager": "Välj en chef bland agenterna som delas med dig.",
+        "managerLoop": "Det skulle ge en loop eller en för lång kedja av chefer."
       },
       "noteEmpty": "Skriv vad agenten ska komma ihåg.",
       "noteTooLong": "En anteckning kan ha högst {max} tecken.",

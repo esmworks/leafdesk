@@ -155,7 +155,8 @@
       "guest": "Misafirler ajanlarla sohbet edemez. Mesajların yeniden genel AI sohbetine gidiyor.",
       "paused": "Bu ajan duraklatılmış. Sahiplerinden birinden açmasını iste ya da /agent ile başkasını seç.",
       "aiOff": "Bu çalışma alanında AI kapalı.",
-      "limitReached": "Bu ajan bu ayki token hakkını kullandı. /agent ile başkasını seç."
+      "limitReached": "Bu ajan bu ayki token hakkını kullandı. /agent ile başkasını seç.",
+      "viaManager": "Bu ajan yalnızca yöneticisi üzerinden çalışıyor. /agent ile başka bir ajan seç."
     },
     "refused": {
       "tooLong": "Bir ajana mesaj en fazla {max} karakter olabilir.",

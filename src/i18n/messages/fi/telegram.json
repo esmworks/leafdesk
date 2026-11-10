@@ -155,7 +155,8 @@
       "guest": "Vieraat eivät keskustele agenttien kanssa. Viestisi menevät taas yleiseen tekoälychattiin.",
       "paused": "Tämä agentti on keskeytetty. Pyydä jotakin sen omistajista ottamaan se käyttöön tai valitse toinen komennolla /agent.",
       "aiOff": "Tekoäly on poistettu käytöstä tässä työtilassa.",
-      "limitReached": "Tämä agentti on käyttänyt kuukauden tokeninsa. Valitse toinen komennolla /agent."
+      "limitReached": "Tämä agentti on käyttänyt kuukauden tokeninsa. Valitse toinen komennolla /agent.",
+      "viaManager": "Tämä agentti toimii vain esihenkilönsä kautta. Valitse toinen komennolla /agent."
     },
     "refused": {
       "tooLong": "Viestissä agentille voi olla enintään {max} merkkiä.",

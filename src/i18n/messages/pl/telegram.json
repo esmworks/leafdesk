@@ -155,7 +155,8 @@
       "guest": "Goście nie czatują z agentami. Twoje wiadomości znów trafiają do ogólnego czatu AI.",
       "paused": "Ten agent jest wstrzymany. Poproś jednego z jego właścicieli o włączenie albo wybierz innego przez /agent.",
       "aiOff": "AI jest wyłączone w tym obszarze roboczym.",
-      "limitReached": "Ten agent wykorzystał tokeny na ten miesiąc. Wybierz innego przez /agent."
+      "limitReached": "Ten agent wykorzystał tokeny na ten miesiąc. Wybierz innego przez /agent.",
+      "viaManager": "Ten agent pracuje tylko przez swojego przełożonego. Wybierz innego poleceniem /agent."
     },
     "refused": {
       "tooLong": "Wiadomość do agenta może mieć najwyżej {max} znaków.",

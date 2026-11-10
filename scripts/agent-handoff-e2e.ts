@@ -47,6 +47,8 @@ const { describeAgentRun, describeTaskReport } = await import("@/server/mcp/agen
 const { listNotifications } = await import("@/server/notifications");
 const { setNotificationPreference } = await import("@/server/notification-preferences");
 const { goOnAsTask } = await import("@/server/agents/handoff");
+const { agentChatInfo } = await import("@/server/agents/chat");
+const { mentionableAgents, startMentionRuns } = await import("@/server/agents/mentions");
 const { pushLink } = await import("@/lib/push");
 const { MAX_HANDOFFS_PER_RUN, MAX_REQUESTED_RUNS, readOthersWords } = await import("@/lib/agents");
 type AgentHandoffRecord = import("@/lib/agents").AgentHandoffRecord;
@@ -436,6 +438,136 @@ try {
     fullRun.answer,
   );
   await db.delete(agentRun).where(inArray(agentRun.id, fillers.map((f) => f.id)));
+
+  // ── Teams: asking all agents, a manager, working only through it ────────────────────────────
+  const invalidReason = (reason: string) => (e: unknown) => e instanceof agents.AgentError && e.code === "invalid" && e.params.reason === reason;
+  const toolText = (c: FakeChatRequest, name: string) =>
+    ((c.tools ?? []) as { function: { name: string; description?: string } }[]).find((t) => t.function.name === name)?.function.description ?? "";
+  const readPrices = script([() => ({ name: "read_page", arguments: { page_id: prices.id } })], (r) => (toolResults(r).some((t) => t.includes("PRICE-42")) ? "It costs PRICE-42." : "I couldn't read the price list."));
+  const lead = await agents.createAgent(ids.owner, workspaceId, { name: "Lead", helpersMode: "all" });
+  check(lead.helpersMode === "all" && ((await helperIdsOf([lead.id])).get(lead.id) ?? []).length === 0, "an agent may ask all agents, with none picked one by one");
+  fake.chats.length = 0;
+  models({ Lead: script([ask("Researcher", "What does a widget cost? Look in the price list.")], (r) => `Lead heard: ${toolResults(r).join(" | ")}`), Researcher: readPrices });
+  const leadAsk = await requestAgentRun(ids.owner, lead.id, { task: "Quote a widget.", rowId: null, via: "api" });
+  await flushAgentRuns();
+  const [leadRun] = await db.select().from(agentRun).where(eq(agentRun.id, leadAsk.id));
+  const leadAskDescription = toolText(fake.chats.find((c) => isAgent(c, "Lead"))!, "ask_agent");
+  check(leadRun.answer.includes("PRICE-42"), "with all agents, it asks one no one picked for it", leadRun.answer);
+  check(
+    leadAskDescription.includes('"Researcher"') && leadAskDescription.includes('"Coordinator"') && !leadAskDescription.includes('"Writer"') && !leadAskDescription.includes('"Lead"'),
+    "…all the workspace's other agents that aren't archived, never itself",
+    leadAskDescription,
+  );
+  await agents.updateAgent(ids.owner, lead.id, { helpersMode: "none" });
+  fake.chats.length = 0;
+  models({ Lead: () => ({ text: "Alone." }) });
+  await requestAgentRun(ids.owner, lead.id, { task: "Anything?", rowId: null, via: "api" });
+  await flushAgentRuns();
+  check(fake.chats.filter((c) => isAgent(c, "Lead")).every((c) => !toolNames(c).includes("ask_agent")), "one that asks no agents gets no ask_agent");
+
+  const manager = await agents.createAgent(ids.owner, workspaceId, { name: "Manager" });
+  await agents.updateAgent(ids.owner, researcher.id, { reportsTo: manager.id });
+  check((await agents.getAgent(ids.owner, researcher.id)).reportsTo === manager.id, "an agent reports to a manager");
+  check(await fails(agents.updateAgent(ids.owner, manager.id, { reportsTo: researcher.id }), invalidReason("managerLoop")), "no loops: a manager can't report to its own team");
+  check(await fails(agents.updateAgent(ids.owner, manager.id, { reportsTo: manager.id }), invalidReason("managerLoop")), "…nor an agent to itself");
+  check(await fails(agents.updateAgent(ids.owner, manager.id, { reportsTo: writer.id }), invalidReason("manager")), "…nor to an archived agent");
+  check(await fails(agents.updateAgent(ids.owner, manager.id, { reportsTo: `${RUN}-nobody` }), invalidReason("manager")), "…nor to one of no workspace");
+  check(await fails(agents.updateAgent(ids.member, researcher.id, { reportsTo: null }), (e) => e instanceof agents.AgentError && e.code === "notAllowed"), "only those who can edit an agent choose its manager");
+
+  fake.chats.length = 0;
+  models({ Manager: script([ask("Researcher", "What does a widget cost? Look in the price list.")], (r) => `Manager heard: ${toolResults(r).join(" | ")}`), Researcher: readPrices });
+  const managing = await requestAgentRun(ids.owner, manager.id, { task: "Quote a widget.", rowId: null, via: "api" });
+  await flushAgentRuns();
+  const [managingRun] = await db.select().from(agentRun).where(eq(agentRun.id, managing.id));
+  const managerChat = fake.chats.find((c) => isAgent(c, "Manager"))!;
+  check(managingRun.answer.includes("PRICE-42"), "a manager asks the agents that report to it, though it asks no agents of its own", managingRun.answer);
+  check(toolText(managerChat, "ask_agent").includes('"Researcher"') && toolText(managerChat, "ask_agent").includes("[reports to you]"), "…and knows they report to it", toolText(managerChat, "ask_agent"));
+  check(toolText(managerChat, "agent_tasks").includes("team: true"), "agent_tasks offers it its team's runs");
+
+  // The team's own runs: one the owner asked for, one long ago, and the manager's own question left out.
+  const ownersRun = { agentId: researcher.id, workspaceId, context: { actorId: ids.owner }, status: "done" as const };
+  await db.insert(agentRun).values([
+    { ...ownersRun, source: { kind: "request" as const, requestedBy: ids.owner, via: "api" as const }, prompt: "Recent", answer: "OWNER-ONLY-77", finishedAt: new Date() },
+    { ...ownersRun, source: { kind: "request" as const, requestedBy: ids.owner, via: "api" as const }, prompt: "Old", answer: "OLD-RUN-9", finishedAt: new Date(Date.now() - 3 * 86_400_000) },
+  ]);
+  const teamTasks = (since?: number) => () => ({ name: "agent_tasks", arguments: { team: true, ...(since ? { since_hours: since } : {}) } });
+  const teamAnswer = async (userId: string, since?: number) => {
+    models({ Manager: script([teamTasks(since)], (r) => `Team: ${toolResults(r).join(" | ")}`), Researcher: () => ({ text: "Unused." }) });
+    const asked = await requestAgentRun(userId, manager.id, { task: "How is the team doing?", rowId: null, via: "api" });
+    await flushAgentRuns();
+    const [done] = await db.select().from(agentRun).where(eq(agentRun.id, asked.id));
+    return done;
+  };
+  const ownersView = await teamAnswer(ids.owner);
+  check(
+    ownersView.answer.includes("OWNER-ONLY-77") && ownersView.answer.includes('"Researcher"') && ownersView.answer.includes("<<<EXTERNAL DATA") && !ownersView.answer.includes("OLD-RUN-9"),
+    "a manager reads what its team finished in the last day, framed as data",
+    ownersView.answer,
+  );
+  check(readOthersWords(ownersView.steps), "…which counts as reading another agent's words");
+  // At most MAX_LISTED_TASKS runs, newest first: the researcher's earlier runs move out of the week first.
+  await db
+    .update(agentRun)
+    .set({ finishedAt: new Date(Date.now() - 10 * 86_400_000) })
+    .where(and(eq(agentRun.agentId, researcher.id), sql`${agentRun.answer} not in ('OWNER-ONLY-77', 'OLD-RUN-9')`));
+  const weekView = await teamAnswer(ids.owner, 168);
+  check(weekView.answer.includes("OLD-RUN-9") && weekView.answer.includes("OWNER-ONLY-77"), "…and further back with since_hours", weekView.answer);
+  const otherOwnersView = await teamAnswer(ids.owner2);
+  check(!otherOwnersView.answer.includes("OWNER-ONLY-77"), "a run for another person reads only the team's runs that person may see", otherOwnersView.answer);
+
+  // Working only through the manager.
+  await agents.updateAgent(ids.owner, researcher.id, { viaManagerOnly: true });
+  check((await agents.getAgent(ids.owner, researcher.id)).viaManagerOnly, "an agent may work only through its manager");
+  const memberChat = await agentChatInfo(ids.member, workspaceId, researcher.id, null);
+  check(memberChat.state === "viaManager" && memberChat.manager?.id === manager.id, "someone who can't edit it is sent to its manager when they chat with it", memberChat);
+  check((await agentChatInfo(ids.owner, workspaceId, researcher.id, null)).state === "full", "…while those who can edit it still chat with it");
+  const notes = await createPage(owner, { workspaceId, teamspaceId: general.id, title: "Team notes" });
+  await agents.setAgentAccess(ids.owner, researcher.id, notes.id, "comment");
+  await agents.setAgentAccess(ids.owner, manager.id, notes.id, "comment");
+  const offered = (await mentionableAgents(ids.member, workspaceId, notes.id, "")).map((a) => a.name);
+  check(offered.includes("Manager") && !offered.includes("Researcher"), "…and is offered the manager to mention instead", offered);
+  const [mentionRunId] = await startMentionRuns({
+    authorId: ids.member,
+    workspaceId,
+    pageId: notes.id,
+    threadId: `${RUN}-thread`,
+    commentId: `${RUN}-comment`,
+    mentioned: [researcher.userId],
+    text: "Price a widget for me.",
+  });
+  const [mentionRun] = mentionRunId ? await db.select().from(agentRun).where(eq(agentRun.id, mentionRunId)) : [];
+  check(
+    mentionRun?.agentId === manager.id && mentionRun.prompt.includes('"Researcher"') && mentionRun.prompt.includes("work only through you") && mentionRun.prompt.endsWith("Price a widget for me."),
+    "a mention of it goes to its manager, told whom it was written to",
+    mentionRun,
+  );
+  if (mentionRun) await db.delete(agentRun).where(eq(agentRun.id, mentionRun.id));
+  fake.chats.length = 0;
+  models({ Coordinator: script([assign], (r) => `Gave it: ${toolResults(r).join(" | ")}`), Researcher: readPrices });
+  const viaTask = await requestAgentRun(ids.owner, coordinator.id, { task: "Have the researcher price a widget; don't wait.", rowId: null, via: "api" });
+  await flushAgentRuns();
+  const [viaTaskRun] = (await db.select().from(agentRun).where(eq(agentRun.agentId, researcher.id))).filter((r) => r.source.kind === "handoff" && r.source.parentRunId === viaTask.id);
+  check(viaTaskRun?.status === "done", "an agent working through its manager still does tasks it is given", viaTaskRun);
+  check(
+    (await listNotifications(ids.owner, { workspaceId })).some((n) => n.kind === "agent_task" && n.report?.runId === viaTaskRun.id),
+    "…whose report still reaches the person, opening the chat of the agent that gave it",
+  );
+  check((await teamAnswer(ids.owner)).answer.includes("PRICE-42"), "…where the manager reads them");
+
+  // Archiving the manager: its team reports to no one.
+  await agents.archiveAgent(ids.owner, manager.id);
+  const leftAlone = await agents.getAgent(ids.owner, researcher.id);
+  check(leftAlone.reportsTo === null && !leftAlone.viaManagerOnly, "archiving a manager leaves its team reporting to no one, working on its own", leftAlone);
+
+  // "All" is what its chooser may use; once they leave, whoever chooses it again takes it over.
+  await agents.updateAgent(ids.owner2, lead.id, { helpersMode: "all" });
+  const setBy = async () => (await db.select({ by: workspaceAgent.helpersSetBy }).from(workspaceAgent).where(eq(workspaceAgent.id, lead.id)))[0]?.by;
+  check((await setBy()) === ids.owner2, "choosing all agents records who chose it");
+  await agents.updateAgent(ids.owner, lead.id, { helpersMode: "all" });
+  check((await setBy()) === ids.owner2, "…which another saving the form doesn't change");
+  await db.delete(workspaceMember).where(and(eq(workspaceMember.workspaceId, workspaceId), eq(workspaceMember.userId, ids.owner2)));
+  await agents.updateAgent(ids.owner, lead.id, { helpersMode: "all" });
+  check((await setBy()) === ids.owner, "…until its chooser left the workspace: then the next one choosing it takes it over");
 
   console.log(`\n${passed} checks passed`);
 } finally {

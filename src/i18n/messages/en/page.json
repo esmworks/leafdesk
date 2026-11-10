@@ -1324,7 +1324,9 @@
       "paused": "This agent is paused, so it can’t answer.",
       "aiOff": "AI is off in this workspace, so the agent can’t answer.",
       "limitReached": "This agent has used its tokens for the month, so it can’t answer until next month.",
-      "noAccess": "You don’t have access to this agent."
+      "noAccess": "You don’t have access to this agent.",
+      "viaManager": "{name} works through {manager}.",
+      "viaManagerGone": "{name} works only through its manager, which you can't reach."
     },
     "empty": {
       "full": "Ask {name} something, or give it a job. It works with its own access, skills and memory, and each answer is one of its runs.",
@@ -1380,7 +1382,8 @@
       "queueFull": "{max} messages already wait for the answer. Send this one once the agent has answered.",
       "badFile": "This file can’t be attached: only text files (CSV, TSV, TXT, Markdown, JSON), at most {max} per message.",
       "nothingToRedo": "There’s no answer to do again.",
-      "summaryFailed": "The agent couldn’t sum up this conversation. Try again."
+      "summaryFailed": "The agent couldn’t sum up this conversation. Try again.",
+      "viaManager": "This agent works through its manager."
     },
     "picker": {
       "search": "Search agents",
@@ -1444,7 +1447,8 @@
       "onPage": "On a page",
       "onClosedPage": "On a page you can’t open"
     },
-    "computerFiles": "Can use files on your computer: {folders}"
+    "computerFiles": "Can use files on your computer: {folders}",
+    "chatWithManager": "Chat with {manager}"
   },
   "button": {
     "untitled": "Button",

@@ -155,7 +155,8 @@
       "guest": "Gäster chattar inte med agenter. Dina meddelanden går till den allmänna AI-chatten igen.",
       "paused": "Den här agenten är pausad. Be en av dess ägare att slå på den, eller välj en annan med /agent.",
       "aiOff": "AI är avstängt i den här arbetsytan.",
-      "limitReached": "Den här agenten har använt sina tokens för månaden. Välj en annan med /agent."
+      "limitReached": "Den här agenten har använt sina tokens för månaden. Välj en annan med /agent.",
+      "viaManager": "Den här agenten arbetar bara genom sin chef. Välj en annan med /agent."
     },
     "refused": {
       "tooLong": "Ett meddelande till en agent har högst {max} tecken.",

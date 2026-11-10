@@ -155,7 +155,8 @@
       "guest": "Gjester chatter ikke med agenter. Meldingene dine går til den generelle KI-chatten igjen.",
       "paused": "Denne agenten er satt på pause. Be en av eierne slå den på, eller velg en annen med /agent.",
       "aiOff": "KI er slått av i dette arbeidsområdet.",
-      "limitReached": "Denne agenten har brukt opp tokenene sine for måneden. Velg en annen med /agent."
+      "limitReached": "Denne agenten har brukt opp tokenene sine for måneden. Velg en annen med /agent.",
+      "viaManager": "Denne agenten jobber bare gjennom lederen sin. Velg en annen med /agent."
     },
     "refused": {
       "tooLong": "En melding til en agent har høyst {max} tegn.",

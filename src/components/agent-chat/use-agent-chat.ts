@@ -392,7 +392,7 @@ export function useAgentChat({ workspaceId, agentId, place }: { workspaceId: str
   // The chat's standing changed (the agent paused or gone, the month's tokens used up…).
   const refused = (res: { error: string; code?: string }) => {
     setError(res.error);
-    if (res.code && ["guest", "gone", "noAccess", "paused", "aiOff", "limitReached"].includes(res.code)) void read("agentChatInfo", workspaceId, agentId, placeRef.current).then((r) => r.ok && setInfo(r.data));
+    if (res.code && ["guest", "gone", "noAccess", "paused", "aiOff", "limitReached", "viaManager"].includes(res.code)) void read("agentChatInfo", workspaceId, agentId, placeRef.current).then((r) => r.ok && setInfo(r.data));
   };
 
   const send = async () => {

@@ -1324,7 +1324,9 @@
       "paused": "Den här agenten är pausad, så den kan inte svara.",
       "aiOff": "AI är avstängt i den här arbetsytan, så agenten kan inte svara.",
       "limitReached": "Den här agenten har använt sina token för månaden, så den kan inte svara förrän nästa månad.",
-      "noAccess": "Du har inte åtkomst till den här agenten."
+      "noAccess": "Du har inte åtkomst till den här agenten.",
+      "viaManager": "{name} arbetar genom {manager}.",
+      "viaManagerGone": "{name} arbetar bara genom sin chef, som du inte har åtkomst till."
     },
     "empty": {
       "full": "Fråga {name} något eller ge den en uppgift. Den arbetar med sin egen åtkomst, sina färdigheter och sitt minne, och varje svar är en av dess körningar.",
@@ -1380,7 +1382,8 @@
       "queueFull": "{max} meddelanden väntar redan på svaret. Skicka det här när agenten har svarat.",
       "badFile": "Filen kan inte bifogas: endast textfiler (CSV, TSV, TXT, Markdown, JSON), högst {max} per meddelande.",
       "nothingToRedo": "Det finns inget svar att göra om.",
-      "summaryFailed": "Agenten kunde inte sammanfatta konversationen. Försök igen."
+      "summaryFailed": "Agenten kunde inte sammanfatta konversationen. Försök igen.",
+      "viaManager": "Den här agenten arbetar genom sin chef."
     },
     "picker": {
       "search": "Sök agenter",
@@ -1444,7 +1447,8 @@
       "onPage": "På en sida",
       "onClosedPage": "På en sida du inte kan öppna"
     },
-    "computerFiles": "Kan använda filer på din dator: {folders}"
+    "computerFiles": "Kan använda filer på din dator: {folders}",
+    "chatWithManager": "Chatta med {manager}"
   },
   "button": {
     "untitled": "Knapp",

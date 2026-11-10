@@ -533,7 +533,21 @@
       "dailyChangeLimitPlaceholder": "Sin límite",
       "dailyChangeLimitHelp": "El máximo de cambios que hace en un día: filas, páginas, comentarios, correos que envía y llamadas de conexión que cambian algo. Los siguientes se rechazan. El día sigue la zona horaria de las horas de silencio o, si no, UTC.",
       "dailyChangeLimitInvalid": "Escribe un número entero de 1 a {max}.",
-      "guardrailsOwnersOnly": "Solo los propietarios del espacio de trabajo fijan las horas de silencio y el límite diario de cambios."
+      "guardrailsOwnersOnly": "Solo los propietarios del espacio de trabajo fijan las horas de silencio y el límite diario de cambios.",
+      "helpersModes": {
+        "none": "Ninguno",
+        "chosen": "Agentes elegidos",
+        "all": "Todos los agentes"
+      },
+      "helpersNoneHelp": "No pregunta a otros agentes, salvo a los que le reportan.",
+      "helpersAllHelp": "Puede pasar parte de su tarea a cualquier otro agente que puedas usar, hasta {max} veces por ejecución, incluidos los que se añadan después.",
+      "reportsTo": "Reporta a",
+      "reportsToNone": "Nadie",
+      "reportsToHelp": "Su responsable puede darle tareas y ver su trabajo terminado.",
+      "viaManagerOnly": "Trabajar solo a través de su responsable",
+      "viaManagerOnlyHelp": "Sus resultados van al responsable, y quienes no pueden editarlo se envían al responsable.",
+      "team": "Reportan a este agente",
+      "teamHelp": "Este agente siempre puede preguntarles y ver su trabajo terminado."
     },
     "describe": {
       "button": "Describir un agente",
@@ -898,7 +912,9 @@
         "noLimit": "Este agente no tiene un límite que subir.",
         "mailbox": "Elige uno de tus buzones de este espacio de trabajo.",
         "quietHours": "Las horas de silencio necesitan dos horas distintas (HH:MM) y una zona horaria.",
-        "dailyChangeLimit": "Escribe un límite diario de cambios como número entero de 1 a 10.000."
+        "dailyChangeLimit": "Escribe un límite diario de cambios como número entero de 1 a 10.000.",
+        "manager": "Elige un responsable entre los agentes compartidos contigo.",
+        "managerLoop": "Eso crearía un bucle o una cadena de responsables demasiado larga."
       },
       "noteEmpty": "Escribe qué debe recordar el agente.",
       "noteTooLong": "Una nota puede tener como máximo {max} caracteres.",

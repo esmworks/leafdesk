@@ -533,7 +533,21 @@
       "dailyChangeLimitPlaceholder": "제한 없음",
       "dailyChangeLimitHelp": "하루에 하는 변경의 최대 수입니다: 행, 페이지, 댓글, 보내는 이메일, 무언가를 바꾸는 연결 호출. 그 이상은 거부됩니다. 날짜는 조용한 시간의 시간대, 없으면 UTC 기준입니다.",
       "dailyChangeLimitInvalid": "1에서 {max} 사이의 정수를 입력하세요.",
-      "guardrailsOwnersOnly": "조용한 시간과 하루 변경 한도는 워크스페이스 소유자만 설정합니다."
+      "guardrailsOwnersOnly": "조용한 시간과 하루 변경 한도는 워크스페이스 소유자만 설정합니다.",
+      "helpersModes": {
+        "none": "없음",
+        "chosen": "선택한 에이전트",
+        "all": "모든 에이전트"
+      },
+      "helpersNoneHelp": "자신에게 보고하는 에이전트 외에는 다른 에이전트에게 요청하지 않습니다.",
+      "helpersAllHelp": "사용할 수 있는 다른 모든 에이전트에게 실행마다 최대 {max}번까지 작업의 일부를 맡길 수 있으며, 나중에 추가된 에이전트도 포함됩니다.",
+      "reportsTo": "보고 대상",
+      "reportsToNone": "없음",
+      "reportsToHelp": "관리자가 작업을 맡기고 완료한 작업을 볼 수 있습니다.",
+      "viaManagerOnly": "관리자를 통해서만 작업",
+      "viaManagerOnlyHelp": "결과는 관리자에게 가고, 이 에이전트를 편집할 수 없는 사람은 관리자에게 안내됩니다.",
+      "team": "이 에이전트에게 보고하는 에이전트",
+      "teamHelp": "이 에이전트는 언제든 이들에게 요청하고 완료한 작업을 볼 수 있습니다."
     },
     "describe": {
       "button": "설명으로 에이전트 만들기",
@@ -898,7 +912,9 @@
         "noLimit": "이 에이전트에는 올릴 한도가 없습니다.",
         "mailbox": "이 워크스페이스에서 내 메일함 중 하나를 선택하세요.",
         "quietHours": "조용한 시간에는 서로 다른 두 시각(HH:MM)과 시간대가 필요합니다.",
-        "dailyChangeLimit": "하루 변경 한도를 1에서 10,000 사이의 정수로 입력하세요."
+        "dailyChangeLimit": "하루 변경 한도를 1에서 10,000 사이의 정수로 입력하세요.",
+        "manager": "공유받은 에이전트 중에서 관리자를 선택하세요.",
+        "managerLoop": "순환이 생기거나 관리자 체인이 너무 길어집니다."
       },
       "noteEmpty": "에이전트가 기억할 내용을 작성하세요.",
       "noteTooLong": "메모는 최대 {max}자까지 작성할 수 있습니다.",

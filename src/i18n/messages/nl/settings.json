@@ -533,7 +533,21 @@
       "dailyChangeLimitPlaceholder": "Geen limiet",
       "dailyChangeLimitHelp": "Het maximum aantal wijzigingen dat hij op een dag doet: rijen, pagina’s, opmerkingen, e-mails die hij verstuurt en verbindingsaanroepen die iets veranderen. Meer wordt geweigerd. De dag volgt de tijdzone van de stille uren, anders UTC.",
       "dailyChangeLimitInvalid": "Voer een geheel getal van 1 tot {max} in.",
-      "guardrailsOwnersOnly": "Alleen eigenaren van de werkruimte stellen stille uren en de dagelijkse wijzigingslimiet in."
+      "guardrailsOwnersOnly": "Alleen eigenaren van de werkruimte stellen stille uren en de dagelijkse wijzigingslimiet in.",
+      "helpersModes": {
+        "none": "Geen",
+        "chosen": "Gekozen agents",
+        "all": "Alle agents"
+      },
+      "helpersNoneHelp": "Hij vraagt geen andere agents, behalve die aan hem rapporteren.",
+      "helpersAllHelp": "Hij kan een deel van zijn taak overdragen aan elke andere agent die je mag gebruiken, maximaal {max} keer per uitvoering, ook aan later toegevoegde agents.",
+      "reportsTo": "Rapporteert aan",
+      "reportsToNone": "Niemand",
+      "reportsToHelp": "Zijn manager kan hem taken geven en zijn afgeronde werk zien.",
+      "viaManagerOnly": "Alleen via zijn manager werken",
+      "viaManagerOnlyHelp": "Resultaten gaan naar de manager, en wie hem niet kan bewerken, wordt naar de manager gestuurd.",
+      "team": "Rapporteren aan deze agent",
+      "teamHelp": "Deze agent kan ze altijd vragen en hun afgeronde werk zien."
     },
     "describe": {
       "button": "Een agent beschrijven",
@@ -898,7 +912,9 @@
         "noLimit": "Deze agent heeft geen limiet om te verhogen.",
         "mailbox": "Kies een van je mailboxen in deze werkruimte.",
         "quietHours": "Stille uren hebben twee verschillende tijden (UU:MM) en een tijdzone nodig.",
-        "dailyChangeLimit": "Voer een dagelijkse wijzigingslimiet in als geheel getal van 1 tot 10.000."
+        "dailyChangeLimit": "Voer een dagelijkse wijzigingslimiet in als geheel getal van 1 tot 10.000.",
+        "manager": "Kies een manager uit de agents die met je zijn gedeeld.",
+        "managerLoop": "Dat zou een lus of een te lange keten van managers opleveren."
       },
       "noteEmpty": "Schrijf wat de agent moet onthouden.",
       "noteTooLong": "Een notitie mag maximaal {max} tekens hebben.",

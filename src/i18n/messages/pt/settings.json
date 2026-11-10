@@ -533,7 +533,21 @@
       "dailyChangeLimitPlaceholder": "Sem limite",
       "dailyChangeLimitHelp": "O máximo de alterações que ele faz em um dia: linhas, páginas, comentários, e-mails que envia e chamadas de conexão que alteram algo. As seguintes são recusadas. O dia segue o fuso das horas de silêncio, senão UTC.",
       "dailyChangeLimitInvalid": "Digite um número inteiro de 1 a {max}.",
-      "guardrailsOwnersOnly": "Só proprietários do espaço de trabalho definem as horas de silêncio e o limite diário de alterações."
+      "guardrailsOwnersOnly": "Só proprietários do espaço de trabalho definem as horas de silêncio e o limite diário de alterações.",
+      "helpersModes": {
+        "none": "Nenhum",
+        "chosen": "Agentes escolhidos",
+        "all": "Todos os agentes"
+      },
+      "helpersNoneHelp": "Não pede a outros agentes, exceto aos que se reportam a ele.",
+      "helpersAllHelp": "Pode passar parte da tarefa a qualquer outro agente que você possa usar, até {max} vezes por execução, inclusive agentes adicionados depois.",
+      "reportsTo": "Reporta-se a",
+      "reportsToNone": "Ninguém",
+      "reportsToHelp": "O gestor pode dar-lhe tarefas e ver o trabalho concluído.",
+      "viaManagerOnly": "Trabalhar só por meio do gestor",
+      "viaManagerOnlyHelp": "Os resultados vão para o gestor, e quem não pode editá-lo é encaminhado ao gestor.",
+      "team": "Reportam-se a este agente",
+      "teamHelp": "Este agente sempre pode pedir a eles e ver o trabalho concluído deles."
     },
     "describe": {
       "button": "Descrever um agente",
@@ -898,7 +912,9 @@
         "noLimit": "Este agente não tem limite para aumentar.",
         "mailbox": "Escolha uma das suas caixas de e-mail neste espaço de trabalho.",
         "quietHours": "As horas de silêncio precisam de dois horários diferentes (HH:MM) e um fuso horário.",
-        "dailyChangeLimit": "Digite um limite diário de alterações como número inteiro de 1 a 10.000."
+        "dailyChangeLimit": "Digite um limite diário de alterações como número inteiro de 1 a 10.000.",
+        "manager": "Escolha um gestor entre os agentes compartilhados com você.",
+        "managerLoop": "Isso criaria um ciclo ou uma cadeia de gestores longa demais."
       },
       "noteEmpty": "Escreva o que o agente deve lembrar.",
       "noteTooLong": "Uma nota pode ter no máximo {max} caracteres.",

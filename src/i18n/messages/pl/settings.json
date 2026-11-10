@@ -533,7 +533,21 @@
       "dailyChangeLimitPlaceholder": "Bez limitu",
       "dailyChangeLimitHelp": "Najwięcej zmian, jakie wprowadza w ciągu dnia: wiersze, strony, komentarze, wysyłane e-maile i wywołania połączeń, które coś zmieniają. Kolejne są odrzucane. Dzień liczy się w strefie czasowej godzin ciszy, a bez niej w UTC.",
       "dailyChangeLimitInvalid": "Wpisz liczbę całkowitą od 1 do {max}.",
-      "guardrailsOwnersOnly": "Godziny ciszy i dzienny limit zmian ustawiają tylko właściciele obszaru roboczego."
+      "guardrailsOwnersOnly": "Godziny ciszy i dzienny limit zmian ustawiają tylko właściciele obszaru roboczego.",
+      "helpersModes": {
+        "none": "Żadni",
+        "chosen": "Wybrani agenci",
+        "all": "Wszyscy agenci"
+      },
+      "helpersNoneHelp": "Nie prosi innych agentów, poza tymi, którzy mu podlegają.",
+      "helpersAllHelp": "Może przekazać część zadania dowolnemu agentowi, z którego możesz korzystać, najwyżej {max} razy na uruchomienie, także agentom dodanym później.",
+      "reportsTo": "Podlega",
+      "reportsToNone": "Nikomu",
+      "reportsToHelp": "Jego przełożony może dawać mu zadania i widzieć jego ukończoną pracę.",
+      "viaManagerOnly": "Pracuj tylko przez przełożonego",
+      "viaManagerOnlyHelp": "Wyniki trafiają do przełożonego, a osoby, które nie mogą go edytować, są kierowane do przełożonego.",
+      "team": "Podlegają temu agentowi",
+      "teamHelp": "Ten agent zawsze może ich poprosić i widzieć ich ukończoną pracę."
     },
     "describe": {
       "button": "Opisz agenta",
@@ -898,7 +912,9 @@
         "noLimit": "Ten agent nie ma limitu, który można podnieść.",
         "mailbox": "Wybierz jedną ze swoich skrzynek w tym obszarze roboczym.",
         "quietHours": "Godziny ciszy wymagają dwóch różnych godzin (GG:MM) i strefy czasowej.",
-        "dailyChangeLimit": "Wpisz dzienny limit zmian jako liczbę całkowitą od 1 do 10 000."
+        "dailyChangeLimit": "Wpisz dzienny limit zmian jako liczbę całkowitą od 1 do 10 000.",
+        "manager": "Wybierz przełożonego spośród agentów udostępnionych tobie.",
+        "managerLoop": "Powstałaby pętla lub zbyt długi łańcuch przełożonych."
       },
       "noteEmpty": "Napisz, co agent ma zapamiętać.",
       "noteTooLong": "Notatka może mieć najwyżej {max, plural, one {# znak} few {# znaki} many {# znaków} other {# znaku}}.",

@@ -533,7 +533,21 @@
       "dailyChangeLimitPlaceholder": "Ingen grense",
       "dailyChangeLimitHelp": "Det høyeste antallet endringer den gjør på en dag: rader, sider, kommentarer, e-poster den sender og tilkoblingskall som endrer noe. Flere avvises. Dagen følger tidssonen til de stille timene, ellers UTC.",
       "dailyChangeLimitInvalid": "Skriv inn et heltall fra 1 til {max}.",
-      "guardrailsOwnersOnly": "Bare eiere av arbeidsområdet angir stille timer og den daglige endringsgrensen."
+      "guardrailsOwnersOnly": "Bare eiere av arbeidsområdet angir stille timer og den daglige endringsgrensen.",
+      "helpersModes": {
+        "none": "Ingen",
+        "chosen": "Valgte agenter",
+        "all": "Alle agenter"
+      },
+      "helpersNoneHelp": "Den spør ingen andre agenter, bortsett fra dem som rapporterer til den.",
+      "helpersAllHelp": "Den kan overlate deler av oppgaven sin til enhver annen agent du kan bruke, opptil {max} ganger per kjøring, også agenter lagt til senere.",
+      "reportsTo": "Rapporterer til",
+      "reportsToNone": "Ingen",
+      "reportsToHelp": "Lederen kan gi den oppgaver og se det ferdige arbeidet.",
+      "viaManagerOnly": "Jobb bare gjennom lederen",
+      "viaManagerOnlyHelp": "Resultatene går til lederen, og personer som ikke kan redigere den, sendes til lederen.",
+      "team": "Rapporterer til denne agenten",
+      "teamHelp": "Denne agenten kan alltid spørre dem og se det ferdige arbeidet deres."
     },
     "describe": {
       "button": "Beskriv en agent",
@@ -898,7 +912,9 @@
         "noLimit": "Denne agenten har ingen grense som kan økes.",
         "mailbox": "Velg en av postkassene dine i dette arbeidsområdet.",
         "quietHours": "Stille timer trenger to ulike klokkeslett (TT:MM) og en tidssone.",
-        "dailyChangeLimit": "Skriv inn en daglig endringsgrense som et heltall fra 1 til 10 000."
+        "dailyChangeLimit": "Skriv inn en daglig endringsgrense som et heltall fra 1 til 10 000.",
+        "manager": "Velg en leder blant agentene som er delt med deg.",
+        "managerLoop": "Det ville gi en løkke eller en for lang kjede av ledere."
       },
       "noteEmpty": "Skriv hva agenten skal huske.",
       "noteTooLong": "Et notat kan ha høyst {max} tegn.",

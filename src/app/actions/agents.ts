@@ -55,7 +55,7 @@ import { requireUserId } from "@/server/session";
 // messages in production.
 
 /** Reasons an `invalid` error names, each with its own message. */
-const INVALID_REASONS = ["name", "icon", "level", "template", "database", "property", "option", "rules", "pages", "limit", "task", "taskLength", "repeat", "helpers", "shareLevel", "mailRecipients", "requestTokens", "requestNote", "noLimit", "mailbox", "quietHours", "dailyChangeLimit"] as const;
+const INVALID_REASONS = ["name", "icon", "level", "template", "database", "property", "option", "rules", "pages", "limit", "task", "taskLength", "repeat", "helpers", "manager", "managerLoop", "shareLevel", "mailRecipients", "requestTokens", "requestNote", "noLimit", "mailbox", "quietHours", "dailyChangeLimit"] as const;
 type InvalidReason = (typeof INVALID_REASONS)[number];
 const isInvalidReason = (value: unknown): value is InvalidReason => (INVALID_REASONS as readonly unknown[]).includes(value);
 
@@ -108,6 +108,9 @@ const input = (value: AgentInput): AgentInput => ({
   quietHours: value?.quietHours,
   dailyChangeLimit: value?.dailyChangeLimit,
   helperAgentIds: Array.isArray(value?.helperAgentIds) ? value.helperAgentIds.map(String) : undefined,
+  helpersMode: value?.helpersMode,
+  reportsTo: value?.reportsTo === null ? null : typeof value?.reportsTo === "string" ? value.reportsTo : undefined,
+  viaManagerOnly: typeof value?.viaManagerOnly === "boolean" ? value.viaManagerOnly : undefined,
 });
 
 /** The agents the sidebar lists (sidebar.tsx), again after something changed. */

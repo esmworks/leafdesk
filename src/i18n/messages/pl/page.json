@@ -1324,7 +1324,9 @@
       "paused": "Ten agent jest wstrzymany, więc nie może odpowiedzieć.",
       "aiOff": "AI jest wyłączona w tym obszarze roboczym, więc agent nie może odpowiedzieć.",
       "limitReached": "Ten agent wykorzystał swoje tokeny na ten miesiąc, więc nie odpowie aż do następnego miesiąca.",
-      "noAccess": "Nie masz dostępu do tego agenta."
+      "noAccess": "Nie masz dostępu do tego agenta.",
+      "viaManager": "{name} pracuje przez agenta {manager}.",
+      "viaManagerGone": "{name} pracuje tylko przez swojego przełożonego, do którego nie masz dostępu."
     },
     "empty": {
       "full": "Zapytaj o coś agenta {name} lub zleć mu zadanie. Działa z własnym dostępem, umiejętnościami i pamięcią, a każda odpowiedź to jedno z jego uruchomień.",
@@ -1380,7 +1382,8 @@
       "queueFull": "Na odpowiedź czeka już {max} wiadomości. Wyślij tę, gdy agent odpowie.",
       "badFile": "Nie można załączyć tego pliku: tylko pliki tekstowe (CSV, TSV, TXT, Markdown, JSON), najwyżej {max} na wiadomość.",
       "nothingToRedo": "Nie ma odpowiedzi do ponownego wygenerowania.",
-      "summaryFailed": "Agent nie zdołał podsumować tej rozmowy. Spróbuj ponownie."
+      "summaryFailed": "Agent nie zdołał podsumować tej rozmowy. Spróbuj ponownie.",
+      "viaManager": "Ten agent pracuje przez swojego przełożonego."
     },
     "picker": {
       "search": "Szukaj agentów",
@@ -1444,7 +1447,8 @@
       "onPage": "Na stronie",
       "onClosedPage": "Na stronie, której nie możesz otworzyć"
     },
-    "computerFiles": "Może używać plików na Twoim komputerze: {folders}"
+    "computerFiles": "Może używać plików na Twoim komputerze: {folders}",
+    "chatWithManager": "Czat z {manager}"
   },
   "button": {
     "untitled": "Przycisk",

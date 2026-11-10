@@ -398,7 +398,13 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   Agents asking agents: `handoff.ts` (`ask_agent` waits; `assign_agent` queues the helper's run
   with `queued` on its `handoff` source, read by the giving agent through `agent_run_task_idx`: a
   task that `agent_tasks` lists for the same person and whose end `run.ts` `reportRun` reports as an
-  `agent_task`, a kind people turn off, opening the giving agent's chat).
+  `agent_task`, a kind people turn off, opening the giving agent's chat). Who a run may ask is
+  `agents/team.ts` `askableAgents` (`helpersMode` none/chosen/all, "all" as `helpersSetBy` may use,
+  plus the agents whose `reportsTo` is it; rules pure in `lib/agent-team.ts`); a manager's
+  `agent_tasks` `team` reads its team's runs through `viewRuns` as the bound person. An agent
+  `viaManagerOnly` skips `reportRun` when done (a task's report still goes), and a person below edit is routed to its manager
+  (`routeForPerson`: chat state `viaManager`, mentions in pages and channels). The team columns stay
+  out of agent versions (`AGENT_SETTINGS_LEFT_OUT`), since a restore writes columns unchecked.
 - **Connections** (outbound MCP): `src/server/connections/` (`manage.ts`, `client.ts`, `fetch.ts`
   for the address checks, `events.ts` for inbound events, `approvals.ts`). A fetch of an address a
   member or visitor gives passes `{ untrusted: true }`: only `WEB_FETCH_ALLOWED_HOSTS` applies to

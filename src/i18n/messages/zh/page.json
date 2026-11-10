@@ -1324,7 +1324,9 @@
       "paused": "此智能体已暂停，因此无法回答。",
       "aiOff": "此工作区已关闭 AI，因此智能体无法回答。",
       "limitReached": "此智能体本月的令牌已用完，下个月之前无法回答。",
-      "noAccess": "你没有此智能体的访问权限。"
+      "noAccess": "你没有此智能体的访问权限。",
+      "viaManager": "{name} 通过 {manager} 工作。",
+      "viaManagerGone": "{name} 只通过它的管理者工作，而你无法访问该管理者。"
     },
     "empty": {
       "full": "向 {name} 提问，或交给它一项任务。它使用自己的访问权限、技能和记忆工作，每次回答都是它的一次运行。",
@@ -1380,7 +1382,8 @@
       "queueFull": "已有 {max} 条消息在等待回答。请在代理回答后再发送这条。",
       "badFile": "无法附加此文件：仅支持文本文件（CSV、TSV、TXT、Markdown、JSON），每条消息最多 {max} 个。",
       "nothingToRedo": "没有可重新生成的回答。",
-      "summaryFailed": "代理无法总结这段对话。请重试。"
+      "summaryFailed": "代理无法总结这段对话。请重试。",
+      "viaManager": "此智能体通过它的管理者工作。"
     },
     "picker": {
       "search": "搜索智能体",
@@ -1444,7 +1447,8 @@
       "onPage": "在某个页面中",
       "onClosedPage": "在你无法打开的页面中"
     },
-    "computerFiles": "可以使用你电脑上的文件：{folders}"
+    "computerFiles": "可以使用你电脑上的文件：{folders}",
+    "chatWithManager": "与 {manager} 聊天"
   },
   "button": {
     "untitled": "按钮",

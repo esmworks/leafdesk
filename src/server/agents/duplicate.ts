@@ -39,8 +39,10 @@ export async function duplicateAgent(userId: string, agentId: string, overrides:
   const live = new Set(
     (await db.select({ id: workspaceAgent.id }).from(workspaceAgent).where(and(eq(workspaceAgent.workspaceId, workspaceId), isNull(workspaceAgent.archivedAt)))).map((a) => a.id),
   );
-  const levels = await agentLevels(userId, workspaceId, helpers);
+  const levels = await agentLevels(userId, workspaceId, [...helpers, ...(source.reportsTo ? [source.reportsTo] : [])]);
   const keptHelpers = helpers.filter((id) => live.has(id) && levels.get(id) !== "none");
+  // The copy reports to the same manager, when the copier may use it.
+  const keptManager = source.reportsTo && live.has(source.reportsTo) && levels.get(source.reportsTo) !== "none" ? source.reportsTo : null;
   const skills = (await db.select({ pageId: agentSkill.pageId }).from(agentSkill).where(eq(agentSkill.agentId, source.id)).orderBy(asc(agentSkill.position), asc(agentSkill.createdAt))).map(
     (s) => s.pageId,
   );
@@ -64,7 +66,10 @@ export async function duplicateAgent(userId: string, agentId: string, overrides:
     model: source.model,
     thinking: source.thinking,
     rowChanges: source.rowChanges,
+    helpersMode: source.helpersMode === "chosen" && !keptHelpers.length ? "none" : source.helpersMode,
     helperAgentIds: keptHelpers,
+    reportsTo: keptManager,
+    viaManagerOnly: keptManager !== null && source.viaManagerOnly,
     ...Object.fromEntries(Object.entries(overrides).filter(([, value]) => value !== undefined)),
   };
   const agent = await createAgent(userId, workspaceId, input, {

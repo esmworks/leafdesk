@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+### Added
+
+- **Agents work as a team.** An agent's *Agents it can ask* is now *No agents*, *Chosen agents* or
+  *All agents* (every other agent the person who chose it may use, agents added later too). *Reports
+  to* puts an agent under a manager agent, which may always ask its team and give them tasks, and
+  reads what they finished lately with `agent_tasks`. With *Work only through its manager*, an
+  agent's finished runs report to the manager instead of to people, and people who can't edit it
+  are sent to the manager when they chat with it or mention it. MCP and the REST API take
+  `helpers_mode`, `reports_to` and `via_manager_only`. Migration 0209.
+
 ## 0.8.1 — 2026-11-10
 
 ### Upgrading from 0.8.0

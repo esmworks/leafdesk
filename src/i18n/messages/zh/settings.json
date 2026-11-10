@@ -533,7 +533,21 @@
       "dailyChangeLimitPlaceholder": "无限制",
       "dailyChangeLimitHelp": "它一天内最多进行的更改：行、页面、评论、它发送的邮件以及会更改内容的连接调用。超出的会被拒绝。日期按安静时段的时区计算，否则按 UTC。",
       "dailyChangeLimitInvalid": "请输入 1 到 {max} 之间的整数。",
-      "guardrailsOwnersOnly": "只有工作区所有者可以设置安静时段和每日更改上限。"
+      "guardrailsOwnersOnly": "只有工作区所有者可以设置安静时段和每日更改上限。",
+      "helpersModes": {
+        "none": "无",
+        "chosen": "选定的智能体",
+        "all": "所有智能体"
+      },
+      "helpersNoneHelp": "除了向它汇报的智能体外，它不求助其他智能体。",
+      "helpersAllHelp": "它可以把部分任务交给你可使用的任何其他智能体，每次运行最多 {max} 次，包括之后添加的智能体。",
+      "reportsTo": "汇报对象",
+      "reportsToNone": "无",
+      "reportsToHelp": "它的管理者可以给它分配任务，并查看它完成的工作。",
+      "viaManagerOnly": "仅通过管理者工作",
+      "viaManagerOnlyHelp": "结果交给管理者，无法编辑它的人会被引导到管理者。",
+      "team": "向此智能体汇报",
+      "teamHelp": "此智能体随时可以求助它们，并查看它们完成的工作。"
     },
     "describe": {
       "button": "描述一个智能体",
@@ -898,7 +912,9 @@
         "noLimit": "此智能体没有可提高的上限。",
         "mailbox": "请选择你在此工作区中的一个邮箱。",
         "quietHours": "安静时段需要两个不同的时间（HH:MM）和一个时区。",
-        "dailyChangeLimit": "请输入 1 到 10,000 之间的整数作为每日更改上限。"
+        "dailyChangeLimit": "请输入 1 到 10,000 之间的整数作为每日更改上限。",
+        "manager": "请从与你共享的智能体中选择管理者。",
+        "managerLoop": "这会形成循环或过长的管理者链。"
       },
       "noteEmpty": "请写下智能体应记住的内容。",
       "noteTooLong": "每条笔记最多 {max} 个字符。",

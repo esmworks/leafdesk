@@ -1324,7 +1324,9 @@
       "paused": "Este agente está pausado, então não pode responder.",
       "aiOff": "A IA está desativada neste espaço de trabalho, então o agente não pode responder.",
       "limitReached": "Este agente já usou os tokens do mês, então só poderá responder no mês que vem.",
-      "noAccess": "Você não tem acesso a este agente."
+      "noAccess": "Você não tem acesso a este agente.",
+      "viaManager": "{name} trabalha por meio de {manager}.",
+      "viaManagerGone": "{name} trabalha só por meio do gestor, ao qual você não tem acesso."
     },
     "empty": {
       "full": "Pergunte algo a {name} ou dê uma tarefa a ele. Ele trabalha com o próprio acesso, as próprias habilidades e a própria memória, e cada resposta é uma das execuções dele.",
@@ -1380,7 +1382,8 @@
       "queueFull": "Já há {max} mensagens esperando a resposta. Envie esta quando o agente tiver respondido.",
       "badFile": "Não é possível anexar este arquivo: apenas arquivos de texto (CSV, TSV, TXT, Markdown, JSON), no máximo {max} por mensagem.",
       "nothingToRedo": "Não há resposta para refazer.",
-      "summaryFailed": "O agente não conseguiu resumir esta conversa. Tente novamente."
+      "summaryFailed": "O agente não conseguiu resumir esta conversa. Tente novamente.",
+      "viaManager": "Este agente trabalha por meio do gestor."
     },
     "picker": {
       "search": "Buscar agentes",
@@ -1444,7 +1447,8 @@
       "onPage": "Em uma página",
       "onClosedPage": "Em uma página que você não pode abrir"
     },
-    "computerFiles": "Pode usar arquivos do seu computador: {folders}"
+    "computerFiles": "Pode usar arquivos do seu computador: {folders}",
+    "chatWithManager": "Conversar com {manager}"
   },
   "button": {
     "untitled": "Botão",

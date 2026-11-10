@@ -533,7 +533,21 @@
       "dailyChangeLimitPlaceholder": "No limit",
       "dailyChangeLimitHelp": "The most changes it makes in a day: rows, pages, comments, emails it sends and connection calls that change something. Further ones are refused. The day follows the quiet hours’ time zone, else UTC.",
       "dailyChangeLimitInvalid": "Enter a whole number from 1 to {max}.",
-      "guardrailsOwnersOnly": "Only workspace owners set quiet hours and the daily change limit."
+      "guardrailsOwnersOnly": "Only workspace owners set quiet hours and the daily change limit.",
+      "helpersModes": {
+        "none": "No agents",
+        "chosen": "Chosen agents",
+        "all": "All agents"
+      },
+      "helpersNoneHelp": "It asks no other agent, except those that report to it.",
+      "helpersAllHelp": "It can hand part of its task to any other agent you may use, up to {max} times a run, agents added later too.",
+      "reportsTo": "Reports to",
+      "reportsToNone": "No one",
+      "reportsToHelp": "Its manager can give it tasks and see its finished work.",
+      "viaManagerOnly": "Work only through its manager",
+      "viaManagerOnlyHelp": "Its results go to the manager, and people who can't edit it are sent to the manager.",
+      "team": "Report to this agent",
+      "teamHelp": "This agent can always ask them and see their finished work."
     },
     "describe": {
       "button": "Describe an agent",
@@ -898,7 +912,9 @@
         "noLimit": "This agent has no limit to raise.",
         "mailbox": "Choose one of your mailboxes in this workspace.",
         "quietHours": "Quiet hours need two different times (HH:MM) and a time zone.",
-        "dailyChangeLimit": "Enter a daily change limit as a whole number from 1 to 10,000."
+        "dailyChangeLimit": "Enter a daily change limit as a whole number from 1 to 10,000.",
+        "manager": "Choose a manager among the agents shared with you.",
+        "managerLoop": "That would make a loop or too long a chain of managers."
       },
       "noteEmpty": "Write what the agent should remember.",
       "noteTooLong": "A note can have at most {max} characters.",

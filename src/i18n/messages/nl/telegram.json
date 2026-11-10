@@ -155,7 +155,8 @@
       "guest": "Gasten chatten niet met agents. Je berichten gaan weer naar de algemene AI-chat.",
       "paused": "Deze agent is gepauzeerd. Vraag een van de eigenaren hem aan te zetten, of kies een andere met /agent.",
       "aiOff": "AI staat uit in deze werkruimte.",
-      "limitReached": "Deze agent heeft zijn tokens voor deze maand gebruikt. Kies een andere met /agent."
+      "limitReached": "Deze agent heeft zijn tokens voor deze maand gebruikt. Kies een andere met /agent.",
+      "viaManager": "Deze agent werkt alleen via zijn manager. Kies een andere met /agent."
     },
     "refused": {
       "tooLong": "Een bericht aan een agent heeft hoogstens {max} tekens.",

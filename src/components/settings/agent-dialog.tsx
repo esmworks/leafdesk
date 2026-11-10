@@ -53,7 +53,7 @@ import {
 import { commentHash } from "@/lib/comments";
 import { AgentGuardrailFields, dailyLimitOf, quietHoursDraft, quietHoursOf } from "./agent-guardrail-fields";
 import { AskedByLine, HandoffStepLine, type OpenAgentRun } from "./agent-handoff-step";
-import { AgentHelpersField } from "./agent-helpers-field";
+import { AgentHelpersField, type AgentTeamValue } from "./agent-helpers-field";
 import { PagePicker, useShareablePages } from "./agent-page-picker";
 import { CHANGE_REMINDER_TOOL_NAME, LIST_REMINDERS_TOOL_NAME, REMIND_TOOL_NAME } from "@/lib/ai-reminders";
 
@@ -133,7 +133,7 @@ export function AgentForm({
   const [quiet, setQuiet] = useState(() => quietHoursDraft(agent?.quietHours));
   const [dailyLimit, setDailyLimit] = useState(agent?.dailyChangeLimit ? String(agent.dailyChangeLimit) : "");
   // Null until loaded: saving then leaves them as they are.
-  const [helpers, setHelpers] = useState<string[] | null>(null);
+  const [team, setTeam] = useState<AgentTeamValue | null>(null);
   const { pending, error, run } = useAction();
   // A part is a section of the agent's page: it says it saved, and has nothing to cancel.
   const inPage = part !== null;
@@ -167,7 +167,9 @@ export function AgentForm({
       ...(isOwner ? { monthlyTokenLimit, quietHours, dailyChangeLimit } : {}),
       ...(models ? { model } : {}),
       thinking,
-      helperAgentIds: helpers ?? undefined,
+      ...(team
+        ? { helpersMode: team.mode, ...(team.mode === "chosen" ? { helperAgentIds: team.ids } : {}), reportsTo: team.reportsTo, viaManagerOnly: team.viaManagerOnly }
+        : {}),
     };
     if (agent)
       run(
@@ -307,7 +309,7 @@ export function AgentForm({
             {recipients ? t("mailRecipientsHelp") : t("mailRecipientsInvalid", { max: MAX_AGENT_MAIL_RECIPIENTS })}
           </span>
         </label>
-        <AgentHelpersField workspaceId={workspaceId} agentId={agent?.id ?? null} value={helpers} disabled={locked} onChange={setHelpers} />
+        <AgentHelpersField workspaceId={workspaceId} agentId={agent?.id ?? null} value={team} disabled={locked} onChange={setTeam} />
           </>
         )}
         {shows("advanced") && (

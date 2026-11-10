@@ -155,7 +155,8 @@
       "guest": "访客不能与智能体聊天。你的消息重新发送到通用 AI 聊天。",
       "paused": "该智能体已暂停。请它的所有者开启它，或用 /agent 选择另一个。",
       "aiOff": "此工作区已关闭 AI。",
-      "limitReached": "该智能体本月的令牌已用完。请用 /agent 选择另一个。"
+      "limitReached": "该智能体本月的令牌已用完。请用 /agent 选择另一个。",
+      "viaManager": "此智能体只通过它的管理者工作。请用 /agent 选择其他智能体。"
     },
     "refused": {
       "tooLong": "发给智能体的消息最多 {max} 个字符。",

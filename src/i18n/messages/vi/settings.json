@@ -533,7 +533,21 @@
       "dailyChangeLimitPlaceholder": "Không giới hạn",
       "dailyChangeLimitHelp": "Số thay đổi tối đa nó thực hiện trong một ngày: hàng, trang, bình luận, email nó gửi và lệnh gọi kết nối có thay đổi gì đó. Các thay đổi tiếp theo bị từ chối. Ngày được tính theo múi giờ của giờ yên lặng, nếu không thì theo UTC.",
       "dailyChangeLimitInvalid": "Nhập một số nguyên từ 1 đến {max}.",
-      "guardrailsOwnersOnly": "Chỉ chủ sở hữu không gian làm việc mới đặt giờ yên lặng và giới hạn thay đổi mỗi ngày."
+      "guardrailsOwnersOnly": "Chỉ chủ sở hữu không gian làm việc mới đặt giờ yên lặng và giới hạn thay đổi mỗi ngày.",
+      "helpersModes": {
+        "none": "Không có",
+        "chosen": "Tác tử đã chọn",
+        "all": "Tất cả tác tử"
+      },
+      "helpersNoneHelp": "Nó không hỏi tác tử nào khác, trừ các tác tử báo cáo cho nó.",
+      "helpersAllHelp": "Nó có thể giao một phần nhiệm vụ cho bất kỳ tác tử nào bạn được dùng, tối đa {max} lần mỗi lần chạy, kể cả tác tử thêm sau này.",
+      "reportsTo": "Báo cáo cho",
+      "reportsToNone": "Không ai",
+      "reportsToHelp": "Người quản lý có thể giao việc cho nó và xem công việc nó đã xong.",
+      "viaManagerOnly": "Chỉ làm việc qua người quản lý",
+      "viaManagerOnlyHelp": "Kết quả được gửi cho người quản lý, và ai không thể chỉnh sửa nó sẽ được chuyển đến người quản lý.",
+      "team": "Báo cáo cho tác tử này",
+      "teamHelp": "Tác tử này luôn có thể hỏi họ và xem công việc họ đã xong."
     },
     "describe": {
       "button": "Mô tả một tác tử",
@@ -898,7 +912,9 @@
         "noLimit": "Tác tử này không có giới hạn để nâng.",
         "mailbox": "Chọn một trong các hộp thư của bạn trong không gian làm việc này.",
         "quietHours": "Giờ yên lặng cần hai thời điểm khác nhau (HH:MM) và một múi giờ.",
-        "dailyChangeLimit": "Nhập giới hạn thay đổi hằng ngày là một số nguyên từ 1 đến 10.000."
+        "dailyChangeLimit": "Nhập giới hạn thay đổi hằng ngày là một số nguyên từ 1 đến 10.000.",
+        "manager": "Hãy chọn người quản lý trong số các tác tử được chia sẻ với bạn.",
+        "managerLoop": "Điều đó sẽ tạo vòng lặp hoặc chuỗi quản lý quá dài."
       },
       "noteEmpty": "Hãy viết điều tác tử nên ghi nhớ.",
       "noteTooLong": "Một ghi chú có tối đa {max} ký tự.",

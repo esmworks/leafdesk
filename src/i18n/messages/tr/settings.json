@@ -533,7 +533,21 @@
       "dailyChangeLimitPlaceholder": "Sınır yok",
       "dailyChangeLimitHelp": "Bir günde yapacağı en fazla değişiklik: satırlar, sayfalar, yorumlar, gönderdiği e-postalar ve bir şeyi değiştiren bağlantı çağrıları. Fazlası reddedilir. Gün, sessiz saatlerin saat dilimine, yoksa UTC'ye göre sayılır.",
       "dailyChangeLimitInvalid": "1 ile {max} arasında bir tam sayı girin.",
-      "guardrailsOwnersOnly": "Sessiz saatleri ve günlük değişiklik sınırını yalnızca çalışma alanı sahipleri belirler."
+      "guardrailsOwnersOnly": "Sessiz saatleri ve günlük değişiklik sınırını yalnızca çalışma alanı sahipleri belirler.",
+      "helpersModes": {
+        "none": "Hiçbiri",
+        "chosen": "Seçilen ajanlar",
+        "all": "Tüm ajanlar"
+      },
+      "helpersNoneHelp": "Kendisine rapor veren ajanlar dışında başka ajana sormaz.",
+      "helpersAllHelp": "Görevinin bir kısmını kullanabildiğin herhangi bir ajana, çalışma başına en fazla {max} kez devredebilir; sonradan eklenen ajanlar da buna dahil.",
+      "reportsTo": "Rapor verdiği ajan",
+      "reportsToNone": "Hiçbiri",
+      "reportsToHelp": "Yöneticisi ona görev verebilir ve bitirdiği işleri görebilir.",
+      "viaManagerOnly": "Yalnızca yöneticisi üzerinden çalışsın",
+      "viaManagerOnlyHelp": "Sonuçları yöneticiye gider; onu düzenleyemeyen kişiler yöneticiye yönlendirilir.",
+      "team": "Bu ajana rapor verenler",
+      "teamHelp": "Bu ajan onlara her zaman sorabilir ve bitirdikleri işleri görebilir."
     },
     "describe": {
       "button": "Ajanı anlat",
@@ -898,7 +912,9 @@
         "noLimit": "Bu ajanın artırılacak bir limiti yok.",
         "mailbox": "Bu çalışma alanındaki posta kutularınızdan birini seçin.",
         "quietHours": "Sessiz saatler için iki farklı saat (SS:DD) ve bir saat dilimi gerekir.",
-        "dailyChangeLimit": "Günlük değişiklik sınırını 1 ile 10.000 arasında bir tam sayı olarak girin."
+        "dailyChangeLimit": "Günlük değişiklik sınırını 1 ile 10.000 arasında bir tam sayı olarak girin.",
+        "manager": "Seninle paylaşılan ajanlardan bir yönetici seç.",
+        "managerLoop": "Bu bir döngü ya da çok uzun bir yönetici zinciri oluşturur."
       },
       "noteEmpty": "Ajanın neyi hatırlaması gerektiğini yazın.",
       "noteTooLong": "Bir not en fazla {max} karakter olabilir.",

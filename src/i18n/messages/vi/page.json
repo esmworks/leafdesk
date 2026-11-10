@@ -1324,7 +1324,9 @@
       "paused": "Tác tử này đang tạm dừng, nên không thể trả lời.",
       "aiOff": "AI đang tắt trong không gian làm việc này, nên tác tử không thể trả lời.",
       "limitReached": "Tác tử này đã dùng hết token của tháng, nên không thể trả lời cho đến tháng sau.",
-      "noAccess": "Bạn không có quyền truy cập tác tử này."
+      "noAccess": "Bạn không có quyền truy cập tác tử này.",
+      "viaManager": "{name} làm việc qua {manager}.",
+      "viaManagerGone": "{name} chỉ làm việc qua người quản lý của nó, mà bạn không truy cập được."
     },
     "empty": {
       "full": "Hãy hỏi {name} điều gì đó, hoặc giao việc cho nó. Nó làm việc với quyền truy cập, kỹ năng và bộ nhớ của riêng mình, và mỗi câu trả lời là một lần chạy của nó.",
@@ -1380,7 +1382,8 @@
       "queueFull": "Đã có {max} tin nhắn đang chờ câu trả lời. Hãy gửi tin này sau khi tác nhân trả lời.",
       "badFile": "Không thể đính kèm tệp này: chỉ tệp văn bản (CSV, TSV, TXT, Markdown, JSON), tối đa {max} cho mỗi tin nhắn.",
       "nothingToRedo": "Không có câu trả lời nào để làm lại.",
-      "summaryFailed": "Tác nhân không thể tóm tắt cuộc trò chuyện này. Hãy thử lại."
+      "summaryFailed": "Tác nhân không thể tóm tắt cuộc trò chuyện này. Hãy thử lại.",
+      "viaManager": "Tác tử này làm việc qua người quản lý của nó."
     },
     "picker": {
       "search": "Tìm tác tử",
@@ -1444,7 +1447,8 @@
       "onPage": "Trên một trang",
       "onClosedPage": "Trên một trang bạn không mở được"
     },
-    "computerFiles": "Có thể dùng tệp trên máy tính của bạn: {folders}"
+    "computerFiles": "Có thể dùng tệp trên máy tính của bạn: {folders}",
+    "chatWithManager": "Trò chuyện với {manager}"
   },
   "button": {
     "untitled": "Nút",

@@ -155,7 +155,8 @@
       "guest": "Khách không trò chuyện với tác tử. Tin nhắn của bạn lại được gửi tới trò chuyện AI chung.",
       "paused": "Tác tử này đang tạm dừng. Hãy nhờ một chủ sở hữu bật nó lên, hoặc chọn tác tử khác bằng /agent.",
       "aiOff": "AI đã tắt trong không gian làm việc này.",
-      "limitReached": "Tác tử này đã dùng hết token của tháng. Hãy chọn tác tử khác bằng /agent."
+      "limitReached": "Tác tử này đã dùng hết token của tháng. Hãy chọn tác tử khác bằng /agent.",
+      "viaManager": "Tác tử này chỉ làm việc qua người quản lý của nó. Chọn tác tử khác bằng /agent."
     },
     "refused": {
       "tooLong": "Tin nhắn gửi tác tử dài tối đa {max} ký tự.",

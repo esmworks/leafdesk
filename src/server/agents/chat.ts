@@ -63,6 +63,7 @@ import { startTriggered } from "@/server/triggers";
 import { kickAgents } from "./kick";
 import { startedBy, viewRuns } from "./manage";
 import { agentLevel, agentLevels, agentWithLevel } from "./sharing";
+import { managerOf } from "./team";
 import { addAgentUsage, overMonthlyLimit } from "./usage";
 
 /** Why a message wasn't taken, or a conversation not shown. */
@@ -112,6 +113,8 @@ export async function chatState(role: string, level: AgentLevel, agent: Agent | 
   if (isGuest(role as "guest")) return "guest";
   if (!agent) return "gone";
   if (level === "none") return "noAccess";
+  // Working only through its manager: anyone who can't edit it writes to the manager instead.
+  if (agent.viaManagerOnly && agent.reportsTo && !hasAgentLevel(level, "edit")) return "viaManager";
   if (!agent.enabled) return "paused";
   if (!(await aiAvailable(workspaceId))) return "aiOff";
   if (await overMonthlyLimit(agent)) return "limitReached";
@@ -157,6 +160,9 @@ export async function agentChatInfo(userId: string, workspaceId: string, agentId
   const { role, agent, level } = await standing(userId, workspaceId, agentId);
   const state = await chatState(role, level, agent, workspaceId);
   if (state === "guest" || state === "gone" || state === "noAccess" || !agent) return { state, agent: null, conversations: [], computer: null };
+  if (state === "viaManager") {
+    return { state, agent: { id: agent.id, name: agent.name, icon: agent.icon, description: agent.description }, conversations: [], computer: null, manager: await managerOf(agent) };
+  }
   return {
     state,
     agent: { id: agent.id, name: agent.name, icon: agent.icon, description: agent.description },
@@ -838,17 +844,31 @@ export async function nextQueuedRun(userId: string, runId: string): Promise<{ id
   return next ?? null;
 }
 
-/** The workspace's agents shared with the person, for a block (not a guest's) to show: names, nothing of their settings. */
+/**
+ * The workspace's agents shared with the person, for a block (not a guest's) to show: names, nothing
+ * of their settings. Not those working only through their manager, unless the person edits them:
+ * they write to the manager.
+ */
 export async function chatAgents(userId: string, workspaceId: string) {
   const { role } = await standing(userId, workspaceId, "");
   if (isGuest(role)) return [];
   const rows = await db
-    .select({ id: workspaceAgent.id, name: workspaceAgent.name, icon: workspaceAgent.icon, description: workspaceAgent.description, enabled: workspaceAgent.enabled })
+    .select({
+      id: workspaceAgent.id,
+      name: workspaceAgent.name,
+      icon: workspaceAgent.icon,
+      description: workspaceAgent.description,
+      enabled: workspaceAgent.enabled,
+      reportsTo: workspaceAgent.reportsTo,
+      viaManagerOnly: workspaceAgent.viaManagerOnly,
+    })
     .from(workspaceAgent)
     .where(and(eq(workspaceAgent.workspaceId, workspaceId), sql`${workspaceAgent.archivedAt} is null`))
     .orderBy(workspaceAgent.name);
   const levels = await agentLevels(userId, workspaceId, rows.map((r) => r.id), role);
-  return rows.filter((r) => levels.get(r.id) !== "none");
+  return rows
+    .filter((r) => levels.get(r.id) !== "none" && !(r.viaManagerOnly && r.reportsTo && !hasAgentLevel(levels.get(r.id) ?? "none", "edit")))
+    .map(({ id, name, icon, description, enabled }) => ({ id, name, icon, description, enabled }));
 }
 
 /** The names of these agents of the workspace (archived ones too), for exported Markdown. */

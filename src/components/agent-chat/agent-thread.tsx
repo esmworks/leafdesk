@@ -9,6 +9,7 @@
  * in the boxes beside the chat. Loaded only where a chat is shown.
  */
 import { Check, Loader2, Plus, ScrollText, Search, Trash2, TriangleAlert } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useFormatter, useTranslations } from "next-intl";
 import { useEffect, useRef, useState, type ReactNode } from "react";
@@ -22,6 +23,7 @@ import { SideBox, SideItem } from "@/components/side-box";
 import { SidebarOpenButton } from "@/components/sidebar/sidebar-context";
 import { cn, IconButton, selectClass } from "@/components/ui";
 import type { AgentChatMessageView, AgentChatRunView, AgentChatSearchHit, ChatPlace } from "@/lib/agent-chat";
+import { agentPagePath } from "@/lib/agent-page";
 import { SIDE_COLUMN, SIDE_CONTAINER, SIDE_PAD_FILLED, SIDE_SHOWN } from "@/lib/side-layout";
 import { SideBoxesToggle, useSideBoxesHidden } from "@/components/side-boxes-toggle";
 import { AgentThreadItem, type ItemContext } from "./agent-items";
@@ -137,6 +139,25 @@ export function AgentChat({
     return (
       <Frame block={block}>
         <div aria-busy="true" className="h-24 animate-pulse rounded-md bg-bg-subtle" />
+      </Frame>
+    );
+  }
+  if (state === "viaManager" && info.agent) {
+    // It works only through its manager: the person writes to the manager instead (lib/agent-team.ts).
+    const manager = info.manager;
+    return (
+      <Frame block={block}>
+        <div className="flex items-start gap-2 px-3 py-3 text-sm text-fg-muted" data-agent-chat-state={state}>
+          <AgentIcon icon={info.agent.icon} />
+          <p>
+            {manager ? t("states.viaManager", { name: info.agent.name, manager: manager.name }) : t("states.viaManagerGone", { name: info.agent.name })}{" "}
+            {manager && (
+              <Link href={agentPagePath(workspaceId, manager.id)} className="text-accent hover:underline">
+                {t("chatWithManager", { manager: manager.name })}
+              </Link>
+            )}
+          </p>
+        </div>
       </Frame>
     );
   }

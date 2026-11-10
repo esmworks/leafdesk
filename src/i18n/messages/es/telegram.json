@@ -155,7 +155,8 @@
       "guest": "Los invitados no chatean con agentes. Tus mensajes vuelven al chat de IA general.",
       "paused": "Este agente está en pausa. Pide a uno de sus propietarios que lo active, o elige otro con /agent.",
       "aiOff": "La IA está desactivada en este espacio de trabajo.",
-      "limitReached": "Este agente usó sus tokens del mes. Elige otro con /agent."
+      "limitReached": "Este agente usó sus tokens del mes. Elige otro con /agent.",
+      "viaManager": "Este agente trabaja solo a través de su responsable. Elige otro con /agent."
     },
     "refused": {
       "tooLong": "Un mensaje a un agente tiene como máximo {max} caracteres.",

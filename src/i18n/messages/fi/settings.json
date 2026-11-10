@@ -533,7 +533,21 @@
       "dailyChangeLimitPlaceholder": "Ei rajaa",
       "dailyChangeLimitHelp": "Enimmäismäärä muutoksia, jotka se tekee päivässä: rivit, sivut, kommentit, sen lähettämät sähköpostit ja jotain muuttavat yhteyskutsut. Seuraavat hylätään. Päivä lasketaan hiljaisten tuntien aikavyöhykkeellä, muuten UTC:n mukaan.",
       "dailyChangeLimitInvalid": "Anna kokonaisluku väliltä 1–{max}.",
-      "guardrailsOwnersOnly": "Vain työtilan omistajat asettavat hiljaiset tunnit ja päivittäisen muutosrajan."
+      "guardrailsOwnersOnly": "Vain työtilan omistajat asettavat hiljaiset tunnit ja päivittäisen muutosrajan.",
+      "helpersModes": {
+        "none": "Ei mitään",
+        "chosen": "Valitut agentit",
+        "all": "Kaikki agentit"
+      },
+      "helpersNoneHelp": "Se ei kysy muilta agenteilta, paitsi niiltä, jotka raportoivat sille.",
+      "helpersAllHelp": "Se voi antaa osan tehtävästään mille tahansa agentille, jota saat käyttää, enintään {max} kertaa ajoa kohden, myös myöhemmin lisätyille.",
+      "reportsTo": "Raportoi",
+      "reportsToNone": "Ei kenellekään",
+      "reportsToHelp": "Sen esihenkilö voi antaa sille tehtäviä ja nähdä sen valmiit työt.",
+      "viaManagerOnly": "Toimi vain esihenkilön kautta",
+      "viaManagerOnlyHelp": "Tulokset menevät esihenkilölle, ja ne, jotka eivät voi muokata sitä, ohjataan esihenkilölle.",
+      "team": "Raportoivat tälle agentille",
+      "teamHelp": "Tämä agentti voi aina kysyä niiltä ja nähdä niiden valmiit työt."
     },
     "describe": {
       "button": "Kuvaile agentti",
@@ -898,7 +912,9 @@
         "noLimit": "Tällä agentilla ei ole korotettavaa rajaa.",
         "mailbox": "Valitse jokin postilaatikoistasi tässä työtilassa.",
         "quietHours": "Hiljaiset tunnit tarvitsevat kaksi eri kellonaikaa (HH:MM) ja aikavyöhykkeen.",
-        "dailyChangeLimit": "Anna päivittäinen muutosraja kokonaislukuna väliltä 1–10 000."
+        "dailyChangeLimit": "Anna päivittäinen muutosraja kokonaislukuna väliltä 1–10 000.",
+        "manager": "Valitse esihenkilö sinulle jaetuista agenteista.",
+        "managerLoop": "Siitä tulisi silmukka tai liian pitkä esihenkilöiden ketju."
       },
       "noteEmpty": "Kirjoita, mitä agentin pitäisi muistaa.",
       "noteTooLong": "Muistiinpanossa voi olla enintään {max} merkkiä.",

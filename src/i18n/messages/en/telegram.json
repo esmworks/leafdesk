@@ -155,7 +155,8 @@
       "guest": "Guests don't chat with agents. Your messages go to the general AI chat again.",
       "paused": "This agent is paused. Ask one of its owners to turn it on, or choose another with /agent.",
       "aiOff": "AI is turned off in this workspace.",
-      "limitReached": "This agent used its tokens for the month. Choose another with /agent."
+      "limitReached": "This agent used its tokens for the month. Choose another with /agent.",
+      "viaManager": "This agent works only through its manager. Choose another with /agent."
     },
     "refused": {
       "tooLong": "A message to an agent has at most {max} characters.",

@@ -533,7 +533,21 @@
       "dailyChangeLimitPlaceholder": "Kein Limit",
       "dailyChangeLimitHelp": "Die meisten Änderungen, die er an einem Tag macht: Zeilen, Seiten, Kommentare, E-Mails, die er sendet, und Verbindungsaufrufe, die etwas ändern. Weitere werden abgelehnt. Der Tag richtet sich nach der Zeitzone der Ruhezeiten, sonst UTC.",
       "dailyChangeLimitInvalid": "Gib eine ganze Zahl von 1 bis {max} ein.",
-      "guardrailsOwnersOnly": "Nur Workspace-Inhaber legen Ruhezeiten und das tägliche Änderungslimit fest."
+      "guardrailsOwnersOnly": "Nur Workspace-Inhaber legen Ruhezeiten und das tägliche Änderungslimit fest.",
+      "helpersModes": {
+        "none": "Keine",
+        "chosen": "Ausgewählte Agenten",
+        "all": "Alle Agenten"
+      },
+      "helpersNoneHelp": "Er fragt keine anderen Agenten, außer denen, die ihm berichten.",
+      "helpersAllHelp": "Er kann Teile seiner Aufgabe an jeden anderen Agenten abgeben, den du nutzen darfst, bis zu {max}-mal pro Durchlauf, auch an später hinzugefügte.",
+      "reportsTo": "Berichtet an",
+      "reportsToNone": "Niemanden",
+      "reportsToHelp": "Sein Manager kann ihm Aufgaben geben und seine erledigte Arbeit sehen.",
+      "viaManagerOnly": "Nur über seinen Manager arbeiten",
+      "viaManagerOnlyHelp": "Ergebnisse gehen an den Manager, und wer ihn nicht bearbeiten kann, wird an den Manager verwiesen.",
+      "team": "Berichten an diesen Agenten",
+      "teamHelp": "Dieser Agent kann sie immer fragen und ihre erledigte Arbeit sehen."
     },
     "describe": {
       "button": "Agent beschreiben",
@@ -898,7 +912,9 @@
         "noLimit": "Dieser Agent hat kein Limit, das erhöht werden könnte.",
         "mailbox": "Wähle eines deiner Postfächer in diesem Arbeitsbereich.",
         "quietHours": "Ruhezeiten brauchen zwei verschiedene Uhrzeiten (HH:MM) und eine Zeitzone.",
-        "dailyChangeLimit": "Gib ein tägliches Änderungslimit als ganze Zahl von 1 bis 10.000 ein."
+        "dailyChangeLimit": "Gib ein tägliches Änderungslimit als ganze Zahl von 1 bis 10.000 ein.",
+        "manager": "Wähle einen Manager unter den Agenten, die mit dir geteilt sind.",
+        "managerLoop": "Das ergäbe eine Schleife oder eine zu lange Kette von Managern."
       },
       "noteEmpty": "Schreiben Sie, was sich der Agent merken soll.",
       "noteTooLong": "Eine Notiz darf höchstens {max} Zeichen haben.",

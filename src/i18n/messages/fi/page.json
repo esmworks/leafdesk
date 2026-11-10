@@ -1324,7 +1324,9 @@
       "paused": "Tämä agentti on keskeytetty, joten se ei voi vastata.",
       "aiOff": "Tekoäly on poistettu käytöstä tässä työtilassa, joten agentti ei voi vastata.",
       "limitReached": "Tämä agentti on käyttänyt kuukauden tokeninsa, joten se ei voi vastata ennen ensi kuuta.",
-      "noAccess": "Sinulla ei ole pääsyä tähän agenttiin."
+      "noAccess": "Sinulla ei ole pääsyä tähän agenttiin.",
+      "viaManager": "{name} toimii agentin {manager} kautta.",
+      "viaManagerGone": "{name} toimii vain esihenkilönsä kautta, johon sinulla ei ole pääsyä."
     },
     "empty": {
       "full": "Kysy agentilta {name} jotain tai anna sille tehtävä. Se toimii omilla käyttöoikeuksillaan, taidoillaan ja muistillaan, ja jokainen vastaus on yksi sen ajoista.",
@@ -1380,7 +1382,8 @@
       "queueFull": "Vastausta odottaa jo {max} viestiä. Lähetä tämä, kun agentti on vastannut.",
       "badFile": "Tiedostoa ei voi liittää: vain tekstitiedostot (CSV, TSV, TXT, Markdown, JSON), enintään {max} viestiä kohden.",
       "nothingToRedo": "Uudelleen tehtävää vastausta ei ole.",
-      "summaryFailed": "Agentti ei pystynyt tiivistämään keskustelua. Yritä uudelleen."
+      "summaryFailed": "Agentti ei pystynyt tiivistämään keskustelua. Yritä uudelleen.",
+      "viaManager": "Tämä agentti toimii esihenkilönsä kautta."
     },
     "picker": {
       "search": "Hae agentteja",
@@ -1444,7 +1447,8 @@
       "onPage": "Sivulla",
       "onClosedPage": "Sivulla, jota et voi avata"
     },
-    "computerFiles": "Voi käyttää tietokoneesi tiedostoja: {folders}"
+    "computerFiles": "Voi käyttää tietokoneesi tiedostoja: {folders}",
+    "chatWithManager": "Keskustele agentin {manager} kanssa"
   },
   "button": {
     "untitled": "Painike",

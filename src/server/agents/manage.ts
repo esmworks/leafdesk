@@ -44,17 +44,19 @@ import {
   type AgentStepRecord,
   type AgentView,
 } from "@/lib/agents";
+import { isAgentHelpersMode, type AgentHelpersMode } from "@/lib/agent-team";
 import { agentTargets } from "@/lib/automations";
 import { isDailyChangeLimit, MAX_DAILY_CHANGES, parseQuietHours, type QuietHours } from "@/lib/quiet-hours";
 import { ICON_RULE, parseIcon } from "@/lib/icon";
 import type { AgentLevel, AgentShareLevel } from "@/lib/agent-sharing";
-import { AccessError, pageAccessOf, pageVisibleTo, requireMember, workspaceOwnerIds } from "@/server/access";
+import { AccessError, findMembership, pageAccessOf, pageVisibleTo, requireMember, workspaceOwnerIds } from "@/server/access";
 import { recordAudit } from "@/server/audit";
 import { channelVisibleTo } from "@/server/messages/core";
 import { removePagePermission, setPagePermission } from "@/server/permissions";
 import { addAgentMembership } from "@/server/workspaces";
 import { recordAgentVersion, withoutVersions } from "./version-record";
 import { checkHelperIds, dropHelper, helperIdsOf, saveHelpers } from "./helpers";
+import { checkManager, leaveManager } from "./team";
 import { agentLevels, agentWithLevel, requireAgentCreator, shareNewAgent } from "./sharing";
 
 import { runsAnsweredBy } from "./approvers";
@@ -87,8 +89,14 @@ export type AgentInput = {
   quietHours?: QuietHours | null;
   /** The most changes a day; null removes the limit. */
   dailyChangeLimit?: number | null;
-  /** Its "Agents it can ask" (see helpers.ts), all of them. */
+  /** Its "Agents it can ask" (see helpers.ts), all of them; asked only with helpersMode "chosen". */
   helperAgentIds?: string[];
+  /** Which agents it may ask (lib/agent-team.ts); left out with helperAgentIds: "chosen" for a list, "none" for none. */
+  helpersMode?: AgentHelpersMode;
+  /** The agent it reports to (lib/agent-team.ts); null: none. */
+  reportsTo?: string | null;
+  /** It works only through its manager (lib/agent-team.ts); false without one. */
+  viaManagerOnly?: boolean;
 };
 
 const clean = (value: unknown, max: number) => (typeof value === "string" ? value.trim().slice(0, max) : undefined);
@@ -156,6 +164,22 @@ async function checkHelpers(userId: string, workspaceId: string, agentId: string
   return ids;
 }
 
+function checkHelpersMode(value: unknown): AgentHelpersMode {
+  if (!isAgentHelpersMode(value)) throw new AgentError("invalid", 'An agent asks "none", "chosen" or "all" other agents', { reason: "helpers" });
+  return value;
+}
+
+/**
+ * The agents it may ask as `input` sets them, from what it has now (`before`; none for a new agent):
+ * a mode and, for "chosen", the list. A list sent without a mode is "chosen" (or "none" when empty),
+ * as before modes were.
+ */
+async function helperSetup(userId: string, workspaceId: string, agentId: string | null, input: AgentInput, before: { mode: AgentHelpersMode; ids: string[] }) {
+  const mode = input.helpersMode !== undefined ? checkHelpersMode(input.helpersMode) : input.helperAgentIds !== undefined ? (input.helperAgentIds.length ? "chosen" : "none") : before.mode;
+  const ids = mode !== "chosen" ? [] : input.helperAgentIds === undefined ? before.ids : await checkHelpers(userId, workspaceId, agentId, input.helperAgentIds, before.ids);
+  return { mode, ids };
+}
+
 function checkIcon(value: unknown) {
   if (value === null || value === undefined) return null;
   // An emoji (a few code points at most) or a built-in icon, like a page's icon.
@@ -184,6 +208,9 @@ export function viewAgent(a: Agent, access: AgentShareLevel): AgentView {
     rowChanges: a.rowChanges,
     quietHours: a.quietHours ? parseQuietHours(a.quietHours) : null,
     dailyChangeLimit: a.dailyChangeLimit,
+    helpersMode: a.helpersMode,
+    reportsTo: a.reportsTo,
+    viaManagerOnly: a.viaManagerOnly && a.reportsTo !== null,
     access,
     createdAt: a.createdAt.toISOString(),
     updatedAt: a.updatedAt.toISOString(),
@@ -202,6 +229,9 @@ export const auditDetails = (a: Agent) => ({
   rowChanges: a.rowChanges,
   quietHours: a.quietHours,
   dailyChangeLimit: a.dailyChangeLimit,
+  helpersMode: a.helpersMode,
+  reportsTo: a.reportsTo,
+  viaManagerOnly: a.viaManagerOnly,
 });
 
 export { agentWithLevel } from "./sharing";
@@ -363,7 +393,8 @@ export async function createAgent(userId: string, workspaceId: string, input: Ag
   const monthlyTokenLimit = input.monthlyTokenLimit === undefined ? null : checkLimit(input.monthlyTokenLimit);
   const model = input.model === undefined ? "main" : checkModel(input.model);
   const thinking = input.thinking === undefined ? "balanced" : checkThinking(input.thinking);
-  const helpers = input.helperAgentIds === undefined ? [] : await checkHelpers(userId, workspaceId, null, input.helperAgentIds);
+  const helpers = await helperSetup(userId, workspaceId, null, input, { mode: "none", ids: [] });
+  const reportsTo = input.reportsTo === undefined ? null : await checkManager(userId, workspaceId, null, input.reportsTo);
   const created = await db.transaction(async (tx) => {
     const [{ n }] = await tx
       .select({ n: count() })
@@ -393,10 +424,14 @@ export async function createAgent(userId: string, workspaceId: string, input: Ag
         rowChanges: input.rowChanges === undefined ? "direct" : checkRowChanges(input.rowChanges),
         quietHours: input.quietHours === undefined ? null : checkQuietHours(input.quietHours),
         dailyChangeLimit: input.dailyChangeLimit === undefined ? null : checkDailyChangeLimit(input.dailyChangeLimit),
+        helpersMode: helpers.mode,
+        helpersSetBy: helpers.mode === "all" ? userId : null,
+        reportsTo,
+        viaManagerOnly: reportsTo !== null && input.viaManagerOnly === true,
         createdBy: userId,
       })
       .returning();
-    if (helpers.length) await saveHelpers(tx, id, helpers);
+    if (helpers.ids.length) await saveHelpers(tx, id, helpers.ids);
     await shareNewAgent(tx, agent, userId);
     if (copy) await copy.setUp(tx, agent);
     return agent;
@@ -452,8 +487,24 @@ export async function updateAgent(userId: string, agentId: string, patch: AgentI
   if (patch.quietHours !== undefined) set.quietHours = checkQuietHours(patch.quietHours);
   if (patch.dailyChangeLimit !== undefined) set.dailyChangeLimit = checkDailyChangeLimit(patch.dailyChangeLimit);
   const helpersBefore = (await helperIdsOf([agentId])).get(agentId) ?? [];
-  const helpers = patch.helperAgentIds === undefined ? helpersBefore : await checkHelpers(userId, current.workspaceId, agentId, patch.helperAgentIds, helpersBefore);
+  const setup = await helperSetup(userId, current.workspaceId, agentId, patch, { mode: current.helpersMode, ids: helpersBefore });
+  const helpers = setup.ids;
   const helpersChanged = helpers.join() !== helpersBefore.join();
+  if (setup.mode !== current.helpersMode) {
+    set.helpersMode = setup.mode;
+    // "All" is what its chooser may use: someone else saving the form later doesn't change whose.
+    set.helpersSetBy = setup.mode === "all" ? userId : null;
+  } else if (setup.mode === "all" && patch.helpersMode === "all" && (!current.helpersSetBy || !(await findMembership(current.helpersSetBy, current.workspaceId)))) {
+    // Unless its chooser left the workspace (it asks no one then): whoever chooses "all" again takes it over.
+    set.helpersSetBy = userId;
+  }
+  if (patch.reportsTo !== undefined) {
+    const reportsTo = await checkManager(userId, current.workspaceId, agentId, patch.reportsTo, current.reportsTo);
+    if (reportsTo !== current.reportsTo) set.reportsTo = reportsTo;
+  }
+  const manager = set.reportsTo !== undefined ? set.reportsTo : current.reportsTo;
+  const viaManagerOnly = manager !== null && (patch.viaManagerOnly !== undefined ? patch.viaManagerOnly === true : current.viaManagerOnly);
+  if (viaManagerOnly !== current.viaManagerOnly) set.viaManagerOnly = viaManagerOnly;
   if (!Object.keys(set).length && !helpersChanged) return viewAgent(current, level);
   const updated = await db.transaction(async (tx) => {
     if (helpersChanged) await saveHelpers(tx, agentId, helpers);
@@ -510,8 +561,9 @@ export async function archiveAgent(userId: string, agentId: string): Promise<Age
       );
     }
     await tx.delete(agentDatabaseShare).where(eq(agentDatabaseShare.agentId, agentId));
-    // Other agents can no longer ask it.
+    // Other agents can no longer ask it, and those that reported to it report to no one.
     await dropHelper(tx, agentId);
+    await leaveManager(tx, agentId);
     return agent;
   });
   await recordAudit({ workspaceId: current.workspaceId, actorId: userId, action: "agent.archived", target: { type: "user", id: current.userId, label: current.name }, details: auditDetails(archived) });

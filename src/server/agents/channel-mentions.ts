@@ -15,12 +15,14 @@
  */
 import { and, eq, inArray, isNull } from "drizzle-orm";
 import { db } from "@/db";
-import { channel, channelMessage, messageMention, workspaceAgent } from "@/db/schema";
+import { channel, channelMember, channelMessage, messageMention, workspaceAgent } from "@/db/schema";
 import { MAX_AGENT_PROMPT } from "@/lib/agents";
 import { plainText } from "@/lib/message-text";
 import { findMembership, isGuest } from "@/server/access";
 import { startTriggered } from "@/server/triggers";
+import { forManager } from "./mentions";
 import { agentLevels } from "./sharing";
+import { routeForPerson } from "./team";
 import { isAgentUser } from "./users";
 
 /**
@@ -37,12 +39,19 @@ const FRESH_MS = 2 * 60_000;
 export async function agentsToBringIn(authorId: string, workspaceId: string, role: Parameters<typeof isGuest>[0], userIds: string[]): Promise<string[]> {
   if (!userIds.length || isGuest(role)) return [];
   const agents = await db
-    .select({ id: workspaceAgent.id, userId: workspaceAgent.userId })
+    .select({ id: workspaceAgent.id, userId: workspaceAgent.userId, reportsTo: workspaceAgent.reportsTo, viaManagerOnly: workspaceAgent.viaManagerOnly })
     .from(workspaceAgent)
     .where(and(eq(workspaceAgent.workspaceId, workspaceId), inArray(workspaceAgent.userId, userIds), isNull(workspaceAgent.archivedAt)));
   if (!agents.length) return [];
   const levels = await agentLevels(authorId, workspaceId, agents.map((a) => a.id), role);
-  return agents.filter((a) => levels.get(a.id) !== "none").map((a) => a.userId);
+  const shared = agents.filter((a) => levels.get(a.id) !== "none");
+  // One working only through its manager brings its manager in too, which answers for it.
+  const routes = await routeForPerson(authorId, workspaceId, shared, levels);
+  const managers = [...new Set(shared.flatMap((a) => (routes.get(a.id) && routes.get(a.id) !== a.id ? [routes.get(a.id)!] : [])))];
+  const managerUsers = managers.length
+    ? (await db.select({ userId: workspaceAgent.userId }).from(workspaceAgent).where(inArray(workspaceAgent.id, managers))).map((a) => a.userId)
+    : [];
+  return [...new Set([...shared.map((a) => a.userId), ...managerUsers])];
 }
 
 /** Queues a run of each agent the message names that may answer there. Returns the queued runs' ids. */
@@ -68,7 +77,7 @@ export async function startChannelMentionRuns(messageId: string): Promise<string
   const membership = await findMembership(authorId, message.workspaceId);
   if (!membership || isGuest(membership.role)) return [];
   const agents = await db
-    .select({ id: workspaceAgent.id })
+    .select({ id: workspaceAgent.id, name: workspaceAgent.name, reportsTo: workspaceAgent.reportsTo, viaManagerOnly: workspaceAgent.viaManagerOnly })
     .from(workspaceAgent)
     .where(
       and(
@@ -83,14 +92,38 @@ export async function startChannelMentionRuns(messageId: string): Promise<string
   if (!agents.length) return [];
   const levels = await agentLevels(authorId, message.workspaceId, agents.map((a) => a.id), membership.role);
   const shared = agents.filter((a) => levels.get(a.id) !== "none");
-  const queued: string[] = [];
+  // One working only through its manager hands the message to the manager (team.ts routeForPerson),
+  // which answers in the thread when it is in the channel (agentsToBringIn brought it).
+  const routes = await routeForPerson(authorId, message.workspaceId, shared, levels);
+  const targets = new Map<string, string[]>();
   for (const agent of shared) {
+    const target = routes.get(agent.id);
+    if (!target) continue;
+    const names = targets.get(target) ?? [];
+    if (target !== agent.id) names.push(agent.name);
+    targets.set(target, names);
+  }
+  const handedOn = [...targets.entries()].filter(([, names]) => names.length).map(([id]) => id);
+  const inChannel = new Set(
+    handedOn.length
+      ? (
+          await db
+            .select({ id: workspaceAgent.id })
+            .from(workspaceAgent)
+            .innerJoin(channelMember, and(eq(channelMember.userId, workspaceAgent.userId), eq(channelMember.channelId, message.channelId)))
+            .where(inArray(workspaceAgent.id, handedOn))
+        ).map((a) => a.id)
+      : [],
+  );
+  const queued: string[] = [];
+  for (const [agentId, forOthers] of targets) {
+    if (forOthers.length && !inChannel.has(agentId)) continue;
     const { run } = await startTriggered({
-      target: { agentId: agent.id },
+      target: { agentId },
       workspaceId: message.workspaceId,
       source: { kind: "channel", channelId: message.channelId, threadId: message.threadId ?? message.id, messageId: message.id, mentionedBy: authorId },
       context: { actorId: authorId },
-      prompt: plainText(message.body).slice(0, MAX_AGENT_PROMPT),
+      prompt: `${forManager(forOthers)}${plainText(message.body)}`.slice(0, MAX_AGENT_PROMPT),
     });
     queued.push(run.id);
   }

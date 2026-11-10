@@ -36,6 +36,7 @@ import { readLocalFiles } from "@/lib/local-reads";
 import { MAX_AGENT_MAIL_RECIPIENTS } from "@/lib/agent-mail";
 import { MAX_AGENT_REQUEST, type AgentDraft, type DraftTrigger } from "@/lib/agent-draft";
 import { AGENT_SHARE_LEVELS, type AgentSharingView } from "@/lib/agent-sharing";
+import { AGENT_HELPERS_MODES, type AgentHelpersMode } from "@/lib/agent-team";
 import type { AgentRestoreSkip, AgentVersionView } from "@/lib/agent-versions";
 import { MAX_AGENT_CHAT_MESSAGE } from "@/lib/agent-chat";
 import { MAX_MEMORIES, MAX_MEMORY_CHARS } from "@/lib/ai-chat";
@@ -85,8 +86,20 @@ const helpersInput = z
   .array(id("agent"))
   .max(MAX_AGENT_HELPERS)
   .describe(
-    `Its "Agents it can ask": ids of other agents of the workspace (list_agents), not archived, at most ${MAX_AGENT_HELPERS}. On a run it may hand part of its task to one of them with ask_agent (at most ${MAX_HANDOFFS_PER_RUN} times a run), and gets its answer; each runs with its own access, tools and limits and can't ask further agents. Replaces the whole list; [] clears it.`,
+    `Its "Agents it can ask": ids of other agents of the workspace (list_agents), not archived, at most ${MAX_AGENT_HELPERS}. On a run it may hand part of its task to one of them with ask_agent (at most ${MAX_HANDOFFS_PER_RUN} times a run), and gets its answer; each runs with its own access, tools and limits and can't ask further agents. Replaces the whole list; [] clears it. Given without helpers_mode, it sets "chosen" ("none" for []).`,
   );
+
+const helpersModeInput = z
+  .enum(AGENT_HELPERS_MODES)
+  .describe('Which agents it may ask: "none", "chosen" (helper_agent_ids) or "all" (every other agent the user may use, agents added later too). The agents reporting to it can always be asked.');
+
+const reportsToInput = id("agent")
+  .nullable()
+  .describe("Its manager: another agent of the workspace (list_agents) that may give it tasks and read its finished work. No loops, at most 5 links up. null: none.");
+
+const viaManagerOnlyInput = z
+  .boolean()
+  .describe("Works only through its manager: its finished runs report to the manager instead of people, and people who can't edit it are sent to the manager. Needs reports_to.");
 
 const repeatInput = z
   .object({
@@ -166,6 +179,9 @@ export const agentInputs = {
     web_access: webAccessInput.optional(),
     row_changes: rowChangesInput.optional(),
     helper_agent_ids: helpersInput.optional(),
+    helpers_mode: helpersModeInput.optional(),
+    reports_to: reportsToInput.optional(),
+    via_manager_only: viaManagerOnlyInput.optional(),
   }),
   // No defaults here: what is left out stays as it is.
   update: z.object({
@@ -190,6 +206,9 @@ export const agentInputs = {
       ),
     model: modelInput.optional(),
     helper_agent_ids: helpersInput.optional(),
+    helpers_mode: helpersModeInput.optional(),
+    reports_to: reportsToInput.optional(),
+    via_manager_only: viaManagerOnlyInput.optional(),
   }),
   run: z.object({
     agent_id: id("agent"),
@@ -351,6 +370,9 @@ export function toAgentPatch(args: Omit<z.infer<typeof agentInputs.update>, "age
     monthlyTokenLimit?: number | null;
     model?: AgentModel;
     helperAgentIds?: string[];
+    helpersMode?: AgentHelpersMode;
+    reportsTo?: string | null;
+    viaManagerOnly?: boolean;
   } = {};
   if (args.name !== undefined) patch.name = args.name;
   if (args.icon !== undefined) patch.icon = args.icon;
@@ -363,8 +385,13 @@ export function toAgentPatch(args: Omit<z.infer<typeof agentInputs.update>, "age
   if (args.monthly_token_limit !== undefined) patch.monthlyTokenLimit = args.monthly_token_limit;
   if (args.model !== undefined) patch.model = args.model;
   if (args.helper_agent_ids !== undefined) patch.helperAgentIds = args.helper_agent_ids;
+  if (args.helpers_mode !== undefined) patch.helpersMode = args.helpers_mode;
+  if (args.reports_to !== undefined) patch.reportsTo = args.reports_to;
+  if (args.via_manager_only !== undefined) patch.viaManagerOnly = args.via_manager_only;
   if (!Object.keys(patch).length)
-    throw new ToolInputError("Nothing to change: pass name, icon, description, instructions, enabled, web_access, row_changes, monthly_token_limit, model or helper_agent_ids.");
+    throw new ToolInputError(
+      "Nothing to change: pass name, icon, description, instructions, enabled, web_access, row_changes, monthly_token_limit, model, helper_agent_ids, helpers_mode, reports_to or via_manager_only.",
+    );
   return patch;
 }
 
@@ -378,6 +405,8 @@ const INVALID: Record<string, string> = {
   taskLength: `A task has at most ${MAX_AGENT_PROMPT} characters. Make it shorter.`,
   helpers: `helper_agent_ids lists other agents of the same workspace that aren't archived, each once, at most ${MAX_AGENT_HELPERS} (an agent can't ask itself); an agent the user adds must be shared with them. Call list_agents to find them.`,
   shareLevel: 'An agent is shared at "full", "edit" or "interact".',
+  manager: "reports_to is another agent of the same workspace, not archived and shared with the user (list_agents), or null.",
+  managerLoop: "That manager reports to this agent already (directly or through others), is the agent itself, or makes a chain of more than 5 managers. Choose another, or null.",
   repeat:
     'Invalid repeat rule or time zone: frequency daily, weekly, monthly or yearly; weekdays (0-6) for a weekly rule; time as "HH:MM"; start as a real YYYY-MM-DD day; time_zone an IANA name such as "Europe/Istanbul".',
 };
@@ -507,6 +536,9 @@ export function describeAgentSummary(agent: AgentView, helpers?: string[]) {
     row_changes: agent.rowChanges,
     user_id: agent.userId,
     your_access: agent.access,
+    helpers_mode: agent.helpersMode,
+    reports_to: agent.reportsTo,
+    via_manager_only: agent.viaManagerOnly,
     ...(helpers ? { helper_agent_ids: helpers } : {}),
   };
 }

@@ -155,7 +155,8 @@
       "guest": "Gäste chatten nicht mit Agenten. Deine Nachrichten gehen wieder an den allgemeinen KI-Chat.",
       "paused": "Dieser Agent ist pausiert. Bitte einen seiner Inhaber, ihn einzuschalten, oder wähl mit /agent einen anderen.",
       "aiOff": "KI ist in diesem Workspace ausgeschaltet.",
-      "limitReached": "Dieser Agent hat seine Tokens für den Monat verbraucht. Wähl mit /agent einen anderen."
+      "limitReached": "Dieser Agent hat seine Tokens für den Monat verbraucht. Wähl mit /agent einen anderen.",
+      "viaManager": "Dieser Agent arbeitet nur über seinen Manager. Wähle mit /agent einen anderen."
     },
     "refused": {
       "tooLong": "Eine Nachricht an einen Agenten hat höchstens {max} Zeichen.",

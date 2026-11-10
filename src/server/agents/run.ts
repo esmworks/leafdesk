@@ -256,13 +256,26 @@ async function finish(run: Run, values: Ending) {
   const source = ended && hasAgentSource(ended) ? ended.source : run.source;
   // A schedule's runs failing again and again turn it off (server/schedules.ts).
   if (isScheduleRun(run.source)) await noteScheduleOutcome(run.source.scheduleId, values.status === "done");
-  await reportRun({ ...run, source }, values);
+  // One working only through its manager tells the manager (agent_tasks with team), not people, of what it got done.
+  // A task's report opens the chat of the agent that gave it, so it reaches the person through that agent already.
+  const toManager = values.status === "done" && !isMailRun(source) && !(source.kind === "handoff" && source.queued) && (await worksThroughManager(run.agentId));
+  if (!toManager) await reportRun({ ...run, source }, values);
   await replyToMention(run, values);
   // A routine's summary to the chat its setter has with the agent in Telegram, as saved (masked).
   // Not waited for: Telegram in trouble would hold the worker's slot (it never throws).
-  if (ended && isScheduleRun(source) && !values.quiet) {
+  if (ended && isScheduleRun(source) && !values.quiet && !toManager) {
     void tellRoutineEnded({ ...ended, id: run.id, workspaceId: run.workspaceId, agentId: run.agentId, source, status: values.status, code: values.code ?? null });
   }
+}
+
+/**
+ * Whether the agent works only through its manager (lib/agent-team.ts): what its runs get done is
+ * reported to the manager, which reads it with agent_tasks, instead of to the people behind them.
+ * A failure, a draft to send and a call to approve still reach them: the manager can't act on those.
+ */
+async function worksThroughManager(agentId: string): Promise<boolean> {
+  const [agent] = await db.select({ reportsTo: workspaceAgent.reportsTo, via: workspaceAgent.viaManagerOnly }).from(workspaceAgent).where(eq(workspaceAgent.id, agentId));
+  return Boolean(agent?.via && agent.reportsTo);
 }
 
 /**

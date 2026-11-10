@@ -3154,7 +3154,7 @@ export function createMcpServer(principal: McpPrincipal, options: { actor?: Writ
     {
       title: "List a workspace's agents",
       description:
-        "List the agents of a workspace: AI helpers with instructions of their own that automations run on database rows (create_automation's run_agent action takes an agent's id or name). Shows each one's name, icon, description, whether it is enabled (paused agents don't run) and archived, the model its runs use (main or fast), whether it may read the web (web_access), whether its runs change rows directly or propose them for review (row_changes), the id of its own user (what its changes and comments show), the agents it can ask (helper_agent_ids) and the user's access to it (your_access: full, edit or interact). Owners list every agent; members those shared with them; guests none. get_agent shows an agent's instructions, the pages shared with it and who it is shared with.",
+        "List the agents of a workspace: AI helpers with instructions of their own that automations run on database rows (create_automation's run_agent action takes an agent's id or name). Shows each one's name, icon, description, whether it is enabled (paused agents don't run) and archived, the model its runs use (main or fast), whether it may read the web (web_access), whether its runs change rows directly or propose them for review (row_changes), the id of its own user (what its changes and comments show), the agents it can ask (helpers_mode, helper_agent_ids), its manager (reports_to, via_manager_only) and the user's access to it (your_access: full, edit or interact). Owners list every agent; members those shared with them; guests none. get_agent shows an agent's instructions, the pages shared with it and who it is shared with.",
       inputSchema: agentInputs.list,
       annotations: READ,
     },
@@ -3198,12 +3198,12 @@ export function createMcpServer(principal: McpPrincipal, options: { actor?: Writ
     "create_agent",
     {
       title: "Create an agent",
-      description: `Create an agent in a workspace: a name, optional emoji icon and description, instructions it follows on every run, the model its runs use (main by default; fast for routine jobs), and optionally other agents it can hand part of a task to (helper_agent_ids). It is a guest of the workspace that can't sign in, and starts with nothing shared: share pages with set_agent_access, or run it from a database automation (create_automation with a run_agent action, which shares that database at edit access). It reads nothing outside the workspace unless web_access is true (then its runs may read public pages and search the web where the server has a search service). With row_changes "review" its runs propose rows for a person to approve. ${RUN_NOTE} Owners create agents, and members too where the workspace lets them; the creator gets full access and everyone else "interact" (share_agent changes that). Only owners set monthly_token_limit. A workspace has at most 50.`,
+      description: `Create an agent in a workspace: a name, optional emoji icon and description, instructions it follows on every run, the model its runs use (main by default; fast for routine jobs), and optionally other agents it can hand part of a task to (helpers_mode, helper_agent_ids) and its manager (reports_to). It is a guest of the workspace that can't sign in, and starts with nothing shared: share pages with set_agent_access, or run it from a database automation (create_automation with a run_agent action, which shares that database at edit access). It reads nothing outside the workspace unless web_access is true (then its runs may read public pages and search the web where the server has a search service). With row_changes "review" its runs propose rows for a person to approve. ${RUN_NOTE} Owners create agents, and members too where the workspace lets them; the creator gets full access and everyone else "interact" (share_agent changes that). Only owners set monthly_token_limit. A workspace has at most 50.`,
       inputSchema: agentInputs.create,
       annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true },
       scopeChallenge: requireWrite,
     },
-    write(({ workspace_id, copy_of, web_access, row_changes, helper_agent_ids, ...input }) =>
+    write(({ workspace_id, copy_of, web_access, row_changes, helper_agent_ids, helpers_mode, reports_to, via_manager_only, ...input }) =>
       withAgentErrors(async () => {
         try {
           const fields = {
@@ -3211,6 +3211,9 @@ export function createMcpServer(principal: McpPrincipal, options: { actor?: Writ
             ...(web_access !== undefined ? { webAccess: web_access } : {}),
             ...(row_changes !== undefined ? { rowChanges: row_changes } : {}),
             helperAgentIds: helper_agent_ids,
+            ...(helpers_mode !== undefined ? { helpersMode: helpers_mode } : {}),
+            ...(reports_to !== undefined ? { reportsTo: reports_to } : {}),
+            ...(via_manager_only !== undefined ? { viaManagerOnly: via_manager_only } : {}),
           };
           if (copy_of) {
             const source = await agents.getAgent(userId, copy_of);
@@ -3277,7 +3280,7 @@ export function createMcpServer(principal: McpPrincipal, options: { actor?: Writ
     "update_agent",
     {
       title: "Change an agent",
-      description: `Change an agent from list_agents: its name (its changes and comments show the new one), icon (null removes it), description, instructions, whether it is enabled (false pauses it: its queued runs end without doing anything), whether its runs may read the web (web_access), whether they change rows directly or propose the changes for review (row_changes), its monthly token limit (null removes it; owners only), the agents it can ask (helper_agent_ids: the whole list), or the model its runs use: "main", the server's main model, for work that needs judgment, or "fast", its cheaper fast model, for routine, well-defined jobs such as summaries or sorting rows (where the server has no fast model, or the workspace's AI is an own AI account, a fast agent runs on the main model). What you leave out stays as it is.`,
+      description: `Change an agent from list_agents: its name (its changes and comments show the new one), icon (null removes it), description, instructions, whether it is enabled (false pauses it: its queued runs end without doing anything), whether its runs may read the web (web_access), whether they change rows directly or propose the changes for review (row_changes), its monthly token limit (null removes it; owners only), the agents it can ask (helpers_mode; helper_agent_ids: the whole list), its manager (reports_to, via_manager_only), or the model its runs use: "main", the server's main model, for work that needs judgment, or "fast", its cheaper fast model, for routine, well-defined jobs such as summaries or sorting rows (where the server has no fast model, or the workspace's AI is an own AI account, a fast agent runs on the main model). What you leave out stays as it is.`,
       inputSchema: agentInputs.update,
       annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true },
       scopeChallenge: requireWrite,

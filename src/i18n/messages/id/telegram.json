@@ -155,7 +155,8 @@
       "guest": "Tamu tidak mengobrol dengan agen. Pesan Anda kembali dikirim ke obrolan AI umum.",
       "paused": "Agen ini dijeda. Minta salah satu pemiliknya menyalakannya, atau pilih yang lain dengan /agent.",
       "aiOff": "AI dimatikan di ruang kerja ini.",
-      "limitReached": "Agen ini telah memakai token bulan ini. Pilih yang lain dengan /agent."
+      "limitReached": "Agen ini telah memakai token bulan ini. Pilih yang lain dengan /agent.",
+      "viaManager": "Agen ini hanya bekerja melalui manajernya. Pilih agen lain dengan /agent."
     },
     "refused": {
       "tooLong": "Pesan ke agen paling banyak {max} karakter.",

@@ -16,7 +16,9 @@ import { PAGE_LEVELS, workspaceAgent } from "@/db/schema";
 import { MAX_AGENT_PROMPT } from "@/lib/agents";
 import { searchFold } from "@/lib/search-fold";
 import { findMembership, isGuest } from "@/server/access";
+import { hasAgentLevel } from "@/lib/agent-sharing";
 import { agentLevels } from "./sharing";
+import { routeForPerson } from "./team";
 import { requestLocale } from "@/server/mail/locale";
 import { startTriggered } from "@/server/triggers";
 import { isAgentUser } from "./users";
@@ -35,13 +37,15 @@ const commentsOn = (pageId: string) => sql`page_access_level(${workspaceAgent.us
  */
 export async function mentionableAgents(userId: string, workspaceId: string, pageId: string, q: string): Promise<AgentCandidate[]> {
   const rows = await db
-    .select({ agentId: workspaceAgent.id, id: workspaceAgent.userId, name: workspaceAgent.name, icon: workspaceAgent.icon })
+    .select({ agentId: workspaceAgent.id, id: workspaceAgent.userId, name: workspaceAgent.name, icon: workspaceAgent.icon, reportsTo: workspaceAgent.reportsTo, viaManagerOnly: workspaceAgent.viaManagerOnly })
     .from(workspaceAgent)
     .where(and(eq(workspaceAgent.workspaceId, workspaceId), isNull(workspaceAgent.archivedAt), eq(workspaceAgent.enabled, true), commentsOn(pageId)))
     .orderBy(asc(workspaceAgent.name));
   const matching = rows.filter((a) => !q || searchFold(a.name).includes(q));
   const levels = await agentLevels(userId, workspaceId, matching.map((a) => a.agentId));
-  return matching.filter((a) => levels.get(a.agentId) !== "none").map(({ id, name, icon }) => ({ id, name, icon }));
+  // One working only through its manager isn't offered to those who can't edit it: they mention the manager.
+  const offered = (a: (typeof matching)[number]) => levels.get(a.agentId) !== "none" && !(a.viaManagerOnly && a.reportsTo && !hasAgentLevel(levels.get(a.agentId) ?? "none", "edit"));
+  return matching.filter(offered).map(({ id, name, icon }) => ({ id, name, icon }));
 }
 
 /**
@@ -67,30 +71,49 @@ export async function startMentionRuns(input: {
   const membership = await findMembership(input.authorId, input.workspaceId);
   if (!membership || isGuest(membership.role)) return [];
   const agents = await db
-    .select({ id: workspaceAgent.id })
+    .select({ id: workspaceAgent.id, name: workspaceAgent.name, reportsTo: workspaceAgent.reportsTo, viaManagerOnly: workspaceAgent.viaManagerOnly })
     .from(workspaceAgent)
-    .where(
-      and(
-        eq(workspaceAgent.workspaceId, input.workspaceId),
-        inArray(workspaceAgent.userId, mentioned),
-        isNull(workspaceAgent.archivedAt),
-        commentsOn(input.pageId),
-      ),
-    );
+    .where(and(eq(workspaceAgent.workspaceId, input.workspaceId), inArray(workspaceAgent.userId, mentioned), isNull(workspaceAgent.archivedAt)));
   const levels = await agentLevels(input.authorId, input.workspaceId, agents.map((a) => a.id), membership.role);
   const shared = agents.filter((a) => levels.get(a.id) !== "none");
   if (!shared.length) return [];
+  // One working only through its manager hands the mention to the manager (team.ts routeForPerson).
+  const routes = await routeForPerson(input.authorId, input.workspaceId, shared, levels);
+  const targets = new Map<string, string[]>();
+  for (const agent of shared) {
+    const target = routes.get(agent.id);
+    if (!target) continue;
+    const names = targets.get(target) ?? [];
+    if (target !== agent.id) names.push(agent.name);
+    targets.set(target, names);
+  }
+  // Each may comment on the page, as the agent mentioned would have to.
+  const commenting = targets.size
+    ? new Set(
+        (
+          await db
+            .select({ id: workspaceAgent.id })
+            .from(workspaceAgent)
+            .where(and(inArray(workspaceAgent.id, [...targets.keys()]), commentsOn(input.pageId)))
+        ).map((a) => a.id),
+      )
+    : new Set<string>();
   const locale = await requestLocale();
   const queued: string[] = [];
-  for (const agent of shared) {
+  for (const [agentId, forOthers] of targets) {
+    if (!commenting.has(agentId)) continue;
     const { run } = await startTriggered({
-      target: { agentId: agent.id },
+      target: { agentId },
       workspaceId: input.workspaceId,
       source: { kind: "mention", pageId: input.pageId, threadId: input.threadId, commentId: input.commentId, mentionedBy: input.authorId },
       context: { actorId: input.authorId, locale },
-      prompt: input.text.slice(0, MAX_AGENT_PROMPT),
+      prompt: `${forManager(forOthers)}${input.text}`.slice(0, MAX_AGENT_PROMPT),
     });
     queued.push(run.id);
   }
   return queued;
 }
+
+/** What a manager's run is told first when it answers for agents that report to it. */
+export const forManager = (names: string[]) =>
+  names.length ? `(This was written to ${names.map((n) => `"${n.replace(/["\n\r]/g, " ").trim()}"`).join(", ")}, which report${names.length === 1 ? "s" : ""} to you and work only through you: answer it yourself, asking them if you need to.)\n\n` : "";

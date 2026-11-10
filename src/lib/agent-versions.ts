@@ -39,8 +39,24 @@ export type AgentSnapshot = {
   shares: SnapshotShare[];
 };
 
-/** Columns of an agent that aren't its setup: who and where it is, when, and whether it's archived. */
-export const AGENT_SETTINGS_LEFT_OUT: ReadonlySet<string> = new Set(["id", "workspace_id", "user_id", "created_by", "created_at", "updated_at", "archived_at"]);
+/**
+ * Columns of an agent that aren't its setup: who and where it is, when, and whether it's archived;
+ * and its place among other agents (lib/agent-team.ts), which, as the agents it can ask, a
+ * version doesn't keep: bringing back a manager or "all" would skip the checks that saving makes.
+ */
+export const AGENT_SETTINGS_LEFT_OUT: ReadonlySet<string> = new Set([
+  "id",
+  "workspace_id",
+  "user_id",
+  "created_by",
+  "created_at",
+  "updated_at",
+  "archived_at",
+  "helpers_mode",
+  "helpers_set_by",
+  "reports_to",
+  "via_manager_only",
+]);
 
 /** The settings of an agent's row (keyed by SQL column name), as a snapshot keeps them. */
 export function settingsOf(columns: Record<string, unknown>): Record<string, unknown> {

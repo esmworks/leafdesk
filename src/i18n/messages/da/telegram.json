@@ -155,7 +155,8 @@
       "guest": "Gæster chatter ikke med agenter. Dine beskeder går til den generelle AI-chat igen.",
       "paused": "Denne agent er sat på pause. Bed en af dens ejere om at slå den til, eller vælg en anden med /agent.",
       "aiOff": "AI er slået fra i dette arbejdsområde.",
-      "limitReached": "Denne agent har brugt sine tokens for måneden. Vælg en anden med /agent."
+      "limitReached": "Denne agent har brugt sine tokens for måneden. Vælg en anden med /agent.",
+      "viaManager": "Denne agent arbejder kun gennem sin leder. Vælg en anden med /agent."
     },
     "refused": {
       "tooLong": "En besked til en agent har højst {max} tegn.",

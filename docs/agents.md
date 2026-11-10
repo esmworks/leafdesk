@@ -517,8 +517,10 @@ proposal of the agent has been kept or dismissed (or dropped by a later run). Ov
 MCP, owners keep and dismiss proposals, and write, change and delete notes, with
 `change_agent_memory`; `list_notifications` shows the inbox item with the agent's and run's ids.
 
-**Handing off.** In an agent's settings, owners tick up to 10 other agents of the workspace under
-*Agents it can ask*. Its runs then get an `ask_agent` tool: the run names one of them, the task (with
+**Handing off.** In an agent's settings, *Agents it can ask* is *No agents*, *Chosen agents* (up
+to 10 other agents of the workspace, ticked one by one) or *All agents*: every other agent of the
+workspace that isn't archived and that the person who chose it may use, worked out on each run, so
+agents added later are in it too. Its runs then get an `ask_agent` tool: the run names one of them, the task (with
 everything the other agent needs, since it sees nothing else of the run) and what to send back,
 waits, and reads the answer as data from another agent, never as instructions. The helper does its
 part in a run of its own, with its own access, tools, skills, notes, instructions and limits, and
@@ -555,8 +557,30 @@ run's slot of the worker, so even `AI_CONCURRENCY=1` never waits on itself. Arch
 it off every list. Each helper uses its own run settings, its model included: where agents can
 choose between the main and the fast model, give the agent that plans the job and weighs the
 answers the main one, and helpers that do narrow, well-described parts (look something up, sum up
-a database) the fast one. Over MCP, `create_agent` and `update_agent` take `helper_agent_ids`, and
-`get_agent` and `list_agents` return it; the REST API's agent endpoints do too.
+a database) the fast one. Over MCP, `create_agent` and `update_agent` take `helpers_mode`,
+`helper_agent_ids`, `reports_to` and `via_manager_only`, and `get_agent` and `list_agents` return
+them; the REST API's agent endpoints do too.
+
+**Teams.** *Reports to* in an agent's settings puts it under a manager, another agent of the
+workspace shared with whoever sets it; no agent reports to itself or to its own team, and a chain
+of managers has at most 5 links. The settings of a manager list the agents that report to it. A
+manager may always ask its team with `ask_agent` and give them tasks with `assign_agent`, whatever
+its own *Agents it can ask* says, and the tool names them as reporting to it. `agent_tasks` with
+`team` reads what its team finished on their own runs (schedules, mentions, requests, other agents'
+tasks) in the last day, or up to a week back with `since_hours`: how each ended and its answer, as
+data from another agent, at most 10 runs. It reads only the runs the person the manager's run works
+for sees in the team's run lists, never one that read mail or files on someone's computer, and a run
+no person stands behind reads none. With *Work only through its manager* on, an agent's finished runs
+don't report to people (scheduled runs' reports and Telegram summaries); the manager reads them
+instead. Failures, mail drafts, approvals and the reports of tasks another agent gave it (which open
+that agent's chat) still reach people. Whoever chose *All agents* is whose access it follows; once
+they leave the workspace it asks none, until someone who can edit it chooses *All agents* again. Someone who
+can't edit that agent is sent to the manager: its chat says so and opens the manager's, it isn't
+offered when they mention someone, and a mention of it, in a comment or in a channel, goes to the
+manager, told whom it was written to (the manager must be able to comment on the page or be in the
+channel). Those who can edit the agent still chat with it and mention it. Archiving a manager leaves
+its team reporting to no one. A helper's run still changes no pages, so a manager hands its team
+work that reads, looks up and answers, and writes the result itself.
 
 **Reminders.** A run someone stands behind (their chat message, the run they asked for, the
 schedule they set, their comment that mentioned the agent) gets a `remind_person` tool: it reminds

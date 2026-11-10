@@ -17,6 +17,7 @@ import type {
 import { conversation, type ChatStepRecord } from "./ai";
 import type { ChatMode, ChatThinking } from "@/lib/ai-chat";
 import type { MailTriggerFilters } from "@/lib/agent-mail-trigger";
+import type { AgentHelpersMode } from "@/lib/agent-team";
 import type { AgentShareLevel } from "@/lib/agent-sharing";
 import type { QuietHours } from "@/lib/quiet-hours";
 import { page, workspace, workspaceMember } from "./app";
@@ -106,6 +107,14 @@ export const workspaceAgent = pgTable(
     quietHours: jsonb("quiet_hours").$type<QuietHours>(),
     /** The most changes its runs may make in a day, together (agent_daily_change); null: no limit. */
     dailyChangeLimit: integer("daily_change_limit"),
+    /** Which other agents it may ask (lib/agent-team.ts): none, those in agent_helper, or all. */
+    helpersMode: text("helpers_mode").$type<AgentHelpersMode>().notNull().default("none"),
+    /** Who chose "all" last: the agents it may ask are those this person may use, on each run. */
+    helpersSetBy: text("helpers_set_by").references(() => user.id, { onDelete: "set null" }),
+    /** The agent it reports to, its manager (lib/agent-team.ts); null: none. Archiving the manager clears it. */
+    reportsTo: text("reports_to").references((): AnyPgColumn => workspaceAgent.id, { onDelete: "set null" }),
+    /** It works only through its manager: reports go there, and people who can't edit it are sent there. */
+    viaManagerOnly: boolean("via_manager_only").notNull().default(false),
     archivedAt: timestamp("archived_at", { withTimezone: true }),
     createdBy: text("created_by").references(() => user.id, { onDelete: "set null" }),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
@@ -114,7 +123,7 @@ export const workspaceAgent = pgTable(
       .defaultNow()
       .$onUpdate(() => new Date()),
   },
-  (t) => [index("workspace_agent_workspace_idx").on(t.workspaceId)],
+  (t) => [index("workspace_agent_workspace_idx").on(t.workspaceId), index("workspace_agent_reports_to_idx").on(t.reportsTo)],
 );
 
 /**

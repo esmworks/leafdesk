@@ -533,7 +533,21 @@
       "dailyChangeLimitPlaceholder": "Tanpa batas",
       "dailyChangeLimitHelp": "Perubahan terbanyak yang dibuatnya dalam sehari: baris, halaman, komentar, email yang dikirimnya, dan panggilan koneksi yang mengubah sesuatu. Selebihnya ditolak. Hari dihitung dengan zona waktu jam tenang, jika tidak ada dengan UTC.",
       "dailyChangeLimitInvalid": "Masukkan bilangan bulat dari 1 sampai {max}.",
-      "guardrailsOwnersOnly": "Hanya pemilik ruang kerja yang mengatur jam tenang dan batas perubahan harian."
+      "guardrailsOwnersOnly": "Hanya pemilik ruang kerja yang mengatur jam tenang dan batas perubahan harian.",
+      "helpersModes": {
+        "none": "Tidak ada",
+        "chosen": "Agen yang dipilih",
+        "all": "Semua agen"
+      },
+      "helpersNoneHelp": "Agen ini tidak bertanya ke agen lain, kecuali agen yang melapor kepadanya.",
+      "helpersAllHelp": "Agen dapat menyerahkan sebagian tugasnya ke agen lain mana pun yang boleh Anda gunakan, hingga {max} kali per eksekusi, termasuk agen yang ditambahkan nanti.",
+      "reportsTo": "Melapor kepada",
+      "reportsToNone": "Tidak ada",
+      "reportsToHelp": "Manajernya dapat memberinya tugas dan melihat pekerjaannya yang selesai.",
+      "viaManagerOnly": "Hanya bekerja melalui manajernya",
+      "viaManagerOnlyHelp": "Hasilnya dikirim ke manajer, dan orang yang tidak dapat mengeditnya diarahkan ke manajer.",
+      "team": "Melapor kepada agen ini",
+      "teamHelp": "Agen ini selalu dapat bertanya kepada mereka dan melihat pekerjaan mereka yang selesai."
     },
     "describe": {
       "button": "Deskripsikan agen",
@@ -898,7 +912,9 @@
         "noLimit": "Agen ini tidak punya batas yang dapat dinaikkan.",
         "mailbox": "Pilih salah satu kotak surat Anda di ruang kerja ini.",
         "quietHours": "Jam tenang memerlukan dua waktu berbeda (HH:MM) dan zona waktu.",
-        "dailyChangeLimit": "Masukkan batas perubahan harian sebagai bilangan bulat dari 1 sampai 10.000."
+        "dailyChangeLimit": "Masukkan batas perubahan harian sebagai bilangan bulat dari 1 sampai 10.000.",
+        "manager": "Pilih manajer dari agen yang dibagikan dengan Anda.",
+        "managerLoop": "Itu akan membuat putaran atau rantai manajer yang terlalu panjang."
       },
       "noteEmpty": "Tulis apa yang harus diingat agen.",
       "noteTooLong": "Catatan dapat memiliki paling banyak {max} karakter.",

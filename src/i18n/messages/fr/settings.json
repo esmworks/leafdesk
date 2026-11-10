@@ -533,7 +533,21 @@
       "dailyChangeLimitPlaceholder": "Aucune limite",
       "dailyChangeLimitHelp": "Le nombre maximal de modifications qu’il fait en un jour : lignes, pages, commentaires, e-mails qu’il envoie et appels de connexion qui modifient quelque chose. Les suivantes sont refusées. Le jour suit le fuseau des heures calmes, sinon UTC.",
       "dailyChangeLimitInvalid": "Saisissez un nombre entier de 1 à {max}.",
-      "guardrailsOwnersOnly": "Seuls les propriétaires de l’espace de travail fixent les heures calmes et la limite quotidienne de modifications."
+      "guardrailsOwnersOnly": "Seuls les propriétaires de l’espace de travail fixent les heures calmes et la limite quotidienne de modifications.",
+      "helpersModes": {
+        "none": "Aucun",
+        "chosen": "Agents choisis",
+        "all": "Tous les agents"
+      },
+      "helpersNoneHelp": "Il ne sollicite aucun autre agent, sauf ceux qui lui rendent compte.",
+      "helpersAllHelp": "Il peut confier une partie de sa tâche à tout autre agent que vous pouvez utiliser, jusqu’à {max} fois par exécution, y compris les agents ajoutés plus tard.",
+      "reportsTo": "Rend compte à",
+      "reportsToNone": "Personne",
+      "reportsToHelp": "Son responsable peut lui confier des tâches et voir son travail terminé.",
+      "viaManagerOnly": "Travailler uniquement via son responsable",
+      "viaManagerOnlyHelp": "Ses résultats vont au responsable, et les personnes qui ne peuvent pas le modifier sont renvoyées vers le responsable.",
+      "team": "Rendent compte à cet agent",
+      "teamHelp": "Cet agent peut toujours les solliciter et voir leur travail terminé."
     },
     "describe": {
       "button": "Décrire un agent",
@@ -898,7 +912,9 @@
         "noLimit": "Cet agent n’a pas de limite à relever.",
         "mailbox": "Choisissez l’une de vos boîtes mail de cet espace de travail.",
         "quietHours": "Les heures calmes demandent deux heures différentes (HH:MM) et un fuseau horaire.",
-        "dailyChangeLimit": "Saisissez une limite quotidienne de modifications, un nombre entier de 1 à 10 000."
+        "dailyChangeLimit": "Saisissez une limite quotidienne de modifications, un nombre entier de 1 à 10 000.",
+        "manager": "Choisissez un responsable parmi les agents partagés avec vous.",
+        "managerLoop": "Cela créerait une boucle ou une chaîne de responsables trop longue."
       },
       "noteEmpty": "Écrivez ce que l’agent doit retenir.",
       "noteTooLong": "Une note peut contenir au plus {max} caractères.",

@@ -1324,7 +1324,9 @@
       "paused": "Denne agenten er satt på pause, så den kan ikke svare.",
       "aiOff": "KI er slått av i dette arbeidsområdet, så agenten kan ikke svare.",
       "limitReached": "Denne agenten har brukt opp tokenene sine for måneden, så den kan ikke svare før neste måned.",
-      "noAccess": "Du har ikke tilgang til denne agenten."
+      "noAccess": "Du har ikke tilgang til denne agenten.",
+      "viaManager": "{name} jobber gjennom {manager}.",
+      "viaManagerGone": "{name} jobber bare gjennom lederen sin, som du ikke har tilgang til."
     },
     "empty": {
       "full": "Spør {name} om noe, eller gi den en oppgave. Den arbeider med sin egen tilgang, sine egne ferdigheter og sitt eget minne, og hvert svar er én av kjøringene dens.",
@@ -1380,7 +1382,8 @@
       "queueFull": "{max} meldinger venter allerede på svaret. Send denne når agenten har svart.",
       "badFile": "Denne filen kan ikke legges ved: bare tekstfiler (CSV, TSV, TXT, Markdown, JSON), høyst {max} per melding.",
       "nothingToRedo": "Det finnes ikke noe svar å gjøre på nytt.",
-      "summaryFailed": "Agenten klarte ikke å oppsummere samtalen. Prøv igjen."
+      "summaryFailed": "Agenten klarte ikke å oppsummere samtalen. Prøv igjen.",
+      "viaManager": "Denne agenten jobber gjennom lederen sin."
     },
     "picker": {
       "search": "Søk etter agenter",
@@ -1444,7 +1447,8 @@
       "onPage": "På en side",
       "onClosedPage": "På en side du ikke kan åpne"
     },
-    "computerFiles": "Kan bruke filer på datamaskinen din: {folders}"
+    "computerFiles": "Kan bruke filer på datamaskinen din: {folders}",
+    "chatWithManager": "Chat med {manager}"
   },
   "button": {
     "untitled": "Knapp",

@@ -281,7 +281,8 @@ export type RunEvent = ChatEvent | AgentStepEvent;
  * the workspace), not shared with them, paused, the workspace's AI is off, or the agent used its
  * tokens for the month.
  */
-export type AgentChatState = "full" | "readOnly" | "guest" | "gone" | "noAccess" | "paused" | "aiOff" | "limitReached";
+/** `viaManager`: the agent works only through its manager (lib/agent-team.ts), and the person can't edit it: they write to the manager. */
+export type AgentChatState = "full" | "readOnly" | "guest" | "gone" | "noAccess" | "paused" | "aiOff" | "limitReached" | "viaManager";
 
 export type AgentChatInfo = {
   state: AgentChatState;
@@ -290,6 +291,8 @@ export type AgentChatInfo = {
   conversations: AgentConversationSummary[];
   /** The labels of the folders on the person's computer its runs in the app may use now (their desktop app is connected); null when none. */
   computer: string[] | null;
+  /** With state `viaManager`: the manager to write to instead, when it is still there. */
+  manager?: { id: string; name: string; icon: string | null } | null;
 };
 
 /**

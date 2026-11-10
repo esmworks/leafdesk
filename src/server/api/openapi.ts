@@ -781,6 +781,13 @@ const SCHEMAS: Record<string, JsonSchema> = {
         items: { type: "string" },
         description: "The other agents of the workspace it can hand part of a task to during a run (its \"Agents it can ask\").",
       },
+      helpers_mode: {
+        type: "string",
+        enum: ["none", "chosen", "all"],
+        description: "Which agents it may ask: none, those in helper_agent_ids, or all the others the user who chose \"all\" may use. The agents reporting to it can always be asked.",
+      },
+      reports_to: { type: ["string", "null"], description: "Its manager: the agent that may give it tasks and read its finished work." },
+      via_manager_only: { type: "boolean", description: "Whether it works only through its manager: its finished runs report there, and people who can't edit it are sent there." },
       your_access: {
         type: "string",
         enum: ["full", "edit", "interact"],
@@ -788,7 +795,7 @@ const SCHEMAS: Record<string, JsonSchema> = {
           "The token's user's access to the agent: full (everything, sharing and archiving it too; workspace owners always), edit (change and run it), interact (see it, chat with it and mention it).",
       },
     },
-    ["id", "name", "enabled", "archived", "model", "thinking", "web_access", "mail_recipients", "row_changes", "user_id", "your_access"],
+    ["id", "name", "enabled", "archived", "model", "thinking", "web_access", "mail_recipients", "row_changes", "user_id", "your_access", "helpers_mode", "reports_to", "via_manager_only"],
   ),
   AgentList: loose({ workspace_id: id, agents: { type: "array", items: ref("AgentSummary") } }, ["workspace_id", "agents"]),
   AgentUsageMonth: loose(

@@ -533,7 +533,21 @@
       "dailyChangeLimitPlaceholder": "Nessun limite",
       "dailyChangeLimitHelp": "Il massimo di modifiche che fa in un giorno: righe, pagine, commenti, email che invia e chiamate di connessione che cambiano qualcosa. Le successive vengono rifiutate. Il giorno segue il fuso delle ore di silenzio, altrimenti UTC.",
       "dailyChangeLimitInvalid": "Inserisci un numero intero da 1 a {max}.",
-      "guardrailsOwnersOnly": "Solo i proprietari dello spazio di lavoro impostano le ore di silenzio e il limite giornaliero di modifiche."
+      "guardrailsOwnersOnly": "Solo i proprietari dello spazio di lavoro impostano le ore di silenzio e il limite giornaliero di modifiche.",
+      "helpersModes": {
+        "none": "Nessuno",
+        "chosen": "Agenti scelti",
+        "all": "Tutti gli agenti"
+      },
+      "helpersNoneHelp": "Non chiede ad altri agenti, tranne a quelli che gli riferiscono.",
+      "helpersAllHelp": "Può affidare parte del suo compito a qualsiasi altro agente che puoi usare, fino a {max} volte per esecuzione, anche agli agenti aggiunti in seguito.",
+      "reportsTo": "Riferisce a",
+      "reportsToNone": "Nessuno",
+      "reportsToHelp": "Il suo responsabile può assegnargli compiti e vedere il lavoro finito.",
+      "viaManagerOnly": "Lavorare solo tramite il responsabile",
+      "viaManagerOnlyHelp": "I risultati vanno al responsabile, e chi non può modificarlo viene indirizzato al responsabile.",
+      "team": "Riferiscono a questo agente",
+      "teamHelp": "Questo agente può sempre chiedere a loro e vedere il loro lavoro finito."
     },
     "describe": {
       "button": "Descrivi un agente",
@@ -898,7 +912,9 @@
         "noLimit": "Questo agente non ha un limite da aumentare.",
         "mailbox": "Scegli una delle tue caselle di posta in questo spazio di lavoro.",
         "quietHours": "Le ore di silenzio richiedono due orari diversi (HH:MM) e un fuso orario.",
-        "dailyChangeLimit": "Inserisci un limite giornaliero di modifiche come numero intero da 1 a 10.000."
+        "dailyChangeLimit": "Inserisci un limite giornaliero di modifiche come numero intero da 1 a 10.000.",
+        "manager": "Scegli un responsabile tra gli agenti condivisi con te.",
+        "managerLoop": "Si creerebbe un ciclo o una catena di responsabili troppo lunga."
       },
       "noteEmpty": "Scrivi cosa deve ricordare l’agente.",
       "noteTooLong": "Una nota può avere al massimo {max} caratteri.",
