@@ -211,5 +211,15 @@
     "newSummary": "Ajanla yeni sohbet. Bir önceki sohbetin şu özetinden başlıyor:",
     "fileFailed": "O dosyayı indiremedim. Yeniden göndermeyi dene.",
     "fileNotSent": "{name} dosyasını gönderemedim. Ajanın sayfasında yanıtın yanında duruyor."
+  },
+  "slack": {
+    "notLinked": "Bu sohbet bir Leafdesk hesabına bağlı değil. Leafdesk’te Ayarlar → Bağlı uygulamalar → Slack’i açıp Slack’i bağla’yı seç ve gösterdiği komutu buraya gönder.",
+    "badCode": "Bu kodun süresi dolmuş ya da zaten kullanılmış. Leafdesk’te yenisini oluştur: Ayarlar → Bağlı uygulamalar → Slack.",
+    "help": "Bir soru sor ya da ses klibi gönder; Leafdesk sayfalarından, onları kaynak göstererek yanıtlarım.\n\n/new: yeni bir sohbet başlat\n/new summary: bir ajanla, son sohbetin özetinden yeni bir sohbet başlat\n/workspace: yanıt verdiğim çalışma alanını seç\n/agent: ajanlarından biriyle sohbet et\n/mode: neleri değiştirebileceğimi seç\n/stop: yazılmakta olan yanıtı durdur\n/notifications: bu sohbetteki bildirimlerini aç ya da kapat\n/unlink: bu Slack hesabının bağlantısını kaldır",
+    "unlinked": "Bu Slack hesabı artık Leafdesk’e bağlı değil.",
+    "onlyPrivate": "Yalnızca benimle doğrudan mesajda yanıt veririm.",
+    "notify": {
+      "notePrompt": "Ajan neyi değiştirsin? Bu mesaj dizisinde bir notla yanıt ver."
+    }
   }
 }

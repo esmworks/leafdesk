@@ -211,5 +211,15 @@
     "newSummary": "Nova conversa com o agente. Ela começa com este resumo da anterior:",
     "fileFailed": "Não consegui baixar esse arquivo. Tente enviá-lo novamente.",
     "fileNotSent": "Não consegui enviar o arquivo {name}. Ele está com a resposta na página do agente."
+  },
+  "slack": {
+    "notLinked": "Este chat não está conectado a uma conta do Leafdesk. No Leafdesk, abra Configurações → Apps conectados → Slack, escolha Conectar Slack e envie aqui o comando que aparecer.",
+    "badCode": "Esse código expirou ou já foi usado. Crie um novo no Leafdesk: Configurações → Apps conectados → Slack.",
+    "help": "Faça uma pergunta ou envie um clipe de áudio, e eu respondo a partir das suas páginas do Leafdesk, citando-as.\n\n/new: começar uma nova conversa\n/new summary: começar uma nova conversa com um agente a partir de um resumo da anterior\n/workspace: escolher o espaço de trabalho de onde respondo\n/agent: conversar com um dos seus agentes\n/mode: escolher o que posso alterar\n/stop: parar a resposta que está sendo escrita\n/notifications: ativar ou desativar suas notificações neste chat\n/unlink: desconectar esta conta do Slack",
+    "unlinked": "Esta conta do Slack não está mais conectada ao Leafdesk.",
+    "onlyPrivate": "Só respondo em uma mensagem direta comigo.",
+    "notify": {
+      "notePrompt": "O que o agente deve mudar? Responda nesta thread com uma nota."
+    }
   }
 }

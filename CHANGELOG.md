@@ -2,6 +2,19 @@
 
 ## Unreleased
 
+### Added
+
+- **The AI chat and agents from Slack.** With a Slack app in Socket Mode (`SLACK_APP_TOKEN`,
+  `SLACK_BOT_TOKEN`, optional `SLACK_API_URL`; the manifest is in docs/ai.md), people link their
+  Slack account in My account → Connected apps → Slack by sending `/leafdesk link <code>` to the
+  app, then ask the AI chat or one of their agents in a direct message with it, by text or audio
+  clip: changes and agents' calls are answered with buttons, a call is sent back with a note in a
+  thread, inbox notifications come there with *Mark read* and *Snooze 1 hour*, and schedules'
+  summaries follow an agent the chat is pointed at. Commands are `/leafdesk new`, `/leafdesk agent`
+  and the rest of the Telegram bot's. My account → Preferences shows one column for chat apps,
+  named after the app linked, or *Chat apps* when both are. Migration 0209 moves Telegram's links
+  into tables shared by every chat app (`channel_link`, `channel_link_code`).
+
 ## 0.8.1 — 2026-11-10
 
 ### Upgrading from 0.8.0

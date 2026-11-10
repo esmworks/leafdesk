@@ -218,7 +218,7 @@ async function mayChat(userId: string, workspaceId: string, agentId: string, pla
  * queues the run with the message, in the conversation (a new one without `conversationId`), and
  * wakes the worker. While the conversation's answer is under way, the message waits in its queue
  * instead (at most MAX_QUEUED), to go as the next turn once the answer ends (chat-store.ts);
- * `via` names the app that follows it (the Telegram bot); `sessionId`, the web session it was sent
+ * `via` names the chat app whose bot follows it (Telegram, Slack); `sessionId`, the web session it was sent
  * from in the app (kept on the run's source; agents/computer.ts). Messages still waiting once no
  * answer is under way (an answer's end that couldn't take them) go first, in this message's turn.
  */
@@ -232,7 +232,7 @@ export async function sendAgentChat(
     message: string;
     timeZone?: string;
     files?: { name: string; text: string }[];
-    via?: "telegram";
+    via?: "telegram" | "slack";
     sessionId?: string;
   },
 ): Promise<SentAgentChat> {
@@ -297,7 +297,8 @@ export async function sendAgentChat(
           files,
           fromApp: Boolean(fromApp),
           telegram: input.via === "telegram",
-          otherApp: Boolean(fromApp) && input.via !== "telegram",
+          slack: input.via === "slack",
+          otherApp: Boolean(fromApp) && !input.via,
           sessionId,
           timeZone,
         };
@@ -311,6 +312,7 @@ export async function sendAgentChat(
         conversationId: conversation.id,
         ...(turn.fromApp ? { fromApp: true } : {}),
         ...(turn.telegram ? { telegram: true as const } : {}),
+        ...(turn.slack ? { slack: true as const } : {}),
         ...(turn.otherApp ? { otherApp: true as const } : {}),
         ...(turn.sessionId ? { sessionId: turn.sessionId } : {}),
       },
@@ -509,6 +511,7 @@ export async function redoAgentChat(
         conversationId: existing.id,
         ...(fromApp ? { fromApp: true } : {}),
         ...(was?.telegram ? { telegram: true as const } : {}),
+        ...(was?.slack ? { slack: true as const } : {}),
         ...(was?.otherApp ? { otherApp: true as const } : {}),
         // The session asking again now, wherever the question first came from in the app.
         ...(!fromApp && !connectedAppCall(userId) && input.sessionId ? { sessionId: input.sessionId } : {}),
@@ -827,11 +830,15 @@ export async function chatTurn(userId: string, workspaceId: string, runId: strin
 
 /**
  * The run that took the messages waiting for the person's chat run (chat-store.ts closeChatTurn),
- * if any, and whether one of them came from the Telegram bot, which then follows it too.
+ * if any, and whether one of them came from the Telegram or the Slack bot, which then follows it too.
  */
-export async function nextQueuedRun(userId: string, runId: string): Promise<{ id: string; telegram: boolean } | null> {
+export async function nextQueuedRun(userId: string, runId: string): Promise<{ id: string; telegram: boolean; slack: boolean } | null> {
   const [next] = await db
-    .select({ id: agentRun.id, telegram: sql<boolean>`coalesce((${agentRun.source}->>'telegram')::boolean, false)` })
+    .select({
+      id: agentRun.id,
+      telegram: sql<boolean>`coalesce((${agentRun.source}->>'telegram')::boolean, false)`,
+      slack: sql<boolean>`coalesce((${agentRun.source}->>'slack')::boolean, false)`,
+    })
     .from(agentRun)
     .where(and(sql`${agentRun.source}->>'kind' = 'chat'`, sql`${agentRun.source}->>'userId' = ${userId}`, sql`${agentRun.source}->>'after' = ${runId}`))
     .limit(1);

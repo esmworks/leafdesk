@@ -166,8 +166,9 @@ export const userPreference = pgTable("user_preference", {
   quizFinishedPush: boolean("quiz_finished_push").notNull().default(true),
   approvalPush: boolean("approval_push").notNull().default(true),
   /**
-   * Telegram messages per kind, to the Telegram account the person linked (see telegram_link,
-   * server/telegram/notify.ts). They follow the inbox as push does.
+   * Chat-app messages per kind, to every chat app the person linked (Telegram, Slack: see
+   * channel_link, server/chat-apps/notify.ts). The columns keep their first name, `…_telegram`,
+   * but mean all chat apps. They follow the inbox as push does.
    */
   assignmentTelegram: boolean("assignment_telegram").notNull().default(true),
   shareTelegram: boolean("share_telegram").notNull().default(true),

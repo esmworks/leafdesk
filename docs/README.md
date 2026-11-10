@@ -10,7 +10,7 @@
 - [Messages](messages.md): channels, direct messages and threads, Catch up with AI, agents in channels, importing from Slack.
 - [Accounts and security](account-and-security.md): accounts, who can join, two-step verification, SSO and SCIM, security switches, audit log streaming, sensitive content.
 - [Automations and webhooks](automations.md): database automations, webhooks in and out, page webhooks.
-- [AI features](ai.md): AI providers and models, usage limits, your own AI keys, voice and meeting notes, semantic search, the AI chat from Telegram, skills, snippets.
+- [AI features](ai.md): AI providers and models, usage limits, your own AI keys, voice and meeting notes, semantic search, the AI chat from Telegram and Slack, skills, snippets.
 - [Agents](agents.md): agents, built-in agents, their tools and limits.
 - [Connections and MCP](connections.md): connections to other services, and the MCP server for AI assistants.
 - [REST API](rest-api.md): the REST API, tokens and scopes.

@@ -119,8 +119,9 @@ so far; corrections to the other languages are welcome as pull requests, as are 
   the route handlers announce through `src/server/page-events.ts`. The AI chat
   (`src/server/ai-chat.ts`, `POST /api/ai/chat` streaming NDJSON) runs its `search_pages` and
   `read_page` tools through `src/server/operations.ts` as the person asking; conversations are
-  stored per person in `conversation`. The Telegram bot (`src/server/telegram`) reads its
-  messages by long polling and runs the same chat as the linked person, inside
-  `runAsConnectedApp`; links are kept in `telegram_link`.
+  stored per person in `conversation`. The chat-app bot (`src/server/chat-apps`) runs the same
+  chat as the linked person, inside `runAsConnectedApp`, over a transport per app: Telegram
+  (`src/server/telegram`, long polling) and Slack (`src/server/slack`, Socket Mode); links are
+  kept in `channel_link`.
 - Auth is Better Auth: email/password, GitHub/Google, two-factor and passkey plugins for people,
   and the OAuth provider, JWT, MCP and CIMD plugins for apps. Data access uses Drizzle ORM on PostgreSQL 18.

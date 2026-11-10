@@ -54,6 +54,7 @@
       "connectedApps": "OAuth Clients Zugriff widerrufen Werkzeuge MCP",
       "aiAccounts": "API-Schlüssel eigener Schlüssel Anbieter",
       "telegram": "Bot Chat Nachrichten",
+      "slack": "Bot Chat Direktnachrichten",
       "mcp": "Assistent Model Context Protocol Server",
       "apiTokens": "REST API Token Schlüssel Entwickler",
       "about": "Version Lizenz Update",
@@ -2127,7 +2128,7 @@
         "updated": "Hat die Verbindung „{target}“ geändert",
         "deleted": "Hat die Verbindung „{target}“ entfernt",
         "tool_called": "Hat „{tool}“ bei „{target}“ aufgerufen ({outcome})",
-        "approval_decided": "Aufruf von „{tool}“ bei „{target}“ durch den Agenten „{agent}“: {decision}{channel, select, telegram { (über Telegram)} other {}}"
+        "approval_decided": "Aufruf von „{tool}“ bei „{target}“ durch den Agenten „{agent}“: {decision}{channel, select, telegram { (über Telegram)} slack { (über Slack)} other {}}"
       },
       "mail": {
         "databases_changed": "Hat die Datenbanken festgelegt, in denen E-Mails landen: {names}",
@@ -2241,6 +2242,8 @@
     "email": "E-Mail",
     "push": "Push",
     "telegram": "Telegram",
+    "slack": "Slack",
+    "chatApps": "Chat-Apps",
     "pushDescription": "Push-Benachrichtigungen kommen für das, was in deinem Posteingang erscheint, auf die Geräte, auf denen du sie einschaltest.",
     "pushDeviceTitle": "Push-Benachrichtigungen auf diesem Gerät",
     "pushDeviceOff": "Erhalte auf diesem Gerät eine Benachrichtigung für jeden neuen Eintrag in deinem Posteingang, auch wenn Leafdesk geschlossen ist.",

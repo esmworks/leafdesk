@@ -54,6 +54,7 @@
       "connectedApps": "oauth 客户端 访问 撤销 工具 mcp",
       "aiAccounts": "api 密钥 自有密钥 提供商",
       "telegram": "机器人 聊天 消息",
+      "slack": "机器人 聊天 私信",
       "mcp": "助手 model context protocol 服务器",
       "apiTokens": "rest api 令牌 密钥 开发者",
       "about": "版本 许可证 更新",
@@ -2127,7 +2128,7 @@
         "updated": "更改了连接“{target}”",
         "deleted": "移除了连接“{target}”",
         "tool_called": "调用了“{target}”上的“{tool}”（{outcome}）",
-        "approval_decided": "{decision}了智能体“{agent}”对“{target}”上“{tool}”的调用{channel, select, telegram {（来自 Telegram）} other {}}"
+        "approval_decided": "{decision}了智能体“{agent}”对“{target}”上“{tool}”的调用{channel, select, telegram {（来自 Telegram）} slack {（来自 Slack）} other {}}"
       },
       "mail": {
         "databases_changed": "设置了邮件进入的数据库：{names}",
@@ -2241,6 +2242,8 @@
     "email": "邮件",
     "push": "推送",
     "telegram": "Telegram",
+    "slack": "Slack",
+    "chatApps": "聊天应用",
     "pushDescription": "对于显示在收件箱中的内容，会在你开启推送的设备上发送推送通知。",
     "pushDeviceTitle": "此设备上的推送通知",
     "pushDeviceOff": "收件箱中每有一条新内容，就在此设备上收到通知，即使 Leafdesk 已关闭。",

@@ -54,6 +54,7 @@
       "connectedApps": "oauth клиенты доступ отозвать инструменты mcp",
       "aiAccounts": "ключ api свой ключ провайдер",
       "telegram": "бот чат сообщения",
+      "slack": "бот чат личные сообщения",
       "mcp": "ассистент model context protocol сервер",
       "apiTokens": "rest api токен ключ разработчик",
       "about": "версия лицензия обновление",
@@ -2127,7 +2128,7 @@
         "updated": "Изменено подключение «{target}»",
         "deleted": "Удалено подключение «{target}»",
         "tool_called": "Вызов «{tool}» в «{target}» ({outcome})",
-        "approval_decided": "{decision}: вызов «{tool}» в «{target}» агентом «{agent}»{channel, select, telegram { (из Telegram)} other {}}"
+        "approval_decided": "{decision}: вызов «{tool}» в «{target}» агентом «{agent}»{channel, select, telegram { (из Telegram)} slack { (из Slack)} other {}}"
       },
       "mail": {
         "databases_changed": "Заданы базы данных, в которые попадает почта: {names}",
@@ -2241,6 +2242,8 @@
     "email": "Эл. почта",
     "push": "Push",
     "telegram": "Telegram",
+    "slack": "Slack",
+    "chatApps": "Чат-приложения",
     "pushDescription": "Push-уведомления приходят о том, что появляется во входящих, на устройствах, где вы их включили.",
     "pushDeviceTitle": "Push-уведомления на этом устройстве",
     "pushDeviceOff": "Получайте уведомление на этом устройстве о каждом новом элементе во входящих, даже когда Leafdesk закрыт.",

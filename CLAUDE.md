@@ -386,7 +386,8 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   A schedule's run may end itself with `finish_run` (`lib/agents.ts` `finishRunCall`): `nothing_new`
   sets `agent_run.quiet` and `reportRun` sends nothing; `failed` is code `selfReported`; the reason
   is the run's `answer` either way. A schedule's run that isn't quiet also goes to its setter's
-  Telegram chat when that is pointed at the agent (`server/telegram/routine.ts`, called from `finish`).
+  chat-app chats pointed at the agent (`server/chat-apps/routine.ts`, through the old import
+  path `server/telegram/routine.ts`, called from `finish`).
   Files on the chatting person's computer (`agents/computer.ts`, the desktop app's bridge in
   `server/desktop-bridge/`) go only to chat runs whose source carries the web `sessionId` of the
   connected app's own session (actions pass it; queued turns keep it only when all came from it);
@@ -477,7 +478,13 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   `page_task_backfill`, which a restore of an older backup fills too), sprints `sprints.ts` (no table: the setup is the `sprints` config on the task database's relation
   with role `sprint`; the current sprint's views filter on a hidden rollup of the sprint state, so
   they follow a completion without changing; rollups show option names, so `updateProperty`
-  rewrites such rollup filters when options are renamed), Telegram bot `src/server/telegram/` (`/agent` chats with an agent: `agent-chat.ts`, following its run as `chatTurn` and `followRun` show it, in the agent's latest conversation; a message queued behind a run no follow watches starts a waiter, `watched`, that follows only the queue's run), synced databases (own
+  rewrites such rollup filters when options are renamed), the chat-app bot `src/server/chat-apps/` (`bot.ts`
+  `handleEvent` reads one app's normalized events, `transport.ts` is what an app offers it: Telegram
+  in `server/telegram/`, long polling, and Slack in `server/slack/`, Socket Mode, `/leafdesk
+  <command>`, its mrkdwn `lib/slack-format.ts`; texts are `telegram.json`, Slack's own under
+  `telegram.slack.*`, `say.ts` `translatorFor`; links in `channel_link` (`links.ts`), one per
+  person and app; the notification preferences' `…_telegram` columns mean every chat app;
+  `/agent` chats with an agent: `agent-chat.ts`, following its run as `chatTurn` and `followRun` show it, in the agent's latest conversation; a message queued behind a run no follow watches starts a waiter, `watched`, that follows only the queue's run), synced databases (own
   `database_sync` table, `source` jira, github, ical, gcal, postgres or sheets; the runs and the one-minute sweep
   are `jira-sync/run.ts` for all, rows written by `synced-rows.ts`, errors are `JiraError` codes;
   Jira in `jira-sync/` and `src/lib/jira-sync.ts`, GitHub pull requests in `github-pulls/` and

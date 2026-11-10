@@ -38,6 +38,7 @@ export async function settingsSearchIndex(userId: string, workspaceId: string): 
     local: env.localMode,
     ownAiKeys: env.ownAiKeysEnabled,
     telegram: Boolean(env.telegramBotToken),
+    slack: Boolean(env.slackAppToken && env.slackBotToken),
   };
   const shown = new Set<string>([...ACCOUNT_SETTINGS_TABS, ...tabs]);
   // Keys come from the entries, checked against the English texts by settings-search.test.ts.

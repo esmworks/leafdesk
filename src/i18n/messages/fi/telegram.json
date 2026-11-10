@@ -211,5 +211,15 @@
     "newSummary": "Uusi keskustelu agentin kanssa. Se alkaa tästä edellisen keskustelun tiivistelmästä:",
     "fileFailed": "En voinut ladata tiedostoa. Yritä lähettää se uudelleen.",
     "fileNotSent": "En voinut lähettää tiedostoa {name}. Se on vastauksen kohdalla agentin sivulla."
+  },
+  "slack": {
+    "notLinked": "Tätä keskustelua ei ole yhdistetty Leafdesk-tiliin. Avaa Leafdeskissä Asetukset → Yhdistetyt sovellukset → Slack, valitse Yhdistä Slack ja lähetä tänne komento, jonka se näyttää.",
+    "badCode": "Koodi on vanhentunut tai jo käytetty. Luo uusi Leafdeskissä: Asetukset → Yhdistetyt sovellukset → Slack.",
+    "help": "Esitä kysymys tai lähetä ääniklippi, niin vastaan Leafdesk-sivujesi pohjalta ja viittaan niihin.\n\n/new: aloita uusi keskustelu\n/new summary: aloita uusi keskustelu agentin kanssa edellisen tiivistelmästä\n/workspace: valitse työtila, josta vastaan\n/agent: keskustele jonkin agenttisi kanssa\n/mode: valitse, mitä saan muuttaa\n/stop: keskeytä kirjoitettava vastaus\n/notifications: ota ilmoitukset käyttöön tai pois tässä keskustelussa\n/unlink: poista tämän Slack-tilin yhteys",
+    "unlinked": "Tätä Slack-tiliä ei ole enää yhdistetty Leafdeskiin.",
+    "onlyPrivate": "Vastaan vain yksityisviestissä kanssani.",
+    "notify": {
+      "notePrompt": "Mitä agentin pitäisi muuttaa? Vastaa tähän ketjuun huomautuksella."
+    }
   }
 }

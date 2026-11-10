@@ -54,6 +54,7 @@
       "connectedApps": "oauth klienter åtkomst återkalla appar verktyg mcp",
       "aiAccounts": "api-nyckel egen nyckel leverantör",
       "telegram": "bot chatt meddelanden",
+      "slack": "bot chatt direktmeddelanden",
       "mcp": "assistent model context protocol server",
       "apiTokens": "rest api token nyckel utvecklare",
       "about": "version licens uppdatering om",
@@ -2127,7 +2128,7 @@
         "updated": "Ändrade anslutningen ”{target}”",
         "deleted": "Tog bort anslutningen ”{target}”",
         "tool_called": "Anropade ”{tool}” på ”{target}” ({outcome})",
-        "approval_decided": "{decision} anropet av ”{tool}” på ”{target}” från agenten ”{agent}”{channel, select, telegram { (från Telegram)} other {}}"
+        "approval_decided": "{decision} anropet av ”{tool}” på ”{target}” från agenten ”{agent}”{channel, select, telegram { (från Telegram)} slack { (från Slack)} other {}}"
       },
       "mail": {
         "databases_changed": "Satte databaserna som e-post hamnar i: {names}",
@@ -2241,6 +2242,8 @@
     "email": "E-post",
     "push": "Push",
     "telegram": "Telegram",
+    "slack": "Slack",
+    "chatApps": "Chattappar",
     "pushDescription": "Push-aviseringar kommer för det som visas i din inkorg, på de enheter där du slår på dem.",
     "pushDeviceTitle": "Push-aviseringar på den här enheten",
     "pushDeviceOff": "Få en avisering på den här enheten för varje nytt objekt i din inkorg, även när Leafdesk är stängt.",

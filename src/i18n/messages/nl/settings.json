@@ -54,6 +54,7 @@
       "connectedApps": "oauth clients toegang intrekken apps tools mcp",
       "aiAccounts": "api-sleutel eigen sleutel aanbieder",
       "telegram": "bot chat berichten",
+      "slack": "bot chat directe berichten",
       "mcp": "assistent model context protocol server",
       "apiTokens": "rest api token sleutel ontwikkelaar",
       "about": "versie licentie update over",
@@ -2127,7 +2128,7 @@
         "updated": "De koppeling “{target}” gewijzigd",
         "deleted": "De koppeling “{target}” verwijderd",
         "tool_called": "“{tool}” aangeroepen op “{target}” ({outcome})",
-        "approval_decided": "{decision}: de aanroep van “{tool}” op “{target}” door de agent “{agent}”{channel, select, telegram { (vanuit Telegram)} other {}}"
+        "approval_decided": "{decision}: de aanroep van “{tool}” op “{target}” door de agent “{agent}”{channel, select, telegram { (vanuit Telegram)} slack { (vanuit Slack)} other {}}"
       },
       "mail": {
         "databases_changed": "De databases ingesteld waarin e-mail terechtkomt: {names}",
@@ -2241,6 +2242,8 @@
     "email": "E-mail",
     "push": "Push",
     "telegram": "Telegram",
+    "slack": "Slack",
+    "chatApps": "Chat-apps",
     "pushDescription": "Pushmeldingen komen voor wat in je inbox verschijnt, op de apparaten waarop je ze aanzet.",
     "pushDeviceTitle": "Pushmeldingen op dit apparaat",
     "pushDeviceOff": "Krijg op dit apparaat een melding voor elk nieuw item in je inbox, ook als Leafdesk gesloten is.",

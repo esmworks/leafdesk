@@ -83,6 +83,7 @@ const { startSenderLogos } = await import("./src/server/mail-client/sender-logos
 const { startSequences } = await import("./src/server/sequences/run");
 const { startDatabaseSyncs } = await import("./src/server/jira-sync/run");
 const { startTelegram } = await import("./src/server/telegram");
+const { startSlack } = await import("./src/server/slack");
 const { startUpdateCheck } = await import("./src/server/update-check");
 const { siteGate, upgradeAllowed } = await import("./src/server/site-hosts");
 const { desktopBridgeHooks } = await import("./src/server/desktop-bridge/socket");
@@ -278,6 +279,8 @@ server.listen(port, hostname, () => {
   startDatabaseSyncs();
   // Answers people's questions to the AI chat from Telegram, when the server has a bot.
   startTelegram();
+  // The same from Slack direct messages, through Socket Mode, when the server has a Slack app.
+  startSlack();
   // Asks GitHub twice a day whether a newer Leafdesk is out, for the instance admin page (UPDATE_CHECK).
   startUpdateCheck();
 });

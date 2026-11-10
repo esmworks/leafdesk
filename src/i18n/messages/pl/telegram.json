@@ -211,5 +211,15 @@
     "newSummary": "Nowa rozmowa z agentem. Zaczyna się od tego podsumowania poprzedniej:",
     "fileFailed": "Nie udało mi się pobrać tego pliku. Spróbuj wysłać go ponownie.",
     "fileNotSent": "Nie udało mi się wysłać pliku {name}. Jest przy odpowiedzi na stronie agenta."
+  },
+  "slack": {
+    "notLinked": "Ten czat nie jest połączony z kontem Leafdesk. W Leafdesk otwórz Ustawienia → Połączone aplikacje → Slack, wybierz Połącz ze Slackiem i wyślij tutaj polecenie, które się pojawi.",
+    "badCode": "Ten kod wygasł lub został już użyty. Utwórz nowy w Leafdesk: Ustawienia → Połączone aplikacje → Slack.",
+    "help": "Zadaj pytanie albo wyślij klip audio, a odpowiem na podstawie twoich stron w Leafdesk, podając je jako źródła.\n\n/new: zacznij nową rozmowę\n/new summary: zacznij nową rozmowę z agentem od podsumowania poprzedniej\n/workspace: wybierz obszar roboczy, z którego odpowiadam\n/agent: czatuj z jednym ze swoich agentów\n/mode: wybierz, co mogę zmieniać\n/stop: zatrzymaj pisaną odpowiedź\n/notifications: włącz lub wyłącz swoje powiadomienia w tym czacie\n/unlink: odłącz to konto Slack",
+    "unlinked": "To konto Slack nie jest już połączone z Leafdesk.",
+    "onlyPrivate": "Odpowiadam tylko w wiadomości bezpośredniej ze mną.",
+    "notify": {
+      "notePrompt": "Co agent ma zmienić? Odpowiedz w tym wątku notatką."
+    }
   }
 }

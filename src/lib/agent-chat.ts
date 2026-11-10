@@ -141,7 +141,7 @@ export const agentMessages = (messages: readonly object[]) => messages as AgentC
 /**
  * A message written while the conversation's answer was under way: it waits (at most
  * MAX_QUEUED, lib/agent-chat-queue.ts) and goes with the others as the next turn once the answer
- * ends. `fromApp`: sent from a connected app; `via`: the app, when the Telegram bot follows it;
+ * ends. `fromApp`: sent from a connected app; `via`: the chat app, when its bot follows it (Telegram, Slack);
  * `sessionId`: the web session it was sent from in the app (lib/agents.ts AgentRunSource).
  */
 export type AgentChatQueuedRecord = {
@@ -149,7 +149,7 @@ export type AgentChatQueuedRecord = {
   content: string;
   at: string;
   fromApp?: true;
-  via?: "telegram";
+  via?: "telegram" | "slack";
   sessionId?: string;
   files?: AgentChatFileIn[];
   timeZone?: string;

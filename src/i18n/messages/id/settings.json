@@ -54,6 +54,7 @@
       "connectedApps": "oauth klien akses cabut alat mcp",
       "aiAccounts": "kunci api kunci sendiri penyedia",
       "telegram": "bot obrolan pesan",
+      "slack": "bot obrolan pesan langsung",
       "mcp": "asisten model context protocol server",
       "apiTokens": "rest api token kunci pengembang",
       "about": "versi lisensi pembaruan",
@@ -2127,7 +2128,7 @@
         "updated": "Mengubah koneksi “{target}”",
         "deleted": "Menghapus koneksi “{target}”",
         "tool_called": "Memanggil “{tool}” di “{target}” ({outcome})",
-        "approval_decided": "{decision} panggilan “{tool}” di “{target}” oleh agen “{agent}”{channel, select, telegram { (dari Telegram)} other {}}"
+        "approval_decided": "{decision} panggilan “{tool}” di “{target}” oleh agen “{agent}”{channel, select, telegram { (dari Telegram)} slack { (dari Slack)} other {}}"
       },
       "mail": {
         "databases_changed": "Mengatur basis data tujuan email: {names}",
@@ -2241,6 +2242,8 @@
     "email": "Email",
     "push": "Push",
     "telegram": "Telegram",
+    "slack": "Slack",
+    "chatApps": "Aplikasi obrolan",
     "pushDescription": "Notifikasi push datang untuk apa yang tampil di kotak masuk Anda, di perangkat tempat Anda mengaktifkannya.",
     "pushDeviceTitle": "Notifikasi push di perangkat ini",
     "pushDeviceOff": "Dapatkan notifikasi di perangkat ini untuk setiap item baru di kotak masuk Anda, bahkan saat Leafdesk ditutup.",

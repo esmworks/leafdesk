@@ -14,6 +14,7 @@ import { TwoFactorSettings } from "@/components/security/two-factor";
 import { CalendarFeeds } from "@/components/account/calendar-feeds";
 import { ImageSenders } from "@/components/account/image-senders";
 import { SenderRules } from "@/components/account/sender-rules";
+import { SlackGroup } from "@/components/account/slack-group";
 import { TelegramGroup } from "@/components/account/telegram-group";
 import { ApiTokens } from "@/components/settings/api-tokens";
 import { ConnectedApps } from "@/components/settings/connected-apps";
@@ -40,6 +41,7 @@ import { mailStatus } from "@/server/mail";
 import { getNotificationPreferences } from "@/server/notification-preferences";
 import { listWatches } from "@/server/page-watch";
 import { pushEndpoints, vapidPublicKey } from "@/server/push";
+import { slackNotificationsOn } from "@/server/slack/links";
 import { telegramNotificationsOn } from "@/server/telegram/links";
 import type { requireSession } from "@/server/session";
 import { env } from "@/lib/env";
@@ -89,6 +91,7 @@ export async function AccountTabContent({ tab, session, query = {} }: { tab: Acc
         <ConnectedApps />
         {env.ownAiKeysEnabled && <AiAccountsGroup />}
         {env.telegramBotToken && <TelegramGroup userId={session.user.id} />}
+        {env.slackAppToken && env.slackBotToken && <SlackGroup userId={session.user.id} />}
         <McpInstructions />
         <ApiTokens />
       </div>
@@ -211,7 +214,7 @@ async function SecurityTab({ session }: { session: Session }) {
 
 async function PreferencesTab({ userId }: { userId: string }) {
   const publicKey = vapidPublicKey();
-  const [cookieStore, notificationPreferences, desktopLinks, openOnStart, watches, dashboardEmails, endpoints, telegram, t, ts] = await Promise.all([
+  const [cookieStore, notificationPreferences, desktopLinks, openOnStart, watches, dashboardEmails, endpoints, telegram, slack, t, ts] = await Promise.all([
     cookies(),
     getNotificationPreferences(userId),
     getDesktopLinks(userId),
@@ -221,6 +224,7 @@ async function PreferencesTab({ userId }: { userId: string }) {
     env.localMode ? [] : myDashboardEmails(userId),
     publicKey ? pushEndpoints(userId) : [],
     telegramNotificationsOn(userId),
+    slackNotificationsOn(userId),
     getTranslations("account"),
     getTranslations("settings"),
   ]);
@@ -261,7 +265,7 @@ async function PreferencesTab({ userId }: { userId: string }) {
             </>
           }
         >
-          <NotificationSettings preferences={notificationPreferences} push={publicKey ? { publicKey, endpoints } : null} telegram={telegram} />
+          <NotificationSettings preferences={notificationPreferences} push={publicKey ? { publicKey, endpoints } : null} chatApps={[...(telegram ? ["telegram" as const] : []), ...(slack ? ["slack" as const] : [])]} />
         </SettingsGroup>
         <SettingsGroup anchor="watchedPages" title={ts("notifications.watchedHeading")} description={ts("notifications.watchedDescription")}>
           <WatchedPages pages={watches.pages} teamspaces={watches.teamspaces} />

@@ -67,19 +67,19 @@ const EMAILLESS_KINDS: readonly PreferenceKind[] = [
 /**
  * Settings > Preferences: for each kind of notification, whether it shows in the inbox, comes by
  * email, when the server can send them (`push`) comes as a push notification and, when the person
- * linked Telegram (`telegram`), comes to their Telegram chat; and whether this device gets push
- * notifications at all.
+ * linked a chat app (`telegram`, the preference column every chat app shares), comes to their chats
+ * there; and whether this device gets push notifications at all.
  */
 export function NotificationSettings({
   preferences,
   push,
-  telegram = false,
+  chatApps = [],
 }: {
   preferences: NotificationPreferences;
   /** The server's VAPID public key and the endpoints of the user's devices; null when push is off. */
   push: { publicKey: string; endpoints: string[] } | null;
-  /** The person's Telegram account is linked with notifications on (server/telegram/notify.ts). */
-  telegram?: boolean;
+  /** The chat apps the person linked with notifications on (server/chat-apps/notify.ts). */
+  chatApps?: readonly ("telegram" | "slack")[];
 }) {
   // On one computer no email goes out, and nobody asks to join or for access.
   const localMode = useLocalMode();
@@ -87,8 +87,10 @@ export function NotificationSettings({
     "inbox",
     ...(localMode ? [] : ["email" as const]),
     ...(push ? ["push" as const] : []),
-    ...(telegram ? ["telegram" as const] : []),
+    ...(chatApps.length ? ["telegram" as const] : []),
   ];
+  // One column for every chat app: named after the app when only one is linked.
+  const chatLabel = chatApps.length === 1 ? chatApps[0] : "chatApps";
   const kinds = (Object.keys(KIND_KEYS) as PreferenceKind[]).filter((kind) => !SHARED_KINDS.includes(kind) && !(localMode && LOCAL_MODE_HIDDEN_KINDS.includes(kind)));
   return (
     <>
@@ -98,6 +100,7 @@ export function NotificationSettings({
           key={kind}
           kind={kind}
           channels={EMAILLESS_KINDS.includes(kind) ? channels.filter((c) => c !== "email") : channels}
+          chatLabel={chatLabel}
           initial={preferences[kind]}
         />
       ))}
@@ -108,10 +111,13 @@ export function NotificationSettings({
 function NotificationKindRow({
   kind,
   channels,
+  chatLabel,
   initial,
 }: {
   kind: PreferenceKind;
   channels: NotificationChannel[];
+  /** The text naming the chat apps' column (`telegram`). */
+  chatLabel: "telegram" | "slack" | "chatApps";
   initial: Record<NotificationChannel, boolean>;
 }) {
   const t = useTranslations("settings.notifications");
@@ -143,11 +149,11 @@ function NotificationKindRow({
         <div className="flex items-center gap-4">
           {channels.map((channel) => (
             <span key={channel} className="flex items-center gap-2 text-sm text-fg-muted">
-              <span aria-hidden>{t(channel)}</span>
+              <span aria-hidden>{t(channel === "telegram" ? chatLabel : channel)}</span>
               <Switch
-                // Push and Telegram follow the inbox: off (and locked) while the kind stays out of it.
+                // Push and chat apps follow the inbox: off (and locked) while the kind stays out of it.
                 checked={follows(channel) ? values[channel] && values.inbox : values[channel]}
-                label={t(`${key}Channel`, { channel: t(channel) })}
+                label={t(`${key}Channel`, { channel: t(channel === "telegram" ? chatLabel : channel) })}
                 disabled={pending || (follows(channel) && !values.inbox)}
                 onChange={(next) => change(channel, next)}
               />

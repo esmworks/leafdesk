@@ -995,6 +995,92 @@ everything can turn connected apps off. Every question counts against `AI_RATE_L
 never answers someone whose Telegram account isn't linked, and what people send it reaches the
 model as their question, nothing more.
 
+### AI chat from Slack
+
+The same chat as [from Telegram](#ai-chat-from-telegram) works in Slack: in a direct message with
+the server's Slack app, by text or by audio clip, answered as the person is in the app, with the
+same commands, approval buttons, notifications, agents' calls, chats with agents and schedules'
+summaries. Everything said there about who may reach what holds here too.
+
+**Setting it up.** Create an app at [api.slack.com/apps](https://api.slack.com/apps) → *Create New
+App* → *From a manifest*, pick the Slack workspace, and paste:
+
+```yaml
+display_information:
+  name: Leafdesk
+features:
+  app_home:
+    home_tab_enabled: false
+    messages_tab_enabled: true
+    messages_tab_read_only_enabled: false
+  bot_user:
+    display_name: Leafdesk
+    always_online: true
+  slash_commands:
+    - command: /leafdesk
+      description: Link your Leafdesk account or run a command
+      usage_hint: "link <code> | new | workspace | agent | mode | stop | notifications | unlink | help"
+      should_escape: false
+oauth_config:
+  scopes:
+    bot:
+      - chat:write
+      - im:history
+      - im:read
+      - im:write
+      - files:read
+      - files:write
+      - commands
+      - users:read
+settings:
+  event_subscriptions:
+    bot_events:
+      - message.im
+  interactivity:
+    is_enabled: true
+  socket_mode_enabled: true
+  org_deploy_enabled: false
+  token_rotation_enabled: false
+```
+
+Then, under *Basic Information* → *App-Level Tokens*, make a token with the `connections:write`
+scope (`xapp-…`), install the app to the workspace (*Install App*, which gives the bot token,
+`xoxb-…`), set both on the server and restart:
+
+```bash
+SLACK_APP_TOKEN=xapp-1-...
+SLACK_BOT_TOKEN=xoxb-...
+# Another address for Slack's Web API (optional, for tests):
+# SLACK_API_URL=https://slack.com/api
+```
+
+The server opens a Socket Mode connection to Slack itself, so it needs no public address and works
+behind a firewall; Slack sends each event to one of the connections open for the app, so give each
+server its own app. The server log says `slack: on as @<bot>` at startup, or why not (`slack: off`
+when the tokens aren't set).
+
+**Linking an account.** In My account → *Connected apps* → *Slack*, *Link Slack* shows a command
+with a one-time code, `/leafdesk link <code>`, to copy and send in the direct message with the app
+(*Open Slack* opens it). The code works once, for 10 minutes, and only a hash of it is kept. A
+Slack account links to one Leafdesk account at a time, and the other way round; a person can have
+Telegram and Slack linked at once. *Unlink* ends it (the app says so in the chat), and so do
+`/leafdesk unlink` and deleting the account.
+
+**What differs from Telegram.** Slack takes every message starting with `/` as a slash command, so
+the commands are written `/leafdesk new`, `/leafdesk agent` and so on (`/leafdesk` alone lists
+them); a message without a command is a question. Only the direct message with the app is
+answered: messages in channels and group conversations are ignored, and a command typed there is
+answered where only its writer sees it. Slack shows no "typing…" for apps. Answers come in Slack's
+formatting, split into messages of 3,000 characters; an agent's answer shows as it is written, in
+one message edited as it grows. The note for *Send back with a note* is asked for in a thread under
+the call's message: the reply in that thread goes back to the agent, and the audit log notes the
+answer was given from Slack. A button's short answer (*Marked read*, say) shows only to the person who pressed it.
+
+**Notifications.** As from Telegram, each new inbox item comes to the direct message with *Mark
+read* and *Snooze 1 hour*. My account → Preferences has one column for chat apps, which
+names the app when only one is linked (*Telegram* or *Slack*) and is called *Chat apps* when both
+are: what is chosen there comes to every chat app linked with notifications on.
+
 ## Skills
 
 A skill is a page or database row whose body is instructions to reuse: a review checklist, how to

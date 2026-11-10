@@ -22,7 +22,7 @@ export * from "./connected-apps";
 export * from "./journal";
 export * from "./mail";
 export * from "./snippets";
-export * from "./telegram";
+export * from "./chat-apps";
 export * from "./review";
 export * from "./sequences";
 export * from "./legal-holds";

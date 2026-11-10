@@ -17,10 +17,21 @@ type BaseTranslator = ReturnType<typeof baseTranslator>;
 export type TextKey = Parameters<BaseTranslator>[0];
 export type Translator = (key: TextKey, values?: Record<string, string | number>) => string;
 
-/** The bot's texts in a language, as a chat app shows them. */
-export function translatorFor(locale: Locale, _channel: ChatChannel = "telegram"): Translator {
+/** Commands named in the texts (`/new`), which Slack's app takes as `/leafdesk new`. */
+const NAMED_COMMAND = /(^|[\s(“"«„'‘「（])\/(new|workspace|agent|mode|stop|notifications|unlink|help)\b/g;
+
+/**
+ * The bot's texts in a language, as a chat app shows them: in Slack, the texts kept for it under
+ * `telegram.slack.*` take the place of those that speak of Telegram, and commands are written as
+ * its slash command takes them.
+ */
+export function translatorFor(locale: Locale, channel: ChatChannel = "telegram"): Translator {
   const t = baseTranslator(locale);
-  return (key, values) => t(key, values);
+  if (channel !== "slack") return (key, values) => t(key, values as never);
+  return (key, values) => {
+    const own = `slack.${key}` as TextKey;
+    return t(t.has(own) ? own : key, values as never).replace(NAMED_COMMAND, "$1/leafdesk $2");
+  };
 }
 
 /** The person's language: the one they last used Leafdesk in, else their chat app's. */

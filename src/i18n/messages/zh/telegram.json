@@ -211,5 +211,15 @@
     "newSummary": "与代理的新对话，从上一段对话的这份摘要开始：",
     "fileFailed": "无法下载该文件。请再发送一次。",
     "fileNotSent": "无法发送文件 {name}。它在代理页面上的回答中。"
+  },
+  "slack": {
+    "notLinked": "此聊天未关联 Leafdesk 账户。在 Leafdesk 中打开 设置 → 已连接的应用 → Slack，选择“关联 Slack”，然后把显示的命令发送到这里。",
+    "badCode": "此代码已过期或已被使用。请在 Leafdesk 中新建一个：设置 → 已连接的应用 → Slack。",
+    "help": "提出问题或发送语音片段，我会根据你的 Leafdesk 页面回答并注明出处。\n\n/new：开始新对话\n/new summary：从上一段对话的摘要开始与代理的新对话\n/workspace：选择我回答所用的工作区\n/agent：与你的某个智能体聊天\n/mode：选择我可以更改什么\n/stop：停止正在撰写的回答\n/notifications：开启或关闭此聊天中的通知\n/unlink：取消关联此 Slack 账户",
+    "unlinked": "此 Slack 账户已不再关联 Leafdesk。",
+    "onlyPrivate": "我只在与我的私信中回答。",
+    "notify": {
+      "notePrompt": "智能体应该改什么？请在此消息列中回复并附上备注。"
+    }
   }
 }
