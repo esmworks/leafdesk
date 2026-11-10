@@ -230,6 +230,8 @@ export type AgentRunSource =
        * run's answer too: the person's own words, unlike another connected app's.
        */
       telegram?: true;
+      /** The same for the Slack bot. */
+      slack?: true;
       /**
        * Its message (or one of those that waited) came from a connected app other than the
        * Telegram bot (MCP, the REST API): another app's words, never kept as the person's own.

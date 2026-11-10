@@ -214,6 +214,10 @@ services:
       # The AI chat from Telegram: off unless TELEGRAM_BOT_TOKEN is set (see docs/ai.md).
       TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
       TELEGRAM_API_URL: ${TELEGRAM_API_URL:-}
+      # The AI chat from Slack: off unless both Slack tokens are set (see docs/ai.md).
+      SLACK_APP_TOKEN: ${SLACK_APP_TOKEN:-}
+      SLACK_BOT_TOKEN: ${SLACK_BOT_TOKEN:-}
+      SLACK_API_URL: ${SLACK_API_URL:-}
       # Address search and map images: OpenStreetMap's public servers unless set; empty turns them off.
       GEOCODER_URL: ${GEOCODER_URL-https://nominatim.openstreetmap.org}
       MAP_TILE_URL: ${MAP_TILE_URL-https://tile.openstreetmap.org/{z}/{x}/{y}.png}

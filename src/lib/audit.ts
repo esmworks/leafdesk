@@ -460,8 +460,8 @@ export function describeAuditEvent(event: Pick<AuditEvent, "action" | "targetLab
     step: typeof d.step === "number" ? d.step : 0,
     kind: text(d.kind) || "join",
     via: known(t, `audit.via.${text(d.via)}`, text(d.via)),
-    // Where an answer was given outside the app: "telegram" (an agent's call answered from the bot).
-    channel: text(d.via) === "telegram" ? "telegram" : "app",
+    // Where an answer was given outside the app: "telegram" or "slack" (an agent's call answered from a chat app's bot).
+    channel: text(d.via) === "telegram" || text(d.via) === "slack" ? text(d.via) : "app",
     format: known(t, `audit.formats.${text(d.format)}`, text(d.format)),
     protocol: text(d.protocol).toUpperCase(),
     domains: list(d.domains).join(", "),

@@ -212,5 +212,15 @@
     "newSummary": "New conversation with the agent. It starts from this summary of the last one:",
     "fileFailed": "I couldn’t download that file. Try sending it again.",
     "fileNotSent": "I couldn’t send the file {name}. It’s with the answer on the agent’s page."
+  },
+  "slack": {
+    "notLinked": "This chat isn't linked to a Leafdesk account. In Leafdesk, open Settings → Connected apps → Slack, choose Link Slack and send the command it shows here.",
+    "badCode": "That code has run out or was used already. Make a new one in Leafdesk: Settings → Connected apps → Slack.",
+    "help": "Ask a question, or send a voice clip, and I answer from your Leafdesk pages, citing them.\n\n/new: start a new conversation\n/new summary: start a new conversation with an agent from a summary of the last one\n/workspace: choose the workspace I answer from\n/agent: chat with one of your agents\n/mode: choose what I may change\n/stop: stop the answer being written\n/notifications: turn your notifications in this chat on or off\n/unlink: unlink this Slack account",
+    "unlinked": "This Slack account is no longer linked to Leafdesk.",
+    "onlyPrivate": "I only answer in a direct message with me.",
+    "notify": {
+      "notePrompt": "What should the agent change? Answer in this thread with a note."
+    }
   }
 }

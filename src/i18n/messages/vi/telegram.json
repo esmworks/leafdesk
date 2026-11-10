@@ -212,5 +212,15 @@
     "newSummary": "Cuộc trò chuyện mới với tác nhân. Bắt đầu từ bản tóm tắt cuộc trước này:",
     "fileFailed": "Tôi không tải được tệp đó. Hãy thử gửi lại.",
     "fileNotSent": "Tôi không gửi được tệp {name}. Tệp nằm cùng câu trả lời trên trang của tác nhân."
+  },
+  "slack": {
+    "notLinked": "Cuộc trò chuyện này chưa được liên kết với tài khoản Leafdesk nào. Trong Leafdesk, hãy mở Cài đặt → Ứng dụng đã kết nối → Slack, chọn Liên kết Slack và gửi lệnh hiện ra vào đây.",
+    "badCode": "Mã đó đã hết hạn hoặc đã được dùng. Hãy tạo mã mới trong Leafdesk: Cài đặt → Ứng dụng đã kết nối → Slack.",
+    "help": "Hãy đặt câu hỏi, hoặc gửi đoạn ghi âm, và tôi sẽ trả lời dựa trên các trang Leafdesk của bạn, kèm trích dẫn.\n\n/new: bắt đầu cuộc trò chuyện mới\n/new summary: bắt đầu cuộc trò chuyện mới với tác nhân từ bản tóm tắt cuộc trước\n/workspace: chọn không gian làm việc tôi dùng để trả lời\n/agent: trò chuyện với một trong các tác tử của bạn\n/mode: chọn những gì tôi được phép thay đổi\n/stop: dừng việc viết câu trả lời\n/notifications: bật hoặc tắt thông báo của bạn trong cuộc trò chuyện này\n/unlink: hủy liên kết tài khoản Slack này",
+    "unlinked": "Tài khoản Slack này không còn được liên kết với Leafdesk.",
+    "onlyPrivate": "Tôi chỉ trả lời trong tin nhắn trực tiếp với tôi.",
+    "notify": {
+      "notePrompt": "Tác tử nên thay đổi gì? Hãy trả lời trong chuỗi này bằng một ghi chú."
+    }
   }
 }

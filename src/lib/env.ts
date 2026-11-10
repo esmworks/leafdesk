@@ -282,6 +282,22 @@ export const env = {
     return (process.env.TELEGRAM_API_URL?.trim() || "https://api.telegram.org").replace(/\/$/, "");
   },
   /**
+   * SLACK_APP_TOKEN (xapp-, with connections:write) and SLACK_BOT_TOKEN (xoxb-): the Slack app
+   * through which people talk to the AI chat in a direct message once they link their Slack
+   * account (see server/slack). The server opens Socket Mode itself, so it needs no public
+   * address. Off unless both are set.
+   */
+  get slackAppToken() {
+    return process.env.SLACK_APP_TOKEN?.trim() || null;
+  },
+  get slackBotToken() {
+    return process.env.SLACK_BOT_TOKEN?.trim() || null;
+  },
+  /** SLACK_API_URL: the Web API's address; Slack's own by default. */
+  get slackApiUrl() {
+    return (process.env.SLACK_API_URL?.trim() || "https://slack.com/api").replace(/\/$/, "");
+  },
+  /**
    * GEOCODER_URL: the Nominatim-compatible search API place properties look addresses up with
    * (server/geocoder.ts); OpenStreetMap's public one when unset, off when set empty (places then
    * take coordinates only). One set on purpose may be on a private network.

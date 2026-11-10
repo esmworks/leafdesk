@@ -54,6 +54,7 @@
       "connectedApps": "oauth عملاء وصول إلغاء أدوات mcp",
       "aiAccounts": "مفتاح api مفتاح خاص مزود",
       "telegram": "بوت دردشة رسائل",
+      "slack": "بوت دردشة رسائل مباشرة",
       "mcp": "مساعد model context protocol خادم",
       "apiTokens": "rest api رمز مفتاح مطور",
       "about": "الإصدار الترخيص تحديث",
@@ -2143,7 +2144,7 @@
         "updated": "غيّر الاتصال «{target}»",
         "deleted": "أزال الاتصال «{target}»",
         "tool_called": "استدعى «{tool}» على «{target}» ({outcome})",
-        "approval_decided": "{decision}: استدعاء الوكيل «{agent}» لـ «{tool}» على «{target}»{channel, select, telegram { (من Telegram)} other {}}"
+        "approval_decided": "{decision}: استدعاء الوكيل «{agent}» لـ «{tool}» على «{target}»{channel, select, telegram { (من Telegram)} slack { (من Slack)} other {}}"
       },
       "mail": {
         "databases_changed": "حدّد قواعد البيانات التي يصل إليها البريد: {names}",
@@ -2257,6 +2258,8 @@
     "email": "البريد الإلكتروني",
     "push": "إشعارات فورية",
     "telegram": "Telegram",
+    "slack": "Slack",
+    "chatApps": "تطبيقات الدردشة",
     "pushDescription": "تصل الإشعارات الفورية لما يظهر في صندوق الوارد، على الأجهزة التي تفعّلها عليها.",
     "pushDeviceTitle": "الإشعارات الفورية على هذا الجهاز",
     "pushDeviceOff": "تلقّي إشعار على هذا الجهاز لكل عنصر جديد في صندوق الوارد، حتى عندما يكون Leafdesk مغلقًا.",

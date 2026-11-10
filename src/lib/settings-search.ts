@@ -29,6 +29,8 @@ export type SettingsSearchContext = {
   ownAiKeys: boolean;
   /** The server has a Telegram bot. */
   telegram: boolean;
+  /** The server has a Slack app (SLACK_APP_TOKEN and SLACK_BOT_TOKEN). */
+  slack: boolean;
 };
 
 const member = ({ guest }: SettingsSearchContext) => !guest;
@@ -65,6 +67,7 @@ export const SETTINGS_SEARCH_ENTRIES: readonly SettingsSearchEntry[] = [
   { id: "connectedApps", tab: "apps", label: "settings:connectedApps.listHeading", keywords: true },
   { id: "aiAccounts", tab: "apps", label: "ai:accounts.heading", keywords: true, when: ({ ownAiKeys }) => ownAiKeys },
   { id: "telegram", tab: "apps", label: "account:telegram.title", keywords: true, when: ({ telegram }) => telegram },
+  { id: "slack", tab: "apps", label: "account:slack.title", keywords: true, when: ({ slack }) => slack },
   { id: "mcp", tab: "apps", label: "settings:mcp.heading", keywords: true },
   { id: "apiTokens", tab: "apps", label: "apiTokens:heading", keywords: true },
   { id: "about", tab: "about", keywords: true },

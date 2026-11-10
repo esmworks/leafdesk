@@ -54,6 +54,7 @@
       "connectedApps": "oauth clients access revoke tools mcp",
       "aiAccounts": "api key own key provider",
       "telegram": "bot chat messages",
+      "slack": "bot chat direct messages",
       "mcp": "assistant model context protocol server",
       "apiTokens": "rest api token key developer",
       "about": "version license update",
@@ -2143,7 +2144,7 @@
         "updated": "Changed the connection “{target}”",
         "deleted": "Removed the connection “{target}”",
         "tool_called": "Called “{tool}” on “{target}” ({outcome})",
-        "approval_decided": "{decision} the call of “{tool}” on “{target}” by the agent “{agent}”{channel, select, telegram { (from Telegram)} other {}}"
+        "approval_decided": "{decision} the call of “{tool}” on “{target}” by the agent “{agent}”{channel, select, telegram { (from Telegram)} slack { (from Slack)} other {}}"
       },
       "mail": {
         "databases_changed": "Set the databases email lands on: {names}",
@@ -2257,6 +2258,8 @@
     "email": "Email",
     "push": "Push",
     "telegram": "Telegram",
+    "slack": "Slack",
+    "chatApps": "Chat apps",
     "pushDescription": "Push notifications come for what shows in your inbox, on the devices where you turn them on.",
     "pushDeviceTitle": "Push notifications on this device",
     "pushDeviceOff": "Get a notification on this device for each new item in your inbox, even when Leafdesk is closed.",

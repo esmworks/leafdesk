@@ -54,6 +54,7 @@
       "connectedApps": "oauth clientes acesso revogar ferramentas mcp",
       "aiAccounts": "chave de api chave própria provedor",
       "telegram": "bot chat mensagens",
+      "slack": "bot chat mensagens diretas",
       "mcp": "assistente model context protocol servidor",
       "apiTokens": "rest api token chave desenvolvedor",
       "about": "versão licença atualização",
@@ -2143,7 +2144,7 @@
         "updated": "Alterou a conexão “{target}”",
         "deleted": "Removeu a conexão “{target}”",
         "tool_called": "Chamou “{tool}” em “{target}” ({outcome})",
-        "approval_decided": "{decision} a chamada de “{tool}” em “{target}” feita pelo agente “{agent}”{channel, select, telegram { (pelo Telegram)} other {}}"
+        "approval_decided": "{decision} a chamada de “{tool}” em “{target}” feita pelo agente “{agent}”{channel, select, telegram { (pelo Telegram)} slack { (pelo Slack)} other {}}"
       },
       "mail": {
         "databases_changed": "Definiu os bancos de dados em que o e-mail chega: {names}",
@@ -2257,6 +2258,8 @@
     "email": "E-mail",
     "push": "Push",
     "telegram": "Telegram",
+    "slack": "Slack",
+    "chatApps": "Apps de chat",
     "pushDescription": "Notificações push chegam para o que aparece na sua caixa de entrada, nos dispositivos em que você as ativar.",
     "pushDeviceTitle": "Notificações push neste dispositivo",
     "pushDeviceOff": "Receba uma notificação neste dispositivo para cada novo item na sua caixa de entrada, mesmo com o Leafdesk fechado.",

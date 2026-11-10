@@ -4,7 +4,7 @@ import { livePreview } from "@/lib/agent-chat-preview";
 import { MAX_QUEUED } from "@/lib/agent-chat-queue";
 import { formatBytes } from "@/lib/files";
 import { iconText } from "@/lib/icon-value";
-import { escapeHtml, htmlToText, markdownToTelegramBlocks, packMessages } from "@/lib/telegram-format";
+import { escapeHtml, markdownToTelegramBlocks } from "@/lib/telegram-format";
 import { AccessError, ConnectedAppReadOnlyError } from "@/server/access";
 import {
   agentChatInfo,
@@ -21,13 +21,13 @@ import { chatFileOfPerson } from "@/server/agents/chat-files";
 import { followRun } from "@/server/ai-chat-runs";
 import { asWrite, runAsConnectedApp } from "@/server/connected-app";
 import { refOf, storageOf } from "@/server/storage/workspace";
-import { editMessage, sendDocument, TelegramApiError, type InlineKeyboard } from "./api";
-import { telegramNotificationsOn, updateLink, type TelegramLinkRow } from "./links";
+import { linkById, updateLink, type ChatLinkRow } from "./links";
 import { sendApprovalHere } from "./notify";
-import { changeLines, html, send, sendHtml, type Translator } from "./say";
+import { changeLines, chatOf, html, packFor, send, sendHtml, type Chat, type Translator } from "./say";
+import { ChannelError, type Buttons } from "./transport";
 
 /**
- * Chatting with an agent from Telegram: with /agent the person picks one of the workspace's agents
+ * Chatting with an agent from a chat app: with /agent the person picks one of the workspace's agents
  * shared with them (agents/chat.ts chatAgents), and their messages go to it instead of the AI chat,
  * each one a run of the agent's own chat with them (the one its page shows, so the conversation goes
  * on in the app), sent as a connected app's write: a workspace that lets apps only read takes none,
@@ -40,9 +40,10 @@ import { changeLines, html, send, sendHtml, type Translator } from "./say";
  * or by another app, or a follow that ended), the bot waits for that answer to end, without showing
  * it (it may draw on what this chat may not show, as email), and follows the turn that takes it.
  *
- * The answer is followed as the agent writes it, in one message edited every few seconds (the
+ * The answer is followed as the agent writes it, in one message edited every few seconds where the
+ * chat app can change messages (else it comes once written; the
  * run's events, ai-chat-runs.ts, masked as the run keeps its answer), then put there formatted, with the pages it changed. A call it waits on comes as
- * the inbox's approval message (notify.ts) when this person answers it: from deliverTelegram when
+ * the inbox's approval message (notify.ts) when this person answers it: from deliverChatApps when
  * their notifications come here, else sent here; the chat keeps following, for as long as the call
  * may wait, but takes other messages meanwhile (`release`). /stop stops following; the agent
  * finishes and its answer shows on its page, as when the follow can't go on (access lost, the
@@ -54,13 +55,13 @@ const POLL_MS = 2_000;
 const WAITING_POLL_MS = 10_000;
 /** How long a run is followed: a day for a call to be answered (run.ts APPROVAL_TIMEOUT_MS), and some. */
 const FOLLOW_MS = 25 * 60 * 60_000;
-/** The most the message showing the text being written holds, escaped (lib/agent-chat-preview.ts). */
-const PREVIEW_CHARS = 3_500;
+/** The most the message showing the text being written holds, escaped (lib/agent-chat-preview.ts): some room under the chat app's limit. */
+const previewChars = (chat: Chat) => chat.transport.messageLimit - 500;
 /** Looks at the run that fail in a row (the database out of reach) before the follow gives up. */
 const MAX_FAILED_LOOKS = 5;
 /** Tries to send the approval message here before saying where to answer the call instead. */
 const APPROVAL_TRIES = 2;
-/** The longest wait Telegram may ask for before the answer is sent again. */
+/** The longest wait the chat app may ask for before the answer is sent again. */
 const MAX_RETRY_MS = 60_000;
 
 type Workspace = { id: string; name: string };
@@ -75,7 +76,8 @@ export type FollowHooks = { waiting: (on: boolean) => void; release: () => void;
 /** The runs a follow here (or a wait for one) is on, as `link:run`: a message queued behind one of them is taken by that follow. */
 const watched = new Map<string, number>();
 /** The run that took a queue to follow next: one a message from here went with, that no follow here is on yet. */
-const toFollow = (link: TelegramLinkRow, next: { id: string; telegram: boolean } | null) => (next?.telegram && !watched.has(`${link.id}:${next.id}`) ? next.id : null);
+const toFollow = (link: ChatLinkRow, next: { id: string; telegram: boolean; slack: boolean } | null) =>
+  next?.[link.channel] && !watched.has(`${link.id}:${next.id}`) ? next.id : null;
 const watch = (linkId: string, runId: string) => {
   const key = `${linkId}:${runId}`;
   watched.set(key, (watched.get(key) ?? 0) + 1);
@@ -92,27 +94,25 @@ const agentLabel = (agent: { name: string; icon: string | null }) => {
 };
 
 /** /agent: the agents the person may chat with, with the AI chat first; ✓ marks where messages go now. */
-export async function agentPicker(link: TelegramLinkRow, t: Translator, workspace: Workspace): Promise<{ text: string; keyboard?: InlineKeyboard }> {
+export async function agentPicker(link: ChatLinkRow, t: Translator, workspace: Workspace): Promise<{ text: string; buttons?: Buttons }> {
   const agents = await chatAgents(link.userId, workspace.id);
   if (!agents.length) return { text: html(t, "agent.none", { workspace: escapeHtml(workspace.name) }) };
   const current = agents.find((a) => a.id === link.agentId) ?? null;
-  const keyboard = {
-    inline_keyboard: [
-      [{ text: `${current ? "" : "✓ "}${t("agent.general")}`, callback_data: "ag:-" }],
-      ...agents.slice(0, 49).map((a) => [{ text: `${a.id === current?.id ? "✓ " : ""}${agentLabel(a)}`, callback_data: `ag:${a.id}` }]),
-    ],
-  };
+  const buttons: Buttons = [
+    [{ text: `${current ? "" : "✓ "}${t("agent.general")}`, data: "ag:-" }],
+    ...agents.slice(0, 49).map((a) => [{ text: `${a.id === current?.id ? "✓ " : ""}${agentLabel(a)}`, data: `ag:${a.id}` }]),
+  ];
   const text = current
     ? html(t, "agent.pick", { agent: `<b>${escapeHtml(agentLabel(current))}</b>` })
     : html(t, "agent.pickNone", { workspace: escapeHtml(workspace.name) });
-  return { text, keyboard };
+  return { text, buttons };
 }
 
 /**
  * A pick from /agent's buttons: an agent the person may chat with now (its own chat with them
  * goes on, joining their latest conversation there), or back to the AI chat (null). What to say.
  */
-export async function pickAgent(link: TelegramLinkRow, t: Translator, workspace: Workspace, agentId: string | null): Promise<string> {
+export async function pickAgent(link: ChatLinkRow, t: Translator, workspace: Workspace, agentId: string | null): Promise<string> {
   if (!agentId) {
     await updateLink(link.id, { agentId: null, agentConversationId: null });
     return html(t, "agent.generalSet", { workspace: escapeHtml(workspace.name) });
@@ -126,27 +126,27 @@ export async function pickAgent(link: TelegramLinkRow, t: Translator, workspace:
 type Unavailable = Exclude<AgentChatState, "full" | "readOnly">;
 
 /** Why the person can't chat with an agent now, as said; one gone from them goes from the link too (messages go to the AI chat again). */
-async function unavailable(link: TelegramLinkRow, t: Translator, state: Unavailable): Promise<string> {
+async function unavailable(link: ChatLinkRow, t: Translator, state: Unavailable): Promise<string> {
   if (state === "gone" || state === "noAccess" || state === "guest") await updateLink(link.id, { agentId: null, agentConversationId: null });
   return escapeHtml(t(`agent.states.${state}`));
 }
 
 /** Why a message wasn't taken, said. */
-async function refused(link: TelegramLinkRow, t: Translator, code: AgentChatError) {
+async function refused(link: ChatLinkRow, t: Translator, code: AgentChatError) {
   if (code === "gone" || code === "noAccess" || code === "guest" || code === "paused" || code === "aiOff" || code === "limitReached") {
-    return void (await send(link.chatId, await unavailable(link, t, code)));
+    return void (await send(chatOf(link), await unavailable(link, t, code)));
   }
-  if (code === "tooLong") return void (await send(link.chatId, escapeHtml(t("agent.refused.tooLong", { max: MAX_AGENT_CHAT_MESSAGE }))));
-  if (code === "queueFull") return void (await send(link.chatId, escapeHtml(t("agent.refused.queueFull", { max: MAX_QUEUED }))));
-  if (code === "badFile") return void (await send(link.chatId, escapeHtml(t("agent.refused.badFile", { size: formatBytes(AGENT_CHAT_FILE_LIMITS.bytes) }))));
-  await send(link.chatId, escapeHtml(t(`agent.refused.${code === "busy" || code === "rateLimited" || code === "summaryFailed" ? code : "invalid"}`)));
+  if (code === "tooLong") return void (await send(chatOf(link), escapeHtml(t("agent.refused.tooLong", { max: MAX_AGENT_CHAT_MESSAGE }))));
+  if (code === "queueFull") return void (await send(chatOf(link), escapeHtml(t("agent.refused.queueFull", { max: MAX_QUEUED }))));
+  if (code === "badFile") return void (await send(chatOf(link), escapeHtml(t("agent.refused.badFile", { size: formatBytes(AGENT_CHAT_FILE_LIMITS.bytes) }))));
+  await send(chatOf(link), escapeHtml(t(`agent.refused.${code === "busy" || code === "rateLimited" || code === "summaryFailed" ? code : "invalid"}`)));
 }
 
 /**
  * The conversation a message (or `/new summary`) from the link goes to: the latest of the agent's
  * own chat with the person, as in the app; none after /new, until a message opens one.
  */
-const conversationOf = async (link: TelegramLinkRow, agentId: string) => (link.agentConversationId ? await latestThreadConversation(link.userId, agentId) : null);
+const conversationOf = async (link: ChatLinkRow, agentId: string) => (link.agentConversationId ? await latestThreadConversation(link.userId, agentId) : null);
 
 /**
  * Sends a message (and the text file it carries) to the link's agent and follows its answer into
@@ -156,7 +156,7 @@ const conversationOf = async (link: TelegramLinkRow, agentId: string) => (link.a
  * inside the person's connected-app call.
  */
 export async function askAgent(
-  link: TelegramLinkRow,
+  link: ChatLinkRow,
   t: Translator,
   workspace: Workspace,
   question: string,
@@ -166,7 +166,7 @@ export async function askAgent(
 ) {
   const agentId = link.agentId!;
   const message = (conversationId: string | null) =>
-    asWrite(() => sendAgentChat(link.userId, { workspaceId: workspace.id, agentId, place: null, conversationId, message: question, files, via: "telegram" }));
+    asWrite(() => sendAgentChat(link.userId, { workspaceId: workspace.id, agentId, place: null, conversationId, message: question, files, via: link.channel }));
   let sent;
   try {
     const conversationId = await conversationOf(link, agentId);
@@ -178,7 +178,7 @@ export async function askAgent(
       sent = await message(null);
     }
   } catch (error) {
-    if (error instanceof ConnectedAppReadOnlyError) return void (await send(link.chatId, html(t, "agent.readOnlyWorkspace", { workspace: escapeHtml(workspace.name) })));
+    if (error instanceof ConnectedAppReadOnlyError) return void (await send(chatOf(link), html(t, "agent.readOnlyWorkspace", { workspace: escapeHtml(workspace.name) })));
     if (error instanceof AgentChatRefusal) return refused(link, t, error.code);
     throw error;
   }
@@ -192,7 +192,7 @@ export async function askAgent(
     runId = sent.runId;
     await hooks.claim();
   } else {
-    await send(link.chatId, escapeHtml(t("agent.queued")));
+    await send(chatOf(link), escapeHtml(t("agent.queued")));
     if (watched.has(`${link.id}:${sent.behind}`)) return;
     // No follow here takes its answer: the chat is free meanwhile, and /stop or /unlink end the wait.
     hooks.release();
@@ -207,7 +207,7 @@ export async function askAgent(
  * then the run that took the queue, when a message from here went with it, to follow. A wait that
  * ends otherwise (stopped, the database out of reach, a day gone) says so, as a follow does.
  */
-async function waitBehind(link: TelegramLinkRow, t: Translator, runId: string, agent: string, signal: AbortSignal, hooks: FollowHooks): Promise<string | null> {
+async function waitBehind(link: ChatLinkRow, t: Translator, runId: string, agent: string, signal: AbortSignal, hooks: FollowHooks): Promise<string | null> {
   const unwatch = watch(link.id, runId);
   hooks.waiting(true);
   let failed = 0;
@@ -227,13 +227,13 @@ async function waitBehind(link: TelegramLinkRow, t: Translator, runId: string, a
         failed = 0;
       } catch (error) {
         if (++failed >= MAX_FAILED_LOOKS) {
-          console.error("[telegram] couldn't wait for an agent's answer", error);
+          console.error(`[${link.channel}] couldn't wait for an agent's answer`, error);
           break;
         }
       }
       await pause(parked ? WAITING_POLL_MS : POLL_MS, signal);
     }
-    await send(link.chatId, html(t, "agent.stopped", { agent }));
+    await send(chatOf(link), html(t, "agent.stopped", { agent }));
     return null;
   } finally {
     unwatch();
@@ -245,25 +245,26 @@ async function waitBehind(link: TelegramLinkRow, t: Translator, runId: string, a
  * going on (agents/chat.ts summarizeAgentConversation); the summary, said. Runs inside the
  * person's connected-app call.
  */
-export async function newAgentConversationFromSummary(link: TelegramLinkRow, t: Translator, workspace: Workspace) {
+export async function newAgentConversationFromSummary(link: ChatLinkRow, t: Translator, workspace: Workspace) {
   const agentId = link.agentId;
   const conversationId = agentId ? await conversationOf(link, agentId) : null;
-  if (!agentId || !conversationId) return void (await send(link.chatId, escapeHtml(t("agent.nothingToSummarize"))));
+  if (!agentId || !conversationId) return void (await send(chatOf(link), escapeHtml(t("agent.nothingToSummarize"))));
   let made;
   try {
     made = await asWrite(() => summarizeAgentConversation(link.userId, { workspaceId: workspace.id, agentId, place: null, conversationId }));
   } catch (error) {
-    if (error instanceof ConnectedAppReadOnlyError) return void (await send(link.chatId, html(t, "agent.readOnlyWorkspace", { workspace: escapeHtml(workspace.name) })));
+    if (error instanceof ConnectedAppReadOnlyError) return void (await send(chatOf(link), html(t, "agent.readOnlyWorkspace", { workspace: escapeHtml(workspace.name) })));
     if (error instanceof AgentChatRefusal) {
       // A conversation deleted in the meantime has nothing to sum up either.
-      if (error.code === "invalid" || error.code === "noAccess") return void (await send(link.chatId, escapeHtml(t("agent.nothingToSummarize"))));
+      if (error.code === "invalid" || error.code === "noAccess") return void (await send(chatOf(link), escapeHtml(t("agent.nothingToSummarize"))));
       return refused(link, t, error.code);
     }
     throw error;
   }
   link.agentConversationId = made.conversation.id;
   await updateLink(link.id, { agentConversationId: made.conversation.id });
-  await sendPatiently(link.chatId, packMessages([escapeHtml(t("agent.newSummary")), ...markdownToTelegramBlocks(made.summary)]));
+  const chat = chatOf(link);
+  await sendPatiently(chat, packFor(chat, [escapeHtml(t("agent.newSummary")), ...markdownToTelegramBlocks(made.summary)]));
 }
 
 const pause = (ms: number, signal: AbortSignal) =>
@@ -278,32 +279,29 @@ const pause = (ms: number, signal: AbortSignal) =>
   });
 
 /**
- * Edits a message, again as plain text when Telegram can't parse its markup. False when it wasn't
- * edited (too many edits, the message gone): the preview is tried again, the answer sent anew.
+ * Edits a message (the transport sends it again as plain text when its markup is refused). False
+ * when it wasn't edited (too many edits, the message gone, a chat app that can't edit): the
+ * preview is tried again, the answer sent anew.
  */
-async function edit(chatId: string, messageId: number, text: string): Promise<boolean> {
+async function edit(chat: Chat, messageId: string, text: string): Promise<boolean> {
+  if (!chat.transport.canEdit) return false;
   try {
-    await editMessage(chatId, messageId, text);
+    await chat.transport.edit(chat.id, messageId, text);
     return true;
   } catch (error) {
-    if (!(error instanceof TelegramApiError)) throw error;
-    if (/not modified/i.test(error.message)) return true;
-    if (error.code !== 400) return false;
-    return editMessage(chatId, messageId, htmlToText(text), { plain: true }).then(
-      () => true,
-      () => false,
-    );
+    if (!(error instanceof ChannelError)) throw error;
+    return error.kind === "notModified";
   }
 }
 
-/** Sends the answer, once more after the wait Telegram asks for when it says too many messages went. */
-async function sendPatiently(chatId: string, messages: string[]) {
+/** Sends the answer, once more after the wait the chat app asks for when it says too many messages went. */
+async function sendPatiently(chat: Chat, messages: string[]) {
   try {
-    await sendHtml(chatId, messages);
+    await sendHtml(chat, messages);
   } catch (error) {
-    if (!(error instanceof TelegramApiError && error.code === 429)) throw error;
-    await new Promise((resolve) => setTimeout(resolve, Math.min(MAX_RETRY_MS, (error.retryAfter ?? 1) * 1000)));
-    await sendHtml(chatId, messages);
+    if (!(error instanceof ChannelError && error.kind === "rateLimited")) throw error;
+    await new Promise((resolve) => setTimeout(resolve, Math.min(MAX_RETRY_MS, error.retryAfterMs ?? 1000)));
+    await sendHtml(chat, messages);
   }
 }
 
@@ -314,8 +312,8 @@ async function sendPatiently(chatId: string, messages: string[]) {
  * out of reach, a day gone) says the answer will be on the agent's page. Once it ended: the run
  * that took the messages queued meanwhile, when one of them came from here, to follow next.
  */
-async function follow(link: TelegramLinkRow, t: Translator, workspace: Workspace, runId: string, agent: string, signal: AbortSignal, hooks: FollowHooks): Promise<string | null> {
-  const chatId = link.chatId;
+async function follow(link: ChatLinkRow, t: Translator, workspace: Workspace, runId: string, agent: string, signal: AbortSignal, hooks: FollowHooks): Promise<string | null> {
+  const chat = chatOf(link);
   const unwatch = watch(link.id, runId);
   const following = new AbortController();
   const stop = () => following.abort();
@@ -340,7 +338,7 @@ async function follow(link: TelegramLinkRow, t: Translator, workspace: Workspace
       await pause(POLL_MS, following.signal);
     }
   })();
-  let previewId: number | null = null;
+  let previewId: string | null = null;
   let shown = "";
   // The call the chat last spoke of (or the owner's turn, ""), and the tries at its approval message.
   let told: string | null = null;
@@ -365,7 +363,7 @@ async function follow(link: TelegramLinkRow, t: Translator, workspace: Workspace
         else if (told !== waitingOn) {
           if (told === null) hooks.release();
           if (state.deferred) {
-            await send(chatId, html(t, "agent.deferred", { agent }));
+            await send(chat, html(t, "agent.deferred", { agent }));
             told = waitingOn;
             tries = 0;
           } else {
@@ -380,30 +378,31 @@ async function follow(link: TelegramLinkRow, t: Translator, workspace: Workspace
       } catch (error) {
         // Access gone (removed, apps turned off, the run no longer theirs): the follow ends; else tried again a few times.
         if (error instanceof AccessError || error instanceof AgentChatRefusal || ++failed >= MAX_FAILED_LOOKS) {
-          if (!(error instanceof AccessError || error instanceof AgentChatRefusal)) console.error("[telegram] couldn't follow an agent's answer", error);
+          if (!(error instanceof AccessError || error instanceof AgentChatRefusal)) console.error(`[${link.channel}] couldn't follow an agent's answer`, error);
           break;
         }
       }
       // Outside the looks above: an answer that fails to go isn't sent again.
       if (ended) {
-        // An answer that couldn't go (Telegram out of reach) doesn't keep the turns queued after it from being followed.
-        await finish(link, t, ended, previewId, shown).catch((error) => console.error("[telegram] couldn't send an agent's answer", error instanceof Error ? error.message : error));
+        // An answer that couldn't go (the chat app out of reach) doesn't keep the turns queued after it from being followed.
+        await finish(link, t, ended, previewId, shown).catch((error) => console.error(`[${link.channel}] couldn't send an agent's answer`, error instanceof Error ? error.message : error));
         const next = await nextQueuedRun(link.userId, runId).catch(() => null);
         return toFollow(link, next);
       }
-      const now = livePreview(text, PREVIEW_CHARS);
+      // Shown as it is written only where the message can then be changed into the answer.
+      const now = chat.transport.canEdit ? livePreview(text, previewChars(chat)) : "";
       if (now && now !== shown) {
         // Shown only once it is there: an edit that didn't go is tried again at the next look.
         if (previewId) {
-          if (await edit(chatId, previewId, now)) shown = now;
+          if (await edit(chat, previewId, now)) shown = now;
         } else {
-          previewId = await send(chatId, now).catch(() => null);
+          previewId = await send(chat, now).catch(() => null);
           shown = now;
         }
       }
       await pause(parked ? WAITING_POLL_MS : POLL_MS, signal);
     }
-    await send(chatId, html(t, "agent.stopped", { agent }));
+    await send(chat, html(t, "agent.stopped", { agent }));
     return null;
   } finally {
     unwatch();
@@ -413,57 +412,58 @@ async function follow(link: TelegramLinkRow, t: Translator, workspace: Workspace
 }
 
 /**
- * Says that the run waits on a call: for this person, its approval message (deliverTelegram sends
+ * Says that the run waits on a call: for this person, its approval message (deliverChatApps sends
  * it when their notifications come here now; else it is sent now); for an owner, that it waits on
  * them. False when the approval message isn't there yet (the run has only just stopped): asked
  * again, and after a few tries the chat says to answer it in Leafdesk.
  */
-async function tellWaiting(link: TelegramLinkRow, t: Translator, runId: string, pending: AgentChatTurn["pending"], agent: string, tries: number): Promise<boolean> {
+async function tellWaiting(link: ChatLinkRow, t: Translator, runId: string, pending: AgentChatTurn["pending"], agent: string, tries: number): Promise<boolean> {
   if (!pending) {
-    await send(link.chatId, html(t, "agent.waitingOwner", { agent }));
+    await send(chatOf(link), html(t, "agent.waitingOwner", { agent }));
     return true;
   }
   const connection = escapeHtml(pending.connectionName);
-  if (await telegramNotificationsOn(link.userId)) {
-    await send(link.chatId, html(t, "agent.waiting", { agent, connection }));
+  // The notification comes to this chat when the link still takes them (it may have been turned off meanwhile).
+  if ((await linkById(link.id))?.notifications) {
+    await send(chatOf(link), html(t, "agent.waiting", { agent, connection }));
     return true;
   }
-  if (await runAsConnectedApp({ userId: link.userId }, () => sendApprovalHere(link.userId, link.chatId, runId))) return true;
+  if (await runAsConnectedApp({ userId: link.userId }, () => sendApprovalHere(link.userId, chatOf(link), runId))) return true;
   if (tries < APPROVAL_TRIES) return false;
-  await send(link.chatId, html(t, "agent.waitingApp", { agent, connection }));
+  await send(chatOf(link), html(t, "agent.waitingApp", { agent, connection }));
   return true;
 }
 
 /** The run's end: its answer, formatted, in place of what was shown as it was written (or anew when that can't be edited), and the files it attached; or why it failed. */
-async function finish(link: TelegramLinkRow, t: Translator, turn: AgentChatTurn, previewId: number | null, shown: string) {
-  const chatId = link.chatId;
+async function finish(link: ChatLinkRow, t: Translator, turn: AgentChatTurn, previewId: string | null, shown: string) {
+  const chat = chatOf(link);
   if (turn.status === "failed") {
     const note = `<i>${escapeHtml(t(`agent.failed.${chatFailure(turn.code)}`))}</i>`;
-    if (!(previewId && (await edit(chatId, previewId, `${shown.replace(/ ✍️$/, "")}\n\n${note}`)))) await sendPatiently(chatId, [note]);
+    if (!(previewId && (await edit(chat, previewId, `${shown.replace(/ ✍️$/, "")}\n\n${note}`)))) await sendPatiently(chat, [note]);
     return sendFiles(link, t, turn);
   }
   const blocks = markdownToTelegramBlocks(turn.answer);
   const changes = changeLines(t, turn.steps);
   if (changes) blocks.push(changes);
-  const messages = packMessages(blocks.length ? blocks : [escapeHtml(t("errors.empty"))]);
-  if (previewId && (await edit(chatId, previewId, messages[0]))) {
-    if (messages.length > 1) await sendPatiently(chatId, messages.slice(1));
-  } else await sendPatiently(chatId, messages);
+  const messages = packFor(chat, blocks.length ? blocks : [escapeHtml(t("errors.empty"))]);
+  if (previewId && (await edit(chat, previewId, messages[0]))) {
+    if (messages.length > 1) await sendPatiently(chat, messages.slice(1));
+  } else await sendPatiently(chat, messages);
   await sendFiles(link, t, turn);
 }
 
 /** Sends the files the agent attached to its answer, each as a document; one that can't go is said to be on the agent's page. */
-async function sendFiles(link: TelegramLinkRow, t: Translator, turn: AgentChatTurn) {
+async function sendFiles(link: ChatLinkRow, t: Translator, turn: AgentChatTurn) {
   for (const attached of turn.attached) {
     try {
       const found = await chatFileOfPerson(link.userId, attached.id);
       const body = found ? await (await storageOf(found)).get(refOf(found)) : null;
       if (!found || !body) throw new Error("missing");
       const bytes = new Uint8Array(await new Response(body).arrayBuffer());
-      await sendDocument(link.chatId, { name: found.name, contentType: found.contentType, bytes });
+      await chatOf(link).transport.sendDocument(link.chatId, { name: found.name, contentType: found.contentType, bytes });
     } catch (error) {
-      if (!(error instanceof TelegramApiError)) console.error("[telegram] couldn't send an agent's file", error instanceof Error ? error.message : error);
-      await send(link.chatId, html(t, "agent.fileNotSent", { name: escapeHtml(attached.name) })).catch(() => {});
+      if (!(error instanceof ChannelError)) console.error(`[${link.channel}] couldn't send an agent's file`, error instanceof Error ? error.message : error);
+      await send(chatOf(link), html(t, "agent.fileNotSent", { name: escapeHtml(attached.name) })).catch(() => {});
     }
   }
 }

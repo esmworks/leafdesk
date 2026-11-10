@@ -54,6 +54,7 @@
       "connectedApps": "oauth clients accès révoquer outils mcp",
       "aiAccounts": "clé api propre clé fournisseur",
       "telegram": "bot discussion messages",
+      "slack": "bot discussion messages directs",
       "mcp": "assistant model context protocol serveur",
       "apiTokens": "rest api jeton clé développeur",
       "about": "version licence mise à jour",
@@ -2143,7 +2144,7 @@
         "updated": "A modifié la connexion « {target} »",
         "deleted": "A supprimé la connexion « {target} »",
         "tool_called": "A appelé « {tool} » sur « {target} » ({outcome})",
-        "approval_decided": "Appel de « {tool} » sur « {target} » par l’agent « {agent} » : {decision}{channel, select, telegram { (depuis Telegram)} other {}}"
+        "approval_decided": "Appel de « {tool} » sur « {target} » par l’agent « {agent} » : {decision}{channel, select, telegram { (depuis Telegram)} slack { (depuis Slack)} other {}}"
       },
       "mail": {
         "databases_changed": "A défini les bases de données où arrivent les e-mails : {names}",
@@ -2257,6 +2258,8 @@
     "email": "E-mail",
     "push": "Push",
     "telegram": "Telegram",
+    "slack": "Slack",
+    "chatApps": "Applications de discussion",
     "pushDescription": "Les notifications push arrivent pour ce qui s’affiche dans votre boîte de réception, sur les appareils où vous les activez.",
     "pushDeviceTitle": "Notifications push sur cet appareil",
     "pushDeviceOff": "Recevez une notification sur cet appareil pour chaque nouvel élément de votre boîte de réception, même quand Leafdesk est fermé.",

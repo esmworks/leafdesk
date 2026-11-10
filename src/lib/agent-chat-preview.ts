@@ -1,5 +1,5 @@
-// What a Telegram message shows of an agent's answer while it is written (server/telegram/agent-chat.ts):
-// the text so far, escaped for Telegram's HTML, cut short and marked as still being written.
+// What a chat app's message shows of an agent's answer while it is written (server/chat-apps/agent-chat.ts):
+// the text so far, escaped as the bot's HTML, cut short and marked as still being written.
 
 import { escapeHtml } from "./telegram-format";
 

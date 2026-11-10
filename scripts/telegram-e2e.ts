@@ -91,7 +91,7 @@ process.env.APP_URL = "https://leaf.test";
 // Imported after .env is loaded: the database client reads DATABASE_URL when it is created.
 const { and, eq, inArray, sql } = await import("drizzle-orm");
 const { db } = await import("@/db");
-const { conversation: aiConversation, page, telegramLink, telegramLinkCode, teamspace, user, workspace, workspaceMember } = await import("@/db/schema");
+const { conversation: aiConversation, page, channelLink: telegramLink, channelLinkCode: telegramLinkCode, teamspace, user, workspace, workspaceMember } = await import("@/db/schema");
 const { agentMessages } = await import("@/lib/agent-chat");
 const { registerCollab } = await import("@/server/collab/bridge");
 const { createCollab } = await import("@/server/collab/service");
@@ -250,7 +250,7 @@ try {
   await handleUpdate(text(ALICE, `/start ${code}`));
   check(said(ALICE.id, mark).includes(`Linked to Leafdesk as Alice. Ask me anything about ${RUN} main`), "/start with the code links the account and names the workspace", said(ALICE.id, mark));
   const [link] = await db.select().from(telegramLink).where(eq(telegramLink.userId, ids.alice));
-  check(link?.telegramUserId === String(ALICE.id) && link.workspaceId === ws && link.username === "alice" && link.mode === "ask", "the link keeps the account, its first workspace and mode ask", link);
+  check(link?.externalUserId === String(ALICE.id) && link.workspaceId === ws && link.username === "alice" && link.mode === "ask", "the link keeps the account, its first workspace and mode ask", link);
   check((await getTelegramStatus(ids.alice)).link?.username === "alice", "the settings show the linked account");
 
   mark = sent.length;
@@ -951,7 +951,7 @@ try {
   const again = await createLinkCode(ids.mallory);
   await handleUpdate(text(MALLORY, `/start ${again.url.split("start=")[1]}`));
   await db.delete(user).where(eq(user.id, ids.mallory));
-  check((await db.select().from(telegramLink).where(eq(telegramLink.telegramUserId, String(MALLORY.id)))).length === 0, "a deleted account's link goes with it");
+  check((await db.select().from(telegramLink).where(eq(telegramLink.externalUserId, String(MALLORY.id)))).length === 0, "a deleted account's link goes with it");
 
   console.log(`\n${passed} checks passed`);
 } finally {

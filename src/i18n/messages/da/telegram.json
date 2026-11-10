@@ -212,5 +212,15 @@
     "newSummary": "Ny samtale med agenten. Den starter fra dette resumé af den forrige:",
     "fileFailed": "Jeg kunne ikke downloade filen. Prøv at sende den igen.",
     "fileNotSent": "Jeg kunne ikke sende filen {name}. Den ligger ved svaret på agentens side."
+  },
+  "slack": {
+    "notLinked": "Denne chat er ikke forbundet med en Leafdesk-konto. Åbn Indstillinger → Forbundne apps → Slack i Leafdesk, vælg Forbind Slack, og send den kommando, der vises, her.",
+    "badCode": "Den kode er udløbet eller allerede brugt. Lav en ny i Leafdesk: Indstillinger → Forbundne apps → Slack.",
+    "help": "Stil et spørgsmål, eller send et lydklip, så svarer jeg ud fra dine Leafdesk-sider og henviser til dem.\n\n/new: start en ny samtale\n/new summary: start en ny samtale med en agent ud fra et resumé af den forrige\n/workspace: vælg det arbejdsområde, jeg svarer ud fra\n/agent: chat med en af dine agenter\n/mode: vælg, hvad jeg må ændre\n/stop: stop svaret, der er ved at blive skrevet\n/notifications: slå dine notifikationer i denne chat til eller fra\n/unlink: afbryd forbindelsen til denne Slack-konto",
+    "unlinked": "Denne Slack-konto er ikke længere forbundet med Leafdesk.",
+    "onlyPrivate": "Jeg svarer kun i en direkte besked med mig.",
+    "notify": {
+      "notePrompt": "Hvad skal agenten ændre? Svar i denne tråd med en note."
+    }
   }
 }

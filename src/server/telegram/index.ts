@@ -2,11 +2,13 @@ import { LOCALES } from "@/i18n/config";
 import { telegramMessages } from "@/i18n/messages/telegram";
 import { env } from "@/lib/env";
 import { callApi, POLL_SECONDS, TelegramApiError, type TelegramUpdate } from "./api";
+import { COMMANDS } from "@/server/chat-apps/bot";
 import { handleUpdate } from "./bot";
 import { botUsername } from "./links";
 
 /**
- * Starts the Telegram bot when TELEGRAM_BOT_TOKEN is set (see bot.ts): the server asks Telegram for
+ * Starts the Telegram bot when TELEGRAM_BOT_TOKEN is set (the chat-app bot, server/chat-apps, over
+ * transport.ts): the server asks Telegram for
  * new messages itself (long polling), so it needs no public address. Each update is handled on its
  * own, so a button pressed while an answer is written (an approval, /stop) is handled at once.
  */
@@ -17,8 +19,6 @@ export function startTelegram() {
   }
   void run();
 }
-
-const COMMANDS = ["new", "workspace", "agent", "mode", "stop", "notifications", "unlink", "help"] as const;
 
 async function run() {
   try {

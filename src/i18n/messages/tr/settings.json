@@ -54,6 +54,7 @@
       "connectedApps": "oauth istemciler erişim iptal araçlar mcp",
       "aiAccounts": "api anahtarı kendi anahtar sağlayıcı",
       "telegram": "bot sohbet mesajlar",
+      "slack": "bot sohbet doğrudan mesajlar",
       "mcp": "asistan model bağlam protokolü sunucu",
       "apiTokens": "rest api belirteç anahtar geliştirici",
       "about": "sürüm lisans güncelleme",
@@ -2143,7 +2144,7 @@
         "updated": "“{target}” bağlantısını değiştirdi",
         "deleted": "“{target}” bağlantısını kaldırdı",
         "tool_called": "“{target}” üzerinde “{tool}” çağırdı ({outcome})",
-        "approval_decided": "“{agent}” ajanının “{target}” üzerindeki “{tool}” çağrısı: {decision}{channel, select, telegram { (Telegram’dan)} other {}}"
+        "approval_decided": "“{agent}” ajanının “{target}” üzerindeki “{tool}” çağrısı: {decision}{channel, select, telegram { (Telegram’dan)} slack { (Slack’ten)} other {}}"
       },
       "mail": {
         "databases_changed": "E-postaların düştüğü veritabanlarını belirledi: {names}",
@@ -2257,6 +2258,8 @@
     "email": "E-posta",
     "push": "Anlık",
     "telegram": "Telegram",
+    "slack": "Slack",
+    "chatApps": "Sohbet uygulamaları",
     "pushDescription": "Anlık bildirimler, gelen kutunuzda görünenler için, açtığınız cihazlara gelir.",
     "pushDeviceTitle": "Bu cihazda anlık bildirimler",
     "pushDeviceOff": "Gelen kutunuza düşen her yeni öğe için, Leafdesk kapalıyken bile bu cihazda bildirim alın.",

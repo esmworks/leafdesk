@@ -54,6 +54,7 @@
       "connectedApps": "OAuth klienter adgang tilbagekald værktøjer mcp",
       "aiAccounts": "API-nøgle egen nøgle udbyder",
       "telegram": "bot chat beskeder",
+      "slack": "bot chat direkte beskeder",
       "mcp": "assistent model context protocol server",
       "apiTokens": "REST API token nøgle udvikler",
       "about": "version licens opdatering",
@@ -2143,7 +2144,7 @@
         "updated": "Ændrede forbindelsen “{target}”",
         "deleted": "Fjernede forbindelsen “{target}”",
         "tool_called": "Kaldte “{tool}” på “{target}” ({outcome})",
-        "approval_decided": "{decision}: agenten “{agent}”s kald af “{tool}” på “{target}”{channel, select, telegram { (fra Telegram)} other {}}"
+        "approval_decided": "{decision}: agenten “{agent}”s kald af “{tool}” på “{target}”{channel, select, telegram { (fra Telegram)} slack { (fra Slack)} other {}}"
       },
       "mail": {
         "databases_changed": "Satte de databaser, e-mail lander i: {names}",
@@ -2257,6 +2258,8 @@
     "email": "E-mail",
     "push": "Push",
     "telegram": "Telegram",
+    "slack": "Slack",
+    "chatApps": "Chatapps",
     "pushDescription": "Push-notifikationer kommer for det, der vises i din indbakke, på de enheder, hvor du slår dem til.",
     "pushDeviceTitle": "Push-notifikationer på denne enhed",
     "pushDeviceOff": "Få en notifikation på denne enhed for hvert nyt element i din indbakke, også når Leafdesk er lukket.",
