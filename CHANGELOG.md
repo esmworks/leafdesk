@@ -29,6 +29,14 @@
   named after the app linked, or *Chat apps* when both are. Migration 0210 moves Telegram's links
   into tables shared by every chat app (`channel_link`, `channel_link_code`).
 
+### Fixed
+
+- **A server whose `APP_URL` is plain HTTP on a public or network address starts again.** Sign-in
+  failed on every page with "MCP resource URL must use HTTPS" (an `http://` address on a LAN, or
+  the first address a platform such as Dokploy gives); only `localhost` and loopback addresses
+  worked. The MCP server now names the address's `https://` twin, since MCP apps need HTTPS in
+  front of it anyway.
+
 ## 0.8.1 — 2026-11-10
 
 ### Upgrading from 0.8.0

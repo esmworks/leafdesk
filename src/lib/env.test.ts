@@ -1,8 +1,37 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { env, storageOAuthAppsFrom } from "./env";
+import { mcp } from "@better-auth/mcp";
+import { env, mcpResource, storageOAuthAppsFrom } from "./env";
 
 afterEach(() => {
   vi.unstubAllEnvs();
+});
+
+describe("mcpResource", () => {
+  it("keeps APP_URL on HTTPS and on loopback", () => {
+    for (const [appUrl, resource] of [
+      ["https://notes.example.com", "https://notes.example.com/mcp"],
+      ["https://example.com/leafdesk/", "https://example.com/leafdesk/mcp"],
+      ["http://localhost:3000", "http://localhost:3000/mcp"],
+      ["http://127.0.0.1:3000", "http://127.0.0.1:3000/mcp"],
+      ["http://[::1]:3000", "http://[::1]:3000/mcp"],
+    ]) {
+      vi.stubEnv("APP_URL", appUrl);
+      expect(mcpResource()).toBe(resource);
+    }
+  });
+
+  it("names the HTTPS twin of a plain-HTTP APP_URL elsewhere, which mcp() takes", () => {
+    for (const [appUrl, resource] of [
+      ["http://app-942e39-167-235-165-52.sslip.io", "https://app-942e39-167-235-165-52.sslip.io/mcp"],
+      ["http://192.168.1.10:3000", "https://192.168.1.10:3000/mcp"],
+    ]) {
+      vi.stubEnv("APP_URL", appUrl);
+      expect(mcpResource()).toBe(resource);
+      expect(() => mcp({ loginPage: "/sign-in", consentPage: "/oauth/consent", resource: mcpResource() })).not.toThrow();
+    }
+    vi.stubEnv("APP_URL", "http://192.168.1.10:3000");
+    expect(() => mcp({ loginPage: "/sign-in", consentPage: "/oauth/consent", resource: "http://192.168.1.10:3000/mcp" })).toThrow(/HTTPS/);
+  });
 });
 
 describe("env.authSecret", () => {

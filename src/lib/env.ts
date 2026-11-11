@@ -347,8 +347,21 @@ export const env = {
   },
 };
 
-/** Canonical MCP protected-resource identifier; tokens are audience-bound to it. */
-export const mcpResource = () => `${env.appUrl}/mcp`;
+/**
+ * Canonical MCP protected-resource identifier; tokens are audience-bound to it. MCP takes plain
+ * HTTP only on loopback, and Better Auth's mcp() throws on anything else as auth is set up, which
+ * took every sign-in down on an APP_URL served over HTTP elsewhere (a platform's first address, a
+ * LAN install). Such an APP_URL names its https:// twin: MCP clients need HTTPS in front anyway.
+ */
+export const mcpResource = () => {
+  const url = new URL(`${env.appUrl}/mcp`);
+  if (url.protocol === "http:" && !isLoopbackHost(url.hostname)) url.protocol = "https:";
+  return url.href;
+};
+
+function isLoopbackHost(hostname: string) {
+  return hostname === "localhost" || hostname === "[::1]" || /^127\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(hostname);
+}
 
 /**
  * Where this process can reach itself. APP_URL is the public origin and may not resolve from
