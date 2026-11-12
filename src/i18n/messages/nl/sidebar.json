@@ -357,7 +357,9 @@
     "watch": "Alle pagina’s volgen",
     "watchHint": "Krijg een melding in je inbox als iemand anders een pagina van deze teamruimte bewerkt of er een discussie op begint.",
     "unwatch": "Pagina’s niet meer volgen",
-    "unwatchHint": "Je krijgt meldingen over bewerkingen en nieuwe discussies op elke pagina van deze teamruimte, behalve de pagina’s die je hebt gedempt."
+    "unwatchHint": "Je krijgt meldingen over bewerkingen en nieuwe discussies op elke pagina van deze teamruimte, behalve de pagina’s die je hebt gedempt.",
+    "moveUp": "Omhoog",
+    "moveDown": "Omlaag"
   },
   "sections": {
     "shared": "Gedeeld",

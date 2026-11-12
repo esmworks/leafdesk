@@ -357,7 +357,9 @@
     "watch": "Osserva tutte le pagine",
     "watchHint": "Ricevi un avviso nella posta in arrivo quando qualcun altro modifica una pagina di questo spazio del team o vi avvia una discussione.",
     "unwatch": "Smetti di osservare le pagine",
-    "unwatchHint": "Ricevi avvisi su modifiche e nuove discussioni in ogni pagina di questo spazio del team, tranne quelle che hai silenziato."
+    "unwatchHint": "Ricevi avvisi su modifiche e nuove discussioni in ogni pagina di questo spazio del team, tranne quelle che hai silenziato.",
+    "moveUp": "Sposta su",
+    "moveDown": "Sposta giù"
   },
   "sections": {
     "shared": "Condivise",

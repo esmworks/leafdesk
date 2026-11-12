@@ -984,7 +984,9 @@
   **closed** (anyone sees it, only its members open its pages, its owners add them) or **private**
   (only its members know it exists, workspace owners included). The sidebar has a section per
   teamspace you're in, a *Shared* section for pages shared with you from elsewhere and a *Private*
-  section for pages only you see. Settings → Teamspaces lists them with filters, their members and
+  section for pages only you see. Drag a teamspace's heading (or use *Move up* and *Move down* in
+  its ⋯ menu) to put your teamspaces in your own order, kept for you on every device. Settings →
+  Teamspaces lists them with filters, their members and
   owners, the default teamspaces and whether members may create teamspaces. Moving a page to
   another teamspace, or to Private, gives it the access of its new place; people it was shared
   with by name keep theirs. *Turn into teamspace* in a page's ⋯ menu (under *More actions*; full access to the page and

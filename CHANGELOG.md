@@ -29,6 +29,10 @@
   named after the app linked, or *Chat apps* when both are. Migration 0210 moves Telegram's links
   into tables shared by every chat app (`channel_link`, `channel_link_code`).
 
+- **Teamspaces in your own order.** Drag a teamspace's heading in the sidebar, or use *Move up*
+  and *Move down* in its ⋯ menu, to arrange your teamspaces; the order is yours alone and follows
+  you to every device. Teamspaces you join later come after the ones you placed.
+
 ### Fixed
 
 - **A server whose `APP_URL` is plain HTTP on a public or network address starts again.** Sign-in

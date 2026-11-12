@@ -357,7 +357,9 @@
     "watch": "Surveiller toutes les pages",
     "watchHint": "Soyez averti dans votre boîte de réception quand quelqu’un d’autre modifie une page de cet espace d’équipe ou y lance un fil de commentaires.",
     "unwatch": "Ne plus surveiller les pages",
-    "unwatchHint": "Vous êtes averti des modifications et des nouveaux fils de commentaires sur chaque page de cet espace d’équipe, sauf celles que vous avez mises en sourdine."
+    "unwatchHint": "Vous êtes averti des modifications et des nouveaux fils de commentaires sur chaque page de cet espace d’équipe, sauf celles que vous avez mises en sourdine.",
+    "moveUp": "Monter",
+    "moveDown": "Descendre"
   },
   "sections": {
     "shared": "Partagé",

@@ -357,7 +357,9 @@
     "watch": "Theo dõi tất cả các trang",
     "watchHint": "Nhận thông báo trong hộp thư đến khi người khác chỉnh sửa một trang của không gian nhóm này hoặc bắt đầu một chuỗi bình luận trên đó.",
     "unwatch": "Ngừng theo dõi các trang",
-    "unwatchHint": "Bạn nhận thông báo về các chỉnh sửa và chuỗi bình luận mới trên mọi trang của không gian nhóm này, trừ những trang bạn đã tắt tiếng."
+    "unwatchHint": "Bạn nhận thông báo về các chỉnh sửa và chuỗi bình luận mới trên mọi trang của không gian nhóm này, trừ những trang bạn đã tắt tiếng.",
+    "moveUp": "Chuyển lên",
+    "moveDown": "Chuyển xuống"
   },
   "sections": {
     "shared": "Được chia sẻ",

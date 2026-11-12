@@ -2,6 +2,8 @@
 
 import { IconGlyph } from "@/components/builtin-icon";
 import {
+  ArrowDown,
+  ArrowUp,
   Bell,
   Brain,
   BellOff,
@@ -91,7 +93,7 @@ import type { TeamspaceSummary } from "@/server/teamspaces";
 import type { JoinableWorkspace } from "@/server/join-requests";
 import { JoinableWorkspaces } from "./joinable-workspaces";
 import { PRIVATE_SECTION, SHARED_SECTION, type TreeSection } from "@/lib/tree-sections";
-import { sidebarOrder, withSection, type SidebarLayout, type SidebarSection } from "@/lib/sidebar-sections";
+import { inTeamspaceOrder, moveTeamspace, sidebarOrder, withSection, type SidebarLayout, type SidebarSection } from "@/lib/sidebar-sections";
 import { addGroup, settled, sortByName, type AgentArrangement } from "@/lib/agent-arrangement";
 import { agentSettingsPath } from "@/lib/agent-settings";
 import { AgentList, newGroupId } from "./agent-list";
@@ -276,6 +278,8 @@ export function Sidebar({
   const [journalPageId, setJournalPageId] = useState(initialJournalPageId);
   const [listedApart, setListedApart] = useState(initialListedApart);
   const [layout, setLayout] = useState(initialLayout);
+  /** The teamspace being dragged to another place in the list. */
+  const [draggingSpace, setDraggingSpace] = useState<string | null>(null);
   const folded = useMemo(() => new Set<string>(layout.folded ?? []), [layout.folded]);
   // Folded sections opened to show the page being opened: only here, the saved layout stays folded.
   const [revealedSections, setRevealedSections] = useState<Set<string>>(() => new Set());
@@ -360,7 +364,8 @@ export function Sidebar({
   // made before (or restored from a backup), so none of their pages drop out of sight.
   const localMode = useLocalMode();
   const pagesSpace = localMode ? teamspaces.find((ts) => ts.access === "default" && !ts.archivedAt) : undefined;
-  const listedSpaces = pagesSpace ? teamspaces.filter((ts) => ts !== pagesSpace) : teamspaces;
+  // In the person's own order (dragged, or moved from a teamspace's menu), kept in their sidebar layout.
+  const listedSpaces = inTeamspaceOrder(pagesSpace ? teamspaces.filter((ts) => ts !== pagesSpace) : teamspaces, layout.teamspaces);
   const showTeamspaces = !guest && !(localMode && listedSpaces.length === 0);
 
   const offline = useIsOffline();
@@ -928,6 +933,10 @@ export function Sidebar({
       .finally(() => savingLayout.current--);
   }
 
+  /** Moves a teamspace to `index` among those listed (counted before the move), for this person alone. */
+  const placeTeamspace = (id: string, index: number) =>
+    saveLayout({ teamspaces: moveTeamspace(listedSpaces.map((ts) => ts.id), id, index) });
+
   /** Saves how the person grouped and ordered the agents' list (lib/agent-arrangement.ts), for them alone. */
   const arrangeAgentList = (next: AgentArrangement) => saveLayout({ agents: settled(agents, next) });
   function newAgentGroup() {
@@ -1383,10 +1392,11 @@ export function Sidebar({
           </Link>
         )}
         <ul>
-          {listedSpaces.map((ts) => (
+          {listedSpaces.map((ts, index) => (
             <TeamspaceSection
               key={ts.id}
               teamspace={ts}
+              place={{ index, count: listedSpaces.length, dragging: draggingSpace, onDragging: setDraggingSpace, onPlace: placeTeamspace }}
               open={openSpaces.has(ts.id)}
               onToggle={() => toggleSpace(ts.id)}
               roots={rootsOf(ts.id)}
@@ -2252,7 +2262,9 @@ export function Sidebar({
 /** Dropping a page on a section's heading puts it last at the top of that section. */
 type RootDrop = TreeContext & { section: TreeSection; roots: TreeNode[] };
 
-function useRootDrop(drop: RootDrop | undefined) {
+type RootDropHandlers = { onDragOver?: (e: React.DragEvent) => void; onDragLeave?: () => void; onDrop?: (e: React.DragEvent) => void };
+
+function useRootDrop(drop: RootDrop | undefined): { over: boolean; handlers: RootDropHandlers } {
   const [over, setOver] = useState(false);
   if (!drop) return { over: false, handlers: {} };
   const { section, roots, dragging, onDragging, canDrop, onMove } = drop;
@@ -2383,9 +2395,23 @@ function TeamspaceIcon({ teamspace }: { teamspace: TeamspaceSummary }) {
   );
 }
 
-/** A teamspace the user is in: its heading row (a drop target) and, unfolded, its pages. */
+/** Where a teamspace is in the person's list, and how it moves there (by dragging its heading or from its menu). */
+type TeamspacePlace = {
+  index: number;
+  count: number;
+  dragging: string | null;
+  onDragging: (id: string | null) => void;
+  /** Moves a teamspace to a place counted before the move (0: first, count: last). */
+  onPlace: (id: string, index: number) => void;
+};
+
+/**
+ * A teamspace the user is in: its heading row (a drop target for pages, and dragged to move the
+ * teamspace in the list) and, unfolded, its pages.
+ */
 function TeamspaceSection({
   teamspace,
+  place,
   open,
   onToggle,
   roots,
@@ -2397,6 +2423,7 @@ function TeamspaceSection({
   tree,
 }: {
   teamspace: TeamspaceSummary;
+  place: TeamspacePlace;
   open: boolean;
   onToggle: () => void;
   roots: TreeNode[];
@@ -2410,16 +2437,60 @@ function TeamspaceSection({
   const t = useTranslations("sidebar");
   const router = useRouter();
   const { over, handlers } = useRootDrop({ ...tree, section: teamspace.id, roots });
+  // Another teamspace dragged over this heading: the line above or below it where it would go.
+  const [spaceZone, setSpaceZone] = useState<"before" | "after" | null>(null);
   // Top-level pages locked to those who manage it (server/teamspaces.ts): no adding them here.
   const adds = teamspace.canArrangeTopLevel;
+  const draggingSpace = place.dragging !== null;
+  const zoneOf = (e: React.DragEvent<HTMLElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    return e.clientY - rect.top < rect.height / 2 ? "before" : "after";
+  };
   return (
     // A little room above each teamspace but the first tells where the one before it ends.
     <li className="not-first:mt-1">
       <div
-        {...handlers}
+        draggable
+        onDragStart={(e) => {
+          // A drag that starts on one of the heading's buttons still moves the teamspace.
+          e.dataTransfer.setData(TEAMSPACE_DRAG, teamspace.id);
+          e.dataTransfer.effectAllowed = "move";
+          place.onDragging(teamspace.id);
+        }}
+        onDragEnd={() => {
+          place.onDragging(null);
+          setSpaceZone(null);
+        }}
+        onDragOver={(e) => {
+          if (!draggingSpace) return handlers.onDragOver?.(e);
+          if (place.dragging === teamspace.id || !e.dataTransfer.types.includes(TEAMSPACE_DRAG)) return;
+          e.preventDefault();
+          e.dataTransfer.dropEffect = "move";
+          setSpaceZone(zoneOf(e));
+        }}
+        onDragLeave={() => {
+          setSpaceZone(null);
+          handlers.onDragLeave?.();
+        }}
+        onDrop={(e) => {
+          if (!draggingSpace) return handlers.onDrop?.(e);
+          e.preventDefault();
+          const id = e.dataTransfer.getData(TEAMSPACE_DRAG) || place.dragging;
+          const after = zoneOf(e) === "after";
+          setSpaceZone(null);
+          place.onDragging(null);
+          if (id && id !== teamspace.id) place.onPlace(id, place.index + (after ? 1 : 0));
+        }}
         data-teamspace={teamspace.id}
-        className={cn("group relative flex h-7 items-center gap-0.5 rounded-md pe-1 ps-1 hover:bg-bg-hover has-[[data-open]]:bg-bg-hover", over && "bg-accent/15")}
+        className={cn(
+          "group relative flex h-7 items-center gap-0.5 rounded-md pe-1 ps-1 hover:bg-bg-hover has-[[data-open]]:bg-bg-hover",
+          over && "bg-accent/15",
+          place.dragging === teamspace.id && "opacity-50",
+        )}
       >
+        {spaceZone && (
+          <span className={cn("pointer-events-none absolute inset-s-1 inset-e-1 h-0.5 rounded bg-accent", spaceZone === "before" ? "-top-px" : "-bottom-px")} />
+        )}
         <button
           type="button"
           aria-expanded={open}
@@ -2482,6 +2553,31 @@ function TeamspaceSection({
                 >
                   {t(teamspace.watching ? "teamspaces.unwatch" : "teamspaces.watch")}
                 </MenuItem>
+                {place.count > 1 && (
+                  <>
+                    <MenuSeparator />
+                    <MenuItem
+                      icon={<ArrowUp className="h-4 w-4" />}
+                      disabled={place.index === 0}
+                      onClick={() => {
+                        close();
+                        place.onPlace(teamspace.id, place.index - 1);
+                      }}
+                    >
+                      {t("teamspaces.moveUp")}
+                    </MenuItem>
+                    <MenuItem
+                      icon={<ArrowDown className="h-4 w-4" />}
+                      disabled={place.index === place.count - 1}
+                      onClick={() => {
+                        close();
+                        place.onPlace(teamspace.id, place.index + 2);
+                      }}
+                    >
+                      {t("teamspaces.moveDown")}
+                    </MenuItem>
+                  </>
+                )}
                 {onLeave && (
                   <>
                     <MenuSeparator />
@@ -2667,6 +2763,7 @@ function TreeLevel({ nodes, ...props }: TreeProps & { nodes: TreeNode[] }) {
 }
 
 const DRAG_TYPE = "application/x-leafdesk-page";
+const TEAMSPACE_DRAG = "application/x-leafdesk-teamspace";
 
 function TreeItem({
   node,

@@ -357,7 +357,9 @@
     "watch": "Alle Seiten beobachten",
     "watchHint": "Erfahre in deinem Posteingang, wenn jemand anderes eine Seite dieses Teamspace bearbeitet oder einen Kommentar-Thread darauf beginnt.",
     "unwatch": "Seiten nicht mehr beobachten",
-    "unwatchHint": "Du erfährst von Bearbeitungen und neuen Kommentar-Threads auf jeder Seite dieses Teamspace, außer auf stummgeschalteten Seiten."
+    "unwatchHint": "Du erfährst von Bearbeitungen und neuen Kommentar-Threads auf jeder Seite dieses Teamspace, außer auf stummgeschalteten Seiten.",
+    "moveUp": "Nach oben",
+    "moveDown": "Nach unten"
   },
   "sections": {
     "shared": "Geteilt",

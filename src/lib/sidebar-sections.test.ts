@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { cleanSidebarLayout, sidebarOrder, withSection } from "./sidebar-sections";
+import { cleanSidebarLayout, inTeamspaceOrder, MAX_TEAMSPACE_ORDER, moveTeamspace, sidebarOrder, withSection } from "./sidebar-sections";
 
 describe("sidebarOrder", () => {
   it("starts from the default order", () => {
@@ -53,5 +53,35 @@ describe("withSection", () => {
     expect(folded).toEqual({ folded: ["private"] });
     expect(withSection(folded, "folded", "private", true)).toEqual({ folded: ["private"] });
     expect(withSection(folded, "folded", "private", false)).toEqual({ folded: [] });
+  });
+});
+
+describe("teamspace order", () => {
+  const spaces = ["a", "b", "c", "d"].map((id) => ({ id }));
+  const ids = (list: { id: string }[]) => list.map((s) => s.id);
+
+  it("puts the saved ones first, in their order, the rest after as they came", () => {
+    expect(ids(inTeamspaceOrder(spaces, undefined))).toEqual(["a", "b", "c", "d"]);
+    expect(ids(inTeamspaceOrder(spaces, ["c", "gone", "a"]))).toEqual(["c", "a", "b", "d"]);
+  });
+
+  it("moves one to a place counted before the move", () => {
+    const order = ["a", "b", "c", "d"];
+    expect(moveTeamspace(order, "a", 0)).toEqual(order);
+    expect(moveTeamspace(order, "a", 1)).toEqual(order);
+    expect(moveTeamspace(order, "a", 2)).toEqual(["b", "a", "c", "d"]);
+    expect(moveTeamspace(order, "a", 4)).toEqual(["b", "c", "d", "a"]);
+    expect(moveTeamspace(order, "d", 0)).toEqual(["d", "a", "b", "c"]);
+    expect(moveTeamspace(order, "c", 1)).toEqual(["a", "c", "b", "d"]);
+    expect(moveTeamspace(order, "b", -3)).toEqual(["b", "a", "c", "d"]);
+    expect(moveTeamspace(order, "b", 99)).toEqual(["a", "c", "d", "b"]);
+    expect(moveTeamspace(order, "x", 0)).toBe(order);
+  });
+
+  it("keeps saved ids that are text, once each, up to the limit", () => {
+    expect(cleanSidebarLayout({ teamspaces: ["a", 3, "", "a", "b"] })).toEqual({ teamspaces: ["a", "b"] });
+    expect(cleanSidebarLayout({ teamspaces: "a" })).toBeNull();
+    const many = Array.from({ length: MAX_TEAMSPACE_ORDER + 5 }, (_, i) => `t${i}`);
+    expect(cleanSidebarLayout({ teamspaces: many })?.teamspaces).toHaveLength(MAX_TEAMSPACE_ORDER);
   });
 });

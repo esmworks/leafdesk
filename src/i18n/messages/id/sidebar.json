@@ -357,7 +357,9 @@
     "watch": "Pantau semua halaman",
     "watchHint": "Dapatkan kabar di kotak masuk saat orang lain mengedit halaman ruang tim ini atau memulai utas komentar di dalamnya.",
     "unwatch": "Berhenti memantau halaman",
-    "unwatchHint": "Anda mendapat kabar tentang suntingan dan utas komentar baru di setiap halaman ruang tim ini, kecuali halaman yang Anda bisukan."
+    "unwatchHint": "Anda mendapat kabar tentang suntingan dan utas komentar baru di setiap halaman ruang tim ini, kecuali halaman yang Anda bisukan.",
+    "moveUp": "Pindahkan ke atas",
+    "moveDown": "Pindahkan ke bawah"
   },
   "sections": {
     "shared": "Dibagikan",

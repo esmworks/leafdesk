@@ -357,7 +357,9 @@
     "watch": "Watch all pages",
     "watchHint": "Hear in your inbox when someone else edits a page of this teamspace or starts a comment thread on it.",
     "unwatch": "Stop watching pages",
-    "unwatchHint": "You hear about edits and new comment threads on every page of this teamspace, except the pages you muted."
+    "unwatchHint": "You hear about edits and new comment threads on every page of this teamspace, except the pages you muted.",
+    "moveUp": "Move up",
+    "moveDown": "Move down"
   },
   "sections": {
     "shared": "Shared",

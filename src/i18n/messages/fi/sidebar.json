@@ -357,7 +357,9 @@
     "watch": "Seuraa kaikkia sivuja",
     "watchHint": "Saat tiedon saapuneisiisi, kun joku muu muokkaa tämän tiimitilan sivua tai aloittaa siinä kommenttiketjun.",
     "unwatch": "Lopeta sivujen seuraaminen",
-    "unwatchHint": "Saat tiedon muokkauksista ja uusista kommenttiketjuista tämän tiimitilan jokaisella sivulla, lukuun ottamatta mykistämiäsi sivuja."
+    "unwatchHint": "Saat tiedon muokkauksista ja uusista kommenttiketjuista tämän tiimitilan jokaisella sivulla, lukuun ottamatta mykistämiäsi sivuja.",
+    "moveUp": "Siirrä ylös",
+    "moveDown": "Siirrä alas"
   },
   "sections": {
     "shared": "Jaetut",

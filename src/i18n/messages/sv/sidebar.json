@@ -357,7 +357,9 @@
     "watch": "Bevaka alla sidor",
     "watchHint": "Få veta i din inkorg när någon annan redigerar en sida i den här teamytan eller startar en kommentarstråd på den.",
     "unwatch": "Sluta bevaka sidor",
-    "unwatchHint": "Du får veta om ändringar och nya kommentarstrådar på alla sidor i den här teamytan, utom de sidor du har tystat."
+    "unwatchHint": "Du får veta om ändringar och nya kommentarstrådar på alla sidor i den här teamytan, utom de sidor du har tystat.",
+    "moveUp": "Flytta upp",
+    "moveDown": "Flytta ned"
   },
   "sections": {
     "shared": "Delade",

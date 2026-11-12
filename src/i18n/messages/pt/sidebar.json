@@ -357,7 +357,9 @@
     "watch": "Acompanhar todas as páginas",
     "watchHint": "Saiba na sua caixa de entrada quando outra pessoa editar uma página deste espaço de equipe ou iniciar uma conversa de comentários nela.",
     "unwatch": "Parar de acompanhar as páginas",
-    "unwatchHint": "Você fica sabendo de edições e novas conversas de comentários em todas as páginas deste espaço de equipe, exceto nas que silenciou."
+    "unwatchHint": "Você fica sabendo de edições e novas conversas de comentários em todas as páginas deste espaço de equipe, exceto nas que silenciou.",
+    "moveUp": "Mover para cima",
+    "moveDown": "Mover para baixo"
   },
   "sections": {
     "shared": "Compartilhado",

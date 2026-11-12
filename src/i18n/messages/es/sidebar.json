@@ -357,7 +357,9 @@
     "watch": "Observar todas las páginas",
     "watchHint": "Entérate en tu bandeja de entrada cuando otra persona edite una página de este espacio de equipo o inicie un hilo de comentarios en ella.",
     "unwatch": "Dejar de observar las páginas",
-    "unwatchHint": "Te enteras de las ediciones y los nuevos hilos de comentarios en todas las páginas de este espacio de equipo, salvo en las que silenciaste."
+    "unwatchHint": "Te enteras de las ediciones y los nuevos hilos de comentarios en todas las páginas de este espacio de equipo, salvo en las que silenciaste.",
+    "moveUp": "Subir",
+    "moveDown": "Bajar"
   },
   "sections": {
     "shared": "Compartido",

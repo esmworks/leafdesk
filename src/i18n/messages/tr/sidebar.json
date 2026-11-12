@@ -357,7 +357,9 @@
     "watch": "Tüm sayfaları izle",
     "watchHint": "Bu ekip alanının bir sayfasını başka biri düzenlediğinde ya da üzerinde yorum dizisi başlattığında gelen kutunuzda haber alın.",
     "unwatch": "Sayfaları izlemeyi bırak",
-    "unwatchHint": "Sessize aldığınız sayfalar dışında bu ekip alanının her sayfasındaki düzenlemelerden ve yeni yorum dizilerinden haber alıyorsunuz."
+    "unwatchHint": "Sessize aldığınız sayfalar dışında bu ekip alanının her sayfasındaki düzenlemelerden ve yeni yorum dizilerinden haber alıyorsunuz.",
+    "moveUp": "Yukarı taşı",
+    "moveDown": "Aşağı taşı"
   },
   "sections": {
     "shared": "Paylaşılanlar",

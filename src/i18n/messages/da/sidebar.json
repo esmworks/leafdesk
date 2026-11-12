@@ -357,7 +357,9 @@
     "watch": "Følg alle sider",
     "watchHint": "Få besked i din indbakke, når en anden redigerer en side i dette teamområde eller starter en kommentartråd på den.",
     "unwatch": "Stop med at følge sider",
-    "unwatchHint": "Du får besked om redigeringer og nye kommentartråde på alle sider i dette teamområde, undtagen de sider, du har slået lyden fra på."
+    "unwatchHint": "Du får besked om redigeringer og nye kommentartråde på alle sider i dette teamområde, undtagen de sider, du har slået lyden fra på.",
+    "moveUp": "Flyt op",
+    "moveDown": "Flyt ned"
   },
   "sections": {
     "shared": "Delt",

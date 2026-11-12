@@ -357,7 +357,9 @@
     "watch": "Obserwuj wszystkie strony",
     "watchHint": "Dowiaduj się w skrzynce odbiorczej, gdy ktoś inny edytuje stronę tej przestrzeni zespołu lub rozpocznie na niej wątek komentarzy.",
     "unwatch": "Przestań obserwować strony",
-    "unwatchHint": "Dowiadujesz się o edycjach i nowych wątkach komentarzy na każdej stronie tej przestrzeni zespołu, poza stronami, które wyciszono."
+    "unwatchHint": "Dowiadujesz się o edycjach i nowych wątkach komentarzy na każdej stronie tej przestrzeni zespołu, poza stronami, które wyciszono.",
+    "moveUp": "Przenieś w górę",
+    "moveDown": "Przenieś w dół"
   },
   "sections": {
     "shared": "Udostępnione",
