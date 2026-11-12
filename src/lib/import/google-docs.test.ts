@@ -53,6 +53,15 @@ describe("tool answers", () => {
     expect(answerJson({ content: [{ type: "text", text: "[1]" }] })).toBeNull();
   });
 
+  it("takes off a lone content wrapper around the object", () => {
+    const sheets = { properties: { title: "Stock" }, sheets: [] };
+    expect(answerJson({ structuredContent: { content: sheets } })).toEqual(sheets);
+    expect(answerJson({ content: [{ type: "text", text: JSON.stringify({ content: sheets }) }] })).toEqual(sheets);
+    // Beside other keys, or around something that isn't an object, it stays.
+    expect(answerJson({ structuredContent: { content: sheets, next: "x" } })).toEqual({ content: sheets, next: "x" });
+    expect(answerJson({ structuredContent: { content: "text" } })).toEqual({ content: "text" });
+  });
+
   it("lists Google documents only, once each, with the next page", () => {
     const list = readDocList({
       files: [

@@ -76,15 +76,23 @@ export type ToolAnswer = {
   isError?: boolean;
 };
 
-/** The JSON object a tool answered with: its structured content, else the first text part that is one. */
+/**
+ * The JSON object a tool answered with: its structured content, else the first text part that is one.
+ * Google's servers have also answered with the object wrapped as `{ "content": { … } }`, which is
+ * taken off.
+ */
 export function answerJson(answer: ToolAnswer): Record<string, unknown> | null {
   const isObject = (value: unknown): value is Record<string, unknown> => !!value && typeof value === "object" && !Array.isArray(value);
-  if (isObject(answer.structuredContent)) return answer.structuredContent;
+  const unwrapped = (value: Record<string, unknown>) => {
+    const keys = Object.keys(value);
+    return keys.length === 1 && keys[0] === "content" && isObject(value.content) ? value.content : value;
+  };
+  if (isObject(answer.structuredContent)) return unwrapped(answer.structuredContent);
   for (const part of answer.content ?? []) {
     if (part.type !== "text" || typeof part.text !== "string") continue;
     try {
       const parsed: unknown = JSON.parse(part.text);
-      if (isObject(parsed)) return parsed;
+      if (isObject(parsed)) return unwrapped(parsed);
     } catch {}
   }
   return null;

@@ -37,6 +37,12 @@
   worked. The MCP server now names the address's `https://` twin, since MCP apps need HTTPS in
   front of it anyway.
 
+- **Google Sheets syncs read their sheets again.** Google's Sheets server began answering with the
+  spreadsheet wrapped in a `content` object, which the sync didn't recognize: every run stopped
+  with "Google refused to read the sheet" and no detail, and paused the sync. The wrapper is now
+  taken off (for Google Calendar syncs and Google Docs imports too), and an answer a sync still
+  can't read shows the start of what Google said. Paused syncs need *Sync now* once.
+
 ## 0.8.1 — 2026-11-10
 
 ### Upgrading from 0.8.0

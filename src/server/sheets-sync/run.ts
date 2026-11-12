@@ -82,7 +82,7 @@ export async function sheetsConnection(userId: string, connectionId: string): Pr
 
 /**
  * Calls one of the connection's tools as `userId`, recording it in the audit log like the chat's
- * calls (a write with the people whose changes it writes). Returns the answer's JSON, if any.
+ * calls (a write with the people whose changes it writes). Returns its answer.
  */
 async function call(
   userId: string,
@@ -90,7 +90,7 @@ async function call(
   args: Record<string, unknown>,
   tool: typeof SHEETS_TOOL | SheetsWriteTool = SHEETS_TOOL,
   editors: string[] = [],
-): Promise<Record<string, unknown> | null> {
+): Promise<ToolAnswer> {
   const kind = tool === SHEETS_TOOL ? "read" : "write";
   const audit = (outcome: "done" | "failed", error?: string) =>
     recordAudit({
@@ -127,14 +127,16 @@ async function call(
     throw new JiraError("badQuery", `Google refused the ${kind}`, redactText(said).slice(0, 300) || null);
   }
   await audit("done");
-  return answerJson(answer);
+  return answer;
 }
 
-const readJson = async (userId: string, row: ConnectionRow, args: Record<string, unknown>) => {
-  const json = await call(userId, row, args);
-  if (!json) throw new JiraError("badQuery", "Google's answer couldn't be read");
-  return json;
-};
+/** Reads the spreadsheet with `args`; an answer `read` can't make out is "badQuery" with the start of what it said. */
+async function readAnswer<T>(userId: string, row: ConnectionRow, args: Record<string, unknown>, read: (json: Record<string, unknown> | null) => T | null): Promise<T> {
+  const answer = await call(userId, row, args);
+  const value = read(answerJson(answer));
+  if (value === null) throw new JiraError("badQuery", "Google's answer couldn't be read", redactText(answerText(answer)).slice(0, 300) || null);
+  return value;
+}
 
 export type ReadSheet = { meta: SheetsMeta; sheet: SheetsMeta["sheets"][number]; headerRow: number; grid: SheetCell[][] };
 
@@ -143,15 +145,13 @@ export type ReadSheet = { meta: SheetsMeta; sheet: SheetsMeta["sheets"][number];
  * header row `headerRow` (the sheet's own suggestion when null).
  */
 export async function readSheet(userId: string, row: ConnectionRow, spreadsheetId: string, sheetId: number | null, headerRow: number | null): Promise<ReadSheet> {
-  const meta = readMeta(await readJson(userId, row, { spreadsheetId, fields: META_FIELDS }));
-  if (!meta) throw new JiraError("badQuery", "Google's answer couldn't be read");
+  const meta = await readAnswer(userId, row, { spreadsheetId, fields: META_FIELDS }, readMeta);
   const sheet = sheetId === null ? meta.sheets[0] : meta.sheets.find((s) => s.sheetId === sheetId);
   if (!sheet) throw new JiraError("notFound", "No such sheet");
   const header = headerRow ?? defaultHeaderRow(sheet);
   if (!Number.isInteger(header) || header < 1 || header > MAX_HEADER_ROW) throw new JiraError("invalidInput", "Not a header row");
   if (sheetCells(sheet, header) > MAX_SHEET_CELLS) throw new JiraError("tooManyIssues", "The sheet has too many cells");
-  const grid = readGrid(await readJson(userId, row, { spreadsheetId, ranges: [sheetRange(sheet, header)], includeGridData: true, fields: GRID_FIELDS }));
-  if (!grid) throw new JiraError("badQuery", "Google's answer couldn't be read");
+  const grid = await readAnswer(userId, row, { spreadsheetId, ranges: [sheetRange(sheet, header)], includeGridData: true, fields: GRID_FIELDS }, readGrid);
   return { meta, sheet, headerRow: header, grid };
 }
 
