@@ -1478,6 +1478,13 @@
       "when": 1794300456072,
       "tag": "0210_channel_links",
       "breakpoints": true
+    },
+    {
+      "idx": 211,
+      "version": "7",
+      "when": 1794644215232,
+      "tag": "0211_mcp_offline_access",
+      "breakpoints": true
     }
   ]
 }

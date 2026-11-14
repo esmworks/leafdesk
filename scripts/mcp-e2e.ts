@@ -23,6 +23,7 @@ const RESOURCE = `${BASE}/mcp`;
 const RUN = Date.now().toString(36);
 const EMAIL = `mcp-e2e-${RUN}@example.test`;
 const PASSWORD = "mcp-e2e-password-123";
+const FULL_SCOPE = "openid profile offline_access pages:read pages:write notifications:read files:write";
 
 // What the run creates, so the cleanup can delete it even when a check fails.
 const userIds: string[] = [];
@@ -89,7 +90,7 @@ async function discover() {
   return as as { issuer: string; authorization_endpoint: string; token_endpoint: string; registration_endpoint: string };
 }
 
-async function register(as: Awaited<ReturnType<typeof discover>>, name: string): Promise<Client> {
+async function register(as: Awaited<ReturnType<typeof discover>>, name: string, scope = FULL_SCOPE): Promise<Client> {
   const res = await fetch(as.registration_endpoint, {
     method: "POST",
     headers: { "content-type": "application/json" },
@@ -101,7 +102,7 @@ async function register(as: Awaited<ReturnType<typeof discover>>, name: string):
       token_endpoint_auth_method: "none",
       grant_types: ["authorization_code", "refresh_token"],
       response_types: ["code"],
-      scope: "openid profile offline_access pages:read pages:write notifications:read files:write",
+      scope,
     }),
   });
   const body = await json(res);
@@ -117,13 +118,13 @@ function pkce() {
   return { verifier, challenge };
 }
 
-function authorizeUrl(as: { authorization_endpoint: string }, client: Client, state: string, challenge: string) {
+function authorizeUrl(as: { authorization_endpoint: string }, client: Client, state: string, challenge: string, scope = FULL_SCOPE) {
   const url = new URL(as.authorization_endpoint);
   url.search = new URLSearchParams({
     response_type: "code",
     client_id: client.client_id,
     redirect_uri: REDIRECT_URI,
-    scope: "openid profile offline_access pages:read pages:write notifications:read files:write",
+    scope,
     state,
     code_challenge: challenge,
     code_challenge_method: "S256",
@@ -180,11 +181,11 @@ async function authorize(
   jar: Jar,
   client: Client,
   decision: Decision,
-  { expectLogin }: { expectLogin: boolean },
+  { expectLogin, scope }: { expectLogin: boolean; scope?: string },
 ) {
   const { verifier, challenge } = pkce();
   const state = b64url(randomBytes(12));
-  let next = await getRedirect(jar, authorizeUrl(as, client, state, challenge));
+  let next = await getRedirect(jar, authorizeUrl(as, client, state, challenge, scope));
 
   if (expectLogin) {
     check(new URL(next).pathname === "/sign-in", "authorize without a session redirects to /sign-in", next);
@@ -407,6 +408,16 @@ async function main() {
   });
   const refreshed = await json<Tokens>(refreshRes);
   check(refreshRes.ok && refreshed.access_token, "refresh_token grant works", refreshed);
+
+  // An app that asks only for the scopes the protected-resource metadata lists (what the MCP SDK
+  // does) still stays connected past its access token: registration and authorization add
+  // offline_access for it (server/mcp/offline-access.ts).
+  const prm = await json(await fetch(`${BASE}/.well-known/oauth-protected-resource/mcp`));
+  const prmScopes = (prm.scopes_supported as string[]).join(" ");
+  const sdk = await register(as, `e2e sdk ${RUN}`, prmScopes);
+  const s = await authorize(as, jar, sdk, { accept: true }, { expectLogin: false, scope: prmScopes });
+  const sdkTokens = await exchange(as, sdk, s.back.searchParams.get("code")!, s.verifier);
+  check(sdkTokens.refresh_token, "an app asking only for the metadata's scopes gets a refresh token", { prmScopes, scope: sdkTokens.scope });
 
   // ---- MCP over the 2025 (stateless) protocol
   const mcp = new LegacySession(refreshed.access_token);

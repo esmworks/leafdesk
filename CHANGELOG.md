@@ -35,6 +35,13 @@
 
 ### Fixed
 
+- **Apps connected over MCP stay connected past their first hour.** Apps that ask for the scopes the
+  MCP metadata lists (as the MCP SDK does) were never given `offline_access`, so they got no refresh
+  token and showed as signed out once the hour-long access token ran out; signing in again worked
+  without a screen, for another hour. Registering and authorizing an app now ask for
+  `offline_access` on its behalf (shown on the consent screen as *Stay connected*). Migration 0211
+  widens apps registered before; such an app asks its person to allow it once more.
+
 - **A server whose `APP_URL` is plain HTTP on a public or network address starts again.** Sign-in
   failed on every page with "MCP resource URL must use HTTPS" (an `http://` address on a LAN, or
   the first address a platform such as Dokploy gives); only `localhost` and loopback addresses

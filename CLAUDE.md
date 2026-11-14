@@ -241,6 +241,9 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   in `mcp/`, not there. A tool refuses an argument it doesn't take (`mcp/strict-arguments.ts`,
   applied to every tool in `createMcpServer`; the list still shows the schema as written), so a
   test or script passing an extra key gets an error.
+  The protected-resource metadata never lists `offline_access` (the library filters it), and
+  clients ask for exactly what it lists: `mcp/offline-access.ts` adds it to registrations and
+  authorizations, or apps get no refresh token and drop out after an hour.
   MCP Apps: `show_database` (`operations.ts` `showDatabase`, columns `lib/mcp-view-columns.ts`)
   names its view in `_meta.ui.resourceUri`, served by `mcp/app-view.ts` as one self-contained HTML
   page in the person's language. Apps draw a view only from the tool list itself, so such a tool

@@ -24,6 +24,7 @@ import { disconnectEndedSessions, forgetUnprovenHolder } from "@/server/account-
 import { claimFirstAdmin } from "@/server/first-admin";
 import { CLIENT_IP_HEADER } from "@/lib/client-ip";
 import { connectedAppAuditPlugin, connectingHeldBack, type PolicySession } from "@/server/mcp/grants";
+import { offlineAccessPlugin } from "@/server/mcp/offline-access";
 import { applyDomainPolicies } from "@/server/join-requests";
 import { mailStatus, PASSWORD_RESET_MINUTES, passwordResetEmail, sendMail, verificationEmail } from "@/server/mail";
 import { recipientLocale, rememberLocale, statedLanguage } from "@/server/mail/locale";
@@ -279,7 +280,7 @@ function createAuth() {
         },
       },
     },
-    plugins: [...base.plugins, requiredPasswordPlugin(), connectedAppAuditPlugin(), phoneSignInPlugin(), nextCookies()],
+    plugins: [...base.plugins, requiredPasswordPlugin(), connectedAppAuditPlugin(), offlineAccessPlugin(), phoneSignInPlugin(), nextCookies()],
   });
 }
 
