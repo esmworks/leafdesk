@@ -445,7 +445,8 @@
         "fixed": "O próprio chat"
       },
       "off": "Desativado",
-      "unavailable": "Não disponível para você"
+      "unavailable": "Não disponível para você",
+      "chainSteps": "Cadeia: etapa {steps} de {total}"
     },
     "empty": "Nenhum agente ainda.",
     "emptyOwner": "Nenhum agente ainda. Crie um ou comece por um modelo abaixo.",
@@ -785,7 +786,8 @@
         "busy": "Não foi possível dar uma tarefa a <agent></agent>: tem tarefas demais em espera",
         "paused": "Não pôde pedir a <agent></agent>: ele está pausado",
         "archived": "Não pôde pedir a <agent></agent>: ele está arquivado",
-        "limitReached": "Não pôde pedir a <agent></agent>: ele usou o limite mensal de tokens"
+        "limitReached": "Não pôde pedir a <agent></agent>: ele usou o limite mensal de tokens",
+        "received": "Recebeu a resposta de <agent></agent>"
       },
       "fromChat": "Mensagem de chat de {name}",
       "chattedBy": "chat de {name}",
@@ -797,7 +799,9 @@
       "emailSent": "Enviou um e-mail para {to}:",
       "emailSendFailed": "Não foi possível enviar um e-mail para {to}:",
       "fromMail": "E-mail para {name}",
-      "deferred": "Retida até o fim das horas de silêncio ({time}); um proprietário pode aprová-la agora."
+      "deferred": "Retida até o fim das horas de silêncio ({time}); um proprietário pode aprová-la agora.",
+      "fromChain": "Etapa {step} de {total} da cadeia “{name}”",
+      "removedChain": "uma cadeia excluída"
     },
     "usage": {
       "thisMonth": "Este mês: {usage}",
@@ -915,7 +919,11 @@
         "quietHours": "As horas de silêncio precisam de dois horários diferentes (HH:MM) e um fuso horário.",
         "dailyChangeLimit": "Digite um limite diário de alterações como número inteiro de 1 a 10.000.",
         "manager": "Escolha um gestor entre os agentes compartilhados com você.",
-        "managerLoop": "Isso criaria um ciclo ou uma cadeia de gestores longa demais."
+        "managerLoop": "Isso criaria um ciclo ou uma cadeia de gestores longa demais.",
+        "chainName": "Dê um nome à cadeia.",
+        "chainNameLength": "O nome de uma cadeia pode ter no máximo 80 caracteres.",
+        "chainSteps": "Uma cadeia tem de 2 a 8 etapas, cada uma com um agente.",
+        "chainAgent": "Escolha agentes deste espaço de trabalho que você pode editar e que não estão arquivados."
       },
       "noteEmpty": "Escreva o que o agente deve lembrar.",
       "noteTooLong": "Uma nota pode ter no máximo {max} caracteres.",
@@ -934,7 +942,9 @@
       "ownersOnly": "Só proprietários do espaço de trabalho alteram o limite mensal de tokens, as horas de silêncio e o limite diário de alterações de um agente.",
       "notAMember": "Um agente só pode ser compartilhado com proprietários, membros e grupos do espaço de trabalho.",
       "requestNotFound": "Este pedido já foi respondido.",
-      "noteChanged": "Esta nota mudou desde então. Altere-a na aba Memória do agente."
+      "noteChanged": "Esta nota mudou desde então. Altere-a na aba Memória do agente.",
+      "chainNotFound": "Esta cadeia não existe mais ou você não pode executá-la.",
+      "chainRunning": "Esta cadeia ainda está em execução. Execute-a de novo quando terminar."
     },
     "connections": {
       "description": "As ferramentas de cada conexão que este agente pode usar. Ferramentas que só leem são executadas na hora, exceto em uma linha vinda de uma resposta anônima de formulário; qualquer outra aguarda a aprovação de um proprietário toda vez que o agente a chama.",
@@ -2137,7 +2147,9 @@
         "unshared": "Removeu {subject} do compartilhamento do agente “{target}”",
         "creator_added": "Permitiu que {subject} crie agentes",
         "creator_removed": "Removeu {subject} de quem pode criar agentes",
-        "local_file": "{op, select, trash {Moveu “{path}” para a lixeira} other {Escreveu “{path}”}} no computador de {target} ({outcome})"
+        "local_file": "{op, select, trash {Moveu “{path}” para a lixeira} other {Escreveu “{path}”}} no computador de {target} ({outcome})",
+        "chain_set": "Configurou a cadeia de agentes “{target}”",
+        "chain_removed": "Excluiu a cadeia de agentes “{target}”"
       },
       "connection": {
         "created": "Adicionou a conexão “{target}”",

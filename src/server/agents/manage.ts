@@ -817,6 +817,17 @@ export async function viewRuns(userId: string, runs: AgentRunRow[], { exact, own
   const liveSchedules = new Set(
     scheduleIds.length ? (await db.select({ id: schedule.id }).from(schedule).where(inArray(schedule.id, scheduleIds))).map((s) => s.id) : [],
   );
+  // A chain's steps name the chain, which the person may not run: only its name and size.
+  const chains = new Map(
+    scheduleIds.length
+      ? (
+          await db
+            .select({ id: schedule.id, settings: schedule.settings })
+            .from(schedule)
+            .where(and(inArray(schedule.id, scheduleIds), eq(schedule.kind, "agent_chain")))
+        ).map((s) => [s.id, { name: s.settings.name ?? "", total: s.settings.steps?.length ?? 0 }])
+      : [],
+  );
   const requesterIds = [
     ...new Set(
       runs.flatMap((r) =>
@@ -889,6 +900,17 @@ export async function viewRuns(userId: string, runs: AgentRunRow[], { exact, own
             task: open ? r.prompt : "",
             databaseId: r.source.databaseId ?? null,
             databaseTitle: r.source.databaseId ? (databaseTitles.get(r.source.databaseId) ?? "") : "",
+            ...(r.source.chain
+              ? {
+                  chain: {
+                    name: chains.get(r.source.scheduleId)?.name ?? "",
+                    step: r.source.chain.step + 1,
+                    total: chains.get(r.source.scheduleId)?.total ?? r.source.chain.step + 1,
+                  },
+                  // Not one of the agent's own schedules: nothing to open there.
+                  id: "",
+                }
+              : {}),
           }
         : null,
       mention: isMentionRun(r.source)

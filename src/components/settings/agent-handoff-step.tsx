@@ -26,7 +26,7 @@ export function HandoffStepLine({ step, onOpenRun }: { step: AgentHandoffRecord;
     <>
       <Users className={cn("mt-[3px] h-3.5 w-3.5 shrink-0", bad && "text-danger")} aria-hidden />
       <span className="min-w-0 break-words">
-        {t.rich(step.outcome, {
+        {t.rich(step.received ? "received" : step.outcome, {
           agent: () => <AgentLink name={step.agentName} agentId={step.agentId} runId={step.runId} onOpenRun={onOpenRun} />,
           task: step.task,
         })}

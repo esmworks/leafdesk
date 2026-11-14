@@ -445,7 +445,8 @@
         "fixed": "Sin egen chat"
       },
       "off": "Av",
-      "unavailable": "Ikke for deg"
+      "unavailable": "Ikke for deg",
+      "chainSteps": "Kjede: trinn {steps} av {total}"
     },
     "empty": "Ingen agenter ennå.",
     "emptyOwner": "Ingen agenter ennå. Opprett en, eller start fra en mal nedenfor.",
@@ -790,14 +791,17 @@
         "busy": "Kunne ikke gi <agent></agent> en oppgave: for mange venter",
         "paused": "Kunne ikke spørre <agent></agent>: den er satt på pause",
         "archived": "Kunne ikke spørre <agent></agent>: den er arkivert",
-        "limitReached": "Kunne ikke spørre <agent></agent>: den har brukt opp den månedlige tokengrensen"
+        "limitReached": "Kunne ikke spørre <agent></agent>: den har brukt opp den månedlige tokengrensen",
+        "received": "Fikk svaret fra <agent></agent>"
       },
       "fromChat": "En chatmelding fra {name}",
       "chattedBy": "chat av {name}",
       "yoursOnly": "Du ser kjøringene du har startet.",
       "waitingForOwner": "En eier av arbeidsområdet svarer på dette kallet.",
       "fromMail": "E-post til {name}",
-      "deferred": "Venter til de stille timene er over ({time}); en eier kan godkjenne det nå."
+      "deferred": "Venter til de stille timene er over ({time}); en eier kan godkjenne det nå.",
+      "fromChain": "Trinn {step} av {total} i kjeden «{name}»",
+      "removedChain": "en slettet kjede"
     },
     "usage": {
       "thisMonth": "Denne måneden: {usage}",
@@ -915,7 +919,11 @@
         "quietHours": "Stille timer trenger to ulike klokkeslett (TT:MM) og en tidssone.",
         "dailyChangeLimit": "Skriv inn en daglig endringsgrense som et heltall fra 1 til 10 000.",
         "manager": "Velg en leder blant agentene som er delt med deg.",
-        "managerLoop": "Det ville gi en løkke eller en for lang kjede av ledere."
+        "managerLoop": "Det ville gi en løkke eller en for lang kjede av ledere.",
+        "chainName": "Gi kjeden et navn.",
+        "chainNameLength": "Navnet på en kjede kan ha maks 80 tegn.",
+        "chainSteps": "En kjede har 2 til 8 trinn, hvert med en agent.",
+        "chainAgent": "Velg agenter i dette arbeidsområdet som du kan redigere, og som ikke er arkivert."
       },
       "noteEmpty": "Skriv hva agenten skal huske.",
       "noteTooLong": "Et notat kan ha høyst {max} tegn.",
@@ -934,7 +942,9 @@
       "ownersOnly": "Bare eiere av arbeidsområdet kan endre den månedlige tokengrensen, de stille timene og den daglige endringsgrensen til en agent.",
       "notAMember": "En agent kan bare deles med eiere, medlemmer og grupper i arbeidsområdet.",
       "requestNotFound": "Denne forespørselen er allerede besvart.",
-      "noteChanged": "Dette notatet er endret siden. Endre det i agentens Minne-fane."
+      "noteChanged": "Dette notatet er endret siden. Endre det i agentens Minne-fane.",
+      "chainNotFound": "Denne kjeden finnes ikke lenger, eller du kan ikke kjøre den.",
+      "chainRunning": "Denne kjeden kjører fortsatt. Kjør den igjen når den er ferdig."
     },
     "connections": {
       "description": "Verktøyene fra hver tilkobling som denne agenten kan bruke. Verktøy som bare leser, kjøres med en gang, unntatt på en rad fra et anonymt skjemasvar; alle andre venter på godkjenning fra en eier hver gang agenten kaller dem.",
@@ -2137,7 +2147,9 @@
         "unshared": "Fjernet {subject} fra delingen av agenten «{target}»",
         "creator_added": "Lot {subject} opprette agenter",
         "creator_removed": "Fjernet {subject} fra dem som kan opprette agenter",
-        "local_file": "{op, select, trash {Flyttet «{path}» til papirkurven} other {Skrev «{path}»}} på datamaskinen til {target} ({outcome})"
+        "local_file": "{op, select, trash {Flyttet «{path}» til papirkurven} other {Skrev «{path}»}} på datamaskinen til {target} ({outcome})",
+        "chain_set": "Satte opp agentkjeden «{target}»",
+        "chain_removed": "Slettet agentkjeden «{target}»"
       },
       "connection": {
         "created": "La til tilkoblingen «{target}»",

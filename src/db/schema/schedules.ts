@@ -1,8 +1,9 @@
 import { sql } from "drizzle-orm";
 import { boolean, index, integer, jsonb, pgTable, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
+import type { AgentChainRunStatus, AgentChainTrigger } from "@/lib/agent-chains";
 import type { RowRepeatError, RowRepeatRule } from "@/lib/row-repeat";
 import type { RepeatRule, ScheduleKind, ScheduleSettings } from "@/lib/schedule";
-import { workspaceAgent } from "./agents";
+import { agentRun, workspaceAgent } from "./agents";
 import { databaseProperty, page, workspace } from "./app";
 import { user } from "./auth";
 
@@ -14,6 +15,8 @@ import { user } from "./auth";
  * on `pageId` (a dashboard block of the page, or a dashboard view of the database) to the people in
  * `settings`; it goes with the page. An "own_request" schedule asks the AI chat the task in `settings`
  * as the person who set it, in a conversation of theirs kept for the schedule (server/own-requests.ts).
+ * An "agent_chain" schedule is a chain of agents (server/agents/chains.ts), its steps in `settings`;
+ * it runs on its rule only when `settings.repeats`, and whenever someone clicks Run now.
  * It runs as the person who set it last, with their access at the time, and pauses (`enabled`
  * off, with `lastError`) when they can no longer do it.
  */
@@ -66,6 +69,42 @@ export const schedule = pgTable(
     index("schedule_database_idx").on(t.databaseId),
     index("schedule_agent_idx").on(t.agentId),
     index("schedule_page_idx").on(t.pageId),
+  ],
+);
+
+/**
+ * One run of a chain of agents (server/agents/chains.ts): its steps' runs (`agent_run`, source
+ * `schedule` with `chain`) start one after another, each when the one before ends done. `step` is the
+ * step under way, or the one it ended at, and `runId` that step's run. A chain has one run going at
+ * a time (`agent_chain_run_going_idx`). Ended runs are kept as the chain's history, as long as their
+ * chain; only the latest is shown.
+ */
+export const agentChainRun = pgTable(
+  "agent_chain_run",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspace.id, { onDelete: "cascade" }),
+    scheduleId: text("schedule_id")
+      .notNull()
+      .references(() => schedule.id, { onDelete: "cascade" }),
+    /** Who clicked Run now, or set the schedule: every step runs held to their access, and they get the report. */
+    startedBy: text("started_by").references(() => user.id, { onDelete: "set null" }),
+    trigger: text("trigger").$type<AgentChainTrigger>().notNull(),
+    status: text("status").$type<AgentChainRunStatus>().notNull().default("running"),
+    step: integer("step").notNull().default(0),
+    runId: text("run_id").references(() => agentRun.id, { onDelete: "set null" }),
+    /** Why it ended before its last step was done (lib/agent-chains AgentChainStopCode). */
+    code: text("code"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    finishedAt: timestamp("finished_at", { withTimezone: true }),
+  },
+  (t) => [
+    index("agent_chain_run_schedule_idx").on(t.scheduleId, t.createdAt),
+    uniqueIndex("agent_chain_run_going_idx").on(t.scheduleId).where(sql`${t.status} = 'running'`),
   ],
 );
 

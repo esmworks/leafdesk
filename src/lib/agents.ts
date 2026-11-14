@@ -174,6 +174,12 @@ export type AgentRunSource =
       scheduledBy: string;
       /** The database it looks after, when the schedule names one: it may change and comment on its rows. */
       databaseId?: string;
+      /**
+       * A step of a chain of agents (server/agents/chains.ts; `scheduleId` is the chain's): its run
+       * of the chain (`agent_chain_run`), the step (0-based), and the run of the step before, whose
+       * answer this run is handed.
+       */
+      chain?: { runId: string; step: number; after?: string };
     }
   | {
       kind: "mention";
@@ -431,6 +437,13 @@ export type AgentHandoffRecord = {
   runId: string | null;
   task: string;
   outcome: "done" | "failed" | "waiting" | "queued" | "paused" | "archived" | "limitReached" | "busy";
+  /**
+   * Not asked: the run was handed this agent's answer as the step before it in a chain of agents
+   * (server/agents/chains.ts). `outside`: that run had read others' words (readOthersWords), which
+   * its answer may carry on.
+   */
+  received?: true;
+  outside?: true;
 };
 
 /** One thing a run did: followed a skill, searched, read, queried, changed, thought aloud, commented, used a tool or asked another agent. */
@@ -764,7 +777,16 @@ export type AgentRunView = {
    * For a run a schedule started: the schedule, who set it, the task and the database it looks
    * after (`databaseTitle` and `task` empty where the viewer can't open the database).
    */
-  schedule: { id: string; by: string; byName: string; task: string; databaseId: string | null; databaseTitle: string } | null;
+  schedule: {
+    id: string;
+    by: string;
+    byName: string;
+    task: string;
+    databaseId: string | null;
+    databaseTitle: string;
+    /** A step of a chain of agents (server/agents/chains.ts): its name (empty once removed), the step (1-based) and how many it has. */
+    chain?: { name: string; step: number; total: number };
+  } | null;
   /**
    * For a run a comment started: who mentioned the agent, the page and thread, and the comment
    * (`pageTitle` null and `task` empty where the viewer can't open the page).
@@ -902,7 +924,7 @@ export const readOthersWords = (steps: readonly AgentStepRecord[]): boolean =>
         ? s.outcome === "done" && OTHERS_WORDS_MORE_TOOLS.has(s.tool)
         : s.kind === "connection"
           ? s.outcome !== "declined"
-          : s.kind === "web" || (s.kind === "handoff" && s.outcome === "done") || (s.kind === "reminder" && s.action === "list" && s.others),
+          : s.kind === "web" || (s.kind === "handoff" && s.outcome === "done" && (!s.received || s.outside === true)) || (s.kind === "reminder" && s.action === "list" && s.others),
   );
 
 /**

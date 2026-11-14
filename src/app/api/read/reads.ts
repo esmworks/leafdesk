@@ -2,7 +2,7 @@ import { agentChatInfoAction, agentChatTurnAction, agentThreadAction, agentThrea
 import { dueTasksAction, taskCountsAction } from "@/app/actions/assigned";
 import { automationChannelsAction } from "@/app/actions/automations";
 import { calendarItemsAction } from "@/app/actions/calendar";
-import { agentCreationAction, agentMailboxesAction, pendingAgentLimitRequestAction, sidebarAgentsAction } from "@/app/actions/agents";
+import { agentChainsAction, agentCreationAction, agentMailboxesAction, pendingAgentLimitRequestAction, sidebarAgentsAction } from "@/app/actions/agents";
 import { getConversationAction, listConversationsAction } from "@/app/actions/ai";
 import { listDatabasesAction, loadDatabaseAction, loadRowAction } from "@/app/actions/databases";
 import { getThreadAction, listMailboxesAction, listThreadsAction, openDraftAction, openMailboxAction, prefetchBodiesAction, readBodyAction, refreshFolderAction, sendStatusAction, suggestAddressesAction } from "@/app/actions/mail";
@@ -48,6 +48,7 @@ export const READS = {
   taskCounts: taskCountsAction,
   runProposals: runProposalsAction,
   sidebarAgents: sidebarAgentsAction,
+  agentChains: agentChainsAction,
   sidebarMeetings: sidebarMeetingsAction,
   calendarItems: calendarItemsAction,
   tasksToPlan: tasksToPlanAction,

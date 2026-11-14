@@ -4,6 +4,13 @@
 
 ### Added
 
+- **Chains of agents.** *New chain* in the sidebar's *Agents* tab runs agents one after another,
+  each handed the answer of the step before: a name, 2 to 8 steps (an agent, its task and the
+  database it may change) and, if you like, a repeat rule. *Run now* starts it from the tab, where
+  each chain shows the step it is on or how its latest run ended. Only the last step's run is
+  reported; a step that fails, finds nothing new or read someone's email ends the chain. Migration
+  0212 (`agent_chain_run`).
+
 - **Database rows as a table inside Claude and other apps showing MCP Apps.** The new MCP tool
   `show_database` takes `query_database`'s arguments and draws the rows in the conversation: the
   view's columns with their number formats, dates and option colors, in the person's language, in

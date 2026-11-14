@@ -109,6 +109,21 @@ gets a *Schedules turned off* inbox item (its own notification setting) naming t
 task. Setting the schedule again turns it back on. Times missed while the server was down make one
 run when it is back, not one each.
 
+**Chains of agents.** A chain runs agents one after another: *New chain* in the head of the
+sidebar's *Agents* tab sets one up with a name and 2 to 8 steps, each an agent, its task and, if
+you like, a database it may change (as a schedule's). Only agents of the workspace you can edit
+and databases you can open go in a chain, and only those who could set it up see it, run it,
+change it or delete it (at most 50 chains in a workspace, counted with schedules toward the
+workspace's limit). *Run now* in its menu starts it; with *Also run on a schedule* it starts on a
+repeat rule as well. Each step's run is a scheduled run held to the access of whoever started the
+chain (or set it last, on a schedule), handed the previous step's answer (8,000 characters at most)
+as outside words when that run read any. When a step ends well the next one starts; only the last
+step's run is reported. A step that fails, is stopped or ends with `finish_run` `nothing_new` ends
+the chain there, and so does one that read someone's email or files on their computer, whose
+answer stays with them. A chain still running isn't started again. The tab shows each chain's
+latest run (the step it is on, how it ended) or its next time; an agent's *Triggers* list the
+chains it is a step of. Chains are set up in the app only, not over MCP or the REST API.
+
 **Its model.** Where the server has a fast model (`AI_FAST_MODEL`, see [AI features](ai.md#ai-features)),
 the agent's settings let an owner choose which model its runs use, both named: the main model
 (`AI_MODEL`, the default), for work that needs judgment, or the fast one, cheaper, for routine,

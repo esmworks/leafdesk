@@ -307,6 +307,10 @@ describe("after reading email", () => {
     // A service's error says what it likes too.
     expect(readOthersWords([tool("c1", "list_issues", "failed")])).toBe(true);
     expect(readOthersWords([handoff("done")])).toBe(true);
+    // The step before's answer in a chain of agents: outside words only when that run read some.
+    const received = (outside?: true): AgentStepRecord => ({ kind: "handoff", agentId: "a2", agentName: "Helper", runId: "r1", task: "x", outcome: "done", received: true, ...(outside ? { outside } : {}) });
+    expect(readOthersWords([received()])).toBe(false);
+    expect(readOthersWords([received(true)])).toBe(true);
     // A folder or a file on the person's computer: anything may have put it there.
     expect(readOthersWords([tool(null, COMPUTER_TOOL_NAMES.read, "done")])).toBe(true);
     expect(readOthersWords([tool(null, COMPUTER_TOOL_NAMES.list, "done")])).toBe(true);

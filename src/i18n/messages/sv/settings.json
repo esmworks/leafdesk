@@ -445,7 +445,8 @@
         "fixed": "Sin egen chatt"
       },
       "off": "Av",
-      "unavailable": "Inte för dig"
+      "unavailable": "Inte för dig",
+      "chainSteps": "Kedja: steg {steps} av {total}"
     },
     "empty": "Inga agenter än.",
     "emptyOwner": "Inga agenter än. Skapa en, eller utgå från en mall nedan.",
@@ -790,14 +791,17 @@
         "busy": "Kunde inte ge <agent></agent> en uppgift: för många väntar",
         "paused": "Kunde inte fråga <agent></agent>: den är pausad",
         "archived": "Kunde inte fråga <agent></agent>: den är arkiverad",
-        "limitReached": "Kunde inte fråga <agent></agent>: den har förbrukat sin månatliga tokengräns"
+        "limitReached": "Kunde inte fråga <agent></agent>: den har förbrukat sin månatliga tokengräns",
+        "received": "Fick svaret från <agent></agent>"
       },
       "fromChat": "Ett chattmeddelande från {name}",
       "chattedBy": "chatt av {name}",
       "yoursOnly": "Du ser körningarna som du har startat.",
       "waitingForOwner": "En ägare av arbetsytan svarar på det här anropet.",
       "fromMail": "E-post till {name}",
-      "deferred": "Väntar tills dess tysta timmar är slut ({time}); en ägare kan godkänna det nu."
+      "deferred": "Väntar tills dess tysta timmar är slut ({time}); en ägare kan godkänna det nu.",
+      "fromChain": "Steg {step} av {total} i kedjan ”{name}”",
+      "removedChain": "en borttagen kedja"
     },
     "usage": {
       "thisMonth": "Den här månaden: {usage}",
@@ -915,7 +919,11 @@
         "quietHours": "Tysta timmar kräver två olika tider (TT:MM) och en tidszon.",
         "dailyChangeLimit": "Ange en daglig ändringsgräns som ett heltal från 1 till 10 000.",
         "manager": "Välj en chef bland agenterna som delas med dig.",
-        "managerLoop": "Det skulle ge en loop eller en för lång kedja av chefer."
+        "managerLoop": "Det skulle ge en loop eller en för lång kedja av chefer.",
+        "chainName": "Ge kedjan ett namn.",
+        "chainNameLength": "En kedjas namn får ha högst 80 tecken.",
+        "chainSteps": "En kedja har 2 till 8 steg, vart och ett med en agent.",
+        "chainAgent": "Välj agenter i den här arbetsytan som du kan redigera och som inte är arkiverade."
       },
       "noteEmpty": "Skriv vad agenten ska komma ihåg.",
       "noteTooLong": "En anteckning kan ha högst {max} tecken.",
@@ -934,7 +942,9 @@
       "ownersOnly": "Bara arbetsytans ägare ändrar en agents månatliga tokengräns, tysta timmar och dagliga ändringsgräns.",
       "notAMember": "En agent kan bara delas med arbetsytans ägare, medlemmar och grupper.",
       "requestNotFound": "Den här begäran har redan besvarats.",
-      "noteChanged": "Den här anteckningen har ändrats sedan dess. Ändra den på agentens flik Minne."
+      "noteChanged": "Den här anteckningen har ändrats sedan dess. Ändra den på agentens flik Minne.",
+      "chainNotFound": "Den här kedjan finns inte längre, eller så kan du inte köra den.",
+      "chainRunning": "Den här kedjan körs fortfarande. Kör den igen när den är klar."
     },
     "connections": {
       "description": "Verktygen i varje anslutning som den här agenten får använda. Verktyg som bara läser körs direkt, utom på en rad från ett anonymt formulärsvar; alla andra väntar på en ägares godkännande varje gång agenten anropar dem.",
@@ -2137,7 +2147,9 @@
         "unshared": "Tog bort {subject} från delningen av agenten ”{target}”",
         "creator_added": "Lät {subject} skapa agenter",
         "creator_removed": "Tog bort {subject} från dem som kan skapa agenter",
-        "local_file": "{op, select, trash {Flyttade ”{path}” till papperskorgen} other {Skrev ”{path}”}} på {target}s dator ({outcome})"
+        "local_file": "{op, select, trash {Flyttade ”{path}” till papperskorgen} other {Skrev ”{path}”}} på {target}s dator ({outcome})",
+        "chain_set": "Satte upp agentkedjan ”{target}”",
+        "chain_removed": "Tog bort agentkedjan ”{target}”"
       },
       "connection": {
         "created": "Lade till anslutningen ”{target}”",

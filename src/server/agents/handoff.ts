@@ -155,7 +155,7 @@ export async function handoffFor(
   const team = helpers.filter((h) => h.reportsToAsker);
   if (!helpers.length && !(await gaveTasks(agent.id))) return null;
   // Counted from the run's steps, so a run that went on after waiting for approval keeps count.
-  let asked = run.steps.filter((s) => s.kind === "handoff").length;
+  let asked = run.steps.filter((s) => s.kind === "handoff" && !s.received).length;
   const names = helpers
     .map((h) => `"${quoteName(h.name)}"${h.description ? ` (${quoteName(h.description).slice(0, DESCRIPTION_CHARS)})` : ""}${h.reportsToAsker ? " [reports to you]" : ""}`)
     .join(", ");

@@ -52,7 +52,7 @@ export function conversationRuleFor(source: RunSource): ConversationRule {
 }
 
 /** A trigger's kind in the list (TriggerView). */
-export const TRIGGER_KINDS = ["chat", "mention", "channel", "request", "schedule", "automation", "button", "mail", "connection"] as const;
+export const TRIGGER_KINDS = ["chat", "mention", "channel", "request", "schedule", "chain", "automation", "button", "mail", "connection"] as const;
 export type TriggerKind = (typeof TRIGGER_KINDS)[number];
 
 /** Where a trigger can start runs only by being used (chat, a mention in a comment or a channel, request): whether the viewer may now. */
@@ -95,6 +95,18 @@ export type TriggerView = { conversation: ConversationRuleKind } & (
       trigger: string;
       /** A button's property. */
       propertyId: string | null;
+    }
+  | {
+      /** A chain of agents the agent is a step of (server/agents/chains.ts), among those the viewer may run. */
+      kind: "chain";
+      id: string;
+      name: string;
+      /** Its steps that run the agent (1-based), and how many it has. */
+      steps: number[];
+      total: number;
+      /** Whether it also runs on a schedule, and isn't paused. */
+      repeats: boolean;
+      enabled: boolean;
     }
   | {
       /** New email in one of the viewer's own mailboxes opened to the agent. */

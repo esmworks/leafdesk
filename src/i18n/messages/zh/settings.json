@@ -445,7 +445,8 @@
         "fixed": "它自己的聊天"
       },
       "off": "已关闭",
-      "unavailable": "对你不可用"
+      "unavailable": "对你不可用",
+      "chainSteps": "链：第 {steps} 步，共 {total} 步"
     },
     "empty": "还没有智能体。",
     "emptyOwner": "还没有智能体。创建一个，或从下面的模板开始。",
@@ -785,7 +786,8 @@
         "busy": "无法把任务交给<agent></agent>：等待中的任务太多",
         "paused": "无法求助 <agent></agent>：它已暂停",
         "archived": "无法求助 <agent></agent>：它已归档",
-        "limitReached": "无法求助 <agent></agent>：它已用完每月令牌上限"
+        "limitReached": "无法求助 <agent></agent>：它已用完每月令牌上限",
+        "received": "收到了 <agent></agent> 的回答"
       },
       "fromChat": "{name} 的聊天消息",
       "chattedBy": "由 {name} 发起对话",
@@ -797,7 +799,9 @@
       "emailSent": "已向 {to} 发送邮件：",
       "emailSendFailed": "无法向 {to} 发送邮件：",
       "fromMail": "发给 {name} 的邮件",
-      "deferred": "暂缓至安静时段结束（{time}）；所有者现在即可批准。"
+      "deferred": "暂缓至安静时段结束（{time}）；所有者现在即可批准。",
+      "fromChain": "链“{name}”的第 {step} 步，共 {total} 步",
+      "removedChain": "已删除的链"
     },
     "usage": {
       "thisMonth": "本月：{usage}",
@@ -915,7 +919,11 @@
         "quietHours": "安静时段需要两个不同的时间（HH:MM）和一个时区。",
         "dailyChangeLimit": "请输入 1 到 10,000 之间的整数作为每日更改上限。",
         "manager": "请从与你共享的智能体中选择管理者。",
-        "managerLoop": "这会形成循环或过长的管理者链。"
+        "managerLoop": "这会形成循环或过长的管理者链。",
+        "chainName": "请为链命名。",
+        "chainNameLength": "链的名称最多 80 个字符。",
+        "chainSteps": "一条链有 2 到 8 个步骤，每个步骤对应一个智能体。",
+        "chainAgent": "请选择此工作区中你可以编辑且未归档的智能体。"
       },
       "noteEmpty": "请写下智能体应记住的内容。",
       "noteTooLong": "每条笔记最多 {max} 个字符。",
@@ -934,7 +942,9 @@
       "ownersOnly": "只有工作区所有者可以更改智能体的每月令牌上限、安静时段和每日更改上限。",
       "notAMember": "智能体只能分享给工作区的所有者、成员和用户组。",
       "requestNotFound": "此请求已被答复。",
-      "noteChanged": "此笔记此后已更改。请在智能体的“记忆”标签页中更改。"
+      "noteChanged": "此笔记此后已更改。请在智能体的“记忆”标签页中更改。",
+      "chainNotFound": "此链已不存在，或者你无法运行它。",
+      "chainRunning": "此链仍在运行。请在它结束后再运行。"
     },
     "connections": {
       "description": "此智能体可以使用的各个连接的工具。只读工具会立即运行（来自匿名表单答复的行除外）；其他工具在智能体每次调用时都需要所有者批准。",
@@ -2137,7 +2147,9 @@
         "unshared": "将 {subject} 从智能体“{target}”的分享中移除",
         "creator_added": "允许 {subject} 创建智能体",
         "creator_removed": "已将 {subject} 从可创建智能体的人员中移除",
-        "local_file": "在 {target} 的电脑上{op, select, trash {将“{path}”移到了废纸篓} other {写入了“{path}”}}（{outcome}）"
+        "local_file": "在 {target} 的电脑上{op, select, trash {将“{path}”移到了废纸篓} other {写入了“{path}”}}（{outcome}）",
+        "chain_set": "设置了智能体链“{target}”",
+        "chain_removed": "删除了智能体链“{target}”"
       },
       "connection": {
         "created": "添加了连接“{target}”",

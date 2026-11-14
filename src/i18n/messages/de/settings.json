@@ -445,7 +445,8 @@
         "fixed": "Sein eigener Chat"
       },
       "off": "Aus",
-      "unavailable": "Nicht für dich"
+      "unavailable": "Nicht für dich",
+      "chainSteps": "Kette: Schritt {steps} von {total}"
     },
     "empty": "Noch keine Agenten.",
     "emptyOwner": "Noch keine Agenten. Erstelle einen oder beginne unten mit einer Vorlage.",
@@ -785,7 +786,8 @@
         "busy": "Konnte <agent></agent> keine Aufgabe geben: Zu viele warten schon",
         "paused": "Konnte <agent></agent> nicht fragen: Er ist pausiert",
         "archived": "Konnte <agent></agent> nicht fragen: Er ist archiviert",
-        "limitReached": "Konnte <agent></agent> nicht fragen: Sein monatliches Token-Limit ist aufgebraucht"
+        "limitReached": "Konnte <agent></agent> nicht fragen: Sein monatliches Token-Limit ist aufgebraucht",
+        "received": "Hat die Antwort von <agent></agent> bekommen"
       },
       "fromChat": "Chat-Nachricht von {name}",
       "chattedBy": "Chat von {name}",
@@ -797,7 +799,9 @@
       "emailSent": "E-Mail an {to} gesendet:",
       "emailSendFailed": "E-Mail an {to} konnte nicht gesendet werden:",
       "fromMail": "E-Mail an {name}",
-      "deferred": "Wartet bis zum Ende seiner Ruhezeit ({time}); ein Inhaber kann ihn jetzt freigeben."
+      "deferred": "Wartet bis zum Ende seiner Ruhezeit ({time}); ein Inhaber kann ihn jetzt freigeben.",
+      "fromChain": "Schritt {step} von {total} der Kette „{name}“",
+      "removedChain": "eine gelöschte Kette"
     },
     "usage": {
       "thisMonth": "Diesen Monat: {usage}",
@@ -915,7 +919,11 @@
         "quietHours": "Ruhezeiten brauchen zwei verschiedene Uhrzeiten (HH:MM) und eine Zeitzone.",
         "dailyChangeLimit": "Gib ein tägliches Änderungslimit als ganze Zahl von 1 bis 10.000 ein.",
         "manager": "Wähle einen Manager unter den Agenten, die mit dir geteilt sind.",
-        "managerLoop": "Das ergäbe eine Schleife oder eine zu lange Kette von Managern."
+        "managerLoop": "Das ergäbe eine Schleife oder eine zu lange Kette von Managern.",
+        "chainName": "Gib der Kette einen Namen.",
+        "chainNameLength": "Der Name einer Kette darf höchstens 80 Zeichen haben.",
+        "chainSteps": "Eine Kette hat 2 bis 8 Schritte, jeder mit einem Agenten.",
+        "chainAgent": "Wähl Agenten dieses Workspaces, die du bearbeiten kannst und die nicht archiviert sind."
       },
       "noteEmpty": "Schreiben Sie, was sich der Agent merken soll.",
       "noteTooLong": "Eine Notiz darf höchstens {max} Zeichen haben.",
@@ -934,7 +942,9 @@
       "ownersOnly": "Nur Workspace-Inhaber ändern das monatliche Token-Limit, die Ruhezeiten und das tägliche Änderungslimit eines Agenten.",
       "notAMember": "Ein Agent kann nur mit Inhabern, Mitgliedern und Gruppen des Workspace geteilt werden.",
       "requestNotFound": "Diese Anfrage wurde bereits beantwortet.",
-      "noteChanged": "Diese Notiz wurde seitdem geändert. Sie lässt sich im Tab „Gedächtnis“ des Agenten ändern."
+      "noteChanged": "Diese Notiz wurde seitdem geändert. Sie lässt sich im Tab „Gedächtnis“ des Agenten ändern.",
+      "chainNotFound": "Diese Kette gibt es nicht mehr, oder du kannst sie nicht ausführen.",
+      "chainRunning": "Diese Kette läuft noch. Führ sie erneut aus, wenn sie endet."
     },
     "connections": {
       "description": "Die Werkzeuge jeder Verbindung, die dieser Agent nutzen darf. Werkzeuge, die nur lesen, laufen sofort, außer bei einer Zeile aus einer anonymen Formularantwort; alle anderen warten bei jedem Aufruf auf die Freigabe eines Inhabers.",
@@ -2137,7 +2147,9 @@
         "unshared": "Hat {subject} aus der Freigabe des Agenten „{target}“ entfernt",
         "creator_added": "Hat {subject} erlaubt, Agenten zu erstellen",
         "creator_removed": "Hat {subject} aus den Personen entfernt, die Agenten erstellen dürfen",
-        "local_file": "{op, select, trash {Hat „{path}“ in den Papierkorb gelegt} other {Hat „{path}“ geschrieben}} auf dem Computer von {target} ({outcome})"
+        "local_file": "{op, select, trash {Hat „{path}“ in den Papierkorb gelegt} other {Hat „{path}“ geschrieben}} auf dem Computer von {target} ({outcome})",
+        "chain_set": "Hat die Agentenkette „{target}“ eingerichtet",
+        "chain_removed": "Hat die Agentenkette „{target}“ gelöscht"
       },
       "connection": {
         "created": "Hat die Verbindung „{target}“ hinzugefügt",

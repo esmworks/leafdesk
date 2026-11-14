@@ -445,7 +445,8 @@
         "fixed": "Son propre chat"
       },
       "off": "Désactivé",
-      "unavailable": "Pas pour vous"
+      "unavailable": "Pas pour vous",
+      "chainSteps": "Chaîne : étape {steps} sur {total}"
     },
     "empty": "Aucun agent pour l’instant.",
     "emptyOwner": "Aucun agent pour l’instant. Créez-en un, ou partez d’un modèle ci-dessous.",
@@ -785,7 +786,8 @@
         "busy": "Impossible de confier une tâche à <agent></agent> : trop de tâches en attente",
         "paused": "N’a pas pu solliciter <agent></agent> : il est en pause",
         "archived": "N’a pas pu solliciter <agent></agent> : il est archivé",
-        "limitReached": "N’a pas pu solliciter <agent></agent> : il a atteint sa limite mensuelle de tokens"
+        "limitReached": "N’a pas pu solliciter <agent></agent> : il a atteint sa limite mensuelle de tokens",
+        "received": "A reçu la réponse de <agent></agent>"
       },
       "fromChat": "Message de chat de {name}",
       "chattedBy": "chat de {name}",
@@ -797,7 +799,9 @@
       "emailSent": "E-mail envoyé à {to} :",
       "emailSendFailed": "Impossible d’envoyer un e-mail à {to} :",
       "fromMail": "E-mail reçu par {name}",
-      "deferred": "En attente jusqu’à la fin de ses heures calmes ({time}) ; un propriétaire peut l’approuver dès maintenant."
+      "deferred": "En attente jusqu’à la fin de ses heures calmes ({time}) ; un propriétaire peut l’approuver dès maintenant.",
+      "fromChain": "Étape {step} sur {total} de la chaîne « {name} »",
+      "removedChain": "une chaîne supprimée"
     },
     "usage": {
       "thisMonth": "Ce mois-ci : {usage}",
@@ -915,7 +919,11 @@
         "quietHours": "Les heures calmes demandent deux heures différentes (HH:MM) et un fuseau horaire.",
         "dailyChangeLimit": "Saisissez une limite quotidienne de modifications, un nombre entier de 1 à 10 000.",
         "manager": "Choisissez un responsable parmi les agents partagés avec vous.",
-        "managerLoop": "Cela créerait une boucle ou une chaîne de responsables trop longue."
+        "managerLoop": "Cela créerait une boucle ou une chaîne de responsables trop longue.",
+        "chainName": "Donnez un nom à la chaîne.",
+        "chainNameLength": "Le nom d’une chaîne peut compter au plus 80 caractères.",
+        "chainSteps": "Une chaîne compte de 2 à 8 étapes, chacune avec un agent.",
+        "chainAgent": "Choisissez des agents de cet espace de travail que vous pouvez modifier et qui ne sont pas archivés."
       },
       "noteEmpty": "Écrivez ce que l’agent doit retenir.",
       "noteTooLong": "Une note peut contenir au plus {max} caractères.",
@@ -934,7 +942,9 @@
       "ownersOnly": "Seuls les propriétaires de l’espace de travail modifient la limite mensuelle de jetons, les heures calmes et la limite quotidienne de modifications d’un agent.",
       "notAMember": "Un agent ne peut être partagé qu’avec les propriétaires, les membres et les groupes de l’espace de travail.",
       "requestNotFound": "Cette demande a déjà reçu une réponse.",
-      "noteChanged": "Cette note a changé depuis. Modifiez-la dans l’onglet Mémoire de l’agent."
+      "noteChanged": "Cette note a changé depuis. Modifiez-la dans l’onglet Mémoire de l’agent.",
+      "chainNotFound": "Cette chaîne n’existe plus, ou vous ne pouvez pas l’exécuter.",
+      "chainRunning": "Cette chaîne est encore en cours. Relancez-la quand elle se termine."
     },
     "connections": {
       "description": "Les outils de chaque connexion que cet agent peut utiliser. Les outils qui ne font que lire s’exécutent aussitôt, sauf sur une ligne issue d’une réponse anonyme à un formulaire ; les autres attendent l’approbation d’un propriétaire à chaque appel.",
@@ -2137,7 +2147,9 @@
         "unshared": "A retiré {subject} du partage de l’agent « {target} »",
         "creator_added": "A autorisé {subject} à créer des agents",
         "creator_removed": "A retiré {subject} des personnes pouvant créer des agents",
-        "local_file": "{op, select, trash {A mis « {path} » à la corbeille} other {A écrit « {path} »}} sur l’ordinateur de {target} ({outcome})"
+        "local_file": "{op, select, trash {A mis « {path} » à la corbeille} other {A écrit « {path} »}} sur l’ordinateur de {target} ({outcome})",
+        "chain_set": "A configuré la chaîne d’agents « {target} »",
+        "chain_removed": "A supprimé la chaîne d’agents « {target} »"
       },
       "connection": {
         "created": "A ajouté la connexion « {target} »",

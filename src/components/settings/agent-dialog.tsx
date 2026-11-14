@@ -714,7 +714,9 @@ function RunItem({
               <span className="flex min-w-0 flex-1 items-center gap-1.5 text-sm">
                 <CalendarClock aria-hidden className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
                 <span className="truncate">
-                  {!run.schedule?.databaseId
+                  {run.schedule?.chain
+                    ? t("fromChain", { name: run.schedule.chain.name || t("removedChain"), step: run.schedule.chain.step, total: run.schedule.chain.total })
+                    : !run.schedule?.databaseId
                     ? t("fromSchedule")
                     : run.schedule.databaseTitle
                       ? t("fromScheduleOn", { database: pageLabel(run.schedule.databaseTitle, tc("untitled")) })

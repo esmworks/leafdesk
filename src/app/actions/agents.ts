@@ -41,6 +41,8 @@ import { agentGrantSummary } from "@/server/connections/manage";
 import type { AgentShareLevel } from "@/lib/agent-sharing";
 import { addAgentMemory, deleteAgentMemory, keepAgentMemory, listAgentMemory, undoAgentCorrection, updateAgentMemory } from "@/server/agents/memory";
 import { listAgentSchedules, removeAgentSchedule, setAgentSchedule } from "@/server/agents/schedules";
+import { listAgentChains, removeAgentChain, runAgentChain, setAgentChain } from "@/server/agents/chains";
+import type { AgentChainStep } from "@/lib/agent-chains";
 import { addAgentSkill, listAgentSkills, removeAgentSkill } from "@/server/agents/skills";
 import { decideLimitRequest, pendingLimitRequest, requestHigherLimit } from "@/server/agents/limits";
 import { agentUsageMonths } from "@/server/agents/usage";
@@ -55,7 +57,7 @@ import { requireUserId } from "@/server/session";
 // messages in production.
 
 /** Reasons an `invalid` error names, each with its own message. */
-const INVALID_REASONS = ["name", "icon", "level", "template", "database", "property", "option", "rules", "pages", "limit", "task", "taskLength", "repeat", "helpers", "manager", "managerLoop", "shareLevel", "mailRecipients", "requestTokens", "requestNote", "noLimit", "mailbox", "quietHours", "dailyChangeLimit"] as const;
+const INVALID_REASONS = ["name", "icon", "level", "template", "database", "property", "option", "rules", "pages", "limit", "task", "taskLength", "repeat", "helpers", "manager", "managerLoop", "shareLevel", "mailRecipients", "requestTokens", "requestNote", "noLimit", "mailbox", "quietHours", "dailyChangeLimit", "chainName", "chainNameLength", "chainSteps", "chainAgent"] as const;
 type InvalidReason = (typeof INVALID_REASONS)[number];
 const isInvalidReason = (value: unknown): value is InvalidReason => (INVALID_REASONS as readonly unknown[]).includes(value);
 
@@ -116,6 +118,38 @@ const input = (value: AgentInput): AgentInput => ({
 /** The agents the sidebar lists (sidebar.tsx), again after something changed. */
 export async function sidebarAgentsAction(workspaceId: string) {
   return run(workspaceId, (userId) => sidebarAgents(userId, workspaceId));
+}
+
+/** The chains of agents the person may run, for the sidebar's agents tab (server/agents/chains.ts). */
+export async function agentChainsAction(workspaceId: string) {
+  return run(workspaceId, (userId) => listAgentChains(userId, workspaceId));
+}
+
+/** Adds a chain of agents, or changes one (`chainId`); the chains as they are then. */
+export async function setAgentChainAction(
+  workspaceId: string,
+  chainId: string | null,
+  value: { name: string; steps: AgentChainStep[]; repeats: boolean; rule: RepeatRule; timeZone: string },
+) {
+  return run(workspaceId, async (userId) => {
+    await setAgentChain(userId, workspaceId, chainId, { name: value?.name, steps: value?.steps, repeats: value?.repeats, rule: value?.rule, timeZone: value?.timeZone });
+    return listAgentChains(userId, workspaceId);
+  });
+}
+
+export async function removeAgentChainAction(workspaceId: string, chainId: string) {
+  return run(workspaceId, async (userId) => {
+    await removeAgentChain(userId, workspaceId, chainId);
+    return listAgentChains(userId, workspaceId);
+  });
+}
+
+/** Run now: starts the chain as the person, who gets its report; the chains as they are then. */
+export async function runAgentChainAction(workspaceId: string, chainId: string) {
+  return run(workspaceId, async (userId) => {
+    await runAgentChain(userId, workspaceId, chainId);
+    return listAgentChains(userId, workspaceId);
+  });
 }
 
 /** What the sidebar's New agent needs to open the same dialogs as Settings > Agents. */

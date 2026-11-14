@@ -1,6 +1,6 @@
 "use client";
 
-import { AtSign, CalendarClock, ChevronRight, Hash, Mail, MessageSquare, MousePointerClick, Plug, Send, Zap, type LucideIcon } from "lucide-react";
+import { AtSign, CalendarClock, ChevronRight, Hash, Mail, MessageSquare, MousePointerClick, Plug, Send, Workflow, Zap, type LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
@@ -17,6 +17,7 @@ const ICONS: Record<TriggerKind, LucideIcon> = {
   channel: Hash,
   request: Send,
   schedule: CalendarClock,
+  chain: Workflow,
   automation: Zap,
   button: MousePointerClick,
   mail: Mail,
@@ -57,6 +58,8 @@ export function AgentTriggersTab({ workspaceId, agent, onTab }: { workspaceId: s
         return { title: t(trigger.kind), detail: t(`${trigger.kind}Hint`), on: trigger.available, open: trigger.kind === "chat" ? () => onTab("chat") : null };
       case "schedule":
         return { title: trigger.taskHidden || !trigger.task ? t("schedule") : trigger.task, detail: summary(trigger.rule, trigger.timeZone), on: trigger.enabled, open: () => onTab("schedules") };
+      case "chain":
+        return { title: trigger.name, detail: t("chainSteps", { steps: trigger.steps.join(", "), total: trigger.total }), on: !trigger.repeats || trigger.enabled };
       case "automation":
       case "button":
         return {

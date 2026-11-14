@@ -445,7 +445,8 @@
         "fixed": "Cuộc trò chuyện riêng"
       },
       "off": "Tắt",
-      "unavailable": "Không dành cho bạn"
+      "unavailable": "Không dành cho bạn",
+      "chainSteps": "Chuỗi: bước {steps}/{total}"
     },
     "empty": "Chưa có tác tử nào.",
     "emptyOwner": "Chưa có tác tử nào. Hãy tạo một tác tử, hoặc bắt đầu từ một mẫu bên dưới.",
@@ -790,14 +791,17 @@
         "busy": "Không giao được việc cho <agent></agent>: có quá nhiều việc đang chờ",
         "paused": "Không thể hỏi <agent></agent>: nó đang tạm dừng",
         "archived": "Không thể hỏi <agent></agent>: nó đã được lưu trữ",
-        "limitReached": "Không thể hỏi <agent></agent>: nó đã dùng hết giới hạn token hằng tháng"
+        "limitReached": "Không thể hỏi <agent></agent>: nó đã dùng hết giới hạn token hằng tháng",
+        "received": "Đã nhận câu trả lời của <agent></agent>"
       },
       "fromChat": "Một tin nhắn trò chuyện từ {name}",
       "chattedBy": "trò chuyện bởi {name}",
       "yoursOnly": "Bạn thấy các lần chạy do bạn khởi động.",
       "waitingForOwner": "Một chủ sở hữu không gian làm việc trả lời lệnh gọi này.",
       "fromMail": "Email gửi {name}",
-      "deferred": "Đang giữ đến khi hết giờ yên lặng ({time}); chủ sở hữu có thể phê duyệt ngay bây giờ."
+      "deferred": "Đang giữ đến khi hết giờ yên lặng ({time}); chủ sở hữu có thể phê duyệt ngay bây giờ.",
+      "fromChain": "Bước {step}/{total} của chuỗi “{name}”",
+      "removedChain": "một chuỗi đã xóa"
     },
     "usage": {
       "thisMonth": "Tháng này: {usage}",
@@ -915,7 +919,11 @@
         "quietHours": "Giờ yên lặng cần hai thời điểm khác nhau (HH:MM) và một múi giờ.",
         "dailyChangeLimit": "Nhập giới hạn thay đổi hằng ngày là một số nguyên từ 1 đến 10.000.",
         "manager": "Hãy chọn người quản lý trong số các tác tử được chia sẻ với bạn.",
-        "managerLoop": "Điều đó sẽ tạo vòng lặp hoặc chuỗi quản lý quá dài."
+        "managerLoop": "Điều đó sẽ tạo vòng lặp hoặc chuỗi quản lý quá dài.",
+        "chainName": "Hãy đặt tên cho chuỗi.",
+        "chainNameLength": "Tên chuỗi có tối đa 80 ký tự.",
+        "chainSteps": "Một chuỗi có từ 2 đến 8 bước, mỗi bước có một tác nhân.",
+        "chainAgent": "Hãy chọn tác nhân trong không gian làm việc này mà bạn có thể sửa và chưa bị lưu trữ."
       },
       "noteEmpty": "Hãy viết điều tác tử nên ghi nhớ.",
       "noteTooLong": "Một ghi chú có tối đa {max} ký tự.",
@@ -934,7 +942,9 @@
       "ownersOnly": "Chỉ chủ sở hữu không gian làm việc mới thay đổi giới hạn token hằng tháng, giờ yên lặng và giới hạn thay đổi mỗi ngày của tác tử.",
       "notAMember": "Một tác tử chỉ có thể được chia sẻ với các chủ sở hữu, thành viên và nhóm của không gian làm việc.",
       "requestNotFound": "Yêu cầu này đã được trả lời.",
-      "noteChanged": "Ghi chú này đã thay đổi kể từ đó. Hãy đổi nó trong thẻ Bộ nhớ của tác tử."
+      "noteChanged": "Ghi chú này đã thay đổi kể từ đó. Hãy đổi nó trong thẻ Bộ nhớ của tác tử.",
+      "chainNotFound": "Chuỗi này không còn nữa, hoặc bạn không thể chạy nó.",
+      "chainRunning": "Chuỗi này vẫn đang chạy. Hãy chạy lại khi nó kết thúc."
     },
     "connections": {
       "description": "Các công cụ của mỗi kết nối mà tác tử này được dùng. Các công cụ chỉ đọc chạy ngay, trừ trên một hàng từ câu trả lời biểu mẫu ẩn danh; công cụ nào khác đều chờ một chủ sở hữu chấp thuận mỗi lần tác tử gọi.",
@@ -2137,7 +2147,9 @@
         "unshared": "Đã xóa {subject} khỏi việc chia sẻ tác tử “{target}”",
         "creator_added": "Cho phép {subject} tạo tác tử",
         "creator_removed": "Đã bỏ {subject} khỏi những người có thể tạo tác tử",
-        "local_file": "{op, select, trash {Đã chuyển “{path}” vào thùng rác} other {Đã ghi “{path}”}} trên máy tính của {target} ({outcome})"
+        "local_file": "{op, select, trash {Đã chuyển “{path}” vào thùng rác} other {Đã ghi “{path}”}} trên máy tính của {target} ({outcome})",
+        "chain_set": "Đã thiết lập chuỗi tác nhân “{target}”",
+        "chain_removed": "Đã xóa chuỗi tác nhân “{target}”"
       },
       "connection": {
         "created": "Đã thêm kết nối “{target}”",

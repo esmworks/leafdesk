@@ -419,6 +419,12 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   edit is routed to its manager (`routeForPerson`: chat state `viaManager`, mentions in pages and
   channels). The team columns stay out of agent versions (`AGENT_SETTINGS_LEFT_OUT`), since a
   restore writes columns unchecked.
+  Chains of agents (`agents/chains.ts`, pure part `lib/agent-chains.ts`, the sidebar's
+  `agent-chains.tsx`) are `schedule` rows of kind `agent_chain` (steps in `settings`, `nextRunAt`
+  null unless `repeats`); each start is an `agent_chain_run` row (one running per chain, a unique
+  index). Steps are ordinary schedule runs whose source carries `chain`; `run.ts` `finish` calls
+  `chainStepEnded`, which queues the next step (moving the row's `step` first, so it hands on once)
+  and, when it did, skips reporting and the schedule's failure count.
 - **Connections** (outbound MCP): `src/server/connections/` (`manage.ts`, `client.ts`, `fetch.ts`
   for the address checks, `events.ts` for inbound events, `approvals.ts`). A fetch of an address a
   member or visitor gives passes `{ untrusted: true }`: only `WEB_FETCH_ALLOWED_HOSTS` applies to

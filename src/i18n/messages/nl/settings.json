@@ -445,7 +445,8 @@
         "fixed": "Zijn eigen chat"
       },
       "off": "Uit",
-      "unavailable": "Niet voor jou"
+      "unavailable": "Niet voor jou",
+      "chainSteps": "Keten: stap {steps} van {total}"
     },
     "empty": "Nog geen agents.",
     "emptyOwner": "Nog geen agents. Maak er een, of begin hieronder met een sjabloon.",
@@ -790,14 +791,17 @@
         "busy": "Kon <agent></agent> geen taak geven: er wachten er te veel",
         "paused": "Kon <agent></agent> niet vragen: die is gepauzeerd",
         "archived": "Kon <agent></agent> niet vragen: die is gearchiveerd",
-        "limitReached": "Kon <agent></agent> niet vragen: die heeft de maandelijkse tokenlimiet opgebruikt"
+        "limitReached": "Kon <agent></agent> niet vragen: die heeft de maandelijkse tokenlimiet opgebruikt",
+        "received": "Kreeg het antwoord van <agent></agent>"
       },
       "fromChat": "Een chatbericht van {name}",
       "chattedBy": "chat door {name}",
       "yoursOnly": "Je ziet de uitvoeringen die jij hebt gestart.",
       "waitingForOwner": "Een eigenaar van de werkruimte beantwoordt deze aanroep.",
       "fromMail": "E-mail aan {name}",
-      "deferred": "Wacht tot zijn stille uren voorbij zijn ({time}); een eigenaar kan hem nu goedkeuren."
+      "deferred": "Wacht tot zijn stille uren voorbij zijn ({time}); een eigenaar kan hem nu goedkeuren.",
+      "fromChain": "Stap {step} van {total} van de keten “{name}”",
+      "removedChain": "een verwijderde keten"
     },
     "usage": {
       "thisMonth": "Deze maand: {usage}",
@@ -915,7 +919,11 @@
         "quietHours": "Stille uren hebben twee verschillende tijden (UU:MM) en een tijdzone nodig.",
         "dailyChangeLimit": "Voer een dagelijkse wijzigingslimiet in als geheel getal van 1 tot 10.000.",
         "manager": "Kies een manager uit de agents die met je zijn gedeeld.",
-        "managerLoop": "Dat zou een lus of een te lange keten van managers opleveren."
+        "managerLoop": "Dat zou een lus of een te lange keten van managers opleveren.",
+        "chainName": "Geef de keten een naam.",
+        "chainNameLength": "De naam van een keten mag maximaal 80 tekens hebben.",
+        "chainSteps": "Een keten heeft 2 tot 8 stappen, elk met een agent.",
+        "chainAgent": "Kies agents van deze werkruimte die je kunt bewerken en die niet gearchiveerd zijn."
       },
       "noteEmpty": "Schrijf wat de agent moet onthouden.",
       "noteTooLong": "Een notitie mag maximaal {max} tekens hebben.",
@@ -934,7 +942,9 @@
       "ownersOnly": "Alleen eigenaren van de werkruimte wijzigen de maandelijkse tokenlimiet, de stille uren en de dagelijkse wijzigingslimiet van een agent.",
       "notAMember": "Een agent kan alleen worden gedeeld met de eigenaren, leden en groepen van de werkruimte.",
       "requestNotFound": "Dit verzoek is al beantwoord.",
-      "noteChanged": "Deze notitie is sindsdien gewijzigd. Wijzig haar op het tabblad Geheugen van de agent."
+      "noteChanged": "Deze notitie is sindsdien gewijzigd. Wijzig haar op het tabblad Geheugen van de agent.",
+      "chainNotFound": "Deze keten bestaat niet meer, of je kunt hem niet uitvoeren.",
+      "chainRunning": "Deze keten loopt nog. Voer hem opnieuw uit als hij klaar is."
     },
     "connections": {
       "description": "De tools van elke koppeling die deze agent mag gebruiken. Tools die alleen lezen, draaien direct, behalve op een rij uit een anoniem formulierantwoord; elke andere wacht op goedkeuring van een eigenaar telkens als de agent haar aanroept.",
@@ -2137,7 +2147,9 @@
         "unshared": "{subject} verwijderd uit het delen van de agent “{target}”",
         "creator_added": "{subject} toestemming gegeven om agents te maken",
         "creator_removed": "{subject} verwijderd bij wie agents kan maken",
-        "local_file": "{op, select, trash {Heeft “{path}” naar de prullenbak verplaatst} other {Heeft “{path}” geschreven}} op de computer van {target} ({outcome})"
+        "local_file": "{op, select, trash {Heeft “{path}” naar de prullenbak verplaatst} other {Heeft “{path}” geschreven}} op de computer van {target} ({outcome})",
+        "chain_set": "De agentketen “{target}” ingesteld",
+        "chain_removed": "De agentketen “{target}” verwijderd"
       },
       "connection": {
         "created": "De koppeling “{target}” toegevoegd",

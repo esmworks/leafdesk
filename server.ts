@@ -70,8 +70,9 @@ const { startScheduledAutomations } = await import("./src/server/automations/sch
 const { startThresholdAutomations } = await import("./src/server/automations/threshold");
 const { startAgents } = await import("./src/server/agents/run");
 const { startSchedules } = await import("./src/server/schedules");
-// Registers what agents' schedules, dashboard emails and own requests do when they run.
+// Registers what agents' schedules and chains, dashboard emails and own requests do when they run.
 await import("./src/server/agents/schedules");
+await import("./src/server/agents/chains");
 await import("./src/server/dashboard-emails");
 await import("./src/server/own-requests");
 const { retentionJobEnabled } = await import("./src/lib/retention");

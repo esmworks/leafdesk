@@ -445,7 +445,8 @@
         "fixed": "Its own chat"
       },
       "off": "Off",
-      "unavailable": "Not for you"
+      "unavailable": "Not for you",
+      "chainSteps": "Chain: step {steps} of {total}"
     },
     "empty": "No agents yet.",
     "emptyOwner": "No agents yet. Create one, or start from a template below.",
@@ -790,14 +791,17 @@
         "busy": "Couldn’t give <agent></agent> a task: it has too many waiting",
         "paused": "Couldn’t ask <agent></agent>: it’s paused",
         "archived": "Couldn’t ask <agent></agent>: it’s archived",
-        "limitReached": "Couldn’t ask <agent></agent>: it has used its monthly token limit"
+        "limitReached": "Couldn’t ask <agent></agent>: it has used its monthly token limit",
+        "received": "Was handed the answer of <agent></agent>"
       },
       "fromChat": "A chat message from {name}",
       "chattedBy": "chat by {name}",
       "yoursOnly": "You see the runs you started.",
       "waitingForOwner": "A workspace owner answers this call.",
       "fromMail": "Email to {name}",
-      "deferred": "Held until its quiet hours end ({time}); an owner can approve it now."
+      "deferred": "Held until its quiet hours end ({time}); an owner can approve it now.",
+      "fromChain": "Step {step} of {total} of the chain “{name}”",
+      "removedChain": "a deleted chain"
     },
     "usage": {
       "thisMonth": "This month: {usage}",
@@ -915,7 +919,11 @@
         "quietHours": "Quiet hours need two different times (HH:MM) and a time zone.",
         "dailyChangeLimit": "Enter a daily change limit as a whole number from 1 to 10,000.",
         "manager": "Choose a manager among the agents shared with you.",
-        "managerLoop": "That would make a loop or too long a chain of managers."
+        "managerLoop": "That would make a loop or too long a chain of managers.",
+        "chainName": "Give the chain a name.",
+        "chainNameLength": "A chain’s name can have at most 80 characters.",
+        "chainSteps": "A chain has 2 to 8 steps, each with an agent.",
+        "chainAgent": "Choose agents of this workspace that you can edit and that aren’t archived."
       },
       "noteEmpty": "Write what the agent should remember.",
       "noteTooLong": "A note can have at most {max} characters.",
@@ -934,7 +942,9 @@
       "ownersOnly": "Only workspace owners change an agent’s monthly token limit, quiet hours and daily change limit.",
       "notAMember": "An agent can be shared only with the workspace’s owners, members and groups.",
       "requestNotFound": "This request was answered already.",
-      "noteChanged": "This note changed since. Change it in the agent’s Memory tab."
+      "noteChanged": "This note changed since. Change it in the agent’s Memory tab.",
+      "chainNotFound": "This chain no longer exists, or you can’t run it.",
+      "chainRunning": "This chain is still running. Run it again once it ends."
     },
     "connections": {
       "description": "The tools of each connection this agent may use. Tools that only read run at once, except on a row from an anonymous form answer; any other waits for an owner’s approval every time the agent calls it.",
@@ -2137,7 +2147,9 @@
         "unshared": "Removed {subject} from the sharing of the agent “{target}”",
         "creator_added": "Let {subject} create agents",
         "creator_removed": "Removed {subject} from those who can create agents",
-        "local_file": "{op, select, trash {Moved “{path}” to the trash} other {Wrote “{path}”}} on the computer of {target} ({outcome})"
+        "local_file": "{op, select, trash {Moved “{path}” to the trash} other {Wrote “{path}”}} on the computer of {target} ({outcome})",
+        "chain_set": "Set up the agent chain “{target}”",
+        "chain_removed": "Deleted the agent chain “{target}”"
       },
       "connection": {
         "created": "Added the connection “{target}”",

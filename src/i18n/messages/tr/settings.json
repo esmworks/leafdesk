@@ -445,7 +445,8 @@
         "fixed": "Kendi sohbeti"
       },
       "off": "Kapalı",
-      "unavailable": "Size açık değil"
+      "unavailable": "Size açık değil",
+      "chainSteps": "Zincir: adım {steps}/{total}"
     },
     "empty": "Henüz ajan yok.",
     "emptyOwner": "Henüz ajan yok. Bir tane oluşturun ya da aşağıdaki şablonlardan biriyle başlayın.",
@@ -785,7 +786,8 @@
         "busy": "<agent></agent> ajanına görev verilemedi: bekleyen görevi çok",
         "paused": "<agent></agent> ajanına sorulamadı: duraklatılmış",
         "archived": "<agent></agent> ajanına sorulamadı: arşivlenmiş",
-        "limitReached": "<agent></agent> ajanına sorulamadı: aylık token sınırı dolmuş"
+        "limitReached": "<agent></agent> ajanına sorulamadı: aylık token sınırı dolmuş",
+        "received": "<agent></agent> ajanının yanıtını aldı"
       },
       "fromChat": "{name} kişisinin sohbet mesajı",
       "chattedBy": "sohbet eden: {name}",
@@ -797,7 +799,9 @@
       "emailSent": "E-posta gönderdi ({to}):",
       "emailSendFailed": "E-posta gönderemedi ({to}):",
       "fromMail": "{name} kişisine gelen e-posta",
-      "deferred": "Sessiz saatleri bitene kadar ({time}) bekletiliyor; bir sahip şimdi onaylayabilir."
+      "deferred": "Sessiz saatleri bitene kadar ({time}) bekletiliyor; bir sahip şimdi onaylayabilir.",
+      "fromChain": "“{name}” zincirinin {step}/{total}. adımı",
+      "removedChain": "silinmiş bir zincir"
     },
     "usage": {
       "thisMonth": "Bu ay: {usage}",
@@ -915,7 +919,11 @@
         "quietHours": "Sessiz saatler için iki farklı saat (SS:DD) ve bir saat dilimi gerekir.",
         "dailyChangeLimit": "Günlük değişiklik sınırını 1 ile 10.000 arasında bir tam sayı olarak girin.",
         "manager": "Seninle paylaşılan ajanlardan bir yönetici seç.",
-        "managerLoop": "Bu bir döngü ya da çok uzun bir yönetici zinciri oluşturur."
+        "managerLoop": "Bu bir döngü ya da çok uzun bir yönetici zinciri oluşturur.",
+        "chainName": "Zincire bir ad ver.",
+        "chainNameLength": "Zincirin adı en fazla 80 karakter olabilir.",
+        "chainSteps": "Bir zincirde her biri bir ajanla 2 ile 8 adım olur.",
+        "chainAgent": "Bu çalışma alanından, düzenleyebildiğin ve arşivlenmemiş ajanları seç."
       },
       "noteEmpty": "Ajanın neyi hatırlaması gerektiğini yazın.",
       "noteTooLong": "Bir not en fazla {max} karakter olabilir.",
@@ -934,7 +942,9 @@
       "ownersOnly": "Bir ajanın aylık token sınırını, sessiz saatlerini ve günlük değişiklik sınırını yalnızca çalışma alanı sahipleri değiştirir.",
       "notAMember": "Bir ajan yalnızca çalışma alanının sahipleri, üyeleri ve gruplarıyla paylaşılabilir.",
       "requestNotFound": "Bu istek zaten yanıtlandı.",
-      "noteChanged": "Bu not o zamandan beri değişti. Ajanın Hafıza sekmesinden değiştirin."
+      "noteChanged": "Bu not o zamandan beri değişti. Ajanın Hafıza sekmesinden değiştirin.",
+      "chainNotFound": "Bu zincir artık yok ya da onu çalıştıramazsın.",
+      "chainRunning": "Bu zincir hâlâ çalışıyor. Bittiğinde yeniden çalıştır."
     },
     "connections": {
       "description": "Bu ajanın her bağlantıda kullanabileceği araçlar. Yalnızca okuyan araçlar hemen çalışır (anonim bir form yanıtından gelen satırda hariç); diğerleri ajan her çağırdığında bir sahibin onayını bekler.",
@@ -2137,7 +2147,9 @@
         "unshared": "Paylaşımdan çıkarıldı: {subject}, “{target}” ajanından",
         "creator_added": "Ajan oluşturma izni verildi: {subject}",
         "creator_removed": "Ajan oluşturma izni kaldırıldı: {subject}",
-        "local_file": "{target} kişisinin bilgisayarında {op, select, trash {“{path}” çöp kutusuna taşındı} other {“{path}” yazıldı}} ({outcome})"
+        "local_file": "{target} kişisinin bilgisayarında {op, select, trash {“{path}” çöp kutusuna taşındı} other {“{path}” yazıldı}} ({outcome})",
+        "chain_set": "“{target}” ajan zincirini kurdu",
+        "chain_removed": "“{target}” ajan zincirini sildi"
       },
       "connection": {
         "created": "“{target}” bağlantısını ekledi",

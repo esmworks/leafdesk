@@ -445,7 +445,8 @@
         "fixed": "Dens egen chat"
       },
       "off": "Slået fra",
-      "unavailable": "Ikke for dig"
+      "unavailable": "Ikke for dig",
+      "chainSteps": "Kæde: trin {steps} af {total}"
     },
     "empty": "Ingen agenter endnu.",
     "emptyOwner": "Ingen agenter endnu. Opret en, eller start fra en skabelon nedenfor.",
@@ -790,14 +791,17 @@
         "busy": "Kunne ikke give <agent></agent> en opgave: for mange venter",
         "paused": "Kunne ikke spørge <agent></agent>: den er sat på pause",
         "archived": "Kunne ikke spørge <agent></agent>: den er arkiveret",
-        "limitReached": "Kunne ikke spørge <agent></agent>: den har brugt sin månedlige tokengrænse"
+        "limitReached": "Kunne ikke spørge <agent></agent>: den har brugt sin månedlige tokengrænse",
+        "received": "Fik svaret fra <agent></agent>"
       },
       "fromChat": "En chatbesked fra {name}",
       "chattedBy": "chat af {name}",
       "yoursOnly": "Du ser de kørsler, du har startet.",
       "waitingForOwner": "En ejer af arbejdsområdet svarer på dette kald.",
       "fromMail": "E-mail til {name}",
-      "deferred": "Venter til dens stille timer er slut ({time}); en ejer kan godkende den nu."
+      "deferred": "Venter til dens stille timer er slut ({time}); en ejer kan godkende den nu.",
+      "fromChain": "Trin {step} af {total} i kæden “{name}”",
+      "removedChain": "en slettet kæde"
     },
     "usage": {
       "thisMonth": "Denne måned: {usage}",
@@ -915,7 +919,11 @@
         "quietHours": "Stille timer kræver to forskellige tidspunkter (TT:MM) og en tidszone.",
         "dailyChangeLimit": "Angiv en daglig ændringsgrænse som et helt tal fra 1 til 10.000.",
         "manager": "Vælg en leder blandt de agenter, der er delt med dig.",
-        "managerLoop": "Det ville give en løkke eller en for lang kæde af ledere."
+        "managerLoop": "Det ville give en løkke eller en for lang kæde af ledere.",
+        "chainName": "Giv kæden et navn.",
+        "chainNameLength": "En kædes navn må højst have 80 tegn.",
+        "chainSteps": "En kæde har 2 til 8 trin, hver med en agent.",
+        "chainAgent": "Vælg agenter i dette arbejdsområde, som du kan redigere, og som ikke er arkiveret."
       },
       "noteEmpty": "Skriv, hvad agenten skal huske.",
       "noteTooLong": "En note må højst have {max} tegn.",
@@ -934,7 +942,9 @@
       "ownersOnly": "Kun arbejdsområdets ejere ændrer en agents månedlige tokengrænse, stille timer og daglige ændringsgrænse.",
       "notAMember": "En agent kan kun deles med arbejdsområdets ejere, medlemmer og grupper.",
       "requestNotFound": "Denne anmodning er allerede besvaret.",
-      "noteChanged": "Denne note er ændret siden. Ret den under agentens fane Hukommelse."
+      "noteChanged": "Denne note er ændret siden. Ret den under agentens fane Hukommelse.",
+      "chainNotFound": "Denne kæde findes ikke længere, eller du kan ikke køre den.",
+      "chainRunning": "Denne kæde kører stadig. Kør den igen, når den er færdig."
     },
     "connections": {
       "description": "Værktøjerne fra hver forbindelse, som denne agent må bruge. Værktøjer, der kun læser, kører med det samme, undtagen på en række fra et anonymt formularsvar; alle andre venter på en ejers godkendelse, hver gang agenten kalder dem.",
@@ -2137,7 +2147,9 @@
         "unshared": "Fjernede {subject} fra delingen af agenten “{target}”",
         "creator_added": "Lod {subject} oprette agenter",
         "creator_removed": "Fjernede {subject} fra dem, der kan oprette agenter",
-        "local_file": "{op, select, trash {Flyttede “{path}” til papirkurven} other {Skrev “{path}”}} på {target}s computer ({outcome})"
+        "local_file": "{op, select, trash {Flyttede “{path}” til papirkurven} other {Skrev “{path}”}} på {target}s computer ({outcome})",
+        "chain_set": "Satte agentkæden “{target}” op",
+        "chain_removed": "Slettede agentkæden “{target}”"
       },
       "connection": {
         "created": "Tilføjede forbindelsen “{target}”",

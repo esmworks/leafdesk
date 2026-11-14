@@ -445,7 +445,8 @@
         "fixed": "Oma keskustelunsa"
       },
       "off": "Pois",
-      "unavailable": "Ei sinulle"
+      "unavailable": "Ei sinulle",
+      "chainSteps": "Ketju: vaihe {steps}/{total}"
     },
     "empty": "Ei vielä agentteja.",
     "emptyOwner": "Ei vielä agentteja. Luo agentti tai aloita alla olevasta mallista.",
@@ -790,14 +791,17 @@
         "busy": "Tehtävää ei voitu antaa agentille <agent></agent>: liian monta odottaa",
         "paused": "Agentilta <agent></agent> ei voitu kysyä: se on keskeytetty",
         "archived": "Agentilta <agent></agent> ei voitu kysyä: se on arkistoitu",
-        "limitReached": "Agentilta <agent></agent> ei voitu kysyä: se on käyttänyt kuukausittaisen tokenrajansa"
+        "limitReached": "Agentilta <agent></agent> ei voitu kysyä: se on käyttänyt kuukausittaisen tokenrajansa",
+        "received": "Sai agentin <agent></agent> vastauksen"
       },
       "fromChat": "Chat-viesti käyttäjältä {name}",
       "chattedBy": "chat: {name}",
       "yoursOnly": "Näet käynnistämäsi ajot.",
       "waitingForOwner": "Työtilan omistaja vastaa tähän kutsuun.",
       "fromMail": "Sähköposti henkilölle {name}",
-      "deferred": "Odottaa hiljaisten tuntien loppuun ({time}); omistaja voi hyväksyä sen nyt."
+      "deferred": "Odottaa hiljaisten tuntien loppuun ({time}); omistaja voi hyväksyä sen nyt.",
+      "fromChain": "Ketjun ”{name}” vaihe {step}/{total}",
+      "removedChain": "poistettu ketju"
     },
     "usage": {
       "thisMonth": "Tässä kuussa: {usage}",
@@ -915,7 +919,11 @@
         "quietHours": "Hiljaiset tunnit tarvitsevat kaksi eri kellonaikaa (HH:MM) ja aikavyöhykkeen.",
         "dailyChangeLimit": "Anna päivittäinen muutosraja kokonaislukuna väliltä 1–10 000.",
         "manager": "Valitse esihenkilö sinulle jaetuista agenteista.",
-        "managerLoop": "Siitä tulisi silmukka tai liian pitkä esihenkilöiden ketju."
+        "managerLoop": "Siitä tulisi silmukka tai liian pitkä esihenkilöiden ketju.",
+        "chainName": "Anna ketjulle nimi.",
+        "chainNameLength": "Ketjun nimessä voi olla enintään 80 merkkiä.",
+        "chainSteps": "Ketjussa on 2–8 vaihetta, jokaisessa agentti.",
+        "chainAgent": "Valitse tämän työtilan agentteja, joita voit muokata ja joita ei ole arkistoitu."
       },
       "noteEmpty": "Kirjoita, mitä agentin pitäisi muistaa.",
       "noteTooLong": "Muistiinpanossa voi olla enintään {max} merkkiä.",
@@ -934,7 +942,9 @@
       "ownersOnly": "Vain työtilan omistajat muuttavat agentin kuukausittaista tokenrajaa, hiljaisia tunteja ja päivittäistä muutosrajaa.",
       "notAMember": "Agentin voi jakaa vain työtilan omistajien, jäsenten ja ryhmien kanssa.",
       "requestNotFound": "Tähän pyyntöön on jo vastattu.",
-      "noteChanged": "Tätä muistiinpanoa on sittemmin muutettu. Muuta sitä agentin Muisti-välilehdellä."
+      "noteChanged": "Tätä muistiinpanoa on sittemmin muutettu. Muuta sitä agentin Muisti-välilehdellä.",
+      "chainNotFound": "Tätä ketjua ei enää ole, tai et voi suorittaa sitä.",
+      "chainRunning": "Tämä ketju on vielä käynnissä. Suorita se uudelleen, kun se päättyy."
     },
     "connections": {
       "description": "Kunkin yhteyden työkalut, joita tämä agentti saa käyttää. Pelkästään lukevat työkalut toimivat heti, paitsi anonyymin lomakevastauksen rivillä; muut odottavat omistajan hyväksyntää aina, kun agentti kutsuu niitä.",
@@ -2137,7 +2147,9 @@
         "unshared": "Poisti kohteen {subject} agentin ”{target}” jakamisesta",
         "creator_added": "Antoi kohteen {subject} luoda agentteja",
         "creator_removed": "Poisti kohteen {subject} niiden joukosta, jotka voivat luoda agentteja",
-        "local_file": "{op, select, trash {Siirsi kohteen ”{path}” roskakoriin} other {Kirjoitti tiedoston ”{path}”}} käyttäjän {target} tietokoneella ({outcome})"
+        "local_file": "{op, select, trash {Siirsi kohteen ”{path}” roskakoriin} other {Kirjoitti tiedoston ”{path}”}} käyttäjän {target} tietokoneella ({outcome})",
+        "chain_set": "Asetti agenttiketjun ”{target}”",
+        "chain_removed": "Poisti agenttiketjun ”{target}”"
       },
       "connection": {
         "created": "Lisäsi yhteyden ”{target}”",

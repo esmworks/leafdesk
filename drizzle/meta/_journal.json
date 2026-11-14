@@ -1485,6 +1485,13 @@
       "when": 1794644215232,
       "tag": "0211_mcp_offline_access",
       "breakpoints": true
+    },
+    {
+      "idx": 212,
+      "version": "7",
+      "when": 1794647267086,
+      "tag": "0212_agent_chains",
+      "breakpoints": true
     }
   ]
 }

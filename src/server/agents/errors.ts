@@ -30,7 +30,11 @@ export type AgentErrorCode =
   /** An agent is shared only with the workspace's owners and members. */
   | "notAMember"
   /** A request for a higher limit that was decided already, or never was. */
-  | "requestNotFound";
+  | "requestNotFound"
+  /** A chain of agents (chains.ts) that isn't there, or that the person may not run. */
+  | "chainNotFound"
+  /** Run now on a chain whose run is still going. */
+  | "chainRunning";
 
 export class AgentError extends Error {
   constructor(

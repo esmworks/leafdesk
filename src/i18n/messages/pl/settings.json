@@ -445,7 +445,8 @@
         "fixed": "Jego własny czat"
       },
       "off": "Wyłączone",
-      "unavailable": "Niedostępne dla Ciebie"
+      "unavailable": "Niedostępne dla Ciebie",
+      "chainSteps": "Łańcuch: krok {steps} z {total}"
     },
     "empty": "Brak agentów.",
     "emptyOwner": "Brak agentów. Utwórz agenta lub zacznij od jednego z poniższych szablonów.",
@@ -785,7 +786,8 @@
         "busy": "Nie udało się dać zadania agentowi <agent></agent>: czeka ich zbyt wiele",
         "paused": "Nie udało się poprosić agenta <agent></agent>: jest wstrzymany",
         "archived": "Nie udało się poprosić agenta <agent></agent>: jest zarchiwizowany",
-        "limitReached": "Nie udało się poprosić agenta <agent></agent>: wyczerpał miesięczny limit tokenów"
+        "limitReached": "Nie udało się poprosić agenta <agent></agent>: wyczerpał miesięczny limit tokenów",
+        "received": "Otrzymano odpowiedź agenta <agent></agent>"
       },
       "fromChat": "Wiadomość na czacie od {name}",
       "chattedBy": "z czatu: {name}",
@@ -797,7 +799,9 @@
       "emailSent": "Wysłał e-mail do {to}:",
       "emailSendFailed": "Nie udało się wysłać e-maila do {to}:",
       "fromMail": "E-mail do {name}",
-      "deferred": "Wstrzymane do końca godzin ciszy ({time}); właściciel może je teraz zatwierdzić."
+      "deferred": "Wstrzymane do końca godzin ciszy ({time}); właściciel może je teraz zatwierdzić.",
+      "fromChain": "Krok {step} z {total} łańcucha „{name}”",
+      "removedChain": "usunięty łańcuch"
     },
     "usage": {
       "thisMonth": "W tym miesiącu: {usage}",
@@ -915,7 +919,11 @@
         "quietHours": "Godziny ciszy wymagają dwóch różnych godzin (GG:MM) i strefy czasowej.",
         "dailyChangeLimit": "Wpisz dzienny limit zmian jako liczbę całkowitą od 1 do 10 000.",
         "manager": "Wybierz przełożonego spośród agentów udostępnionych tobie.",
-        "managerLoop": "Powstałaby pętla lub zbyt długi łańcuch przełożonych."
+        "managerLoop": "Powstałaby pętla lub zbyt długi łańcuch przełożonych.",
+        "chainName": "Nadaj łańcuchowi nazwę.",
+        "chainNameLength": "Nazwa łańcucha może mieć najwyżej 80 znaków.",
+        "chainSteps": "Łańcuch ma od 2 do 8 kroków, każdy z agentem.",
+        "chainAgent": "Wybierz agentów tego obszaru roboczego, których możesz edytować i którzy nie są zarchiwizowani."
       },
       "noteEmpty": "Napisz, co agent ma zapamiętać.",
       "noteTooLong": "Notatka może mieć najwyżej {max, plural, one {# znak} few {# znaki} many {# znaków} other {# znaku}}.",
@@ -934,7 +942,9 @@
       "ownersOnly": "Miesięczny limit tokenów, godziny ciszy i dzienny limit zmian agenta zmieniają tylko właściciele obszaru roboczego.",
       "notAMember": "Agenta można udostępnić tylko właścicielom, członkom i grupom obszaru roboczego.",
       "requestNotFound": "Na tę prośbę już odpowiedziano.",
-      "noteChanged": "Ta notatka zmieniła się od tego czasu. Zmień ją na karcie Pamięć agenta."
+      "noteChanged": "Ta notatka zmieniła się od tego czasu. Zmień ją na karcie Pamięć agenta.",
+      "chainNotFound": "Ten łańcuch już nie istnieje albo nie możesz go uruchomić.",
+      "chainRunning": "Ten łańcuch nadal działa. Uruchom go ponownie, gdy się skończy."
     },
     "connections": {
       "description": "Narzędzia każdego połączenia, których ten agent może używać. Narzędzia tylko do odczytu działają od razu, chyba że w wierszu z anonimowej odpowiedzi z formularza; każde inne czeka na zatwierdzenie właściciela za każdym razem, gdy agent je wywołuje.",
@@ -2137,7 +2147,9 @@
         "unshared": "Usunięto z udostępniania agenta „{target}”: {subject}",
         "creator_added": "Pozwolono {subject} tworzyć agentów",
         "creator_removed": "Usunięto {subject} spośród osób, które mogą tworzyć agentów",
-        "local_file": "{op, select, trash {Przeniesiono „{path}” do kosza} other {Zapisano „{path}”}} na komputerze użytkownika {target} ({outcome})"
+        "local_file": "{op, select, trash {Przeniesiono „{path}” do kosza} other {Zapisano „{path}”}} na komputerze użytkownika {target} ({outcome})",
+        "chain_set": "Skonfigurowano łańcuch agentów „{target}”",
+        "chain_removed": "Usunięto łańcuch agentów „{target}”"
       },
       "connection": {
         "created": "Dodano połączenie „{target}”",

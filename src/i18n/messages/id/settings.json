@@ -445,7 +445,8 @@
         "fixed": "Obrolannya sendiri"
       },
       "off": "Nonaktif",
-      "unavailable": "Bukan untuk Anda"
+      "unavailable": "Bukan untuk Anda",
+      "chainSteps": "Rantai: langkah {steps} dari {total}"
     },
     "empty": "Belum ada agen.",
     "emptyOwner": "Belum ada agen. Buat satu, atau mulai dari templat di bawah.",
@@ -790,14 +791,17 @@
         "busy": "Tidak bisa memberi <agent></agent> tugas: terlalu banyak yang menunggu",
         "paused": "Tidak dapat bertanya kepada <agent></agent>: sedang dijeda",
         "archived": "Tidak dapat bertanya kepada <agent></agent>: sudah diarsipkan",
-        "limitReached": "Tidak dapat bertanya kepada <agent></agent>: telah memakai batas token bulanannya"
+        "limitReached": "Tidak dapat bertanya kepada <agent></agent>: telah memakai batas token bulanannya",
+        "received": "Menerima jawaban dari <agent></agent>"
       },
       "fromChat": "Pesan obrolan dari {name}",
       "chattedBy": "obrolan oleh {name}",
       "yoursOnly": "Anda melihat eksekusi yang Anda mulai.",
       "waitingForOwner": "Pemilik ruang kerja menjawab panggilan ini.",
       "fromMail": "Email untuk {name}",
-      "deferred": "Ditahan sampai jam tenangnya berakhir ({time}); pemilik dapat menyetujuinya sekarang."
+      "deferred": "Ditahan sampai jam tenangnya berakhir ({time}); pemilik dapat menyetujuinya sekarang.",
+      "fromChain": "Langkah {step} dari {total} di rantai “{name}”",
+      "removedChain": "rantai yang dihapus"
     },
     "usage": {
       "thisMonth": "Bulan ini: {usage}",
@@ -915,7 +919,11 @@
         "quietHours": "Jam tenang memerlukan dua waktu berbeda (HH:MM) dan zona waktu.",
         "dailyChangeLimit": "Masukkan batas perubahan harian sebagai bilangan bulat dari 1 sampai 10.000.",
         "manager": "Pilih manajer dari agen yang dibagikan dengan Anda.",
-        "managerLoop": "Itu akan membuat putaran atau rantai manajer yang terlalu panjang."
+        "managerLoop": "Itu akan membuat putaran atau rantai manajer yang terlalu panjang.",
+        "chainName": "Beri nama rantai.",
+        "chainNameLength": "Nama rantai paling banyak 80 karakter.",
+        "chainSteps": "Rantai memiliki 2 sampai 8 langkah, masing-masing dengan agen.",
+        "chainAgent": "Pilih agen di ruang kerja ini yang dapat Anda edit dan tidak diarsipkan."
       },
       "noteEmpty": "Tulis apa yang harus diingat agen.",
       "noteTooLong": "Catatan dapat memiliki paling banyak {max} karakter.",
@@ -934,7 +942,9 @@
       "ownersOnly": "Hanya pemilik ruang kerja yang mengubah batas token bulanan, jam tenang, dan batas perubahan harian agen.",
       "notAMember": "Agen hanya dapat dibagikan kepada pemilik, anggota, dan grup ruang kerja.",
       "requestNotFound": "Permintaan ini sudah dijawab.",
-      "noteChanged": "Catatan ini sudah berubah sejak itu. Ubah di tab Memori agen."
+      "noteChanged": "Catatan ini sudah berubah sejak itu. Ubah di tab Memori agen.",
+      "chainNotFound": "Rantai ini sudah tidak ada, atau Anda tidak dapat menjalankannya.",
+      "chainRunning": "Rantai ini masih berjalan. Jalankan lagi setelah selesai."
     },
     "connections": {
       "description": "Alat dari setiap koneksi yang boleh dipakai agen ini. Alat yang hanya membaca langsung berjalan, kecuali pada baris dari jawaban formulir anonim; yang lain menunggu persetujuan pemilik setiap kali agen memanggilnya.",
@@ -2137,7 +2147,9 @@
         "unshared": "Mengeluarkan {subject} dari berbagi agen “{target}”",
         "creator_added": "Mengizinkan {subject} membuat agen",
         "creator_removed": "Menghapus {subject} dari yang dapat membuat agen",
-        "local_file": "{op, select, trash {Memindahkan “{path}” ke tempat sampah} other {Menulis “{path}”}} di komputer {target} ({outcome})"
+        "local_file": "{op, select, trash {Memindahkan “{path}” ke tempat sampah} other {Menulis “{path}”}} di komputer {target} ({outcome})",
+        "chain_set": "Menyiapkan rantai agen “{target}”",
+        "chain_removed": "Menghapus rantai agen “{target}”"
       },
       "connection": {
         "created": "Menambahkan koneksi “{target}”",

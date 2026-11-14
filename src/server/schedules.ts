@@ -29,7 +29,8 @@ import { pushNotifications } from "@/server/push";
  * at most once even with several replicas or a crash; a server that was down catches up with one
  * run, then keeps to the rule. What a run does depends on the schedule's kind (see
  * registerScheduleHandler); "row_template" adds a row from a database's row template, "agent" starts
- * a run of an agent (server/agents/schedules.ts, which registers its handler).
+ * a run of an agent (server/agents/schedules.ts, which registers its handler), "agent_chain" a chain
+ * of agents (server/agents/chains.ts).
  *
  * A schedule runs as the person who set it last, with their access at the time. A run they could
  * no longer do pauses it (`enabled` off, with the reason in `lastError`) until someone sets it again.
@@ -132,7 +133,7 @@ async function runOne(row: ScheduleRow, at: Date, now: Date) {
 }
 
 /** Kinds whose runs are counted toward SCHEDULE_FAILURE_LIMIT: those that start a run of the AI. */
-const COUNTED_KINDS: ReadonlySet<ScheduleKind> = new Set(["agent", "own_request"]);
+const COUNTED_KINDS: ReadonlySet<ScheduleKind> = new Set(["agent", "own_request", "agent_chain"]);
 
 /**
  * Counts how a schedule's run went (an agent's run, an own request's answer, or a start that
@@ -163,7 +164,7 @@ export async function noteScheduleOutcome(scheduleId: string, ok: boolean) {
     const actorId = off.kind === "agent" && off.agentId ? sql<string>`(select ${workspaceAgent.userId} from ${workspaceAgent} where ${workspaceAgent.id} = ${off.agentId})` : null;
     const inserted = await db
       .insert(notification)
-      .values({ userId: off.runAs, workspaceId: off.workspaceId, kind: "schedule_paused", actorId, message: (off.settings.task ?? "").slice(0, PAUSED_TASK_CHARS) })
+      .values({ userId: off.runAs, workspaceId: off.workspaceId, kind: "schedule_paused", actorId, message: (off.settings.task ?? off.settings.name ?? "").slice(0, PAUSED_TASK_CHARS) })
       .returning({ id: notification.id });
     signalInbox(off.workspaceId);
     pushNotifications(inserted.map((n) => n.id));

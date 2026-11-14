@@ -146,6 +146,8 @@ export const AUDIT_CATEGORIES = {
     "agent.run_requested",
     "agent.schedule_set",
     "agent.schedule_removed",
+    "agent.chain_set",
+    "agent.chain_removed",
     "agent.shared",
     "agent.unshared",
     "agent.creator_added",
@@ -218,7 +220,8 @@ export type AuditTargetType =
   | "legal_hold"
   | "webhook"
   | "audit_stream"
-  | "channel";
+  | "channel"
+  | "agent_chain";
 
 /** A stored event, as the list and the CSV show it. Names are as they were when it happened. */
 export type AuditEvent = {

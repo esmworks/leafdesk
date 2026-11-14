@@ -39,6 +39,7 @@ import {
   FolderPlus,
   Users,
   Waypoints,
+  Workflow,
   HardDriveDownload,
   Loader2,
 } from "lucide-react";
@@ -128,6 +129,7 @@ const AccountMenu = lazyPart(() => import("./account-menu").then((m) => m.Accoun
 const ReminderPrompt = lazyPart(() => import("./reminder-prompt").then((m) => m.ReminderPrompt));
 const ArrivalCards = lazyPart(() => import("./arrival-cards").then((m) => m.ArrivalCards));
 const NewAgentDialog = lazyPart(() => import("./new-agent").then((m) => m.NewAgentDialog));
+const AgentChains = lazyPart(() => import("./agent-chains").then((m) => m.AgentChains));
 // Loaded the first time the Mail tab opens: most people open it now and then.
 const TaskPanel = lazyPart(() => import("./task-panel").then((m) => m.TaskPanel));
 const MeetingPanel = lazyPart(() => import("./meeting-panel").then((m) => m.MeetingPanel));
@@ -299,6 +301,7 @@ export function Sidebar({
   const [renamingAgentGroup, setRenamingAgentGroup] = useState<string | null>(null);
   const [agentCreation, setAgentCreation] = useState<AgentCreationInfo | null>(null);
   const [newAgent, setNewAgent] = useState<"blank" | "describe" | null>(null);
+  const [newChain, setNewChain] = useState(false);
   const [expanded, setExpanded] = useState<Set<string>>(() => new Set());
   const [searchOpen, setSearchOpen] = useState(false);
   // What the search box opens with: a tag clicked in a page (OPEN_SEARCH_EVENT), else nothing.
@@ -1627,7 +1630,7 @@ export function Sidebar({
       )
     ) : (
       <>
-        {canCreateAgents && (
+        {(canCreateAgents || agents.some((a) => a.edits)) && (
           <Popover
             align="end"
             trigger={({ open, toggle }) => (
@@ -1650,6 +1653,7 @@ export function Sidebar({
               <div className="w-60">
                 <MenuItem
                   icon={<SquarePen className="h-4 w-4" />}
+                  disabled={!canCreateAgents}
                   onClick={() => {
                     close();
                     setNewAgent("blank");
@@ -1659,7 +1663,7 @@ export function Sidebar({
                 </MenuItem>
                 <MenuItem
                   icon={<Sparkles className="h-4 w-4" />}
-                  disabled={agentCreation?.ai !== "on"}
+                  disabled={!canCreateAgents || agentCreation?.ai !== "on"}
                   onClick={() => {
                     close();
                     setNewAgent("describe");
@@ -1669,12 +1673,24 @@ export function Sidebar({
                 </MenuItem>
                 <MenuItem
                   icon={<LayoutTemplate className="h-4 w-4" />}
+                  disabled={!canCreateAgents}
                   onClick={() => {
                     close();
                     router.push(`/w/${workspaceId}/settings?tab=agents`);
                   }}
                 >
                   {t("agentList.newTemplate")}
+                </MenuItem>
+                <MenuSeparator />
+                <MenuItem
+                  icon={<Workflow className="h-4 w-4" />}
+                  disabled={!agents.some((a) => a.edits)}
+                  onClick={() => {
+                    close();
+                    setNewChain(true);
+                  }}
+                >
+                  {t("agentChains.newChain")}
                 </MenuItem>
               </div>
             )}
@@ -2044,16 +2060,19 @@ export function Sidebar({
               ) : shownTab === "chat" && aiChat ? (
                 <ConversationList actionsSlot={chatActionsEl} />
               ) : shownTab === "agents" ? (
-                <AgentList
-                  agents={agents}
-                  workspaceId={workspaceId}
-                  activePath={pathname}
-                  arrangement={layout.agents}
-                  onArrange={offline ? undefined : arrangeAgentList}
-                  renamingGroup={renamingAgentGroup}
-                  onRenamingGroup={setRenamingAgentGroup}
-                  navigate={router.push}
-                />
+                <>
+                  <AgentList
+                    agents={agents}
+                    workspaceId={workspaceId}
+                    activePath={pathname}
+                    arrangement={layout.agents}
+                    onArrange={offline ? undefined : arrangeAgentList}
+                    renamingGroup={renamingAgentGroup}
+                    onRenamingGroup={setRenamingAgentGroup}
+                    navigate={router.push}
+                  />
+                  {!guest && <AgentChains workspaceId={workspaceId} agents={agents} offline={offline} creating={newChain} onCreatingDone={() => setNewChain(false)} />}
+                </>
               ) : shownTab === "journal" ? (
                 <>
                   <div className="px-1 pb-3">

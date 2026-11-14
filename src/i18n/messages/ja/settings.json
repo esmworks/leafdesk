@@ -445,7 +445,8 @@
         "fixed": "自身のチャット"
       },
       "off": "オフ",
-      "unavailable": "利用できません"
+      "unavailable": "利用できません",
+      "chainSteps": "チェーン：ステップ{steps}/{total}"
     },
     "empty": "エージェントはまだありません。",
     "emptyOwner": "エージェントはまだありません。作成するか、下のテンプレートから始めてください。",
@@ -785,7 +786,8 @@
         "busy": "<agent></agent>にタスクを任せられませんでした：待機中のタスクが多すぎます",
         "paused": "<agent></agent>に依頼できませんでした：一時停止中です",
         "archived": "<agent></agent>に依頼できませんでした：アーカイブされています",
-        "limitReached": "<agent></agent>に依頼できませんでした：月間トークン上限に達しています"
+        "limitReached": "<agent></agent>に依頼できませんでした：月間トークン上限に達しています",
+        "received": "<agent></agent>の回答を受け取りました"
       },
       "fromChat": "{name}からのチャットメッセージ",
       "chattedBy": "{name}がチャット",
@@ -797,7 +799,9 @@
       "emailSent": "{to} にメールを送信しました：",
       "emailSendFailed": "{to} にメールを送信できませんでした：",
       "fromMail": "{name} 宛てのメール",
-      "deferred": "静かな時間が終わるまで（{time}）保留中です。オーナーは今すぐ承認できます。"
+      "deferred": "静かな時間が終わるまで（{time}）保留中です。オーナーは今すぐ承認できます。",
+      "fromChain": "チェーン「{name}」のステップ{step}/{total}",
+      "removedChain": "削除されたチェーン"
     },
     "usage": {
       "thisMonth": "今月：{usage}",
@@ -915,7 +919,11 @@
         "quietHours": "静かな時間には異なる2つの時刻（HH:MM）とタイムゾーンが必要です。",
         "dailyChangeLimit": "1日の変更上限を 1〜10,000 の整数で入力してください。",
         "manager": "あなたと共有されているエージェントからマネージャーを選んでください。",
-        "managerLoop": "ループになるか、マネージャーの連鎖が長くなりすぎます。"
+        "managerLoop": "ループになるか、マネージャーの連鎖が長くなりすぎます。",
+        "chainName": "チェーンに名前を付けてください。",
+        "chainNameLength": "チェーンの名前は80文字以内です。",
+        "chainSteps": "チェーンには2～8個のステップがあり、それぞれにエージェントが必要です。",
+        "chainAgent": "このワークスペースで編集でき、アーカイブされていないエージェントを選んでください。"
       },
       "noteEmpty": "エージェントに記憶させる内容を書いてください。",
       "noteTooLong": "メモは最大{max}文字です。",
@@ -934,7 +942,9 @@
       "ownersOnly": "エージェントの月間トークン上限、静かな時間、1日の変更上限を変更できるのはワークスペースのオーナーだけです。",
       "notAMember": "エージェントを共有できるのは、ワークスペースのオーナー、メンバー、グループだけです。",
       "requestNotFound": "このリクエストにはすでに回答済みです。",
-      "noteChanged": "このメモはその後変更されています。エージェントの「メモリー」タブで変更してください。"
+      "noteChanged": "このメモはその後変更されています。エージェントの「メモリー」タブで変更してください。",
+      "chainNotFound": "このチェーンはもう存在しないか、実行する権限がありません。",
+      "chainRunning": "このチェーンはまだ実行中です。終了してからもう一度実行してください。"
     },
     "connections": {
       "description": "このエージェントが使用できる、各接続のツールです。読み取り専用のツールはすぐに実行されます（匿名のフォーム回答による行の場合を除く）。それ以外のツールは、エージェントが呼び出すたびにオーナーの承認を待ちます。",
@@ -2137,7 +2147,9 @@
         "unshared": "エージェント「{target}」の共有から{subject}を削除しました",
         "creator_added": "{subject}にエージェントの作成を許可しました",
         "creator_removed": "{subject}をエージェントを作成できる人から外しました",
-        "local_file": "{target}のコンピューターで{op, select, trash {「{path}」をゴミ箱に移動しました} other {「{path}」を書き込みました}}（{outcome}）"
+        "local_file": "{target}のコンピューターで{op, select, trash {「{path}」をゴミ箱に移動しました} other {「{path}」を書き込みました}}（{outcome}）",
+        "chain_set": "エージェントチェーン「{target}」を設定しました",
+        "chain_removed": "エージェントチェーン「{target}」を削除しました"
       },
       "connection": {
         "created": "接続「{target}」を追加しました",

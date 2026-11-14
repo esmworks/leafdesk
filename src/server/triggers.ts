@@ -58,6 +58,10 @@ function sameSource(source: RunSource, context: AgentRunContext): SQL | null {
   if (source.kind === "mention") return sql`${agentRun.source}->>'commentId' = ${source.commentId}`;
   if (source.kind === "channel") return sql`${agentRun.source}->>'kind' = 'channel' and ${agentRun.source}->>'messageId' = ${source.messageId}`;
   if (source.kind === "mail") return sql`${agentRun.source}->>'kind' = 'mail' and ${agentRun.source}->>'messageId' = ${source.messageId}`;
+  // A chain's step: one run per step of the chain's run (server/agents/chains.ts), the same agent twice in a chain included.
+  if (source.kind === "schedule" && source.chain) {
+    return sql`${agentRun.source}->'chain'->>'runId' = ${source.chain.runId} and (${agentRun.source}->'chain'->>'step')::int = ${source.chain.step}`;
+  }
   const scheduledFor = "scheduledFor" in context ? context.scheduledFor : undefined;
   if (source.kind === "schedule" && scheduledFor) {
     return sql`${agentRun.source}->>'scheduleId' = ${source.scheduleId} and ${agentRun.context}->>'scheduledFor' = ${scheduledFor}`;
@@ -235,6 +239,15 @@ export async function listTriggers(userId: string, workspaceId: string, agentId?
       failures: s.failures,
       setBy: s.setBy,
     });
+  }
+  // Chains it is a step of: those the viewer may run (agents/chains.ts).
+  const { listAgentChains } = await import("@/server/agents/chains");
+  if (!isGuest(membership.role)) {
+    for (const c of await listAgentChains(userId, workspaceId)) {
+      const steps = c.steps.flatMap((s, i) => (s.agentId === agent.id ? [i + 1] : []));
+      if (!steps.length) continue;
+      views.push({ kind: "chain", conversation: "keyed", id: c.id, name: c.name, steps, total: c.steps.length, repeats: c.repeats, enabled: c.enabled });
+    }
   }
   const automations = await db
     .select({ id: databaseAutomation.id, name: databaseAutomation.name, enabled: databaseAutomation.enabled, trigger: databaseAutomation.trigger, actions: databaseAutomation.actions, databaseId: databaseAutomation.databaseId, databaseTitle: page.title })

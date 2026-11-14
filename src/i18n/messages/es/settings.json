@@ -445,7 +445,8 @@
         "fixed": "Su propio chat"
       },
       "off": "Desactivado",
-      "unavailable": "No disponible para ti"
+      "unavailable": "No disponible para ti",
+      "chainSteps": "Cadena: paso {steps} de {total}"
     },
     "empty": "Todavía no hay agentes.",
     "emptyOwner": "Todavía no hay agentes. Crea uno o empieza con una plantilla de abajo.",
@@ -785,7 +786,8 @@
         "busy": "No pudo encargar una tarea a <agent></agent>: tiene demasiadas en espera",
         "paused": "No pudo preguntar a <agent></agent>: está en pausa",
         "archived": "No pudo preguntar a <agent></agent>: está archivado",
-        "limitReached": "No pudo preguntar a <agent></agent>: agotó su límite mensual de tokens"
+        "limitReached": "No pudo preguntar a <agent></agent>: agotó su límite mensual de tokens",
+        "received": "Recibió la respuesta de <agent></agent>"
       },
       "fromChat": "Mensaje de chat de {name}",
       "chattedBy": "chat de {name}",
@@ -797,7 +799,9 @@
       "emailSent": "Envió un correo a {to}:",
       "emailSendFailed": "No pudo enviar un correo a {to}:",
       "fromMail": "Correo para {name}",
-      "deferred": "Retenida hasta que terminen sus horas de silencio ({time}); un propietario puede aprobarla ahora."
+      "deferred": "Retenida hasta que terminen sus horas de silencio ({time}); un propietario puede aprobarla ahora.",
+      "fromChain": "Paso {step} de {total} de la cadena «{name}»",
+      "removedChain": "una cadena eliminada"
     },
     "usage": {
       "thisMonth": "Este mes: {usage}",
@@ -915,7 +919,11 @@
         "quietHours": "Las horas de silencio necesitan dos horas distintas (HH:MM) y una zona horaria.",
         "dailyChangeLimit": "Escribe un límite diario de cambios como número entero de 1 a 10.000.",
         "manager": "Elige un responsable entre los agentes compartidos contigo.",
-        "managerLoop": "Eso crearía un bucle o una cadena de responsables demasiado larga."
+        "managerLoop": "Eso crearía un bucle o una cadena de responsables demasiado larga.",
+        "chainName": "Ponle un nombre a la cadena.",
+        "chainNameLength": "El nombre de una cadena puede tener como máximo 80 caracteres.",
+        "chainSteps": "Una cadena tiene de 2 a 8 pasos, cada uno con un agente.",
+        "chainAgent": "Elige agentes de este espacio de trabajo que puedas editar y que no estén archivados."
       },
       "noteEmpty": "Escribe qué debe recordar el agente.",
       "noteTooLong": "Una nota puede tener como máximo {max} caracteres.",
@@ -934,7 +942,9 @@
       "ownersOnly": "Solo los propietarios del espacio de trabajo cambian el límite mensual de tokens, las horas de silencio y el límite diario de cambios de un agente.",
       "notAMember": "Un agente solo se puede compartir con los propietarios, miembros y grupos del espacio de trabajo.",
       "requestNotFound": "Esta solicitud ya se respondió.",
-      "noteChanged": "Esta nota ha cambiado desde entonces. Cámbiala en la pestaña Memoria del agente."
+      "noteChanged": "Esta nota ha cambiado desde entonces. Cámbiala en la pestaña Memoria del agente.",
+      "chainNotFound": "Esta cadena ya no existe o no puedes ejecutarla.",
+      "chainRunning": "Esta cadena sigue en curso. Vuelve a ejecutarla cuando termine."
     },
     "connections": {
       "description": "Las herramientas de cada conexión que este agente puede usar. Las que solo leen se ejecutan al momento, salvo en una fila que viene de una respuesta anónima a un formulario; las demás esperan la aprobación de un propietario cada vez que el agente las llama.",
@@ -2137,7 +2147,9 @@
         "unshared": "Quitó a {subject} del uso compartido del agente «{target}»",
         "creator_added": "Permitió a {subject} crear agentes",
         "creator_removed": "Quitó a {subject} de quienes pueden crear agentes",
-        "local_file": "{op, select, trash {Movió «{path}» a la papelera} other {Escribió «{path}»}} en el ordenador de {target} ({outcome})"
+        "local_file": "{op, select, trash {Movió «{path}» a la papelera} other {Escribió «{path}»}} en el ordenador de {target} ({outcome})",
+        "chain_set": "Configuró la cadena de agentes «{target}»",
+        "chain_removed": "Eliminó la cadena de agentes «{target}»"
       },
       "connection": {
         "created": "Añadió la conexión «{target}»",

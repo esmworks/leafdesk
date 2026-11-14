@@ -209,6 +209,7 @@ export const LEFT_OUT: Record<string, string> = {
   page_tag: "the #tags in pages' text, read from the restored pages again (server/page-tags.ts)",
   page_tag_queue: "pages waiting for their #tags to be read; a restore queues its own pages",
   agent_run: "agent runs, kept a few weeks only",
+  agent_chain_run: "chains of agents' runs, whose step runs aren't backed up either",
   message_draft: "what people were writing in channels and hadn't sent",
   saved_message: "people's own messages saved for later and their reminders",
   scheduled_message: "messages waiting to be sent later; a restore mustn't send them again",

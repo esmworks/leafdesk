@@ -1,3 +1,4 @@
+import type { AgentChainStep } from "./agent-chains";
 import type { DashboardEmailTarget, SubscriptionPeriod } from "./dashboard-emails";
 import { dayNumber, dayString, localDay, monthDay, weekdayOf, zonedInstant } from "./time-zone";
 
@@ -15,14 +16,16 @@ export type RepeatFrequency = "daily" | "weekly" | "monthly" | "yearly";
 /**
  * What a schedule does when it runs: add a row from a row template, start an agent's run, email
  * a dashboard's figures (lib/dashboard-emails), or ask the AI chat something as the person who set
- * it (an own request, server/own-requests.ts).
+ * it (an own request, server/own-requests.ts), or start a chain of agents (lib/agent-chains).
  */
-export type ScheduleKind = "row_template" | "agent" | "dashboard_email" | "own_request";
+export type ScheduleKind = "row_template" | "agent" | "dashboard_email" | "own_request" | "agent_chain";
 /**
  * "row_template": `dateInTitle` puts the day it runs after the template's title. "agent": `task`
  * is what the agent is asked to do each time. "dashboard_email": which dashboard of the schedule's
  * page, who gets it (user ids) and the period it shows. "own_request": `task` is the question asked
  * each time, and `mode` whether the answer may change things (`auto`) or only reads (`read`, the default).
+ * "agent_chain": the chain's `name` and `steps`, and whether it `repeats` on its rule (otherwise it
+ * runs only when someone clicks Run now, and has no next run).
  */
 export type ScheduleSettings = {
   dateInTitle?: boolean;
@@ -31,6 +34,9 @@ export type ScheduleSettings = {
   dashboard?: DashboardEmailTarget;
   recipients?: string[];
   period?: SubscriptionPeriod;
+  name?: string;
+  steps?: AgentChainStep[];
+  repeats?: boolean;
 };
 /**
  * Why a run didn't happen. Each pauses the schedule except "failed" (a passing problem; it runs
