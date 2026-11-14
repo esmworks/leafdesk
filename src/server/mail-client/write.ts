@@ -283,8 +283,6 @@ type Held = Prepared & {
   error: RowMailErrorCode | null;
   /** Where the sent copy is in the index, once it went and was found there. */
   sent: MailSentPlace | null;
-  /** The send under way, for a server stopping to wait for. */
-  sending: Promise<void> | null;
   /** Set as the server stops: the send doesn't look for its sent copy then. */
   stopping: boolean;
 };
@@ -301,7 +299,7 @@ const settled = (id: string) => setTimeout(() => held.delete(id), KEPT_MS).unref
 export async function holdMail(userId: string, draft: MailDraftInput, files: File[] = [], inline: InlineFile[] = []): Promise<MailHeldSend> {
   const prepared = await prepare(userId, draft, files, inline);
   const id = crypto.randomUUID();
-  held.set(id, { ...prepared, timer: setTimeout(() => void sendHeld(id), MAIL_UNDO_SECONDS * 1000), state: "held", error: null, sent: null, sending: null, stopping: false });
+  held.set(id, { ...prepared, timer: setTimeout(() => void sendHeld(id), MAIL_UNDO_SECONDS * 1000), state: "held", error: null, sent: null, stopping: false });
   return { sendId: id };
 }
 
@@ -311,8 +309,7 @@ export async function sendHeld(id: string) {
   if (!entry || entry.state !== "held") return;
   if (entry.timer) clearTimeout(entry.timer);
   entry.state = "sending";
-  entry.sending = send(entry);
-  await entry.sending;
+  await send(entry);
   settled(id);
 }
 
@@ -331,21 +328,25 @@ async function send(entry: Held) {
 
 /**
  * Sends every message still waiting for Undo at once and waits for every send under way (server.ts,
- * as it stops, after it stopped taking requests, so no Undo comes meanwhile): held only in this
- * process's memory, they would otherwise go with it, neither sent nor kept as a draft. Returns false
- * when `timeoutMs` passed first, as flushCollab does, since the container is killed soon after.
+ * as it stops): held only in this process's memory, they would otherwise go with it, neither sent
+ * nor kept as a draft. It looks again until none is left, since a Send request still running as the
+ * server stopped taking new ones can hold its message after a look; an Undo coming meanwhile finds
+ * its message no longer `held`. Returns false when `timeoutMs` passed first, as flushCollab does,
+ * since the container is killed soon after. Next's copy of this module holds the messages and the
+ * server's calls this one: only `held` and its entries are shared.
  */
-export async function sendHeldNow({ timeoutMs = 8000 }: { timeoutMs?: number } = {}): Promise<boolean> {
-  for (const entry of held.values()) entry.stopping = true;
-  for (const [id, entry] of held) if (entry.state === "held") void sendHeld(id);
-  const sending = [...held.values()].flatMap((entry) => (entry.state === "sending" && entry.sending ? [entry.sending] : []));
-  if (!sending.length) return true;
-  let timer: ReturnType<typeof setTimeout> | undefined;
-  const late = new Promise<false>((done) => (timer = setTimeout(() => done(false), timeoutMs)));
-  try {
-    return await Promise.race([Promise.all(sending).then(() => true), late]);
-  } finally {
-    clearTimeout(timer);
+export async function sendHeldNow({ timeoutMs = 8000, pollMs = 25 }: { timeoutMs?: number; pollMs?: number } = {}): Promise<boolean> {
+  const deadline = Date.now() + timeoutMs;
+  for (;;) {
+    let waiting = false;
+    for (const [id, entry] of held) {
+      entry.stopping = true;
+      if (entry.state === "held") void sendHeld(id);
+      if (entry.state === "held" || entry.state === "sending") waiting = true;
+    }
+    if (!waiting) return true;
+    if (Date.now() >= deadline) return false;
+    await new Promise((resolve) => setTimeout(resolve, pollMs));
   }
 }
 
