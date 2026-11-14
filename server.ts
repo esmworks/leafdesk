@@ -32,6 +32,7 @@ void env.authSecret;
 const { createCollab } = await import("./src/server/collab/service");
 const { registerCollab } = await import("./src/server/collab/bridge");
 const { flushCollab } = await import("./src/server/collab/shutdown");
+const { sendHeldNow } = await import("./src/server/mail-client/write");
 const { describeMailSetup } = await import("./src/server/mail");
 const { startAssignmentEmails } = await import("./src/server/assignments");
 const { startShareEmails } = await import("./src/server/share-emails");
@@ -290,8 +291,11 @@ async function shutdown() {
   shuttingDown = true;
   // No new requests or websockets; open ones finish or are closed below.
   server.close();
-  // Writes the edits still waiting for their debounced save, and waits for them.
-  if (!(await flushCollab(hocuspocus))) console.error("[collab] exiting before every open page was saved");
+  // Writes the edits still waiting for their debounced save, and sends the mail still waiting for
+  // Undo (kept only in memory), waiting for both.
+  const [saved, sent] = await Promise.all([flushCollab(hocuspocus), sendHeldNow()]);
+  if (!saved) console.error("[collab] exiting before every open page was saved");
+  if (!sent) console.error("[mail-client] exiting before every message sent from the Mail tab went");
   process.exit(0);
 }
 for (const signal of ["SIGINT", "SIGTERM"] as const) {

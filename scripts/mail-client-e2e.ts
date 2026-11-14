@@ -10,7 +10,7 @@
  * deleting for good and emptying the trash reach the server and the index at once; an answer goes out in the same thread and lands in the sent
  * folder; a draft is kept in the drafts folder (made where there is none), each save replacing the last under one
  * Message-ID with the files it kept, opens again with its Bcc and signature, marks the thread it answers, and goes
- * once sent or thrown away; a message sent waits for Undo, which makes it a draft again, and goes when its seconds are up; a new message goes out from the mailbox picked, its formatting cleaned and a plain-text part beside it;
+ * once sent or thrown away; a message sent waits for Undo, which makes it a draft again, and goes when its seconds are up or the server stops; a new message goes out from the mailbox picked, its formatting cleaned and a plain-text part beside it;
  * recipient fields suggest the people written with; an answer's HTML shows without the earlier mail it quotes, which comes apart, and one written here carries the original's HTML, text and images under it, kept from draft to draft and left out when taken off; a forward carries the original under its header with its files;
  * pictures put in the text go as parts of the message, kept by a draft and carried over without being sent again; the minute's sweep reads new mail, flags changed elsewhere and messages deleted
  * elsewhere; search finds by sender and subject; no one but the mailbox's owner reads it.
@@ -83,7 +83,7 @@ const { connectMailbox, setMailDatabases, RowMailError } = await import("@/serve
 const { syncDue } = await import("@/server/row-mail/sync");
 const read = await import("@/server/mail-client/read");
 const { STARRED } = await import("@/lib/mail-client");
-const { emptyFolder, holdMail, mailAction, sendHeld, sendMail, sendStatus, undoSend } = await import("@/server/mail-client/write");
+const { emptyFolder, holdMail, mailAction, sendHeld, sendHeldNow, sendMail, sendStatus, undoSend } = await import("@/server/mail-client/write");
 const drafts = await import("@/server/mail-client/drafts");
 const { suggestAddresses } = await import("@/server/mail-client/contacts");
 const { closeImap } = await import("@/server/mail-client/pool");
@@ -584,6 +584,10 @@ try {
   const wentList = went ? await read.listThreads(ids.ada, { mailboxId: boxId, folderId: went.folderId }) : null;
   const sentItem = wentList?.items.find((i) => i.threadId === went?.threadId);
   check(sentItem?.recipients.map((r) => r.address).join() === customer, "a thread only the mailbox wrote lists whom it went to");
+  const atShutdown = await holdMail(ids.ada, { mailboxId: boxId, to: [customer], cc: [], bcc: [], subject: "Kapanirken", html: "<p>Sunucu durmadan once</p>" });
+  check(await sendHeldNow(), "a server stopping sends the messages still waiting for Undo and waits for them");
+  await settle();
+  check(sendStatus(ids.ada, atShutdown.sendId).state === "sent" && (await lastMessageTo(customer)).includes("Sunucu durmadan once"), "so one sent just before a restart isn't lost");
 
   // Writing with formatting, from the other mailbox
   await sendMail(ids.ada, {

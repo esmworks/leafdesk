@@ -35,6 +35,11 @@
 
 ### Fixed
 
+- **A message sent from the Mail tab just before the server stops still goes.** Sent mail waits
+  a few seconds on the server for *Undo*; a restart or a desktop app quit in those seconds lost it,
+  neither sent nor kept as a draft. The server now sends such messages at once as it stops and waits
+  for every send under way.
+
 - **Apps connected over MCP stay connected past their first hour.** Apps that ask for the scopes the
   MCP metadata lists (as the MCP SDK does) were never given `offline_access`, so they got no refresh
   token and showed as signed out once the hour-long access token ran out; signing in again worked

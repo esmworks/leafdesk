@@ -274,7 +274,8 @@ export async function sendMail(userId: string, draft: MailDraftInput, files: Fil
 /**
  * Messages sent from the Mail tab wait MAIL_UNDO_SECONDS here, in this process, for Undo. Waiting
  * on the server, not in the browser, a message still goes when its tab is closed meanwhile; a
- * restart in those seconds loses it, but for the draft it was last saved as.
+ * server stopping in those seconds sends it at once (sendHeldNow), and only one killed outright
+ * loses it, but for the draft it was last saved as.
  */
 type Held = Prepared & {
   timer: ReturnType<typeof setTimeout> | null;
@@ -282,6 +283,10 @@ type Held = Prepared & {
   error: RowMailErrorCode | null;
   /** Where the sent copy is in the index, once it went and was found there. */
   sent: MailSentPlace | null;
+  /** The send under way, for a server stopping to wait for. */
+  sending: Promise<void> | null;
+  /** Set as the server stops: the send doesn't look for its sent copy then. */
+  stopping: boolean;
 };
 const held = ((globalThis as typeof globalThis & { __leafdeskMailHeld?: Map<string, Held> }).__leafdeskMailHeld ??= new Map<string, Held>());
 /** How long the outcome of a send stays to be asked for. */
@@ -296,7 +301,7 @@ const settled = (id: string) => setTimeout(() => held.delete(id), KEPT_MS).unref
 export async function holdMail(userId: string, draft: MailDraftInput, files: File[] = [], inline: InlineFile[] = []): Promise<MailHeldSend> {
   const prepared = await prepare(userId, draft, files, inline);
   const id = crypto.randomUUID();
-  held.set(id, { ...prepared, timer: setTimeout(() => void sendHeld(id), MAIL_UNDO_SECONDS * 1000), state: "held", error: null, sent: null });
+  held.set(id, { ...prepared, timer: setTimeout(() => void sendHeld(id), MAIL_UNDO_SECONDS * 1000), state: "held", error: null, sent: null, sending: null, stopping: false });
   return { sendId: id };
 }
 
@@ -306,9 +311,15 @@ export async function sendHeld(id: string) {
   if (!entry || entry.state !== "held") return;
   if (entry.timer) clearTimeout(entry.timer);
   entry.state = "sending";
+  entry.sending = send(entry);
+  await entry.sending;
+  settled(id);
+}
+
+async function send(entry: Held) {
   try {
     await deliver(entry);
-    entry.sent = await findSent(entry).catch(() => null);
+    if (!entry.stopping) entry.sent = await findSent(entry).catch(() => null);
     entry.state = "sent";
   } catch (error) {
     entry.error = error instanceof RowMailError ? error.code : "unreachable";
@@ -316,7 +327,26 @@ export async function sendHeld(id: string) {
     if (!(error instanceof RowMailError)) console.error("[mail-client] a held message could not be sent", error);
     await keepAsDraft(entry.userId, entry.draft, entry.attachments, entry.quote).catch((e) => console.error("[mail-client] a message not sent could not be kept as a draft", e));
   }
-  settled(id);
+}
+
+/**
+ * Sends every message still waiting for Undo at once and waits for every send under way (server.ts,
+ * as it stops, after it stopped taking requests, so no Undo comes meanwhile): held only in this
+ * process's memory, they would otherwise go with it, neither sent nor kept as a draft. Returns false
+ * when `timeoutMs` passed first, as flushCollab does, since the container is killed soon after.
+ */
+export async function sendHeldNow({ timeoutMs = 8000 }: { timeoutMs?: number } = {}): Promise<boolean> {
+  for (const entry of held.values()) entry.stopping = true;
+  for (const [id, entry] of held) if (entry.state === "held") void sendHeld(id);
+  const sending = [...held.values()].flatMap((entry) => (entry.state === "sending" && entry.sending ? [entry.sending] : []));
+  if (!sending.length) return true;
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const late = new Promise<false>((done) => (timer = setTimeout(() => done(false), timeoutMs)));
+  try {
+    return await Promise.race([Promise.all(sending).then(() => true), late]);
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 /** Tries for the sent folder's next read to find it. */
