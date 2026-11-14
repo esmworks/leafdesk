@@ -419,6 +419,24 @@ async function main() {
   const sdkTokens = await exchange(as, sdk, s.back.searchParams.get("code")!, s.verifier);
   check(sdkTokens.refresh_token, "an app asking only for the metadata's scopes gets a refresh token", { prmScopes, scope: sdkTokens.scope });
 
+  // An app registered before that kept only the metadata's scopes: no refresh token (and no
+  // invalid_scope) until migration 0211 widens its registration.
+  {
+    const { db } = await import("@/db");
+    const { oauthClient } = await import("@/db/schema");
+    const { eq, sql } = await import("drizzle-orm");
+    const { readFileSync } = await import("node:fs");
+    const earlier = await register(as, `e2e earlier ${RUN}`, prmScopes);
+    await db.update(oauthClient).set({ scopes: prmScopes.split(" ") }).where(eq(oauthClient.clientId, earlier.client_id));
+    const before = await authorize(as, jar, earlier, { accept: true }, { expectLogin: false, scope: prmScopes });
+    const beforeTokens = await exchange(as, earlier, before.back.searchParams.get("code")!, before.verifier);
+    check(!beforeTokens.refresh_token, "an app registered without offline_access is still let in, without a refresh token");
+    await db.execute(sql.raw(readFileSync("drizzle/0211_mcp_offline_access.sql", "utf8")));
+    const after = await authorize(as, jar, earlier, { accept: true }, { expectLogin: false, scope: prmScopes });
+    const afterTokens = await exchange(as, earlier, after.back.searchParams.get("code")!, after.verifier);
+    check(afterTokens.refresh_token, "after migration 0211 it gets a refresh token", afterTokens.scope);
+  }
+
   // ---- MCP over the 2025 (stateless) protocol
   const mcp = new LegacySession(refreshed.access_token);
   const init = await mcp.init();
