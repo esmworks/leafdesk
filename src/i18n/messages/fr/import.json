@@ -20,7 +20,9 @@
     "sheets": "Google Sheets",
     "gcal": "Google Calendar",
     "googleDocs": "Google Docs",
-    "web": "Page web"
+    "web": "Page web",
+    "zendesk": "Zendesk",
+    "salesforce": "Salesforce"
   },
   "destination": "Placer sous",
   "topLevel": "Niveau supérieur de l’espace de travail",
@@ -511,6 +513,115 @@
       "failed": "La synchronisation a échoué. Elle réessaiera la prochaine fois.",
       "invalidSite": "Leafdesk ne peut pas joindre cette connexion.",
       "invalidInput": "Choisissez une connexion et un agenda.",
+      "alreadyRunning": "Une synchronisation est en cours. Réessayez dans un instant."
+    }
+  },
+  "zendesk": {
+    "help": "Obtenez une base de données des tickets d'un compte Zendesk qui reste à jour : chaque ticket est une ligne avec son statut, sa priorité, son type, son demandeur, son responsable, ses étiquettes, ses dates et un lien de retour. Chaque synchronisation ne prend que ce qui a changé depuis la précédente. Les modifications vont dans un seul sens, de Zendesk vers Leafdesk.",
+    "site": "Adresse Zendesk",
+    "sitePlaceholder": "acme.zendesk.com",
+    "email": "Adresse e-mail",
+    "token": "Jeton d’API",
+    "tokenHelp": "Créez le jeton d'API dans le Centre d'administration de Zendesk. Le compte doit avoir le rôle d'administrateur, requis pour exporter les tickets. Le jeton est conservé scellé sur le serveur.",
+    "tokenLink": "Créer un jeton",
+    "names": {
+      "id": "Ticket",
+      "status": "Statut",
+      "priority": "Priorité",
+      "type": "Type",
+      "requester": "Demandeur",
+      "assignee": "Responsable",
+      "others": "{column} (autres)",
+      "tags": "Étiquettes",
+      "created": "Créée",
+      "updated": "Mis à jour",
+      "link": "Lien Zendesk",
+      "statuses": {
+        "new": "Nouveau",
+        "open": "Ouverte",
+        "pending": "En attente",
+        "hold": "En pause",
+        "solved": "Résolu",
+        "closed": "Fermée",
+        "deleted": "Supprimé"
+      }
+    },
+    "errors": {
+      "unauthorized": "Zendesk a refusé l'adresse e-mail et le jeton d'API.",
+      "forbidden": "Ce compte ne peut pas exporter les tickets. Il faut le rôle d'administrateur.",
+      "notFound": "Aucun compte Zendesk n'a répondu à cette adresse.",
+      "unreachable": "Zendesk est injoignable, ou sa limite de requêtes est atteinte. La synchronisation réessaiera la prochaine fois.",
+      "runAsGone": "La personne qui a configuré la synchronisation n’a plus de compte.",
+      "accessLost": "La personne au nom de qui la synchronisation s’exécute ne peut plus modifier cette base de données.",
+      "keyGone": "La propriété Ticket a été supprimée ou son type a changé : les tickets ne peuvent plus être associés aux lignes.",
+      "failed": "La synchronisation a échoué. Elle réessaiera la prochaine fois.",
+      "invalidSite": "Leafdesk ne peut pas joindre cette adresse.",
+      "invalidInput": "Renseignez l'adresse Zendesk, l'adresse e-mail et le jeton d'API.",
+      "alreadyRunning": "Une synchronisation est en cours. Réessayez dans un instant."
+    }
+  },
+  "salesforce": {
+    "help": "Obtenez une base de données d'un objet Salesforce (comptes, contacts, opportunités, prospects ou requêtes) qui reste à jour : chaque enregistrement est une ligne avec les champs standard de l'objet et un lien de retour. Chaque synchronisation ne prend que ce qui a changé depuis la précédente ; les enregistrements supprimés dans Salesforce restent. Les modifications vont dans un seul sens, de Salesforce vers Leafdesk.",
+    "site": "Adresse My Domain",
+    "sitePlaceholder": "acme.my.salesforce.com",
+    "clientId": "Clé client",
+    "clientSecret": "Secret client",
+    "secretHelp": "Créez dans Salesforce une application connectée avec le flux d'identifiants client activé et un utilisateur d'exécution disposant d'un accès en lecture à l'objet. Le secret est conservé scellé sur le serveur.",
+    "helpLink": "Comment le configurer",
+    "object": "Objet",
+    "objects": {
+      "Account": "Compte",
+      "Contact": "Contact",
+      "Opportunity": "Opportunité",
+      "Lead": "Prospect",
+      "Case": "Requête"
+    },
+    "names": {
+      "id": "Id",
+      "modified": "Modifié",
+      "link": "Lien Salesforce",
+      "others": "{column} (autres)",
+      "fields": {
+        "industry": "Secteur",
+        "type": "Type",
+        "website": "Site web",
+        "phone": "Téléphone",
+        "city": "Ville",
+        "country": "Pays",
+        "revenue": "Chiffre d'affaires annuel",
+        "employees": "Employés",
+        "owner": "Propriétaire",
+        "email": "E-mail",
+        "jobTitle": "Fonction",
+        "department": "Service",
+        "account": "Compte",
+        "stage": "Étape",
+        "amount": "Montant",
+        "closeDate": "Date de clôture",
+        "probability": "Probabilité",
+        "leadSource": "Source du prospect",
+        "company": "Société",
+        "status": "Statut",
+        "caseNumber": "Numéro de requête",
+        "priority": "Priorité",
+        "origin": "Origine",
+        "contact": "Contact",
+        "created": "Créée"
+      }
+    },
+    "errors": {
+      "unauthorized": "Salesforce a refusé la clé client et le secret.",
+      "forbidden": "Salesforce n'autorise pas cette application à se connecter avec le flux d'identifiants client, ou l'utilisateur d'exécution ne peut pas lire cet objet.",
+      "notFound": "Aucune organisation Salesforce n'a répondu à cette adresse. Utilisez l'adresse My Domain de l'organisation.",
+      "badQuery": "Salesforce a refusé la requête.",
+      "badQueryDetail": "Salesforce a refusé la requête : {detail}",
+      "unreachable": "Salesforce est injoignable, ou sa limite de requêtes est atteinte. La synchronisation réessaiera la prochaine fois.",
+      "runAsGone": "La personne qui a configuré la synchronisation n’a plus de compte.",
+      "accessLost": "La personne au nom de qui la synchronisation s’exécute ne peut plus modifier cette base de données.",
+      "keyGone": "La propriété Id a été supprimée ou son type a changé : les enregistrements ne peuvent plus être associés aux lignes.",
+      "failed": "La synchronisation a échoué. Elle réessaiera la prochaine fois.",
+      "invalidSite": "Leafdesk ne peut pas joindre cette adresse.",
+      "invalidInput": "Renseignez l'adresse My Domain, la clé client et le secret, et choisissez un objet.",
       "alreadyRunning": "Une synchronisation est en cours. Réessayez dans un instant."
     }
   }

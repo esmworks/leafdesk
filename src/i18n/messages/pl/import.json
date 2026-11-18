@@ -20,7 +20,9 @@
     "sheets": "Google Sheets",
     "gcal": "Google Calendar",
     "googleDocs": "Google Docs",
-    "web": "Strona WWW"
+    "web": "Strona WWW",
+    "zendesk": "Zendesk",
+    "salesforce": "Salesforce"
   },
   "destination": "Umieść w",
   "topLevel": "Najwyższy poziom obszaru roboczego",
@@ -511,6 +513,115 @@
       "failed": "Synchronizacja nie powiodła się. Spróbuje ponownie następnym razem.",
       "invalidSite": "Leafdesk nie może połączyć się z tym połączeniem.",
       "invalidInput": "Wybierz połączenie i kalendarz.",
+      "alreadyRunning": "Trwa synchronizacja. Spróbuj ponownie za chwilę."
+    }
+  },
+  "zendesk": {
+    "help": "Utwórz bazę danych zgłoszeń konta Zendesk, która pozostaje zsynchronizowana: każde zgłoszenie to wiersz ze statusem, priorytetem, typem, zgłaszającym, osobą przypisaną, tagami, datami i linkiem z powrotem. Każda synchronizacja pobiera tylko to, co zmieniło się od poprzedniej. Zmiany idą w jedną stronę, z Zendesk do Leafdesk.",
+    "site": "Adres Zendesk",
+    "sitePlaceholder": "acme.zendesk.com",
+    "email": "Adres e-mail",
+    "token": "Token API",
+    "tokenHelp": "Utwórz token API w Centrum administracyjnym Zendesk. Konto musi mieć rolę administratora, której wymaga eksport zgłoszeń. Token jest przechowywany w zaszyfrowanej postaci na serwerze.",
+    "tokenLink": "Utwórz token",
+    "names": {
+      "id": "Zgłoszenie",
+      "status": "Status",
+      "priority": "Priorytet",
+      "type": "Typ",
+      "requester": "Zgłaszający",
+      "assignee": "Osoba przypisana",
+      "others": "{column} (pozostali)",
+      "tags": "Tagi",
+      "created": "Utworzono",
+      "updated": "Zaktualizowano",
+      "link": "Link do Zendesk",
+      "statuses": {
+        "new": "Nowe",
+        "open": "Otwarty",
+        "pending": "Oczekujące",
+        "hold": "Wstrzymane",
+        "solved": "Rozwiązane",
+        "closed": "Zamknięty",
+        "deleted": "Usunięte"
+      }
+    },
+    "errors": {
+      "unauthorized": "Zendesk odrzucił adres e-mail i token API.",
+      "forbidden": "To konto nie może eksportować zgłoszeń. Potrzebna jest rola administratora.",
+      "notFound": "Pod tym adresem nie odpowiedziało żadne konto Zendesk.",
+      "unreachable": "Nie można połączyć się z Zendesk albo wyczerpano limit żądań. Synchronizacja spróbuje ponownie następnym razem.",
+      "runAsGone": "Osoba, która skonfigurowała synchronizację, nie ma już konta.",
+      "accessLost": "Osoba, jako która działa synchronizacja, nie może już edytować tej bazy danych.",
+      "keyGone": "Właściwość Zgłoszenie została usunięta lub zmieniła typ, więc nie można dopasować zgłoszeń do wierszy.",
+      "failed": "Synchronizacja nie powiodła się. Spróbuje ponownie następnym razem.",
+      "invalidSite": "Leafdesk nie może połączyć się z tym adresem.",
+      "invalidInput": "Podaj adres Zendesk, adres e-mail i token API.",
+      "alreadyRunning": "Trwa synchronizacja. Spróbuj ponownie za chwilę."
+    }
+  },
+  "salesforce": {
+    "help": "Utwórz bazę danych jednego obiektu Salesforce (konta, kontakty, szanse sprzedaży, leady lub sprawy), która pozostaje zsynchronizowana: każdy rekord to wiersz ze standardowymi polami obiektu i linkiem z powrotem. Każda synchronizacja pobiera tylko to, co zmieniło się od poprzedniej, a rekordy usunięte w Salesforce zostają. Zmiany idą w jedną stronę, z Salesforce do Leafdesk.",
+    "site": "Adres My Domain",
+    "sitePlaceholder": "acme.my.salesforce.com",
+    "clientId": "Klucz klienta",
+    "clientSecret": "Sekret klienta",
+    "secretHelp": "Utwórz w Salesforce połączoną aplikację z włączonym przepływem client credentials i użytkownika, w imieniu którego działa, z uprawnieniem do odczytu obiektu. Sekret jest przechowywany w zaszyfrowanej postaci na serwerze.",
+    "helpLink": "Jak to skonfigurować",
+    "object": "Obiekt",
+    "objects": {
+      "Account": "Konto",
+      "Contact": "Kontakt",
+      "Opportunity": "Szansa sprzedaży",
+      "Lead": "Lead",
+      "Case": "Sprawa"
+    },
+    "names": {
+      "id": "Id",
+      "modified": "Zmodyfikowano",
+      "link": "Link do Salesforce",
+      "others": "{column} (pozostali)",
+      "fields": {
+        "industry": "Branża",
+        "type": "Typ",
+        "website": "Strona internetowa",
+        "phone": "Telefon",
+        "city": "Miasto",
+        "country": "Kraj",
+        "revenue": "Roczne przychody",
+        "employees": "Pracownicy",
+        "owner": "Właściciel",
+        "email": "E-mail",
+        "jobTitle": "Stanowisko",
+        "department": "Dział",
+        "account": "Konto",
+        "stage": "Etap",
+        "amount": "Kwota",
+        "closeDate": "Data zamknięcia",
+        "probability": "Prawdopodobieństwo",
+        "leadSource": "Źródło leada",
+        "company": "Firma",
+        "status": "Status",
+        "caseNumber": "Numer sprawy",
+        "priority": "Priorytet",
+        "origin": "Źródło",
+        "contact": "Kontakt",
+        "created": "Utworzono"
+      }
+    },
+    "errors": {
+      "unauthorized": "Salesforce odrzucił klucz i sekret klienta.",
+      "forbidden": "Salesforce nie pozwala tej aplikacji logować się przepływem client credentials albo użytkownik, w imieniu którego działa, nie może odczytać tego obiektu.",
+      "notFound": "Pod tym adresem nie odpowiedziała żadna organizacja Salesforce. Użyj adresu My Domain organizacji.",
+      "badQuery": "Salesforce odrzucił zapytanie.",
+      "badQueryDetail": "Salesforce odrzucił zapytanie: {detail}",
+      "unreachable": "Nie można połączyć się z Salesforce albo wyczerpano limit żądań. Synchronizacja spróbuje ponownie następnym razem.",
+      "runAsGone": "Osoba, która skonfigurowała synchronizację, nie ma już konta.",
+      "accessLost": "Osoba, jako która działa synchronizacja, nie może już edytować tej bazy danych.",
+      "keyGone": "Właściwość Id została usunięta lub zmieniła typ, więc nie można dopasować rekordów do wierszy.",
+      "failed": "Synchronizacja nie powiodła się. Spróbuje ponownie następnym razem.",
+      "invalidSite": "Leafdesk nie może połączyć się z tym adresem.",
+      "invalidInput": "Podaj adres My Domain, klucz i sekret klienta oraz wybierz obiekt.",
       "alreadyRunning": "Trwa synchronizacja. Spróbuj ponownie za chwilę."
     }
   }

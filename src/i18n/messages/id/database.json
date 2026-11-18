@@ -2512,5 +2512,18 @@
     "unchecked": "Tidak dicentang",
     "loading": "Memuat baris…",
     "unavailable": "Baris ini tidak dapat ditampilkan."
+  },
+  "zendeskSync": {
+    "button": "Disinkronkan dari Zendesk",
+    "buttonPaused": "Sinkronisasi Zendesk dijeda",
+    "title": "Sinkronisasi Zendesk"
+  },
+  "salesforceSync": {
+    "button": "Disinkronkan dari Salesforce",
+    "buttonPaused": "Sinkronisasi Salesforce dijeda",
+    "title": "Sinkronisasi Salesforce"
+  },
+  "crmSync": {
+    "overwrite": "{source} adalah sumbernya: properti yang disinkronkan dan judul baris ditimpa pada setiap sinkronisasi, jadi ubahlah di sana. Properti yang Anda tambahkan sendiri tetap apa adanya, dan baris yang rekamannya dihapus di sumber tidak disentuh."
   }
 }

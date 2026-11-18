@@ -20,7 +20,9 @@
     "sheets": "Google Sheets",
     "gcal": "Google Calendar",
     "googleDocs": "Google Docs",
-    "web": "Web sayfası"
+    "web": "Web sayfası",
+    "zendesk": "Zendesk",
+    "salesforce": "Salesforce"
   },
   "destination": "Nereye",
   "topLevel": "Çalışma alanının en üst düzeyi",
@@ -512,6 +514,115 @@
       "invalidSite": "Leafdesk bu bağlantıya ulaşamıyor.",
       "invalidInput": "Bir bağlantı ve bir takvim seçin.",
       "alreadyRunning": "Bir eşitleme sürüyor. Biraz sonra yeniden deneyin."
+    }
+  },
+  "zendesk": {
+    "help": "Senkronize kalan, bir Zendesk hesabının biletlerinden oluşan bir veritabanı edinin: her bilet; durumu, önceliği, türü, talep eden, atanan kişi, etiketler, tarihler ve geri bağlantıyla bir satırdır. Her eşitleme yalnızca bir öncekinden bu yana değişenleri alır. Değişiklikler tek yönlüdür: Zendesk'ten Leafdesk'e.",
+    "site": "Zendesk adresi",
+    "sitePlaceholder": "acme.zendesk.com",
+    "email": "E-posta adresi",
+    "token": "API anahtarı",
+    "tokenHelp": "API belirtecini Zendesk Yönetim Merkezi'nde oluşturun. Hesabın, biletleri dışa aktarmak için gereken yönetici rolüne sahip olması gerekir. Belirteç sunucuda mühürlenmiş olarak saklanır.",
+    "tokenLink": "Anahtar oluştur",
+    "names": {
+      "id": "Bilet",
+      "status": "Durum",
+      "priority": "Öncelik",
+      "type": "Tür",
+      "requester": "Talep eden",
+      "assignee": "Atanan",
+      "others": "{column} (diğerleri)",
+      "tags": "Etiketler",
+      "created": "Oluşturuldu",
+      "updated": "Güncellendi",
+      "link": "Zendesk bağlantısı",
+      "statuses": {
+        "new": "Yeni",
+        "open": "Açık",
+        "pending": "Beklemede",
+        "hold": "Askıda",
+        "solved": "Çözüldü",
+        "closed": "Kapalı",
+        "deleted": "Silindi"
+      }
+    },
+    "errors": {
+      "unauthorized": "Zendesk e-posta adresini ve API belirtecini reddetti.",
+      "forbidden": "Bu hesap biletleri dışa aktaramaz. Yönetici rolü gerekir.",
+      "notFound": "Bu adreste yanıt veren bir Zendesk hesabı yok.",
+      "unreachable": "Zendesk'e ulaşılamadı veya istek sınırı doldu. Eşitleme bir sonraki seferde yeniden dener.",
+      "runAsGone": "Eşitlemeyi kuran kişinin artık bir hesabı yok.",
+      "accessLost": "Eşitlemenin adına çalıştığı kişi artık bu veritabanını düzenleyemiyor.",
+      "keyGone": "Bilet özelliği silindi veya türü değişti; bu yüzden biletler satırlarla eşleştirilemiyor.",
+      "failed": "Eşitleme başarısız oldu. Bir dahaki sefere yeniden dener.",
+      "invalidSite": "Bu, Leafdesk'in ulaşabileceği bir adres değil.",
+      "invalidInput": "Zendesk adresini, e-posta adresini ve API belirtecini girin.",
+      "alreadyRunning": "Bir eşitleme sürüyor. Birazdan yeniden deneyin."
+    }
+  },
+  "salesforce": {
+    "help": "Senkronize kalan, bir Salesforce nesnesinden (hesaplar, kişiler, fırsatlar, potansiyel müşteriler veya talepler) oluşan bir veritabanı edinin: her kayıt, nesnenin standart alanları ve geri bağlantıyla bir satırdır. Her eşitleme yalnızca bir öncekinden bu yana değişenleri alır; Salesforce'ta silinen kayıtlar kalır. Değişiklikler tek yönlüdür: Salesforce'tan Leafdesk'e.",
+    "site": "My Domain adresi",
+    "sitePlaceholder": "acme.my.salesforce.com",
+    "clientId": "Tüketici anahtarı",
+    "clientSecret": "Tüketici gizli anahtarı",
+    "secretHelp": "Salesforce'ta istemci kimlik bilgileri akışı açık bir bağlı uygulama oluşturun ve uygulamanın adına çalışacağı, nesneyi okuma izni olan bir kullanıcı belirleyin. Gizli anahtar sunucuda mühürlenmiş olarak saklanır.",
+    "helpLink": "Nasıl kurulur",
+    "object": "Nesne",
+    "objects": {
+      "Account": "Hesap",
+      "Contact": "Kişi",
+      "Opportunity": "Fırsat",
+      "Lead": "Potansiyel müşteri",
+      "Case": "Talep"
+    },
+    "names": {
+      "id": "Id",
+      "modified": "Değiştirildi",
+      "link": "Salesforce bağlantısı",
+      "others": "{column} (diğerleri)",
+      "fields": {
+        "industry": "Sektör",
+        "type": "Tür",
+        "website": "Web sitesi",
+        "phone": "Telefon",
+        "city": "Şehir",
+        "country": "Ülke",
+        "revenue": "Yıllık gelir",
+        "employees": "Çalışanlar",
+        "owner": "Sahip",
+        "email": "E-posta",
+        "jobTitle": "Unvan",
+        "department": "Departman",
+        "account": "Hesap",
+        "stage": "Aşama",
+        "amount": "Tutar",
+        "closeDate": "Kapanış tarihi",
+        "probability": "Olasılık",
+        "leadSource": "Potansiyel müşteri kaynağı",
+        "company": "Şirket",
+        "status": "Durum",
+        "caseNumber": "Talep numarası",
+        "priority": "Öncelik",
+        "origin": "Kaynak",
+        "contact": "Kişi",
+        "created": "Oluşturuldu"
+      }
+    },
+    "errors": {
+      "unauthorized": "Salesforce tüketici anahtarını ve gizli anahtarı reddetti.",
+      "forbidden": "Salesforce bu uygulamanın istemci kimlik bilgileri akışıyla oturum açmasına izin vermiyor veya uygulamanın adına çalıştığı kullanıcı bu nesneyi okuyamıyor.",
+      "notFound": "Bu adreste yanıt veren bir Salesforce kuruluşu yok. Kuruluşun My Domain adresini kullanın.",
+      "badQuery": "Salesforce sorguyu reddetti.",
+      "badQueryDetail": "Salesforce sorguyu reddetti: {detail}",
+      "unreachable": "Salesforce'a ulaşılamadı veya istek sınırı doldu. Eşitleme bir sonraki seferde yeniden dener.",
+      "runAsGone": "Eşitlemeyi kuran kişinin artık bir hesabı yok.",
+      "accessLost": "Eşitlemenin adına çalıştığı kişi artık bu veritabanını düzenleyemiyor.",
+      "keyGone": "Id özelliği silindi veya türü değişti; bu yüzden kayıtlar satırlarla eşleştirilemiyor.",
+      "failed": "Eşitleme başarısız oldu. Bir dahaki sefere yeniden dener.",
+      "invalidSite": "Bu, Leafdesk'in ulaşabileceği bir adres değil.",
+      "invalidInput": "My Domain adresini, tüketici anahtarını ve gizli anahtarı girin ve bir nesne seçin.",
+      "alreadyRunning": "Bir eşitleme sürüyor. Birazdan yeniden deneyin."
     }
   }
 }

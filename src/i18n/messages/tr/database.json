@@ -2512,5 +2512,18 @@
     "unchecked": "İşaretsiz",
     "loading": "Satırlar yükleniyor…",
     "unavailable": "Bu satırlar gösterilemiyor."
+  },
+  "zendeskSync": {
+    "button": "Zendesk'ten eşitlenmiş",
+    "buttonPaused": "Zendesk eşitlemesi duraklatıldı",
+    "title": "Zendesk eşitlemesi"
+  },
+  "salesforceSync": {
+    "button": "Salesforce'tan eşitlenmiş",
+    "buttonPaused": "Salesforce eşitlemesi duraklatıldı",
+    "title": "Salesforce eşitlemesi"
+  },
+  "crmSync": {
+    "overwrite": "Kaynak {source}: eşitlenen özellikler ve satır başlıkları her eşitlemede üzerine yazılır; bu yüzden değişiklikleri orada yapın. Kendi eklediğiniz özellikler olduğu gibi kalır, kaynakta kaydı silinen satırlara dokunulmaz."
   }
 }

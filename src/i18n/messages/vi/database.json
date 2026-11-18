@@ -2512,5 +2512,18 @@
     "unchecked": "Chưa chọn",
     "loading": "Đang tải hàng…",
     "unavailable": "Không thể hiển thị các hàng này."
+  },
+  "zendeskSync": {
+    "button": "Đồng bộ từ Zendesk",
+    "buttonPaused": "Đồng bộ Zendesk đã tạm dừng",
+    "title": "Đồng bộ Zendesk"
+  },
+  "salesforceSync": {
+    "button": "Đồng bộ từ Salesforce",
+    "buttonPaused": "Đồng bộ Salesforce đã tạm dừng",
+    "title": "Đồng bộ Salesforce"
+  },
+  "crmSync": {
+    "overwrite": "{source} là nguồn: các thuộc tính được đồng bộ và tiêu đề dòng được ghi đè sau mỗi lần đồng bộ, vì vậy hãy thay đổi ở đó. Các thuộc tính bạn tự thêm vẫn giữ nguyên, và các dòng có bản ghi bị xóa ở nguồn sẽ không bị động đến."
   }
 }

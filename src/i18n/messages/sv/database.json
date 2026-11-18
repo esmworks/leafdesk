@@ -2512,5 +2512,18 @@
     "unchecked": "Inte markerad",
     "loading": "Läser in rader…",
     "unavailable": "De här raderna kan inte visas."
+  },
+  "zendeskSync": {
+    "button": "Synkad från Zendesk",
+    "buttonPaused": "Zendesk-synk pausad",
+    "title": "Zendesk-synk"
+  },
+  "salesforceSync": {
+    "button": "Synkad från Salesforce",
+    "buttonPaused": "Salesforce-synk pausad",
+    "title": "Salesforce-synk"
+  },
+  "crmSync": {
+    "overwrite": "{source} är källan: de synkroniserade egenskaperna och radtitlarna skrivs över vid varje synkronisering, så ändra dem där. Egenskaper du lägger till själv förblir som de är, och rader vars post raderats vid källan rörs inte."
   }
 }

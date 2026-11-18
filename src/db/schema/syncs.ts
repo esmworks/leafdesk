@@ -6,7 +6,9 @@ import type { GithubDeliveryError, GithubDeliveryRow, GithubDeliveryStatus, Gith
 import type { IcalMapping } from "@/lib/ical-sync";
 import type { JiraMapping, JiraQuery, JiraSyncError } from "@/lib/jira-sync";
 import type { PostgresMapping, PostgresQuery } from "@/lib/postgres-sync";
+import type { SalesforceMapping, SalesforceQuery } from "@/lib/salesforce-sync";
 import type { SheetsMapping, SheetsQuery } from "@/lib/sheets-sync";
+import type { ZendeskMapping, ZendeskQuery } from "@/lib/zendesk-sync";
 import { page, workspace } from "./app";
 import { user } from "./auth";
 
@@ -17,7 +19,9 @@ import { user } from "./auth";
  * lib/ical-sync, server/ical-sync), a PostgreSQL table's rows ("postgres": lib/postgres-sync,
  * server/postgres-sync), a Google spreadsheet's sheet, read through a Google Sheets connection
  * ("sheets": lib/sheets-sync, server/sheets-sync) or a Google calendar, read through a Google
- * Calendar connection ("gcal": lib/gcal-sync, server/gcal-sync); the last two may also write back.
+ * Calendar connection ("gcal": lib/gcal-sync, server/gcal-sync; the last two may also write back), a
+ * Zendesk account's tickets ("zendesk": lib/zendesk-sync, server/zendesk-sync) or one object of a
+ * Salesforce org ("salesforce": lib/salesforce-sync, server/salesforce-sync).
  * Its sign-in (`secrets`) is sealed (server/secret-box) and never leaves the server.
  */
 export const databaseSync = pgTable(
@@ -32,21 +36,21 @@ export const databaseSync = pgTable(
     databaseId: text("database_id")
       .notNull()
       .references(() => page.id, { onDelete: "cascade" }),
-    source: text("source").$type<"jira" | "github" | "ical" | "postgres" | "sheets" | "gcal">().notNull(),
+    source: text("source").$type<"jira" | "github" | "ical" | "postgres" | "sheets" | "gcal" | "zendesk" | "salesforce">().notNull(),
     /**
      * The Jira site's origin, "https://acme.atlassian.net"; for GitHub its API's address; for a
      * calendar its address's origin (the rest can be its key); for PostgreSQL where it reads,
-     * without user or password (lib/postgres-sync postgresSite); for a sheet its link.
+     * without user or password (lib/postgres-sync postgresSite); for a sheet its link; for Zendesk the account's origin; for Salesforce the org's My Domain origin.
      */
     siteUrl: text("site_url").notNull(),
-    /** What it reads; a calendar's is `{}` (its address is in `secrets`). */
-    query: jsonb("query").$type<JiraQuery | GithubPullsQuery | PostgresQuery | SheetsQuery | GcalQuery | Record<string, never>>().notNull(),
+    /** What it reads; a calendar's is `{}` (its address is in `secrets`); Zendesk's and Salesforce's is what the next run starts from (since when, how many rows). */
+    query: jsonb("query").$type<JiraQuery | GithubPullsQuery | PostgresQuery | SheetsQuery | GcalQuery | ZendeskQuery | SalesforceQuery | Record<string, never>>().notNull(),
     /** The properties it writes, by what each holds. */
-    mapping: jsonb("mapping").$type<JiraMapping | GithubPullsMapping | IcalMapping | PostgresMapping | SheetsMapping>().notNull(),
+    mapping: jsonb("mapping").$type<JiraMapping | GithubPullsMapping | IcalMapping | PostgresMapping | SheetsMapping | ZendeskMapping | SalesforceMapping>().notNull(),
     /**
      * Sealed JSON: Jira's `{ email, token }`, GitHub's `{ token }` (null without one), a calendar's
      * `{ url }`, PostgreSQL's `{ url }` (the connection address with its password), a sheet's `{}`
-     * (its connection holds the sign-in).
+     * (its connection holds the sign-in), Zendesk's `{ email, token }`, Salesforce's `{ clientId, clientSecret }`.
      */
     secrets: text("secrets").notNull(),
     /** How often it runs on its own, in minutes; 0 for only when asked. */

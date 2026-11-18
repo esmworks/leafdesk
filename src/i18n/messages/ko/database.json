@@ -2512,5 +2512,18 @@
     "unchecked": "선택 안 됨",
     "loading": "행을 불러오는 중…",
     "unavailable": "이 행을 표시할 수 없습니다."
+  },
+  "zendeskSync": {
+    "button": "Zendesk에서 동기화됨",
+    "buttonPaused": "Zendesk 동기화 일시 중지됨",
+    "title": "Zendesk 동기화"
+  },
+  "salesforceSync": {
+    "button": "Salesforce에서 동기화됨",
+    "buttonPaused": "Salesforce 동기화 일시 중지됨",
+    "title": "Salesforce 동기화"
+  },
+  "crmSync": {
+    "overwrite": "{source}이(가) 원본입니다. 동기화된 속성과 행 제목은 동기화할 때마다 덮어쓰이므로 {source}에서 변경하세요. 직접 추가한 속성은 그대로 유지되고, 원본에서 레코드가 삭제된 행은 그대로 둡니다."
   }
 }

@@ -20,7 +20,9 @@
     "sheets": "Google Sheets",
     "gcal": "Google Calendar",
     "googleDocs": "Google Docs",
-    "web": "Halaman web"
+    "web": "Halaman web",
+    "zendesk": "Zendesk",
+    "salesforce": "Salesforce"
   },
   "destination": "Letakkan di bawah",
   "topLevel": "Tingkat teratas ruang kerja",
@@ -511,6 +513,115 @@
       "failed": "Sinkronisasi gagal. Akan dicoba lagi lain kali.",
       "invalidSite": "Leafdesk tidak dapat menjangkau koneksi itu.",
       "invalidInput": "Pilih koneksi dan kalender.",
+      "alreadyRunning": "Sinkronisasi sedang berjalan. Coba lagi sebentar lagi."
+    }
+  },
+  "zendesk": {
+    "help": "Dapatkan basis data tiket akun Zendesk yang tetap sinkron: setiap tiket adalah satu baris dengan status, prioritas, tipe, pemohon, penanggung jawab, tag, tanggal, dan tautan kembali. Setiap sinkronisasi hanya mengambil yang berubah sejak sinkronisasi terakhir. Perubahan berjalan satu arah, dari Zendesk ke Leafdesk.",
+    "site": "Alamat Zendesk",
+    "sitePlaceholder": "acme.zendesk.com",
+    "email": "Alamat email",
+    "token": "Token API",
+    "tokenHelp": "Buat token API di Admin Center Zendesk. Akun harus berperan admin, yang diperlukan untuk mengekspor tiket. Token disimpan tersegel di server.",
+    "tokenLink": "Buat token",
+    "names": {
+      "id": "Tiket",
+      "status": "Status",
+      "priority": "Prioritas",
+      "type": "Tipe",
+      "requester": "Pemohon",
+      "assignee": "Penerima tugas",
+      "others": "{column} (lainnya)",
+      "tags": "Tag",
+      "created": "Dibuat",
+      "updated": "Diperbarui",
+      "link": "Tautan Zendesk",
+      "statuses": {
+        "new": "Baru",
+        "open": "Terbuka",
+        "pending": "Tertunda",
+        "hold": "Ditahan",
+        "solved": "Terselesaikan",
+        "closed": "Ditutup",
+        "deleted": "Dihapus"
+      }
+    },
+    "errors": {
+      "unauthorized": "Zendesk menolak alamat email dan token API.",
+      "forbidden": "Akun ini tidak boleh mengekspor tiket. Perlu peran admin.",
+      "notFound": "Tidak ada akun Zendesk yang menjawab di alamat ini.",
+      "unreachable": "Zendesk tidak dapat dijangkau, atau batas permintaannya habis. Sinkronisasi akan mencoba lagi lain kali.",
+      "runAsGone": "Orang yang menyiapkan sinkronisasi tidak lagi memiliki akun.",
+      "accessLost": "Orang yang menjalankan sinkronisasi tidak dapat lagi mengedit basis data ini.",
+      "keyGone": "Properti Tiket dihapus atau diubah tipenya, sehingga tiket tidak dapat dicocokkan dengan baris.",
+      "failed": "Sinkronisasi gagal. Akan dicoba lagi lain kali.",
+      "invalidSite": "Itu bukan alamat yang dapat dijangkau Leafdesk.",
+      "invalidInput": "Isi alamat Zendesk, alamat email, dan token API.",
+      "alreadyRunning": "Sinkronisasi sedang berjalan. Coba lagi sebentar lagi."
+    }
+  },
+  "salesforce": {
+    "help": "Dapatkan basis data satu objek Salesforce (akun, kontak, peluang, prospek, atau kasus) yang tetap sinkron: setiap rekaman adalah satu baris dengan kolom standar objek dan tautan kembali. Setiap sinkronisasi hanya mengambil yang berubah sejak sinkronisasi terakhir, dan rekaman yang dihapus di Salesforce tetap ada. Perubahan berjalan satu arah, dari Salesforce ke Leafdesk.",
+    "site": "Alamat My Domain",
+    "sitePlaceholder": "acme.my.salesforce.com",
+    "clientId": "Kunci konsumen",
+    "clientSecret": "Rahasia konsumen",
+    "secretHelp": "Buat aplikasi terhubung di Salesforce dengan alur client credentials diaktifkan dan pengguna untuk menjalankannya yang punya akses baca ke objek. Rahasia disimpan tersegel di server.",
+    "helpLink": "Cara menyiapkannya",
+    "object": "Objek",
+    "objects": {
+      "Account": "Akun",
+      "Contact": "Kontak",
+      "Opportunity": "Peluang",
+      "Lead": "Prospek",
+      "Case": "Kasus"
+    },
+    "names": {
+      "id": "Id",
+      "modified": "Diubah",
+      "link": "Tautan Salesforce",
+      "others": "{column} (lainnya)",
+      "fields": {
+        "industry": "Industri",
+        "type": "Tipe",
+        "website": "Situs web",
+        "phone": "Telepon",
+        "city": "Kota",
+        "country": "Negara",
+        "revenue": "Pendapatan tahunan",
+        "employees": "Karyawan",
+        "owner": "Pemilik",
+        "email": "Email",
+        "jobTitle": "Jabatan",
+        "department": "Departemen",
+        "account": "Akun",
+        "stage": "Tahap",
+        "amount": "Jumlah",
+        "closeDate": "Tanggal penutupan",
+        "probability": "Probabilitas",
+        "leadSource": "Sumber prospek",
+        "company": "Perusahaan",
+        "status": "Status",
+        "caseNumber": "Nomor kasus",
+        "priority": "Prioritas",
+        "origin": "Asal",
+        "contact": "Kontak",
+        "created": "Dibuat"
+      }
+    },
+    "errors": {
+      "unauthorized": "Salesforce menolak kunci dan rahasia konsumen.",
+      "forbidden": "Salesforce tidak mengizinkan aplikasi ini masuk dengan alur client credentials, atau pengguna yang menjalankannya tidak boleh membaca objek ini.",
+      "notFound": "Tidak ada org Salesforce yang menjawab di alamat ini. Gunakan alamat My Domain org tersebut.",
+      "badQuery": "Salesforce menolak kueri.",
+      "badQueryDetail": "Salesforce menolak kueri: {detail}",
+      "unreachable": "Salesforce tidak dapat dijangkau, atau batas permintaannya habis. Sinkronisasi akan mencoba lagi lain kali.",
+      "runAsGone": "Orang yang menyiapkan sinkronisasi tidak lagi memiliki akun.",
+      "accessLost": "Orang yang menjalankan sinkronisasi tidak dapat lagi mengedit basis data ini.",
+      "keyGone": "Properti Id dihapus atau diubah tipenya, sehingga rekaman tidak dapat dicocokkan dengan baris.",
+      "failed": "Sinkronisasi gagal. Akan dicoba lagi lain kali.",
+      "invalidSite": "Itu bukan alamat yang dapat dijangkau Leafdesk.",
+      "invalidInput": "Isi alamat My Domain, kunci dan rahasia konsumen, lalu pilih objek.",
       "alreadyRunning": "Sinkronisasi sedang berjalan. Coba lagi sebentar lagi."
     }
   }

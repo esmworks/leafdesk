@@ -20,7 +20,9 @@
     "sheets": "Google Sheets",
     "gcal": "Google Calendar",
     "googleDocs": "Google 文档",
-    "web": "网页"
+    "web": "网页",
+    "zendesk": "Zendesk",
+    "salesforce": "Salesforce"
   },
   "destination": "放在",
   "topLevel": "工作区顶层",
@@ -512,6 +514,115 @@
       "invalidSite": "Leafdesk 无法连接到该连接。",
       "invalidInput": "请选择一个连接和一个日历。",
       "alreadyRunning": "正在同步，请稍后再试。"
+    }
+  },
+  "zendesk": {
+    "help": "创建一个与 Zendesk 账户工单保持同步的数据库：每个工单是一行，包含状态、优先级、类型、请求人、负责人、标签、日期和返回原工单的链接。每次同步只获取上次以来发生变化的内容。更改是单向的，从 Zendesk 到 Leafdesk。",
+    "site": "Zendesk 地址",
+    "sitePlaceholder": "acme.zendesk.com",
+    "email": "电子邮件地址",
+    "token": "API 令牌",
+    "tokenHelp": "在 Zendesk 管理中心创建 API 令牌。账户需要具备管理员角色，导出工单需要该角色。令牌会加密保存在服务器上。",
+    "tokenLink": "创建令牌",
+    "names": {
+      "id": "工单",
+      "status": "状态",
+      "priority": "优先级",
+      "type": "类型",
+      "requester": "请求人",
+      "assignee": "负责人",
+      "others": "{column}（其他）",
+      "tags": "标签",
+      "created": "创建时间",
+      "updated": "更新时间",
+      "link": "Zendesk 链接",
+      "statuses": {
+        "new": "新建",
+        "open": "打开",
+        "pending": "待处理",
+        "hold": "挂起",
+        "solved": "已解决",
+        "closed": "已关闭",
+        "deleted": "已删除"
+      }
+    },
+    "errors": {
+      "unauthorized": "Zendesk 拒绝了该电子邮件地址和 API 令牌。",
+      "forbidden": "此账户无权导出工单，需要管理员角色。",
+      "notFound": "此地址没有 Zendesk 账户响应。",
+      "unreachable": "无法连接 Zendesk，或其请求次数已用完。下次同步会重试。",
+      "runAsGone": "设置同步的人已没有账号。",
+      "accessLost": "同步所代表的人已无法编辑此数据库。",
+      "keyGone": "“工单”属性已被删除或类型已更改，因此无法将工单与行匹配。",
+      "failed": "同步失败。下次会重试。",
+      "invalidSite": "这不是 Leafdesk 能访问的地址。",
+      "invalidInput": "请填写 Zendesk 地址、电子邮件地址和 API 令牌。",
+      "alreadyRunning": "正在同步。请稍后再试。"
+    }
+  },
+  "salesforce": {
+    "help": "创建一个与 Salesforce 某个对象（客户、联系人、商机、线索或案例）保持同步的数据库：每条记录是一行，包含该对象的标准字段和返回原记录的链接。每次同步只获取上次以来发生变化的内容，在 Salesforce 中删除的记录会保留。更改是单向的，从 Salesforce 到 Leafdesk。",
+    "site": "My Domain 地址",
+    "sitePlaceholder": "acme.my.salesforce.com",
+    "clientId": "使用者密钥",
+    "clientSecret": "使用者密钥的密文",
+    "secretHelp": "在 Salesforce 中创建一个启用客户端凭据流程的连接应用，并指定运行身份的用户，该用户需有读取该对象的权限。密文会加密保存在服务器上。",
+    "helpLink": "设置方法",
+    "object": "对象",
+    "objects": {
+      "Account": "客户",
+      "Contact": "联系人",
+      "Opportunity": "商机",
+      "Lead": "线索",
+      "Case": "案例"
+    },
+    "names": {
+      "id": "Id",
+      "modified": "修改时间",
+      "link": "Salesforce 链接",
+      "others": "{column}（其他）",
+      "fields": {
+        "industry": "行业",
+        "type": "类型",
+        "website": "网站",
+        "phone": "电话",
+        "city": "城市",
+        "country": "国家",
+        "revenue": "年收入",
+        "employees": "员工数",
+        "owner": "所有者",
+        "email": "邮箱",
+        "jobTitle": "职位",
+        "department": "部门",
+        "account": "客户",
+        "stage": "阶段",
+        "amount": "金额",
+        "closeDate": "结单日期",
+        "probability": "概率",
+        "leadSource": "线索来源",
+        "company": "公司",
+        "status": "状态",
+        "caseNumber": "案例编号",
+        "priority": "优先级",
+        "origin": "来源",
+        "contact": "联系人",
+        "created": "创建时间"
+      }
+    },
+    "errors": {
+      "unauthorized": "Salesforce 拒绝了该使用者密钥和密文。",
+      "forbidden": "Salesforce 不允许此应用使用客户端凭据流程登录，或其运行身份的用户无权读取此对象。",
+      "notFound": "此地址没有 Salesforce 组织响应。请使用该组织的 My Domain 地址。",
+      "badQuery": "Salesforce 拒绝了该查询。",
+      "badQueryDetail": "Salesforce 拒绝了该查询：{detail}",
+      "unreachable": "无法连接 Salesforce，或其请求次数已用完。下次同步会重试。",
+      "runAsGone": "设置同步的人已没有账号。",
+      "accessLost": "同步所代表的人已无法编辑此数据库。",
+      "keyGone": "“Id”属性已被删除或类型已更改，因此无法将记录与行匹配。",
+      "failed": "同步失败。下次会重试。",
+      "invalidSite": "这不是 Leafdesk 能访问的地址。",
+      "invalidInput": "请填写 My Domain 地址、使用者密钥和密文，并选择一个对象。",
+      "alreadyRunning": "正在同步。请稍后再试。"
     }
   }
 }

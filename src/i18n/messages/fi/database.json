@@ -2512,5 +2512,18 @@
     "unchecked": "Ei valittu",
     "loading": "Ladataan rivejä…",
     "unavailable": "Näitä rivejä ei voi näyttää."
+  },
+  "zendeskSync": {
+    "button": "Synkronoitu Zendesksta",
+    "buttonPaused": "Zendesk-synkronointi keskeytetty",
+    "title": "Zendesk-synkronointi"
+  },
+  "salesforceSync": {
+    "button": "Synkronoitu Salesforcesta",
+    "buttonPaused": "Salesforce-synkronointi keskeytetty",
+    "title": "Salesforce-synkronointi"
+  },
+  "crmSync": {
+    "overwrite": "{source} on lähde: synkronoidut ominaisuudet ja rivien otsikot ylikirjoitetaan jokaisella synkronoinnilla, joten muuta niitä siellä. Itse lisäämäsi ominaisuudet säilyvät, ja rivit, joiden tietue on poistettu lähteestä, jätetään rauhaan."
   }
 }

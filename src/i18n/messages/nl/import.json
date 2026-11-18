@@ -20,7 +20,9 @@
     "sheets": "Google Sheets",
     "gcal": "Google Calendar",
     "googleDocs": "Google Docs",
-    "web": "Webpagina"
+    "web": "Webpagina",
+    "zendesk": "Zendesk",
+    "salesforce": "Salesforce"
   },
   "destination": "Plaatsen onder",
   "topLevel": "Hoogste niveau van de werkruimte",
@@ -511,6 +513,115 @@
       "failed": "De synchronisatie is mislukt. Ze probeert het de volgende keer opnieuw.",
       "invalidSite": "Leafdesk kan die koppeling niet bereiken.",
       "invalidInput": "Kies een verbinding en een agenda.",
+      "alreadyRunning": "Er loopt een synchronisatie. Probeer het zo opnieuw."
+    }
+  },
+  "zendesk": {
+    "help": "Maak een database van de tickets van een Zendesk-account die bijgewerkt blijft: elk ticket is een rij met status, prioriteit, type, aanvrager, behandelaar, labels, datums en een link terug. Elke synchronisatie neemt alleen over wat sinds de vorige is gewijzigd. Wijzigingen gaan één kant op, van Zendesk naar Leafdesk.",
+    "site": "Zendesk-adres",
+    "sitePlaceholder": "acme.zendesk.com",
+    "email": "E-mailadres",
+    "token": "API-token",
+    "tokenHelp": "Maak het API-token aan in het Admin Center van Zendesk. Het account heeft de beheerdersrol nodig, die het exporteren van tickets vereist. Het token wordt verzegeld op de server bewaard.",
+    "tokenLink": "Token maken",
+    "names": {
+      "id": "Ticket",
+      "status": "Status",
+      "priority": "Prioriteit",
+      "type": "Type",
+      "requester": "Aanvrager",
+      "assignee": "Toegewezen aan",
+      "others": "{column} (overige)",
+      "tags": "Labels",
+      "created": "Gemaakt",
+      "updated": "Bijgewerkt",
+      "link": "Zendesk-link",
+      "statuses": {
+        "new": "Nieuw",
+        "open": "Open",
+        "pending": "In behandeling",
+        "hold": "In de wacht",
+        "solved": "Opgelost",
+        "closed": "Gesloten",
+        "deleted": "Verwijderd"
+      }
+    },
+    "errors": {
+      "unauthorized": "Zendesk heeft het e-mailadres en het API-token geweigerd.",
+      "forbidden": "Dit account mag geen tickets exporteren. Het heeft de beheerdersrol nodig.",
+      "notFound": "Op dit adres antwoordde geen Zendesk-account.",
+      "unreachable": "Zendesk is niet bereikbaar, of de aanvraaglimiet is bereikt. De synchronisatie probeert het de volgende keer opnieuw.",
+      "runAsGone": "De persoon die de synchronisatie heeft ingesteld, heeft geen account meer.",
+      "accessLost": "De persoon als wie de synchronisatie draait, kan deze database niet meer bewerken.",
+      "keyGone": "De eigenschap Ticket is verwijderd of van type veranderd, dus tickets kunnen niet aan rijen worden gekoppeld.",
+      "failed": "De synchronisatie is mislukt. Ze probeert het de volgende keer opnieuw.",
+      "invalidSite": "Dat is geen adres dat Leafdesk kan bereiken.",
+      "invalidInput": "Vul het Zendesk-adres, het e-mailadres en het API-token in.",
+      "alreadyRunning": "Er loopt een synchronisatie. Probeer het zo opnieuw."
+    }
+  },
+  "salesforce": {
+    "help": "Maak een database van één Salesforce-object (accounts, contacten, kansen, leads of cases) die bijgewerkt blijft: elk record is een rij met de standaardvelden van het object en een link terug. Elke synchronisatie neemt alleen over wat sinds de vorige is gewijzigd; in Salesforce verwijderde records blijven staan. Wijzigingen gaan één kant op, van Salesforce naar Leafdesk.",
+    "site": "My Domain-adres",
+    "sitePlaceholder": "acme.my.salesforce.com",
+    "clientId": "Consumer key",
+    "clientSecret": "Consumer secret",
+    "secretHelp": "Maak in Salesforce een verbonden app met de client credentials-flow ingeschakeld en een gebruiker waarmee die draait en die het object mag lezen. Het geheim wordt verzegeld op de server bewaard.",
+    "helpLink": "Zo stel je het in",
+    "object": "Object",
+    "objects": {
+      "Account": "Account",
+      "Contact": "Contact",
+      "Opportunity": "Kans",
+      "Lead": "Lead",
+      "Case": "Case"
+    },
+    "names": {
+      "id": "Id",
+      "modified": "Gewijzigd",
+      "link": "Salesforce-link",
+      "others": "{column} (overige)",
+      "fields": {
+        "industry": "Branche",
+        "type": "Type",
+        "website": "Website",
+        "phone": "Telefoon",
+        "city": "Stad",
+        "country": "Land",
+        "revenue": "Jaaromzet",
+        "employees": "Medewerkers",
+        "owner": "Eigenaar",
+        "email": "E-mail",
+        "jobTitle": "Functie",
+        "department": "Afdeling",
+        "account": "Account",
+        "stage": "Fase",
+        "amount": "Bedrag",
+        "closeDate": "Sluitdatum",
+        "probability": "Waarschijnlijkheid",
+        "leadSource": "Leadbron",
+        "company": "Bedrijf",
+        "status": "Status",
+        "caseNumber": "Casenummer",
+        "priority": "Prioriteit",
+        "origin": "Herkomst",
+        "contact": "Contact",
+        "created": "Gemaakt"
+      }
+    },
+    "errors": {
+      "unauthorized": "Salesforce heeft de consumer key en het geheim geweigerd.",
+      "forbidden": "Salesforce staat deze app niet toe in te loggen met de client credentials-flow, of de gebruiker waarmee die draait mag dit object niet lezen.",
+      "notFound": "Op dit adres antwoordde geen Salesforce-org. Gebruik het My Domain-adres van de org.",
+      "badQuery": "Salesforce heeft de query geweigerd.",
+      "badQueryDetail": "Salesforce heeft de query geweigerd: {detail}",
+      "unreachable": "Salesforce is niet bereikbaar, of de aanvraaglimiet is bereikt. De synchronisatie probeert het de volgende keer opnieuw.",
+      "runAsGone": "De persoon die de synchronisatie heeft ingesteld, heeft geen account meer.",
+      "accessLost": "De persoon als wie de synchronisatie draait, kan deze database niet meer bewerken.",
+      "keyGone": "De eigenschap Id is verwijderd of van type veranderd, dus records kunnen niet aan rijen worden gekoppeld.",
+      "failed": "De synchronisatie is mislukt. Ze probeert het de volgende keer opnieuw.",
+      "invalidSite": "Dat is geen adres dat Leafdesk kan bereiken.",
+      "invalidInput": "Vul het My Domain-adres, de consumer key en het geheim in en kies een object.",
       "alreadyRunning": "Er loopt een synchronisatie. Probeer het zo opnieuw."
     }
   }

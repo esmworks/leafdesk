@@ -2512,5 +2512,18 @@
     "unchecked": "לא מסומן",
     "loading": "טוען שורות…",
     "unavailable": "לא ניתן להציג את השורות האלה."
+  },
+  "zendeskSync": {
+    "button": "מסונכרן מ־Zendesk",
+    "buttonPaused": "סנכרון Zendesk מושהה",
+    "title": "סנכרון Zendesk"
+  },
+  "salesforceSync": {
+    "button": "מסונכרן מ־Salesforce",
+    "buttonPaused": "סנכרון Salesforce מושהה",
+    "title": "סנכרון Salesforce"
+  },
+  "crmSync": {
+    "overwrite": "{source} הוא המקור: המאפיינים המסונכרנים וכותרות השורות נכתבים מחדש בכל סנכרון, ולכן שנו אותם שם. מאפיינים שהוספתם בעצמכם נשארים כפי שהם, ושורות שהרשומה שלהן נמחקה במקור אינן נפגעות."
   }
 }

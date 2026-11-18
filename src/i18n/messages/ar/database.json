@@ -2512,5 +2512,18 @@
     "unchecked": "غير محدد",
     "loading": "جارٍ تحميل الصفوف…",
     "unavailable": "لا يمكن عرض هذه الصفوف."
+  },
+  "zendeskSync": {
+    "button": "متزامنة من Zendesk",
+    "buttonPaused": "مزامنة Zendesk متوقفة مؤقتًا",
+    "title": "مزامنة Zendesk"
+  },
+  "salesforceSync": {
+    "button": "متزامنة من Salesforce",
+    "buttonPaused": "مزامنة Salesforce متوقفة مؤقتًا",
+    "title": "مزامنة Salesforce"
+  },
+  "crmSync": {
+    "overwrite": "{source} هو المصدر: تُكتب الخصائص المتزامنة وعناوين الصفوف من جديد في كل مزامنة، لذا غيّرها هناك. تبقى الخصائص التي تضيفها بنفسك كما هي، وتُترك الصفوف التي حُذفت سجلاتها في المصدر."
   }
 }

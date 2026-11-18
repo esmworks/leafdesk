@@ -13,15 +13,28 @@ const IcalSyncDialog = dynamic(() => import("./ical-sync-dialog"));
 const PostgresSyncDialog = dynamic(() => import("./postgres-sync-dialog"));
 const SheetsSyncDialog = dynamic(() => import("./sheets-sync-dialog"));
 const GcalSyncDialog = dynamic(() => import("./gcal-sync-dialog"));
+const CrmSyncDialog = dynamic(() => import("./crm-sync-dialog"));
 const SyncWriteStatus = dynamic(() => import("./sync-write-status"));
 
-const DIALOGS = { jira: JiraSyncDialog, github: GithubPullsSyncDialog, ical: IcalSyncDialog, postgres: PostgresSyncDialog, sheets: SheetsSyncDialog, gcal: GcalSyncDialog };
+const ZendeskSyncDialog = (props: { databaseId: string; onClose: () => void; onChanged: () => void }) => <CrmSyncDialog source="zendesk" {...props} />;
+const SalesforceSyncDialog = (props: { databaseId: string; onClose: () => void; onChanged: () => void }) => <CrmSyncDialog source="salesforce" {...props} />;
+
+const DIALOGS = {
+  jira: JiraSyncDialog,
+  github: GithubPullsSyncDialog,
+  ical: IcalSyncDialog,
+  postgres: PostgresSyncDialog,
+  sheets: SheetsSyncDialog,
+  gcal: GcalSyncDialog,
+  zendesk: ZendeskSyncDialog,
+  salesforce: SalesforceSyncDialog,
+};
 /** The texts of each source's button, under `database`. */
-const SOURCE_TEXTS = { jira: "jiraSync", github: "githubPulls", ical: "icalSync", postgres: "postgresSync", sheets: "sheetsSync", gcal: "gcalSync" } as const;
+const SOURCE_TEXTS = { jira: "jiraSync", github: "githubPulls", ical: "icalSync", postgres: "postgresSync", sheets: "sheetsSync", gcal: "gcalSync", zendesk: "zendeskSync", salesforce: "salesforceSync" } as const;
 
 /**
- * Shows that a database is synced from Jira, GitHub, a calendar, PostgreSQL, Google Sheets or
- * Google Calendar (with a mark when the sync is paused or its last run failed), and opens the
+ * Shows that a database is synced from Jira, GitHub, a calendar, PostgreSQL, Google Sheets,
+ * Google Calendar, Zendesk or Salesforce (with a mark when the sync is paused or its last run failed), and opens the
  * sync's dialog. A Google Sheets or Google Calendar sync that writes back also shows the rows
  * waiting to be written, with Write now for those who may run it, or that writing failed.
  */

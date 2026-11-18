@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 
-// Setting up a calendar, PostgreSQL, GitHub or Google Sheets sync checks that the person may make the database
+// Setting up a calendar, PostgreSQL, GitHub, Google Sheets, Zendesk or Salesforce sync checks that the person may make the database
 // where they asked before the server reaches out to anything.
 
 vi.mock("@/db", () => ({ db: {} }));
@@ -27,6 +27,20 @@ vi.mock("@/server/github-pulls/client", () => ({
 vi.mock("@/server/github-pulls/run", () => ({ applyPulls: vi.fn() }));
 vi.mock("@/server/sheets-sync/run", () => ({ applySheetRows: vi.fn(), readSheet: vi.fn(), sheetsConnection: vi.fn() }));
 vi.mock("@/server/jira-sync/client", () => ({ JiraError: class extends Error {} }));
+vi.mock("@/server/zendesk-sync/client", () => ({
+  checkZendeskSite: vi.fn(),
+  fetchTickets: vi.fn(),
+  zendeskAccount: vi.fn(),
+  ZendeskError: class extends Error {},
+}));
+vi.mock("@/server/zendesk-sync/run", () => ({ applyTickets: vi.fn() }));
+vi.mock("@/server/salesforce-sync/client", () => ({
+  checkSalesforceSite: vi.fn(),
+  fetchRecords: vi.fn(),
+  salesforceToken: vi.fn(),
+  SalesforceError: class extends Error {},
+}));
+vi.mock("@/server/salesforce-sync/run", () => ({ applyRecords: vi.fn() }));
 
 const { fetchCalendar } = await import("@/server/ical-sync/run");
 const { withPostgres } = await import("@/server/postgres-sync/client");
@@ -36,6 +50,10 @@ const { createIcalSync } = await import("@/server/ical-sync/manage");
 const { createPostgresSync } = await import("@/server/postgres-sync/manage");
 const { createGithubPullsSync } = await import("@/server/github-pulls/manage");
 const { createSheetsSync } = await import("@/server/sheets-sync/manage");
+const { createZendeskSync } = await import("@/server/zendesk-sync/manage");
+const { createSalesforceSync } = await import("@/server/salesforce-sync/manage");
+const { fetchTickets, zendeskAccount } = await import("@/server/zendesk-sync/client");
+const { fetchRecords } = await import("@/server/salesforce-sync/client");
 
 const place = { workspaceId: "ws1", parentId: "someone-elses-page" };
 
@@ -47,6 +65,15 @@ describe("setting a sync up", () => {
     await expect(
       createSheetsSync({ userId: "eve" }, { ...place, connectionId: "c1", link: "https://docs.google.com/spreadsheets/d/17AGsQSFVti7KUDNYLvq682TwnZF4N5MZKZpeNI_-lyc/edit" }),
     ).rejects.toThrow("no access");
+    await expect(
+      createZendeskSync({ userId: "eve" }, { ...place, site: "acme", email: "eve@example.test", token: "token" }),
+    ).rejects.toThrow("no access");
+    await expect(
+      createSalesforceSync({ userId: "eve" }, { ...place, site: "acme", clientId: "id", clientSecret: "secret", object: "Account" }),
+    ).rejects.toThrow("no access");
+    expect(zendeskAccount).not.toHaveBeenCalled();
+    expect(fetchTickets).not.toHaveBeenCalled();
+    expect(fetchRecords).not.toHaveBeenCalled();
     expect(fetchCalendar).not.toHaveBeenCalled();
     expect(withPostgres).not.toHaveBeenCalled();
     expect(githubRepository).not.toHaveBeenCalled();

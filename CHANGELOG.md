@@ -4,6 +4,15 @@
 
 ### Added
 
+- **Sync Zendesk tickets and Salesforce records.** Import has two new tabs. *Zendesk* takes an
+  account, an admin's email address and API token and keeps a database of its tickets (status,
+  priority, type, requester, assignee, tags, dates, link, a board by status) through the
+  incremental export. *Salesforce* takes an org's My Domain address and a connected app's consumer
+  key and secret (client credentials flow, run as the user the app names, no new environment
+  variables) and keeps one object (Account, Contact, Opportunity, Lead or Case) with its standard
+  fields, incrementally by `SystemModstamp`. Both are one way, run like Jira syncs (people matched
+  by email address, a sealed sign-in, `CONNECTOR_ALLOWED_HOSTS` only for syncs of workspace owners),
+  show in the database's sync dialog and pause on refused sign-ins. No migration.
 - **Auto, a model that picks itself.** Where the server has a fast model next to the main one, the
   AI chat's model picker offers *Auto*: each turn of an answer goes to the fast model for a short,
   simple question and to the main model for a long one, one with files, code or a task list, research,

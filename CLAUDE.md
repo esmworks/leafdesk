@@ -521,7 +521,7 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   `telegram.slack.*`, `say.ts` `translatorFor`; links in `channel_link` (`links.ts`), one per
   person and app; the notification preferences' `…_telegram` columns mean every chat app;
   `/agent` chats with an agent: `agent-chat.ts`, following its run as `chatTurn` and `followRun` show it, in the agent's latest conversation; a message queued behind a run no follow watches starts a waiter, `watched`, that follows only the queue's run), synced databases (own
-  `database_sync` table, `source` jira, github, ical, gcal, postgres or sheets; the runs and the one-minute sweep
+  `database_sync` table, `source` jira, github, ical, gcal, postgres, sheets, zendesk or salesforce; the runs and the one-minute sweep
   are `jira-sync/run.ts` for all, rows written by `synced-rows.ts`, errors are `JiraError` codes;
   Jira in `jira-sync/` and `src/lib/jira-sync.ts`, GitHub pull requests in `github-pulls/` and
   `src/lib/github-pulls-sync.ts`, people matched by their `account` with provider github;
@@ -539,6 +539,11 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   them before reading (sheets: `planWrites`; gcal: `writeBack`), leaving fields still waiting
   out of what it reads; a change asks `startDatabaseSyncs` through `globalThis.__leafdeskSyncsSoon`
   to run within seconds, and `server/sync-write-status.ts` is what the database's toolbar shows),
+  Zendesk tickets in `zendesk-sync/` and `src/lib/zendesk-sync.ts`, Salesforce objects in
+  `salesforce-sync/` and `src/lib/salesforce-sync.ts` (client credentials, no OAuth callback; for both
+  the `query` column is the run's state, the newest change seen and a count, written by the run
+  itself, and one run takes at most a few thousand records so a big account catches up over runs;
+  their dialog is `components/database/crm-sync-dialog.tsx`, their actions share `actions/crm-run.ts`),
   GitHub pull requests moving tasks `github-sync/` (deliveries handled in the request at `api/github/[syncId]`; pure
   ID matching and the status rule in `src/lib/github-sync.ts`), the Send to Slack step's address
   check and message in `src/lib/slack.ts`, mail to and from rows `row-mail/`

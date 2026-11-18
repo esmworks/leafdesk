@@ -2,6 +2,8 @@ import { getTranslations } from "next-intl/server";
 import type { GithubPullsNames } from "@/lib/github-pulls-sync";
 import type { IcalNames } from "@/lib/ical-sync";
 import type { JiraNames } from "@/lib/jira-sync";
+import { SALESFORCE_FIELD_KEYS, type SalesforceNames } from "@/lib/salesforce-sync";
+import { ZENDESK_STATUSES, type ZendeskNames } from "@/lib/zendesk-sync";
 import type { BoardNames } from "@/server/import/board";
 import type { EnexNames } from "@/server/import/enex";
 import type { TrelloNames } from "@/server/import/trello";
@@ -136,5 +138,38 @@ export async function icalNames(): Promise<IcalNames> {
     untitled: t("untitled"),
     calendar: td("views.calendar"),
     statuses: { confirmed: t("statuses.confirmed"), tentative: t("statuses.tentative"), cancelled: t("statuses.cancelled") },
+  };
+}
+
+/** Names of what a Zendesk sync creates (properties, status options, the board view), in the user's language. */
+export async function zendeskNames(): Promise<ZendeskNames> {
+  const [t, td] = await Promise.all([getTranslations("import.zendesk.names"), getTranslations("database")]);
+  return {
+    id: t("id"),
+    status: t("status"),
+    priority: t("priority"),
+    type: t("type"),
+    requester: t("requester"),
+    assignee: t("assignee"),
+    others: (column) => t("others", { column }),
+    tags: t("tags"),
+    created: t("created"),
+    updated: t("updated"),
+    link: t("link"),
+    board: td("views.board"),
+    statuses: Object.fromEntries(ZENDESK_STATUSES.map((status) => [status, t(`statuses.${status}`)])) as ZendeskNames["statuses"],
+  };
+}
+
+/** Names of what a Salesforce sync creates (properties and the board view), in the user's language. */
+export async function salesforceNames(): Promise<SalesforceNames> {
+  const [t, td] = await Promise.all([getTranslations("import.salesforce.names"), getTranslations("database")]);
+  return {
+    id: t("id"),
+    modified: t("modified"),
+    link: t("link"),
+    board: td("views.board"),
+    others: (column) => t("others", { column }),
+    fields: Object.fromEntries(SALESFORCE_FIELD_KEYS.map((key) => [key, t(`fields.${key}` as "fields.owner")])),
   };
 }

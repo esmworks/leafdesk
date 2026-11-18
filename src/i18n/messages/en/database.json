@@ -2512,5 +2512,18 @@
     "unchecked": "Not checked",
     "loading": "Loading rows…",
     "unavailable": "These rows can’t be shown."
+  },
+  "zendeskSync": {
+    "button": "Synced from Zendesk",
+    "buttonPaused": "Zendesk sync paused",
+    "title": "Zendesk sync"
+  },
+  "salesforceSync": {
+    "button": "Synced from Salesforce",
+    "buttonPaused": "Salesforce sync paused",
+    "title": "Salesforce sync"
+  },
+  "crmSync": {
+    "overwrite": "{source} is the source: the synced properties and row titles are written over on each sync, so change them there. Properties you add yourself stay as they are, and rows of records that are deleted at the source are left alone."
   }
 }

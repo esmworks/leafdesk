@@ -2512,5 +2512,18 @@
     "unchecked": "Não marcado",
     "loading": "Carregando linhas…",
     "unavailable": "Não é possível mostrar estas linhas."
+  },
+  "zendeskSync": {
+    "button": "Sincronizado do Zendesk",
+    "buttonPaused": "Sincronização do Zendesk pausada",
+    "title": "Sincronização do Zendesk"
+  },
+  "salesforceSync": {
+    "button": "Sincronizado do Salesforce",
+    "buttonPaused": "Sincronização do Salesforce pausada",
+    "title": "Sincronização do Salesforce"
+  },
+  "crmSync": {
+    "overwrite": "{source} é a fonte: as propriedades sincronizadas e os títulos das linhas são sobrescritos a cada sincronização, então altere-os lá. As propriedades que você adiciona permanecem como estão, e linhas cujos registros foram excluídos na origem não são alteradas."
   }
 }

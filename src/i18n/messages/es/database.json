@@ -2512,5 +2512,18 @@
     "unchecked": "Sin marcar",
     "loading": "Cargando filas…",
     "unavailable": "No se pueden mostrar estas filas."
+  },
+  "zendeskSync": {
+    "button": "Sincronizado desde Zendesk",
+    "buttonPaused": "Sincronización con Zendesk en pausa",
+    "title": "Sincronización con Zendesk"
+  },
+  "salesforceSync": {
+    "button": "Sincronizado desde Salesforce",
+    "buttonPaused": "Sincronización con Salesforce en pausa",
+    "title": "Sincronización con Salesforce"
+  },
+  "crmSync": {
+    "overwrite": "{source} es la fuente: las propiedades sincronizadas y los títulos de las filas se sobrescriben en cada sincronización, así que cámbialos allí. Las propiedades que añadas tú se quedan como están, y las filas cuyos registros se eliminen en el origen no se tocan."
   }
 }

@@ -20,7 +20,9 @@
     "sheets": "Google Sheets",
     "gcal": "Google Calendar",
     "googleDocs": "Google Docs",
-    "web": "Página web"
+    "web": "Página web",
+    "zendesk": "Zendesk",
+    "salesforce": "Salesforce"
   },
   "destination": "Colocar em",
   "topLevel": "Nível superior do espaço de trabalho",
@@ -511,6 +513,115 @@
       "failed": "A sincronização falhou. Ela tenta de novo na próxima vez.",
       "invalidSite": "O Leafdesk não consegue acessar essa conexão.",
       "invalidInput": "Escolha uma conexão e uma agenda.",
+      "alreadyRunning": "Uma sincronização está em andamento. Tente de novo em instantes."
+    }
+  },
+  "zendesk": {
+    "help": "Crie um banco de dados dos tickets de uma conta do Zendesk que se mantém sincronizado: cada ticket é uma linha com status, prioridade, tipo, solicitante, responsável, tags, datas e um link de volta. Cada sincronização traz apenas o que mudou desde a anterior. As alterações seguem em uma só direção, do Zendesk para o Leafdesk.",
+    "site": "Endereço do Zendesk",
+    "sitePlaceholder": "acme.zendesk.com",
+    "email": "Endereço de e-mail",
+    "token": "Token de API",
+    "tokenHelp": "Crie o token de API na Central de administração do Zendesk. A conta precisa da função de administrador, exigida para exportar tickets. O token é guardado lacrado no servidor.",
+    "tokenLink": "Criar um token",
+    "names": {
+      "id": "Ticket",
+      "status": "Status",
+      "priority": "Prioridade",
+      "type": "Tipo",
+      "requester": "Solicitante",
+      "assignee": "Responsável",
+      "others": "{column} (outros)",
+      "tags": "Etiquetas",
+      "created": "Criado",
+      "updated": "Atualizado",
+      "link": "Link do Zendesk",
+      "statuses": {
+        "new": "Novo",
+        "open": "Aberto",
+        "pending": "Pendente",
+        "hold": "Em espera",
+        "solved": "Resolvido",
+        "closed": "Fechado",
+        "deleted": "Excluído"
+      }
+    },
+    "errors": {
+      "unauthorized": "O Zendesk recusou o endereço de e-mail e o token de API.",
+      "forbidden": "Esta conta não pode exportar tickets. Ela precisa da função de administrador.",
+      "notFound": "Nenhuma conta do Zendesk respondeu neste endereço.",
+      "unreachable": "Não foi possível acessar o Zendesk, ou o limite de solicitações foi atingido. A sincronização tentará de novo na próxima vez.",
+      "runAsGone": "A pessoa que configurou a sincronização não tem mais conta.",
+      "accessLost": "A pessoa com quem a sincronização roda não pode mais editar este banco de dados.",
+      "keyGone": "A propriedade Ticket foi excluída ou mudou de tipo, então os tickets não podem ser associados a linhas.",
+      "failed": "A sincronização falhou. Ela tenta de novo na próxima vez.",
+      "invalidSite": "O Leafdesk não consegue acessar esse endereço.",
+      "invalidInput": "Preencha o endereço do Zendesk, o e-mail e o token de API.",
+      "alreadyRunning": "Uma sincronização está em andamento. Tente de novo em instantes."
+    }
+  },
+  "salesforce": {
+    "help": "Crie um banco de dados de um objeto do Salesforce (contas, contatos, oportunidades, leads ou casos) que se mantém sincronizado: cada registro é uma linha com os campos padrão do objeto e um link de volta. Cada sincronização traz apenas o que mudou desde a anterior; registros excluídos no Salesforce permanecem. As alterações seguem em uma só direção, do Salesforce para o Leafdesk.",
+    "site": "Endereço do My Domain",
+    "sitePlaceholder": "acme.my.salesforce.com",
+    "clientId": "Chave do consumidor",
+    "clientSecret": "Segredo do consumidor",
+    "secretHelp": "Crie no Salesforce um aplicativo conectado com o fluxo de credenciais do cliente ativado e um usuário para executá-lo, com acesso de leitura ao objeto. O segredo é guardado lacrado no servidor.",
+    "helpLink": "Como configurar",
+    "object": "Objeto",
+    "objects": {
+      "Account": "Conta",
+      "Contact": "Contato",
+      "Opportunity": "Oportunidade",
+      "Lead": "Lead",
+      "Case": "Caso"
+    },
+    "names": {
+      "id": "Id",
+      "modified": "Modificado",
+      "link": "Link do Salesforce",
+      "others": "{column} (outros)",
+      "fields": {
+        "industry": "Setor",
+        "type": "Tipo",
+        "website": "Site",
+        "phone": "Telefone",
+        "city": "Cidade",
+        "country": "País",
+        "revenue": "Receita anual",
+        "employees": "Funcionários",
+        "owner": "Proprietário",
+        "email": "E-mail",
+        "jobTitle": "Cargo",
+        "department": "Departamento",
+        "account": "Conta",
+        "stage": "Etapa",
+        "amount": "Valor",
+        "closeDate": "Data de fechamento",
+        "probability": "Probabilidade",
+        "leadSource": "Origem do lead",
+        "company": "Empresa",
+        "status": "Status",
+        "caseNumber": "Número do caso",
+        "priority": "Prioridade",
+        "origin": "Origem",
+        "contact": "Contato",
+        "created": "Criado"
+      }
+    },
+    "errors": {
+      "unauthorized": "O Salesforce recusou a chave e o segredo do consumidor.",
+      "forbidden": "O Salesforce não permite que este aplicativo entre com o fluxo de credenciais do cliente, ou o usuário que o executa não pode ler este objeto.",
+      "notFound": "Nenhuma organização do Salesforce respondeu neste endereço. Use o endereço My Domain da organização.",
+      "badQuery": "O Salesforce recusou a consulta.",
+      "badQueryDetail": "O Salesforce recusou a consulta: {detail}",
+      "unreachable": "Não foi possível acessar o Salesforce, ou o limite de solicitações foi atingido. A sincronização tentará de novo na próxima vez.",
+      "runAsGone": "A pessoa que configurou a sincronização não tem mais conta.",
+      "accessLost": "A pessoa com quem a sincronização roda não pode mais editar este banco de dados.",
+      "keyGone": "A propriedade Id foi excluída ou mudou de tipo, então os registros não podem ser associados a linhas.",
+      "failed": "A sincronização falhou. Ela tenta de novo na próxima vez.",
+      "invalidSite": "O Leafdesk não consegue acessar esse endereço.",
+      "invalidInput": "Preencha o endereço My Domain, a chave e o segredo do consumidor e escolha um objeto.",
       "alreadyRunning": "Uma sincronização está em andamento. Tente de novo em instantes."
     }
   }

@@ -13,6 +13,8 @@ vi.mock("@/server/collab/bridge", () => ({ getCollab: () => ({ broadcast: () => 
 vi.mock("@/server/postgres-sync/run", () => ({ runPostgres: vi.fn(() => new Promise(() => {})) }));
 vi.mock("@/server/ical-sync/run", () => ({ runIcal: vi.fn(async () => ({ count: 3, created: 3, updated: 0 })) }));
 vi.mock("@/server/github-pulls/run", () => ({ runGithubPulls: vi.fn() }));
+vi.mock("@/server/zendesk-sync/run", () => ({ runZendesk: vi.fn() }));
+vi.mock("@/server/salesforce-sync/run", () => ({ runSalesforce: vi.fn() }));
 vi.mock("@/server/import/board", () => ({ matcher: vi.fn() }));
 vi.mock("@/server/synced-rows", () => ({ addOptions: vi.fn(), applyRows: vi.fn(), liveFields: vi.fn() }));
 vi.mock("@/server/secret-box", () => ({ openJson: vi.fn() }));

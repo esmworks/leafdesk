@@ -2512,5 +2512,18 @@
     "unchecked": "Non selezionato",
     "loading": "Caricamento righe…",
     "unavailable": "Queste righe non possono essere mostrate."
+  },
+  "zendeskSync": {
+    "button": "Sincronizzato da Zendesk",
+    "buttonPaused": "Sincronizzazione Zendesk in pausa",
+    "title": "Sincronizzazione Zendesk"
+  },
+  "salesforceSync": {
+    "button": "Sincronizzato da Salesforce",
+    "buttonPaused": "Sincronizzazione Salesforce in pausa",
+    "title": "Sincronizzazione Salesforce"
+  },
+  "crmSync": {
+    "overwrite": "{source} è la fonte: le proprietà sincronizzate e i titoli delle righe vengono riscritti a ogni sincronizzazione, quindi modificali là. Le proprietà che aggiungi tu restano come sono e le righe i cui record sono eliminati alla fonte non vengono toccate."
   }
 }

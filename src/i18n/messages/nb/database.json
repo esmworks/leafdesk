@@ -2512,5 +2512,18 @@
     "unchecked": "Ikke avkrysset",
     "loading": "Laster inn rader…",
     "unavailable": "Disse radene kan ikke vises."
+  },
+  "zendeskSync": {
+    "button": "Synkronisert fra Zendesk",
+    "buttonPaused": "Zendesk-synkronisering satt på pause",
+    "title": "Zendesk-synkronisering"
+  },
+  "salesforceSync": {
+    "button": "Synkronisert fra Salesforce",
+    "buttonPaused": "Salesforce-synkronisering satt på pause",
+    "title": "Salesforce-synkronisering"
+  },
+  "crmSync": {
+    "overwrite": "{source} er kilden: de synkroniserte egenskapene og radtitlene skrives over ved hver synkronisering, så endre dem der. Egenskaper du selv legger til, forblir som de er, og rader der posten er slettet ved kilden, røres ikke."
   }
 }

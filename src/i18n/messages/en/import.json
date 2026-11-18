@@ -20,7 +20,9 @@
     "sheets": "Google Sheets",
     "gcal": "Google Calendar",
     "googleDocs": "Google Docs",
-    "web": "Web page"
+    "web": "Web page",
+    "zendesk": "Zendesk",
+    "salesforce": "Salesforce"
   },
   "destination": "Put under",
   "topLevel": "Top level of the workspace",
@@ -511,6 +513,115 @@
       "failed": "The sync failed. It tries again next time.",
       "invalidSite": "Leafdesk can't reach that connection.",
       "invalidInput": "Choose a connection and a calendar.",
+      "alreadyRunning": "A sync is running. Try again in a moment."
+    }
+  },
+  "zendesk": {
+    "help": "Get a database of a Zendesk account's tickets that stays in step: each ticket is a row with its status, priority, type, requester, assignee, tags, dates and a link back. Each sync takes only what changed since the last. Changes go one way, from Zendesk to Leafdesk.",
+    "site": "Zendesk address",
+    "sitePlaceholder": "acme.zendesk.com",
+    "email": "Email address",
+    "token": "API token",
+    "tokenHelp": "Create the API token in Zendesk's Admin Center. The account needs the admin role, which exporting tickets requires. The token is kept sealed on the server.",
+    "tokenLink": "Create a token",
+    "names": {
+      "id": "Ticket",
+      "status": "Status",
+      "priority": "Priority",
+      "type": "Type",
+      "requester": "Requester",
+      "assignee": "Assignee",
+      "others": "{column} (others)",
+      "tags": "Tags",
+      "created": "Created",
+      "updated": "Updated",
+      "link": "Zendesk link",
+      "statuses": {
+        "new": "New",
+        "open": "Open",
+        "pending": "Pending",
+        "hold": "On hold",
+        "solved": "Solved",
+        "closed": "Closed",
+        "deleted": "Deleted"
+      }
+    },
+    "errors": {
+      "unauthorized": "Zendesk refused the email address and API token.",
+      "forbidden": "This account may not export tickets. It needs the admin role.",
+      "notFound": "No Zendesk account answered at this address.",
+      "unreachable": "Zendesk couldn't be reached, or its request limit is spent. The sync tries again next time.",
+      "runAsGone": "The person who set the sync up no longer has an account.",
+      "accessLost": "The person the sync runs as can no longer edit this database.",
+      "keyGone": "The Ticket property was deleted or changed type, so tickets can't be matched to rows.",
+      "failed": "The sync failed. It tries again next time.",
+      "invalidSite": "That isn't an address Leafdesk can reach.",
+      "invalidInput": "Fill in the Zendesk address, the email address and the API token.",
+      "alreadyRunning": "A sync is running. Try again in a moment."
+    }
+  },
+  "salesforce": {
+    "help": "Get a database of one Salesforce object (accounts, contacts, opportunities, leads or cases) that stays in step: each record is a row with the object's standard fields and a link back. Each sync takes only what changed since the last; records deleted in Salesforce stay. Changes go one way, from Salesforce to Leafdesk.",
+    "site": "My Domain address",
+    "sitePlaceholder": "acme.my.salesforce.com",
+    "clientId": "Consumer key",
+    "clientSecret": "Consumer secret",
+    "secretHelp": "Create a connected app in Salesforce with the client credentials flow turned on and a user to run as, who needs read access to the object. The secret is kept sealed on the server.",
+    "helpLink": "How to set it up",
+    "object": "Object",
+    "objects": {
+      "Account": "Account",
+      "Contact": "Contact",
+      "Opportunity": "Opportunity",
+      "Lead": "Lead",
+      "Case": "Case"
+    },
+    "names": {
+      "id": "Id",
+      "modified": "Modified",
+      "link": "Salesforce link",
+      "others": "{column} (others)",
+      "fields": {
+        "industry": "Industry",
+        "type": "Type",
+        "website": "Website",
+        "phone": "Phone",
+        "city": "City",
+        "country": "Country",
+        "revenue": "Annual revenue",
+        "employees": "Employees",
+        "owner": "Owner",
+        "email": "Email",
+        "jobTitle": "Job title",
+        "department": "Department",
+        "account": "Account",
+        "stage": "Stage",
+        "amount": "Amount",
+        "closeDate": "Close date",
+        "probability": "Probability",
+        "leadSource": "Lead source",
+        "company": "Company",
+        "status": "Status",
+        "caseNumber": "Case number",
+        "priority": "Priority",
+        "origin": "Origin",
+        "contact": "Contact",
+        "created": "Created"
+      }
+    },
+    "errors": {
+      "unauthorized": "Salesforce refused the consumer key and secret.",
+      "forbidden": "Salesforce doesn't let this app sign in with the client credentials flow, or the user it runs as may not read this object.",
+      "notFound": "No Salesforce org answered at this address. Use the org's My Domain address.",
+      "badQuery": "Salesforce refused the query.",
+      "badQueryDetail": "Salesforce refused the query: {detail}",
+      "unreachable": "Salesforce couldn't be reached, or its request limit is spent. The sync tries again next time.",
+      "runAsGone": "The person who set the sync up no longer has an account.",
+      "accessLost": "The person the sync runs as can no longer edit this database.",
+      "keyGone": "The Id property was deleted or changed type, so records can't be matched to rows.",
+      "failed": "The sync failed. It tries again next time.",
+      "invalidSite": "That isn't an address Leafdesk can reach.",
+      "invalidInput": "Fill in the My Domain address, the consumer key and secret, and choose an object.",
       "alreadyRunning": "A sync is running. Try again in a moment."
     }
   }

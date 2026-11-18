@@ -2512,5 +2512,18 @@
     "unchecked": "Niet aangevinkt",
     "loading": "Rijen laden…",
     "unavailable": "Deze rijen kunnen niet worden getoond."
+  },
+  "zendeskSync": {
+    "button": "Gesynchroniseerd vanuit Zendesk",
+    "buttonPaused": "Zendesk-synchronisatie gepauzeerd",
+    "title": "Zendesk-synchronisatie"
+  },
+  "salesforceSync": {
+    "button": "Gesynchroniseerd vanuit Salesforce",
+    "buttonPaused": "Salesforce-synchronisatie gepauzeerd",
+    "title": "Salesforce-synchronisatie"
+  },
+  "crmSync": {
+    "overwrite": "{source} is de bron: de gesynchroniseerde eigenschappen en rijtitels worden bij elke synchronisatie overschreven, wijzig ze dus daar. Eigenschappen die je zelf toevoegt blijven zoals ze zijn, en rijen waarvan het record aan de bron is verwijderd, blijven ongemoeid."
   }
 }

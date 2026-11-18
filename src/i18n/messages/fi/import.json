@@ -20,7 +20,9 @@
     "sheets": "Google Sheets",
     "gcal": "Google Calendar",
     "googleDocs": "Google Docs",
-    "web": "Verkkosivu"
+    "web": "Verkkosivu",
+    "zendesk": "Zendesk",
+    "salesforce": "Salesforce"
   },
   "destination": "Sijainti",
   "topLevel": "Työtilan ylin taso",
@@ -511,6 +513,115 @@
       "failed": "Synkronointi epäonnistui. Se yrittää uudelleen seuraavalla kerralla.",
       "invalidSite": "Leafdesk ei saa yhteyttä tähän yhteyteen.",
       "invalidInput": "Valitse yhteys ja kalenteri.",
+      "alreadyRunning": "Synkronointi on käynnissä. Yritä hetken päästä uudelleen."
+    }
+  },
+  "zendesk": {
+    "help": "Hanki tietokanta Zendesk-tilin tiketeistä, joka pysyy ajan tasalla: jokainen tiketti on rivi, jossa on tila, prioriteetti, tyyppi, pyytäjä, käsittelijä, tunnisteet, päivämäärät ja linkki takaisin. Jokainen synkronointi hakee vain edellisen jälkeen muuttuneen. Muutokset kulkevat yhteen suuntaan, Zendeskistä Leafdeskiin.",
+    "site": "Zendesk-osoite",
+    "sitePlaceholder": "acme.zendesk.com",
+    "email": "Sähköpostiosoite",
+    "token": "API-tunnus",
+    "tokenHelp": "Luo API-tunnus Zendeskin hallintakeskuksessa. Tilillä on oltava ylläpitäjän rooli, jota tikettien vienti vaatii. Tunnus säilytetään sinetöitynä palvelimella.",
+    "tokenLink": "Luo tunnus",
+    "names": {
+      "id": "Tiketti",
+      "status": "Tila",
+      "priority": "Prioriteetti",
+      "type": "Tyyppi",
+      "requester": "Pyytäjä",
+      "assignee": "Vastuuhenkilö",
+      "others": "{column} (muut)",
+      "tags": "Tunnisteet",
+      "created": "Luotu",
+      "updated": "Päivitetty",
+      "link": "Zendesk-linkki",
+      "statuses": {
+        "new": "Uusi",
+        "open": "Avoin",
+        "pending": "Odottaa",
+        "hold": "Pidossa",
+        "solved": "Ratkaistu",
+        "closed": "Suljettu",
+        "deleted": "Poistettu"
+      }
+    },
+    "errors": {
+      "unauthorized": "Zendesk hylkäsi sähköpostiosoitteen ja API-tunnuksen.",
+      "forbidden": "Tällä tilillä ei ole oikeutta viedä tikettejä. Sillä on oltava ylläpitäjän rooli.",
+      "notFound": "Tästä osoitteesta ei vastannut mikään Zendesk-tili.",
+      "unreachable": "Zendeskiin ei saatu yhteyttä tai sen pyyntöraja on täynnä. Synkronointi yrittää uudelleen seuraavalla kerralla.",
+      "runAsGone": "Synkronoinnin määrittäneellä henkilöllä ei ole enää tiliä.",
+      "accessLost": "Henkilö, jona synkronointi suoritetaan, ei voi enää muokata tätä tietokantaa.",
+      "keyGone": "Tiketti-ominaisuus poistettiin tai sen tyyppi muuttui, joten tikettejä ei voi yhdistää riveihin.",
+      "failed": "Synkronointi epäonnistui. Se yrittää uudelleen ensi kerralla.",
+      "invalidSite": "Leafdesk ei tavoita tätä osoitetta.",
+      "invalidInput": "Täytä Zendesk-osoite, sähköpostiosoite ja API-tunnus.",
+      "alreadyRunning": "Synkronointi on käynnissä. Yritä hetken päästä uudelleen."
+    }
+  },
+  "salesforce": {
+    "help": "Hanki tietokanta yhdestä Salesforce-objektista (tilit, yhteyshenkilöt, myyntimahdollisuudet, liidit tai tapaukset), joka pysyy ajan tasalla: jokainen tietue on rivi, jossa on objektin vakiokentät ja linkki takaisin. Jokainen synkronointi hakee vain edellisen jälkeen muuttuneen, ja Salesforcessa poistetut tietueet jäävät. Muutokset kulkevat yhteen suuntaan, Salesforcesta Leafdeskiin.",
+    "site": "My Domain -osoite",
+    "sitePlaceholder": "acme.my.salesforce.com",
+    "clientId": "Kuluttaja-avain",
+    "clientSecret": "Kuluttajan salaisuus",
+    "secretHelp": "Luo Salesforceen yhdistetty sovellus, jossa client credentials -kulku on käytössä ja käyttäjä, jona se toimii ja jolla on lukuoikeus objektiin. Salaisuus säilytetään sinetöitynä palvelimella.",
+    "helpLink": "Näin se otetaan käyttöön",
+    "object": "Objekti",
+    "objects": {
+      "Account": "Tili",
+      "Contact": "Yhteyshenkilö",
+      "Opportunity": "Myyntimahdollisuus",
+      "Lead": "Liidi",
+      "Case": "Tapaus"
+    },
+    "names": {
+      "id": "Id",
+      "modified": "Muokattu",
+      "link": "Salesforce-linkki",
+      "others": "{column} (muut)",
+      "fields": {
+        "industry": "Toimiala",
+        "type": "Tyyppi",
+        "website": "Verkkosivusto",
+        "phone": "Puhelin",
+        "city": "Kaupunki",
+        "country": "Maa",
+        "revenue": "Vuosittainen liikevaihto",
+        "employees": "Työntekijät",
+        "owner": "Omistaja",
+        "email": "Sähköposti",
+        "jobTitle": "Tehtävänimike",
+        "department": "Osasto",
+        "account": "Tili",
+        "stage": "Vaihe",
+        "amount": "Summa",
+        "closeDate": "Päättymispäivä",
+        "probability": "Todennäköisyys",
+        "leadSource": "Liidin lähde",
+        "company": "Yritys",
+        "status": "Tila",
+        "caseNumber": "Tapausnumero",
+        "priority": "Prioriteetti",
+        "origin": "Alkuperä",
+        "contact": "Yhteyshenkilö",
+        "created": "Luotu"
+      }
+    },
+    "errors": {
+      "unauthorized": "Salesforce hylkäsi kuluttaja-avaimen ja salaisuuden.",
+      "forbidden": "Salesforce ei salli tämän sovelluksen kirjautua client credentials -kululla, tai käyttäjällä, jona se toimii, ei ole oikeutta lukea tätä objektia.",
+      "notFound": "Tästä osoitteesta ei vastannut mikään Salesforce-organisaatio. Käytä organisaation My Domain -osoitetta.",
+      "badQuery": "Salesforce hylkäsi kyselyn.",
+      "badQueryDetail": "Salesforce hylkäsi kyselyn: {detail}",
+      "unreachable": "Salesforceen ei saatu yhteyttä tai sen pyyntöraja on täynnä. Synkronointi yrittää uudelleen seuraavalla kerralla.",
+      "runAsGone": "Synkronoinnin määrittäneellä henkilöllä ei ole enää tiliä.",
+      "accessLost": "Henkilö, jona synkronointi suoritetaan, ei voi enää muokata tätä tietokantaa.",
+      "keyGone": "Id-ominaisuus poistettiin tai sen tyyppi muuttui, joten tietueita ei voi yhdistää riveihin.",
+      "failed": "Synkronointi epäonnistui. Se yrittää uudelleen ensi kerralla.",
+      "invalidSite": "Leafdesk ei tavoita tätä osoitetta.",
+      "invalidInput": "Täytä My Domain -osoite, kuluttaja-avain ja salaisuus ja valitse objekti.",
       "alreadyRunning": "Synkronointi on käynnissä. Yritä hetken päästä uudelleen."
     }
   }

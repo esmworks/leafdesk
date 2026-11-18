@@ -86,7 +86,7 @@ address) and on every redirect (at most five).
 For a server on the same machine or network, list its host (or `host:port`) in
 `CONNECTOR_ALLOWED_HOSTS`. A bare host name is reached on ports 80, 443, 8080 and 8443 only; a
 server on another port is listed with it (`localhost:8931`). The same list lets synced databases
-(calendars, Jira, GitHub, PostgreSQL) reach a server on your network (`db.internal` or
+(calendars, Jira, GitHub, PostgreSQL, Zendesk, Salesforce) reach a server on your network (`db.internal` or
 `10.0.0.5:5432`), but only a sync a workspace owner sets up or last changed: one set up by anyone
 else reaches public addresses only, like the addresses members give; see [Features](features.md). Addresses members give — saving a
 web page, downloading a file a page shows from another site, checking web links — never reach

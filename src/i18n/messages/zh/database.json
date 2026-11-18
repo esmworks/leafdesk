@@ -2512,5 +2512,18 @@
     "unchecked": "未勾选",
     "loading": "正在加载行…",
     "unavailable": "无法显示这些行。"
+  },
+  "zendeskSync": {
+    "button": "从 Zendesk 同步",
+    "buttonPaused": "Zendesk 同步已暂停",
+    "title": "Zendesk 同步"
+  },
+  "salesforceSync": {
+    "button": "从 Salesforce 同步",
+    "buttonPaused": "Salesforce 同步已暂停",
+    "title": "Salesforce 同步"
+  },
+  "crmSync": {
+    "overwrite": "{source} 是数据来源：同步的属性和行标题每次同步都会被覆盖，请在 {source} 中修改。你自己添加的属性保持不变，来源中已删除记录的行不会被改动。"
   }
 }

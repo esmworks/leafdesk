@@ -20,7 +20,9 @@
     "sheets": "Google Sheets",
     "gcal": "Google Calendar",
     "googleDocs": "Google ドキュメント",
-    "web": "ウェブページ"
+    "web": "ウェブページ",
+    "zendesk": "Zendesk",
+    "salesforce": "Salesforce"
   },
   "destination": "配置先",
   "topLevel": "ワークスペースの最上位",
@@ -512,6 +514,115 @@
       "invalidSite": "Leafdesk はその接続に到達できません。",
       "invalidInput": "接続とカレンダーを選んでください。",
       "alreadyRunning": "同期の実行中です。少し待ってから再試行してください。"
+    }
+  },
+  "zendesk": {
+    "help": "同期され続ける、Zendesk アカウントのチケットのデータベースを作成します。各チケットは、ステータス、優先度、タイプ、依頼者、担当者、タグ、日付、元のチケットへのリンクを持つ行になります。同期のたびに、前回以降に変更された分だけを取得します。変更は Zendesk から Leafdesk への一方向です。",
+    "site": "Zendesk のアドレス",
+    "sitePlaceholder": "acme.zendesk.com",
+    "email": "メールアドレス",
+    "token": "APIトークン",
+    "tokenHelp": "API トークンは Zendesk の管理センターで作成します。チケットのエクスポートには管理者ロールが必要なため、アカウントに管理者ロールが必要です。トークンは暗号化されてサーバーに保存されます。",
+    "tokenLink": "トークンを作成",
+    "names": {
+      "id": "チケット",
+      "status": "ステータス",
+      "priority": "優先度",
+      "type": "種類",
+      "requester": "依頼者",
+      "assignee": "担当者",
+      "others": "{column}（その他）",
+      "tags": "タグ",
+      "created": "作成日",
+      "updated": "更新日",
+      "link": "Zendeskリンク",
+      "statuses": {
+        "new": "新規",
+        "open": "オープン",
+        "pending": "保留中",
+        "hold": "保留",
+        "solved": "解決済み",
+        "closed": "クローズ",
+        "deleted": "削除済み"
+      }
+    },
+    "errors": {
+      "unauthorized": "Zendesk がメールアドレスと API トークンを拒否しました。",
+      "forbidden": "このアカウントはチケットをエクスポートできません。管理者ロールが必要です。",
+      "notFound": "このアドレスで応答した Zendesk アカウントはありません。",
+      "unreachable": "Zendesk に接続できないか、リクエスト数の上限に達しています。次回の同期で再試行します。",
+      "runAsGone": "同期を設定した人のアカウントがもうありません。",
+      "accessLost": "同期を実行する人がこのデータベースを編集できなくなりました。",
+      "keyGone": "「チケット」プロパティが削除されたか型が変更されたため、チケットを行に対応付けられません。",
+      "failed": "同期に失敗しました。次回再試行します。",
+      "invalidSite": "Leafdeskが接続できるアドレスではありません。",
+      "invalidInput": "Zendesk のアドレス、メールアドレス、API トークンを入力してください。",
+      "alreadyRunning": "同期中です。しばらくしてからもう一度お試しください。"
+    }
+  },
+  "salesforce": {
+    "help": "同期され続ける、Salesforce の 1 つのオブジェクト（取引先、取引先責任者、商談、リード、ケース）のデータベースを作成します。各レコードは、オブジェクトの標準項目と元のレコードへのリンクを持つ行になります。同期のたびに前回以降に変更された分だけを取得し、Salesforce で削除されたレコードは残ります。変更は Salesforce から Leafdesk への一方向です。",
+    "site": "My Domain のアドレス",
+    "sitePlaceholder": "acme.my.salesforce.com",
+    "clientId": "コンシューマーキー",
+    "clientSecret": "コンシューマーの秘密",
+    "secretHelp": "Salesforce でクライアントクレデンシャルフローを有効にした接続アプリケーションを作成し、実行ユーザー（オブジェクトの参照権限が必要）を指定します。秘密は暗号化されてサーバーに保存されます。",
+    "helpLink": "設定方法",
+    "object": "オブジェクト",
+    "objects": {
+      "Account": "取引先",
+      "Contact": "取引先責任者",
+      "Opportunity": "商談",
+      "Lead": "リード",
+      "Case": "ケース"
+    },
+    "names": {
+      "id": "Id",
+      "modified": "変更日",
+      "link": "Salesforceリンク",
+      "others": "{column}（その他）",
+      "fields": {
+        "industry": "業種",
+        "type": "種類",
+        "website": "ウェブサイト",
+        "phone": "電話",
+        "city": "市区町村",
+        "country": "国",
+        "revenue": "年間売上",
+        "employees": "従業員数",
+        "owner": "所有者",
+        "email": "メール",
+        "jobTitle": "役職",
+        "department": "部署",
+        "account": "取引先",
+        "stage": "フェーズ",
+        "amount": "金額",
+        "closeDate": "完了予定日",
+        "probability": "確度",
+        "leadSource": "リードソース",
+        "company": "会社名",
+        "status": "ステータス",
+        "caseNumber": "ケース番号",
+        "priority": "優先度",
+        "origin": "発生源",
+        "contact": "取引先責任者",
+        "created": "作成日"
+      }
+    },
+    "errors": {
+      "unauthorized": "Salesforce がコンシューマーキーと秘密を拒否しました。",
+      "forbidden": "Salesforce がこのアプリケーションによるクライアントクレデンシャルフローでのサインインを許可していないか、実行ユーザーにこのオブジェクトの参照権限がありません。",
+      "notFound": "このアドレスで応答した Salesforce 組織はありません。組織の My Domain のアドレスを使用してください。",
+      "badQuery": "Salesforce がクエリを拒否しました。",
+      "badQueryDetail": "Salesforce がクエリを拒否しました: {detail}",
+      "unreachable": "Salesforce に接続できないか、リクエスト数の上限に達しています。次回の同期で再試行します。",
+      "runAsGone": "同期を設定した人のアカウントがもうありません。",
+      "accessLost": "同期を実行する人がこのデータベースを編集できなくなりました。",
+      "keyGone": "「Id」プロパティが削除されたか型が変更されたため、レコードを行に対応付けられません。",
+      "failed": "同期に失敗しました。次回再試行します。",
+      "invalidSite": "Leafdeskが接続できるアドレスではありません。",
+      "invalidInput": "My Domain のアドレス、コンシューマーキー、秘密を入力し、オブジェクトを選択してください。",
+      "alreadyRunning": "同期中です。しばらくしてからもう一度お試しください。"
     }
   }
 }

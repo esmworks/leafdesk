@@ -7,6 +7,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { importTargetAction, type ImportTarget } from "@/app/actions/import";
 import { importGoogleDocsAction } from "@/app/actions/google-docs-import";
 import { createGithubPullsSyncAction } from "@/app/actions/github-pulls-sync";
+import { createSalesforceSyncAction } from "@/app/actions/salesforce-sync";
+import { createZendeskSyncAction } from "@/app/actions/zendesk-sync";
 import { createIcalSyncAction } from "@/app/actions/ical-sync";
 import { createPostgresSyncAction } from "@/app/actions/postgres-sync";
 import { createGcalSyncAction } from "@/app/actions/gcal-sync";
@@ -38,6 +40,8 @@ import { iconPrefix } from "@/lib/icon-value";
 import type { TreeNode } from "@/server/pages";
 import { GoogleDocsTab, type GoogleDocsSetup } from "./google-docs-import";
 import { GithubPullsTab, type GithubPullsSetup } from "./github-pulls-import";
+import { SalesforceTab, type SalesforceSetup } from "./salesforce-import";
+import { ZendeskTab, type ZendeskSetup } from "./zendesk-import";
 import { GcalTab, type GcalSetup } from "./gcal-import";
 import { IcalTab, type IcalSetup } from "./ical-import";
 import { PostgresTab, type PostgresSetup } from "./postgres-import";
@@ -127,7 +131,7 @@ export function ImportDialog({
   const databases = flat.filter(({ node }) => node.kind === "database" && canEdit(node));
   const activeNode = tree.find((n) => n.id === activeId);
 
-  const [tab, setTab] = useState<"pages" | "docx" | "googleDocs" | "pdf" | "evernote" | "onenote" | "confluence" | "csv" | "trello" | BoardSource | "jira" | "github" | "ical" | "postgres" | "sheets" | "gcal" | "web">("pages");
+  const [tab, setTab] = useState<"pages" | "docx" | "googleDocs" | "pdf" | "evernote" | "onenote" | "confluence" | "csv" | "trello" | BoardSource | "jira" | "github" | "ical" | "postgres" | "sheets" | "gcal" | "zendesk" | "salesforce" | "web">("pages");
   const [destination, setDestination] = useState("");
   const [picked, setPicked] = useState<Picked[]>([]);
   // A folder that came with an Obsidian vault's settings folder (which isn't sent).
@@ -150,6 +154,8 @@ export function ImportDialog({
   const [jira, setJira] = useState<JiraSetup | null>(null);
   // The GitHub tab's sync, once a repository is named.
   const [github, setGithub] = useState<GithubPullsSetup | null>(null);
+  const [zendesk, setZendesk] = useState<ZendeskSetup | null>(null);
+  const [salesforce, setSalesforce] = useState<SalesforceSetup | null>(null);
   const [ical, setIcal] = useState<IcalSetup | null>(null);
   const [postgresSetup, setPostgresSetup] = useState<PostgresSetup | null>(null);
   const [sheets, setSheets] = useState<SheetsSetup | null>(null);
@@ -200,6 +206,8 @@ export function ImportDialog({
     setBoard(null);
     setJira(null);
     setGithub(null);
+    setZendesk(null);
+    setSalesforce(null);
     setIcal(null);
     setPostgresSetup(null);
     setSheets(null);
@@ -415,6 +423,8 @@ export function ImportDialog({
     setError(null);
     if (tab === "jira") return submitJira();
     if (tab === "github") return submitGithub();
+    if (tab === "zendesk") return submitZendesk();
+    if (tab === "salesforce") return submitSalesforce();
     if (tab === "ical") return submitIcal();
     if (tab === "postgres") return submitPostgres();
     if (tab === "sheets") return submitSheets();
@@ -528,6 +538,46 @@ export function ImportDialog({
     try {
       const response = await createGithubPullsSyncAction({
         ...github,
+        workspaceId,
+        parentId: destination || null,
+        teamspaceId: teamspaceId === undefined ? undefined : (teamspaceId ?? "private"),
+      });
+      if (!response.ok) setError(response.error);
+      else setResult(response.data);
+    } catch {
+      setError(tc("genericError"));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  /** Sets a Zendesk ticket sync up: a server action, as nothing is uploaded. */
+  async function submitZendesk() {
+    if (!zendesk) return;
+    setBusy(true);
+    try {
+      const response = await createZendeskSyncAction({
+        ...zendesk,
+        workspaceId,
+        parentId: destination || null,
+        teamspaceId: teamspaceId === undefined ? undefined : (teamspaceId ?? "private"),
+      });
+      if (!response.ok) setError(response.error);
+      else setResult(response.data);
+    } catch {
+      setError(tc("genericError"));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  /** Sets a Salesforce sync up: a server action, as nothing is uploaded. */
+  async function submitSalesforce() {
+    if (!salesforce) return;
+    setBusy(true);
+    try {
+      const response = await createSalesforceSyncAction({
+        ...salesforce,
         workspaceId,
         parentId: destination || null,
         teamspaceId: teamspaceId === undefined ? undefined : (teamspaceId ?? "private"),
@@ -701,6 +751,10 @@ export function ImportDialog({
             ? board?.board.source === tab && destinationValid
             : tab === "jira"
               ? jira !== null && destinationValid
+              : tab === "zendesk"
+                ? zendesk !== null && destinationValid
+              : tab === "salesforce"
+                ? salesforce !== null && destinationValid
               : tab === "github"
                 ? github !== null && destinationValid
               : tab === "ical"
@@ -779,7 +833,7 @@ export function ImportDialog({
       ) : (
         <DialogBody className="max-h-[70vh] overflow-y-auto" aria-busy={busy}>
           <div role="tablist" aria-label={t("title")} className="inline-flex flex-wrap gap-0.5 rounded-lg bg-bg-hover p-0.5">
-            {(["pages", "docx", "googleDocs", "pdf", "evernote", "onenote", "confluence", "csv", "trello", "asana", "monday", "jira", "github", "ical", "postgres", "sheets", "gcal", "web"] as const).map((key) => (
+            {(["pages", "docx", "googleDocs", "pdf", "evernote", "onenote", "confluence", "csv", "trello", "asana", "monday", "jira", "github", "ical", "postgres", "sheets", "gcal", "zendesk", "salesforce", "web"] as const).map((key) => (
               <button
                 key={key}
                 type="button"
@@ -1216,6 +1270,10 @@ export function ImportDialog({
             <JiraTab workspaceId={workspaceId} busy={busy} destinationPicker={destinationPicker} onSetup={setJira} />
           ) : tab === "github" ? (
             <GithubPullsTab busy={busy} destinationPicker={destinationPicker} onSetup={setGithub} />
+          ) : tab === "zendesk" ? (
+            <ZendeskTab busy={busy} destinationPicker={destinationPicker} onSetup={setZendesk} />
+          ) : tab === "salesforce" ? (
+            <SalesforceTab busy={busy} destinationPicker={destinationPicker} onSetup={setSalesforce} />
           ) : tab === "ical" ? (
             <IcalTab busy={busy} destinationPicker={destinationPicker} onSetup={setIcal} />
           ) : tab === "postgres" ? (
@@ -1436,7 +1494,7 @@ export function ImportDialog({
             {tc("cancel")}
           </Button>
           <Button variant="primary" disabled={!ready} onClick={() => void submit()}>
-            {tab === "jira" || tab === "github" || tab === "ical" || tab === "postgres" || tab === "sheets" || tab === "gcal"
+            {tab === "jira" || tab === "github" || tab === "ical" || tab === "postgres" || tab === "sheets" || tab === "gcal" || tab === "zendesk" || tab === "salesforce"
               ? busy
                 ? t("jira.submitting")
                 : t("jira.submit")

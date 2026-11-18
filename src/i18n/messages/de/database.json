@@ -2512,5 +2512,18 @@
     "unchecked": "Nicht angehakt",
     "loading": "Zeilen werden geladen…",
     "unavailable": "Diese Zeilen können nicht angezeigt werden."
+  },
+  "zendeskSync": {
+    "button": "Aus Zendesk synchronisiert",
+    "buttonPaused": "Zendesk-Synchronisierung pausiert",
+    "title": "Zendesk-Synchronisierung"
+  },
+  "salesforceSync": {
+    "button": "Aus Salesforce synchronisiert",
+    "buttonPaused": "Salesforce-Synchronisierung pausiert",
+    "title": "Salesforce-Synchronisierung"
+  },
+  "crmSync": {
+    "overwrite": "{source} ist die Quelle: Die synchronisierten Eigenschaften und Zeilentitel werden bei jeder Synchronisierung überschrieben, ändere sie also dort. Eigenschaften, die du selbst hinzufügst, bleiben unverändert, und Zeilen, deren Datensätze an der Quelle gelöscht wurden, bleiben unangetastet."
   }
 }

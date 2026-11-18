@@ -2512,5 +2512,18 @@
     "unchecked": "未チェック",
     "loading": "行を読み込み中…",
     "unavailable": "これらの行は表示できません。"
+  },
+  "zendeskSync": {
+    "button": "Zendeskから同期",
+    "buttonPaused": "Zendesk同期は一時停止中",
+    "title": "Zendesk同期"
+  },
+  "salesforceSync": {
+    "button": "Salesforceから同期",
+    "buttonPaused": "Salesforce同期は一時停止中",
+    "title": "Salesforce同期"
+  },
+  "crmSync": {
+    "overwrite": "{source} が元データです。同期されたプロパティと行のタイトルは同期のたびに上書きされるため、変更は {source} 側で行ってください。自分で追加したプロパティはそのまま残り、元のレコードが削除された行には手を加えません。"
   }
 }

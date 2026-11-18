@@ -20,7 +20,9 @@
     "sheets": "Google Sheets",
     "gcal": "Google Calendar",
     "googleDocs": "Google Docs",
-    "web": "Trang web"
+    "web": "Trang web",
+    "zendesk": "Zendesk",
+    "salesforce": "Salesforce"
   },
   "destination": "Đặt dưới",
   "topLevel": "Cấp cao nhất của không gian làm việc",
@@ -512,6 +514,115 @@
       "invalidSite": "Leafdesk không thể kết nối tới kết nối đó.",
       "invalidInput": "Hãy chọn một kết nối và một lịch.",
       "alreadyRunning": "Đang đồng bộ. Hãy thử lại sau giây lát."
+    }
+  },
+  "zendesk": {
+    "help": "Tạo cơ sở dữ liệu các phiếu của một tài khoản Zendesk luôn đồng bộ: mỗi phiếu là một dòng có trạng thái, mức ưu tiên, loại, người yêu cầu, người phụ trách, thẻ, ngày và liên kết quay lại. Mỗi lần đồng bộ chỉ lấy những gì đã thay đổi kể từ lần trước. Thay đổi đi một chiều, từ Zendesk sang Leafdesk.",
+    "site": "Địa chỉ Zendesk",
+    "sitePlaceholder": "acme.zendesk.com",
+    "email": "Địa chỉ email",
+    "token": "Token API",
+    "tokenHelp": "Tạo mã thông báo API trong Admin Center của Zendesk. Tài khoản cần vai trò quản trị viên, vì việc xuất phiếu yêu cầu vai trò này. Mã thông báo được lưu niêm phong trên máy chủ.",
+    "tokenLink": "Tạo token",
+    "names": {
+      "id": "Phiếu",
+      "status": "Trạng thái",
+      "priority": "Ưu tiên",
+      "type": "Loại",
+      "requester": "Người yêu cầu",
+      "assignee": "Người được giao",
+      "others": "{column} (khác)",
+      "tags": "Thẻ",
+      "created": "Ngày tạo",
+      "updated": "Cập nhật",
+      "link": "Liên kết Zendesk",
+      "statuses": {
+        "new": "Mới",
+        "open": "Đang mở",
+        "pending": "Đang chờ",
+        "hold": "Tạm dừng",
+        "solved": "Đã giải quyết",
+        "closed": "Đã đóng",
+        "deleted": "Đã xóa"
+      }
+    },
+    "errors": {
+      "unauthorized": "Zendesk đã từ chối địa chỉ email và mã thông báo API.",
+      "forbidden": "Tài khoản này không được xuất phiếu. Cần vai trò quản trị viên.",
+      "notFound": "Không có tài khoản Zendesk nào trả lời tại địa chỉ này.",
+      "unreachable": "Không thể kết nối Zendesk, hoặc đã hết giới hạn yêu cầu. Lần đồng bộ sau sẽ thử lại.",
+      "runAsGone": "Người thiết lập đồng bộ không còn tài khoản.",
+      "accessLost": "Người mà đồng bộ chạy dưới danh nghĩa không còn sửa được cơ sở dữ liệu này.",
+      "keyGone": "Thuộc tính Phiếu đã bị xóa hoặc đổi loại nên không thể khớp phiếu với các dòng.",
+      "failed": "Đồng bộ thất bại. Lần sau sẽ thử lại.",
+      "invalidSite": "Đó không phải địa chỉ Leafdesk có thể truy cập.",
+      "invalidInput": "Nhập địa chỉ Zendesk, địa chỉ email và mã thông báo API.",
+      "alreadyRunning": "Đang có một lần đồng bộ. Hãy thử lại sau giây lát."
+    }
+  },
+  "salesforce": {
+    "help": "Tạo cơ sở dữ liệu của một đối tượng Salesforce (tài khoản, liên hệ, cơ hội, khách hàng tiềm năng hoặc hồ sơ) luôn đồng bộ: mỗi bản ghi là một dòng có các trường chuẩn của đối tượng và liên kết quay lại. Mỗi lần đồng bộ chỉ lấy những gì đã thay đổi kể từ lần trước; các bản ghi bị xóa trong Salesforce vẫn được giữ lại. Thay đổi đi một chiều, từ Salesforce sang Leafdesk.",
+    "site": "Địa chỉ My Domain",
+    "sitePlaceholder": "acme.my.salesforce.com",
+    "clientId": "Khóa người dùng",
+    "clientSecret": "Bí mật người dùng",
+    "secretHelp": "Tạo một ứng dụng được kết nối trong Salesforce với luồng client credentials được bật và một người dùng để chạy, có quyền đọc đối tượng. Bí mật được lưu niêm phong trên máy chủ.",
+    "helpLink": "Cách thiết lập",
+    "object": "Đối tượng",
+    "objects": {
+      "Account": "Tài khoản",
+      "Contact": "Liên hệ",
+      "Opportunity": "Cơ hội",
+      "Lead": "Khách hàng tiềm năng",
+      "Case": "Hồ sơ"
+    },
+    "names": {
+      "id": "Id",
+      "modified": "Đã sửa đổi",
+      "link": "Liên kết Salesforce",
+      "others": "{column} (khác)",
+      "fields": {
+        "industry": "Ngành",
+        "type": "Loại",
+        "website": "Trang web",
+        "phone": "Điện thoại",
+        "city": "Thành phố",
+        "country": "Quốc gia",
+        "revenue": "Doanh thu hằng năm",
+        "employees": "Nhân viên",
+        "owner": "Chủ sở hữu",
+        "email": "Email",
+        "jobTitle": "Chức danh",
+        "department": "Phòng ban",
+        "account": "Tài khoản",
+        "stage": "Giai đoạn",
+        "amount": "Số tiền",
+        "closeDate": "Ngày đóng",
+        "probability": "Xác suất",
+        "leadSource": "Nguồn khách hàng tiềm năng",
+        "company": "Công ty",
+        "status": "Trạng thái",
+        "caseNumber": "Số hồ sơ",
+        "priority": "Ưu tiên",
+        "origin": "Nguồn gốc",
+        "contact": "Liên hệ",
+        "created": "Ngày tạo"
+      }
+    },
+    "errors": {
+      "unauthorized": "Salesforce đã từ chối khóa và bí mật người dùng.",
+      "forbidden": "Salesforce không cho phép ứng dụng này đăng nhập bằng luồng client credentials, hoặc người dùng chạy ứng dụng không được đọc đối tượng này.",
+      "notFound": "Không có tổ chức Salesforce nào trả lời tại địa chỉ này. Hãy dùng địa chỉ My Domain của tổ chức.",
+      "badQuery": "Salesforce đã từ chối truy vấn.",
+      "badQueryDetail": "Salesforce đã từ chối truy vấn: {detail}",
+      "unreachable": "Không thể kết nối Salesforce, hoặc đã hết giới hạn yêu cầu. Lần đồng bộ sau sẽ thử lại.",
+      "runAsGone": "Người thiết lập đồng bộ không còn tài khoản.",
+      "accessLost": "Người mà đồng bộ chạy dưới danh nghĩa không còn sửa được cơ sở dữ liệu này.",
+      "keyGone": "Thuộc tính Id đã bị xóa hoặc đổi loại nên không thể khớp bản ghi với các dòng.",
+      "failed": "Đồng bộ thất bại. Lần sau sẽ thử lại.",
+      "invalidSite": "Đó không phải địa chỉ Leafdesk có thể truy cập.",
+      "invalidInput": "Nhập địa chỉ My Domain, khóa và bí mật người dùng, rồi chọn một đối tượng.",
+      "alreadyRunning": "Đang có một lần đồng bộ. Hãy thử lại sau giây lát."
     }
   }
 }

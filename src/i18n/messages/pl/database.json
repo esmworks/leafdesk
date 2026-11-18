@@ -2512,5 +2512,18 @@
     "unchecked": "Niezaznaczone",
     "loading": "Wczytywanie wierszy…",
     "unavailable": "Nie można wyświetlić tych wierszy."
+  },
+  "zendeskSync": {
+    "button": "Synchronizowane z Zendesk",
+    "buttonPaused": "Synchronizacja z Zendesk wstrzymana",
+    "title": "Synchronizacja z Zendesk"
+  },
+  "salesforceSync": {
+    "button": "Synchronizowane z Salesforce",
+    "buttonPaused": "Synchronizacja z Salesforce wstrzymana",
+    "title": "Synchronizacja z Salesforce"
+  },
+  "crmSync": {
+    "overwrite": "{source} jest źródłem: zsynchronizowane właściwości i tytuły wierszy są nadpisywane przy każdej synchronizacji, więc zmieniaj je tam. Właściwości dodane przez Ciebie pozostają bez zmian, a wiersze, których rekordy usunięto w źródle, nie są ruszane."
   }
 }

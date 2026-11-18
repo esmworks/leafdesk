@@ -1414,6 +1414,37 @@
   refused token or a deleted *Number* property pauses it. In the database's sync dialog people with
   full access can change which pull requests it takes, how often, the token, sync now or stop.
   Tested against a stand-in GitHub (`scripts/github-pulls-sync-e2e.ts`), not yet the real API.
+- **Sync Zendesk tickets**: Import's Zendesk tab takes a Zendesk account (its subdomain, `acme`, or
+  address), an email address and an API token of an agent with the admin role (which exporting
+  tickets requires; the token is kept sealed and never shown again) and makes a database whose rows
+  are the tickets: number, subject as the title, status (*New*, *Open*, *Pending*, *On hold*,
+  *Solved*, *Closed*, *Deleted*, grouped to do, in progress and done), priority, type, requester and
+  assignee as persons when their email address is a member's (or, where Zendesk hides it, their
+  name; others by name in *Requester (others)* and *Assignee (others)*), tags, created and updated
+  dates and a link back, opening on a board by status. It reads Zendesk's incremental ticket export
+  (up to 5,000 tickets a run, the rest on the next runs), then only what changed since the newest
+  update it has seen; a deleted ticket is marked *Deleted*. It syncs as often and as one-way as a
+  Jira sync. A spent request limit waits for the next run; a refused token, an account that may not
+  export or a deleted *Ticket* property pauses it. In the database's sync dialog people with full
+  access can change how often, the sign-in, sync now or stop. Tested against a stand-in Zendesk
+  (`scripts/crm-sync-e2e.ts`), not yet a real account.
+- **Sync a Salesforce object**: Import's Salesforce tab takes an org's My Domain address
+  (`acme.my.salesforce.com`; the Lightning address is turned into it), the consumer key and secret of
+  a connected app and one object: *Account*, *Contact*, *Opportunity*, *Lead* or *Case*. Create the
+  app in Salesforce's Setup (App Manager > New Connected App or External Client App) with *Enable
+  Client Credentials Flow* on and a *Run As* user who may read the object; Leafdesk reads as that
+  user, so what the user can't see never comes over. It makes a database with a property for each of
+  the object's standard fields (for example an opportunity's stage, amount, close date,
+  probability, type, lead source, account and owner), *Modified* and a link back, and a board by
+  stage or status for opportunities, leads and cases (a closed record's status counts as done). Owners
+  are persons when their email address (accounts, contacts and opportunities) or name is a
+  member's, else a name in *Owner (others)*. Runs read SOQL through the REST API: up to 10,000
+  records a run, then only what changed since the newest `SystemModstamp` seen; records deleted in
+  Salesforce stay as rows. It syncs as often and as one-way as a Jira sync; a refused key, an app
+  without the flow, a field the run-as user may not read (with Salesforce's words in the sync
+  dialog) or a deleted *Id* property pauses it. A fresh token is fetched for every run and never
+  kept, and the org's address is the one set up (the token answer's `instance_url` isn't followed).
+  Tested against a stand-in Salesforce (`scripts/crm-sync-e2e.ts`), not yet a real org.
 - **Sync a calendar**: Import's Calendar tab takes a calendar's iCal address (an `.ics` or `webcal://`
   link: Google Calendar's secret address in iCal format, an Outlook published calendar, a booking
   tool's feed; kept sealed and never shown again, only its host) and makes a database whose rows

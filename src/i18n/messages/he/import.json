@@ -20,7 +20,9 @@
     "sheets": "Google Sheets",
     "gcal": "Google Calendar",
     "googleDocs": "Google Docs",
-    "web": "דף אינטרנט"
+    "web": "דף אינטרנט",
+    "zendesk": "Zendesk",
+    "salesforce": "Salesforce"
   },
   "destination": "מיקום",
   "topLevel": "הרמה העליונה של סביבת העבודה",
@@ -511,6 +513,115 @@
       "failed": "הסנכרון נכשל. הוא ינסה שוב בפעם הבאה.",
       "invalidSite": "Leafdesk לא יכול להגיע לחיבור הזה.",
       "invalidInput": "בחרו חיבור ויומן.",
+      "alreadyRunning": "סנכרון פועל כעת. נסו שוב בעוד רגע."
+    }
+  },
+  "zendesk": {
+    "help": "קבלו מסד נתונים של הפניות בחשבון Zendesk שנשאר מסונכרן: כל פנייה היא שורה עם סטטוס, עדיפות, סוג, מבקש, אחראי, תגיות, תאריכים וקישור חזרה. כל סנכרון לוקח רק את מה שהשתנה מאז הקודם. השינויים זורמים בכיוון אחד, מ-Zendesk אל Leafdesk.",
+    "site": "כתובת Zendesk",
+    "sitePlaceholder": "acme.zendesk.com",
+    "email": "כתובת אימייל",
+    "token": "אסימון API",
+    "tokenHelp": "צרו את אסימון ה-API במרכז הניהול של Zendesk. החשבון צריך תפקיד מנהל, שייצוא פניות דורש. האסימון נשמר חתום בשרת.",
+    "tokenLink": "יצירת אסימון",
+    "names": {
+      "id": "פנייה",
+      "status": "סטטוס",
+      "priority": "עדיפות",
+      "type": "סוג",
+      "requester": "מבקש",
+      "assignee": "אחראי",
+      "others": "{column} (אחרים)",
+      "tags": "תגיות",
+      "created": "נוצרה",
+      "updated": "עודכן",
+      "link": "קישור ל־Zendesk",
+      "statuses": {
+        "new": "חדש",
+        "open": "פתוחה",
+        "pending": "ממתין",
+        "hold": "בהמתנה",
+        "solved": "נפתר",
+        "closed": "סגורה",
+        "deleted": "נמחק"
+      }
+    },
+    "errors": {
+      "unauthorized": "Zendesk דחה את כתובת הדוא״ל ואסימון ה-API.",
+      "forbidden": "לחשבון זה אין הרשאה לייצא פניות. נדרש תפקיד מנהל.",
+      "notFound": "אף חשבון Zendesk לא ענה בכתובת זו.",
+      "unreachable": "לא ניתן להגיע ל-Zendesk, או שמכסת הבקשות נוצלה. הסנכרון ינסה שוב בפעם הבאה.",
+      "runAsGone": "למי שהגדיר את הסנכרון כבר אין חשבון.",
+      "accessLost": "מי שהסנכרון פועל בשמו כבר לא יכול לערוך את מסד הנתונים הזה.",
+      "keyGone": "המאפיין פנייה נמחק או שסוגו השתנה, ולכן אי אפשר להתאים פניות לשורות.",
+      "failed": "הסנכרון נכשל. הוא ינסה שוב בפעם הבאה.",
+      "invalidSite": "זו לא כתובת ש־Leafdesk יכול להגיע אליה.",
+      "invalidInput": "מלאו את כתובת Zendesk, כתובת הדוא״ל ואסימון ה-API.",
+      "alreadyRunning": "סנכרון פועל כעת. נסו שוב בעוד רגע."
+    }
+  },
+  "salesforce": {
+    "help": "קבלו מסד נתונים של אובייקט אחד ב-Salesforce (חשבונות, אנשי קשר, הזדמנויות, לידים או פניות) שנשאר מסונכרן: כל רשומה היא שורה עם שדות הסטנדרט של האובייקט וקישור חזרה. כל סנכרון לוקח רק את מה שהשתנה מאז הקודם, ורשומות שנמחקו ב-Salesforce נשארות. השינויים זורמים בכיוון אחד, מ-Salesforce אל Leafdesk.",
+    "site": "כתובת My Domain",
+    "sitePlaceholder": "acme.my.salesforce.com",
+    "clientId": "מפתח צרכן",
+    "clientSecret": "סוד צרכן",
+    "secretHelp": "צרו ב-Salesforce אפליקציה מחוברת עם זרימת client credentials מופעלת ומשתמש שהיא פועלת בשמו, עם הרשאת קריאה לאובייקט. הסוד נשמר חתום בשרת.",
+    "helpLink": "איך מגדירים",
+    "object": "אובייקט",
+    "objects": {
+      "Account": "חשבון",
+      "Contact": "איש קשר",
+      "Opportunity": "הזדמנות",
+      "Lead": "ליד",
+      "Case": "פנייה"
+    },
+    "names": {
+      "id": "Id",
+      "modified": "שונה",
+      "link": "קישור ל־Salesforce",
+      "others": "{column} (אחרים)",
+      "fields": {
+        "industry": "תעשייה",
+        "type": "סוג",
+        "website": "אתר אינטרנט",
+        "phone": "טלפון",
+        "city": "עיר",
+        "country": "מדינה",
+        "revenue": "הכנסה שנתית",
+        "employees": "עובדים",
+        "owner": "בעלים",
+        "email": "אימייל",
+        "jobTitle": "תפקיד",
+        "department": "מחלקה",
+        "account": "חשבון",
+        "stage": "שלב",
+        "amount": "סכום",
+        "closeDate": "תאריך סגירה",
+        "probability": "הסתברות",
+        "leadSource": "מקור הליד",
+        "company": "חברה",
+        "status": "סטטוס",
+        "caseNumber": "מספר פנייה",
+        "priority": "עדיפות",
+        "origin": "מקור",
+        "contact": "איש קשר",
+        "created": "נוצרה"
+      }
+    },
+    "errors": {
+      "unauthorized": "Salesforce דחה את מפתח הצרכן ואת הסוד.",
+      "forbidden": "Salesforce לא מאפשר לאפליקציה זו להתחבר בזרימת client credentials, או שלמשתמש שהיא פועלת בשמו אין הרשאה לקרוא אובייקט זה.",
+      "notFound": "אף ארגון Salesforce לא ענה בכתובת זו. השתמשו בכתובת My Domain של הארגון.",
+      "badQuery": "Salesforce דחה את השאילתה.",
+      "badQueryDetail": "Salesforce דחה את השאילתה: {detail}",
+      "unreachable": "לא ניתן להגיע ל-Salesforce, או שמכסת הבקשות נוצלה. הסנכרון ינסה שוב בפעם הבאה.",
+      "runAsGone": "למי שהגדיר את הסנכרון כבר אין חשבון.",
+      "accessLost": "מי שהסנכרון פועל בשמו כבר לא יכול לערוך את מסד הנתונים הזה.",
+      "keyGone": "המאפיין Id נמחק או שסוגו השתנה, ולכן אי אפשר להתאים רשומות לשורות.",
+      "failed": "הסנכרון נכשל. הוא ינסה שוב בפעם הבאה.",
+      "invalidSite": "זו לא כתובת ש־Leafdesk יכול להגיע אליה.",
+      "invalidInput": "מלאו את כתובת My Domain, מפתח הצרכן והסוד, ובחרו אובייקט.",
       "alreadyRunning": "סנכרון פועל כעת. נסו שוב בעוד רגע."
     }
   }

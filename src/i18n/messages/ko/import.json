@@ -20,7 +20,9 @@
     "sheets": "Google Sheets",
     "gcal": "Google Calendar",
     "googleDocs": "Google 문서",
-    "web": "웹페이지"
+    "web": "웹페이지",
+    "zendesk": "Zendesk",
+    "salesforce": "Salesforce"
   },
   "destination": "넣을 위치",
   "topLevel": "워크스페이스 최상위",
@@ -512,6 +514,115 @@
       "invalidSite": "Leafdesk가 해당 연결에 접속할 수 없습니다.",
       "invalidInput": "연결과 캘린더를 선택하세요.",
       "alreadyRunning": "동기화가 실행 중입니다. 잠시 후 다시 시도하세요."
+    }
+  },
+  "zendesk": {
+    "help": "계속 동기화되는 Zendesk 계정의 티켓 데이터베이스를 만듭니다. 각 티켓은 상태, 우선순위, 유형, 요청자, 담당자, 태그, 날짜, 원본 링크가 있는 행이 됩니다. 동기화할 때마다 지난번 이후 바뀐 것만 가져옵니다. 변경은 Zendesk에서 Leafdesk로 한 방향으로만 이루어집니다.",
+    "site": "Zendesk 주소",
+    "sitePlaceholder": "acme.zendesk.com",
+    "email": "이메일 주소",
+    "token": "API 토큰",
+    "tokenHelp": "API 토큰은 Zendesk 관리 센터에서 만듭니다. 티켓을 내보내려면 관리자 역할이 필요하므로 계정에 관리자 역할이 있어야 합니다. 토큰은 암호화되어 서버에 저장됩니다.",
+    "tokenLink": "토큰 만들기",
+    "names": {
+      "id": "티켓",
+      "status": "상태",
+      "priority": "우선순위",
+      "type": "유형",
+      "requester": "요청자",
+      "assignee": "담당자",
+      "others": "{column}(기타)",
+      "tags": "태그",
+      "created": "생성일",
+      "updated": "업데이트됨",
+      "link": "Zendesk 링크",
+      "statuses": {
+        "new": "신규",
+        "open": "열림",
+        "pending": "대기 중",
+        "hold": "보류",
+        "solved": "해결됨",
+        "closed": "닫힘",
+        "deleted": "삭제됨"
+      }
+    },
+    "errors": {
+      "unauthorized": "Zendesk가 이메일 주소와 API 토큰을 거부했습니다.",
+      "forbidden": "이 계정은 티켓을 내보낼 수 없습니다. 관리자 역할이 필요합니다.",
+      "notFound": "이 주소에 응답한 Zendesk 계정이 없습니다.",
+      "unreachable": "Zendesk에 연결할 수 없거나 요청 한도가 소진되었습니다. 다음 동기화 때 다시 시도합니다.",
+      "runAsGone": "동기화를 설정한 사람의 계정이 더 이상 없습니다.",
+      "accessLost": "동기화를 실행하는 사람이 더 이상 이 데이터베이스를 편집할 수 없습니다.",
+      "keyGone": "티켓 속성이 삭제되었거나 유형이 바뀌어 티켓을 행과 맞출 수 없습니다.",
+      "failed": "동기화에 실패했습니다. 다음에 다시 시도합니다.",
+      "invalidSite": "Leafdesk가 접근할 수 있는 주소가 아닙니다.",
+      "invalidInput": "Zendesk 주소, 이메일 주소, API 토큰을 입력하세요.",
+      "alreadyRunning": "동기화가 진행 중입니다. 잠시 후 다시 시도하세요."
+    }
+  },
+  "salesforce": {
+    "help": "계속 동기화되는 Salesforce 개체 하나(계정, 연락처, 영업 기회, 리드, 케이스)의 데이터베이스를 만듭니다. 각 레코드는 개체의 표준 필드와 원본 링크가 있는 행이 됩니다. 동기화할 때마다 지난번 이후 바뀐 것만 가져오며, Salesforce에서 삭제된 레코드는 남아 있습니다. 변경은 Salesforce에서 Leafdesk로 한 방향으로만 이루어집니다.",
+    "site": "My Domain 주소",
+    "sitePlaceholder": "acme.my.salesforce.com",
+    "clientId": "컨슈머 키",
+    "clientSecret": "컨슈머 시크릿",
+    "secretHelp": "Salesforce에서 클라이언트 자격 증명 흐름을 켠 연결된 앱을 만들고, 앱이 실행될 사용자(개체 읽기 권한 필요)를 지정하세요. 시크릿은 암호화되어 서버에 저장됩니다.",
+    "helpLink": "설정 방법",
+    "object": "개체",
+    "objects": {
+      "Account": "계정",
+      "Contact": "연락처",
+      "Opportunity": "영업 기회",
+      "Lead": "리드",
+      "Case": "케이스"
+    },
+    "names": {
+      "id": "Id",
+      "modified": "수정됨",
+      "link": "Salesforce 링크",
+      "others": "{column}(기타)",
+      "fields": {
+        "industry": "업종",
+        "type": "유형",
+        "website": "웹사이트",
+        "phone": "전화번호",
+        "city": "도시",
+        "country": "국가",
+        "revenue": "연간 매출",
+        "employees": "직원 수",
+        "owner": "소유자",
+        "email": "이메일",
+        "jobTitle": "직함",
+        "department": "부서",
+        "account": "계정",
+        "stage": "단계",
+        "amount": "금액",
+        "closeDate": "마감일",
+        "probability": "확률",
+        "leadSource": "리드 소스",
+        "company": "회사",
+        "status": "상태",
+        "caseNumber": "케이스 번호",
+        "priority": "우선순위",
+        "origin": "접수 경로",
+        "contact": "연락처",
+        "created": "생성일"
+      }
+    },
+    "errors": {
+      "unauthorized": "Salesforce가 컨슈머 키와 시크릿을 거부했습니다.",
+      "forbidden": "Salesforce가 이 앱의 클라이언트 자격 증명 흐름 로그인을 허용하지 않거나, 앱이 실행되는 사용자에게 이 개체를 읽을 권한이 없습니다.",
+      "notFound": "이 주소에 응답한 Salesforce 조직이 없습니다. 조직의 My Domain 주소를 사용하세요.",
+      "badQuery": "Salesforce가 쿼리를 거부했습니다.",
+      "badQueryDetail": "Salesforce가 쿼리를 거부했습니다: {detail}",
+      "unreachable": "Salesforce에 연결할 수 없거나 요청 한도가 소진되었습니다. 다음 동기화 때 다시 시도합니다.",
+      "runAsGone": "동기화를 설정한 사람의 계정이 더 이상 없습니다.",
+      "accessLost": "동기화를 실행하는 사람이 더 이상 이 데이터베이스를 편집할 수 없습니다.",
+      "keyGone": "Id 속성이 삭제되었거나 유형이 바뀌어 레코드를 행과 맞출 수 없습니다.",
+      "failed": "동기화에 실패했습니다. 다음에 다시 시도합니다.",
+      "invalidSite": "Leafdesk가 접근할 수 있는 주소가 아닙니다.",
+      "invalidInput": "My Domain 주소, 컨슈머 키와 시크릿을 입력하고 개체를 선택하세요.",
+      "alreadyRunning": "동기화가 진행 중입니다. 잠시 후 다시 시도하세요."
     }
   }
 }

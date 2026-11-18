@@ -20,7 +20,9 @@
     "sheets": "Google Sheets",
     "gcal": "Google Calendar",
     "googleDocs": "Google Docs",
-    "web": "Webseite"
+    "web": "Webseite",
+    "zendesk": "Zendesk",
+    "salesforce": "Salesforce"
   },
   "destination": "Einfügen unter",
   "topLevel": "Oberste Ebene des Workspace",
@@ -511,6 +513,115 @@
       "failed": "Die Synchronisierung ist fehlgeschlagen. Sie versucht es beim nächsten Mal erneut.",
       "invalidSite": "Leafdesk kann diese Verbindung nicht erreichen.",
       "invalidInput": "Wähle eine Verbindung und einen Kalender.",
+      "alreadyRunning": "Eine Synchronisierung läuft. Versuche es gleich noch einmal."
+    }
+  },
+  "zendesk": {
+    "help": "Erstelle eine Datenbank mit den Tickets eines Zendesk-Kontos, die synchron bleibt: Jedes Ticket ist eine Zeile mit Status, Priorität, Typ, Anfragendem, Bearbeiter, Tags, Daten und einem Link zurück. Jede Synchronisierung übernimmt nur, was sich seit der letzten geändert hat. Änderungen laufen in eine Richtung, von Zendesk zu Leafdesk.",
+    "site": "Zendesk-Adresse",
+    "sitePlaceholder": "acme.zendesk.com",
+    "email": "E-Mail-Adresse",
+    "token": "API-Token",
+    "tokenHelp": "Erstelle das API-Token im Admin Center von Zendesk. Das Konto braucht die Administratorrolle, die der Export von Tickets verlangt. Das Token wird versiegelt auf dem Server gespeichert.",
+    "tokenLink": "Token erstellen",
+    "names": {
+      "id": "Ticket",
+      "status": "Status",
+      "priority": "Priorität",
+      "type": "Typ",
+      "requester": "Anfragender",
+      "assignee": "Zuständig",
+      "others": "{column} (weitere)",
+      "tags": "Tags",
+      "created": "Erstellt",
+      "updated": "Aktualisiert",
+      "link": "Zendesk-Link",
+      "statuses": {
+        "new": "Neu",
+        "open": "Offen",
+        "pending": "Ausstehend",
+        "hold": "In Wartestellung",
+        "solved": "Gelöst",
+        "closed": "Geschlossen",
+        "deleted": "Gelöscht"
+      }
+    },
+    "errors": {
+      "unauthorized": "Zendesk hat die E-Mail-Adresse und das API-Token abgelehnt.",
+      "forbidden": "Dieses Konto darf keine Tickets exportieren. Es braucht die Administratorrolle.",
+      "notFound": "Unter dieser Adresse hat sich kein Zendesk-Konto gemeldet.",
+      "unreachable": "Zendesk war nicht erreichbar, oder das Anfragelimit ist ausgeschöpft. Die Synchronisierung versucht es beim nächsten Mal erneut.",
+      "runAsGone": "Die Person, die die Synchronisierung eingerichtet hat, hat kein Konto mehr.",
+      "accessLost": "Die Person, als die die Synchronisierung läuft, kann diese Datenbank nicht mehr bearbeiten.",
+      "keyGone": "Die Eigenschaft „Ticket“ wurde gelöscht oder ihr Typ geändert, daher lassen sich Tickets nicht mehr Zeilen zuordnen.",
+      "failed": "Die Synchronisierung ist fehlgeschlagen. Sie versucht es beim nächsten Mal erneut.",
+      "invalidSite": "Diese Adresse kann Leafdesk nicht erreichen.",
+      "invalidInput": "Gib die Zendesk-Adresse, die E-Mail-Adresse und das API-Token ein.",
+      "alreadyRunning": "Eine Synchronisierung läuft. Versuche es gleich noch einmal."
+    }
+  },
+  "salesforce": {
+    "help": "Erstelle eine Datenbank mit einem Salesforce-Objekt (Accounts, Kontakte, Verkaufschancen, Leads oder Fälle), die synchron bleibt: Jeder Datensatz ist eine Zeile mit den Standardfeldern des Objekts und einem Link zurück. Jede Synchronisierung übernimmt nur, was sich seit der letzten geändert hat; in Salesforce gelöschte Datensätze bleiben bestehen. Änderungen laufen in eine Richtung, von Salesforce zu Leafdesk.",
+    "site": "My-Domain-Adresse",
+    "sitePlaceholder": "acme.my.salesforce.com",
+    "clientId": "Consumer Key",
+    "clientSecret": "Consumer Secret",
+    "secretHelp": "Erstelle in Salesforce eine verbundene App mit aktiviertem Client-Credentials-Flow und einem Benutzer, als der sie läuft und der das Objekt lesen darf. Das Secret wird versiegelt auf dem Server gespeichert.",
+    "helpLink": "So richtest du es ein",
+    "object": "Objekt",
+    "objects": {
+      "Account": "Konto",
+      "Contact": "Kontakt",
+      "Opportunity": "Verkaufschance",
+      "Lead": "Lead",
+      "Case": "Fall"
+    },
+    "names": {
+      "id": "Id",
+      "modified": "Geändert",
+      "link": "Salesforce-Link",
+      "others": "{column} (weitere)",
+      "fields": {
+        "industry": "Branche",
+        "type": "Typ",
+        "website": "Website",
+        "phone": "Telefon",
+        "city": "Stadt",
+        "country": "Land",
+        "revenue": "Jahresumsatz",
+        "employees": "Mitarbeiter",
+        "owner": "Inhaber",
+        "email": "E-Mail",
+        "jobTitle": "Position",
+        "department": "Abteilung",
+        "account": "Konto",
+        "stage": "Phase",
+        "amount": "Betrag",
+        "closeDate": "Abschlussdatum",
+        "probability": "Wahrscheinlichkeit",
+        "leadSource": "Lead-Quelle",
+        "company": "Firma",
+        "status": "Status",
+        "caseNumber": "Fallnummer",
+        "priority": "Priorität",
+        "origin": "Herkunft",
+        "contact": "Kontakt",
+        "created": "Erstellt"
+      }
+    },
+    "errors": {
+      "unauthorized": "Salesforce hat Consumer Key und Secret abgelehnt.",
+      "forbidden": "Salesforce lässt diese App nicht mit dem Client-Credentials-Flow anmelden, oder der Benutzer, als der sie läuft, darf dieses Objekt nicht lesen.",
+      "notFound": "Unter dieser Adresse hat sich keine Salesforce-Org gemeldet. Verwende die My-Domain-Adresse der Org.",
+      "badQuery": "Salesforce hat die Abfrage abgelehnt.",
+      "badQueryDetail": "Salesforce hat die Abfrage abgelehnt: {detail}",
+      "unreachable": "Salesforce war nicht erreichbar, oder das Anfragelimit ist ausgeschöpft. Die Synchronisierung versucht es beim nächsten Mal erneut.",
+      "runAsGone": "Die Person, die die Synchronisierung eingerichtet hat, hat kein Konto mehr.",
+      "accessLost": "Die Person, als die die Synchronisierung läuft, kann diese Datenbank nicht mehr bearbeiten.",
+      "keyGone": "Die Eigenschaft „Id“ wurde gelöscht oder ihr Typ geändert, daher lassen sich Datensätze nicht mehr Zeilen zuordnen.",
+      "failed": "Die Synchronisierung ist fehlgeschlagen. Sie versucht es beim nächsten Mal erneut.",
+      "invalidSite": "Diese Adresse kann Leafdesk nicht erreichen.",
+      "invalidInput": "Gib die My-Domain-Adresse, Consumer Key und Secret ein und wähle ein Objekt.",
       "alreadyRunning": "Eine Synchronisierung läuft. Versuche es gleich noch einmal."
     }
   }

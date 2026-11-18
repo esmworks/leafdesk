@@ -20,7 +20,9 @@
     "sheets": "Google Sheets",
     "gcal": "Google Calendar",
     "googleDocs": "Google Dokument",
-    "web": "Webbsida"
+    "web": "Webbsida",
+    "zendesk": "Zendesk",
+    "salesforce": "Salesforce"
   },
   "destination": "Placera under",
   "topLevel": "Arbetsytans översta nivå",
@@ -512,6 +514,115 @@
       "invalidSite": "Leafdesk kan inte nå den anslutningen.",
       "invalidInput": "Välj en anslutning och en kalender.",
       "alreadyRunning": "En synkronisering pågår. Försök igen om en stund."
+    }
+  },
+  "zendesk": {
+    "help": "Skapa en databas med ärendena i ett Zendesk-konto som hålls uppdaterad: varje ärende är en rad med status, prioritet, typ, begärande, handläggare, taggar, datum och en länk tillbaka. Varje synkronisering hämtar bara det som ändrats sedan förra gången. Ändringar går åt ett håll, från Zendesk till Leafdesk.",
+    "site": "Zendesk-adress",
+    "sitePlaceholder": "acme.zendesk.com",
+    "email": "E-postadress",
+    "token": "API-token",
+    "tokenHelp": "Skapa API-token i Zendesks Admin Center. Kontot måste ha administratörsrollen, som export av ärenden kräver. Token lagras förseglad på servern.",
+    "tokenLink": "Skapa en token",
+    "names": {
+      "id": "Ärende",
+      "status": "Status",
+      "priority": "Prioritet",
+      "type": "Typ",
+      "requester": "Begärande",
+      "assignee": "Tilldelad",
+      "others": "{column} (övriga)",
+      "tags": "Taggar",
+      "created": "Skapad",
+      "updated": "Uppdaterad",
+      "link": "Zendesk-länk",
+      "statuses": {
+        "new": "Ny",
+        "open": "Öppen",
+        "pending": "Väntar",
+        "hold": "Vilande",
+        "solved": "Löst",
+        "closed": "Stängd",
+        "deleted": "Borttagen"
+      }
+    },
+    "errors": {
+      "unauthorized": "Zendesk avvisade e-postadressen och API-token.",
+      "forbidden": "Det här kontot får inte exportera ärenden. Det måste ha administratörsrollen.",
+      "notFound": "Inget Zendesk-konto svarade på den här adressen.",
+      "unreachable": "Zendesk kunde inte nås, eller gränsen för förfrågningar är nådd. Synkroniseringen försöker igen nästa gång.",
+      "runAsGone": "Personen som satte upp synken har inte längre något konto.",
+      "accessLost": "Personen som synken körs som kan inte längre redigera den här databasen.",
+      "keyGone": "Egenskapen Ärende har tagits bort eller bytt typ, så ärenden kan inte matchas mot rader.",
+      "failed": "Synken misslyckades. Den försöker igen nästa gång.",
+      "invalidSite": "Det är ingen adress som Leafdesk kan nå.",
+      "invalidInput": "Fyll i Zendesk-adressen, e-postadressen och API-token.",
+      "alreadyRunning": "En synk pågår. Försök igen om en stund."
+    }
+  },
+  "salesforce": {
+    "help": "Skapa en databas med ett Salesforce-objekt (konton, kontakter, affärsmöjligheter, leads eller ärenden) som hålls uppdaterad: varje post är en rad med objektets standardfält och en länk tillbaka. Varje synkronisering hämtar bara det som ändrats sedan förra gången, och poster som raderats i Salesforce blir kvar. Ändringar går åt ett håll, från Salesforce till Leafdesk.",
+    "site": "My Domain-adress",
+    "sitePlaceholder": "acme.my.salesforce.com",
+    "clientId": "Consumer key",
+    "clientSecret": "Consumer secret",
+    "secretHelp": "Skapa en ansluten app i Salesforce med client credentials-flödet påslaget och en användare som den körs som, med läsåtkomst till objektet. Hemligheten lagras förseglad på servern.",
+    "helpLink": "Så ställer du in det",
+    "object": "Objekt",
+    "objects": {
+      "Account": "Konto",
+      "Contact": "Kontakt",
+      "Opportunity": "Affärsmöjlighet",
+      "Lead": "Lead",
+      "Case": "Ärende"
+    },
+    "names": {
+      "id": "Id",
+      "modified": "Ändrad",
+      "link": "Salesforce-länk",
+      "others": "{column} (övriga)",
+      "fields": {
+        "industry": "Bransch",
+        "type": "Typ",
+        "website": "Webbplats",
+        "phone": "Telefon",
+        "city": "Stad",
+        "country": "Land",
+        "revenue": "Årsomsättning",
+        "employees": "Anställda",
+        "owner": "Ägare",
+        "email": "E-post",
+        "jobTitle": "Befattning",
+        "department": "Avdelning",
+        "account": "Konto",
+        "stage": "Fas",
+        "amount": "Belopp",
+        "closeDate": "Stängningsdatum",
+        "probability": "Sannolikhet",
+        "leadSource": "Leadkälla",
+        "company": "Företag",
+        "status": "Status",
+        "caseNumber": "Ärendenummer",
+        "priority": "Prioritet",
+        "origin": "Ursprung",
+        "contact": "Kontakt",
+        "created": "Skapad"
+      }
+    },
+    "errors": {
+      "unauthorized": "Salesforce avvisade consumer key och secret.",
+      "forbidden": "Salesforce tillåter inte att den här appen loggar in med client credentials-flödet, eller så får användaren den körs som inte läsa det här objektet.",
+      "notFound": "Ingen Salesforce-org svarade på den här adressen. Använd organisationens My Domain-adress.",
+      "badQuery": "Salesforce avvisade frågan.",
+      "badQueryDetail": "Salesforce avvisade frågan: {detail}",
+      "unreachable": "Salesforce kunde inte nås, eller gränsen för förfrågningar är nådd. Synkroniseringen försöker igen nästa gång.",
+      "runAsGone": "Personen som satte upp synken har inte längre något konto.",
+      "accessLost": "Personen som synken körs som kan inte längre redigera den här databasen.",
+      "keyGone": "Egenskapen Id har tagits bort eller bytt typ, så poster kan inte matchas mot rader.",
+      "failed": "Synken misslyckades. Den försöker igen nästa gång.",
+      "invalidSite": "Det är ingen adress som Leafdesk kan nå.",
+      "invalidInput": "Fyll i My Domain-adressen, consumer key och secret och välj ett objekt.",
+      "alreadyRunning": "En synk pågår. Försök igen om en stund."
     }
   }
 }

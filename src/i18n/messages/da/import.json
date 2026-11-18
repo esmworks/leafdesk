@@ -20,7 +20,9 @@
     "sheets": "Google Sheets",
     "gcal": "Google Calendar",
     "googleDocs": "Google Docs",
-    "web": "Webside"
+    "web": "Webside",
+    "zendesk": "Zendesk",
+    "salesforce": "Salesforce"
   },
   "destination": "Placér under",
   "topLevel": "Øverste niveau i arbejdsområdet",
@@ -512,6 +514,115 @@
       "invalidSite": "Leafdesk kan ikke nå den forbindelse.",
       "invalidInput": "Vælg en forbindelse og en kalender.",
       "alreadyRunning": "En synkronisering kører. Prøv igen om lidt."
+    }
+  },
+  "zendesk": {
+    "help": "Få en database med en Zendesk-kontos sager, der holdes ajour: hver sag er en række med status, prioritet, type, anmelder, ansvarlig, tags, datoer og et link tilbage. Hver synkronisering henter kun det, der er ændret siden sidst. Ændringer går én vej, fra Zendesk til Leafdesk.",
+    "site": "Zendesk-adresse",
+    "sitePlaceholder": "acme.zendesk.com",
+    "email": "E-mailadresse",
+    "token": "API-token",
+    "tokenHelp": "Opret API-tokenet i Zendesks Admin Center. Kontoen skal have administratorrollen, som eksport af sager kræver. Tokenet opbevares forseglet på serveren.",
+    "tokenLink": "Opret et token",
+    "names": {
+      "id": "Sag",
+      "status": "Status",
+      "priority": "Prioritet",
+      "type": "Type",
+      "requester": "Anmelder",
+      "assignee": "Ansvarlig",
+      "others": "{column} (andre)",
+      "tags": "Tags",
+      "created": "Oprettet",
+      "updated": "Opdateret",
+      "link": "Zendesk-link",
+      "statuses": {
+        "new": "Ny",
+        "open": "Åben",
+        "pending": "Afventer",
+        "hold": "På hold",
+        "solved": "Løst",
+        "closed": "Lukket",
+        "deleted": "Slettet"
+      }
+    },
+    "errors": {
+      "unauthorized": "Zendesk afviste e-mailadressen og API-tokenet.",
+      "forbidden": "Denne konto må ikke eksportere sager. Den skal have administratorrollen.",
+      "notFound": "Ingen Zendesk-konto svarede på denne adresse.",
+      "unreachable": "Zendesk kunne ikke nås, eller grænsen for forespørgsler er brugt. Synkroniseringen prøver igen næste gang.",
+      "runAsGone": "Personen, der satte synkroniseringen op, har ikke længere en konto.",
+      "accessLost": "Personen, synkroniseringen kører som, kan ikke længere redigere denne database.",
+      "keyGone": "Egenskaben Sag er slettet eller har skiftet type, så sager kan ikke knyttes til rækker.",
+      "failed": "Synkroniseringen mislykkedes. Den prøver igen næste gang.",
+      "invalidSite": "Det er ikke en adresse, Leafdesk kan nå.",
+      "invalidInput": "Udfyld Zendesk-adressen, e-mailadressen og API-tokenet.",
+      "alreadyRunning": "En synkronisering kører. Prøv igen om et øjeblik."
+    }
+  },
+  "salesforce": {
+    "help": "Få en database med ét Salesforce-objekt (konti, kontakter, salgsmuligheder, leads eller sager), der holdes ajour: hver post er en række med objektets standardfelter og et link tilbage. Hver synkronisering henter kun det, der er ændret siden sidst, og poster slettet i Salesforce bliver stående. Ændringer går én vej, fra Salesforce til Leafdesk.",
+    "site": "My Domain-adresse",
+    "sitePlaceholder": "acme.my.salesforce.com",
+    "clientId": "Consumer key",
+    "clientSecret": "Consumer secret",
+    "secretHelp": "Opret en tilsluttet app i Salesforce med client credentials-flowet slået til og en bruger, den kører som, med læseadgang til objektet. Hemmeligheden opbevares forseglet på serveren.",
+    "helpLink": "Sådan sætter du det op",
+    "object": "Objekt",
+    "objects": {
+      "Account": "Konto",
+      "Contact": "Kontakt",
+      "Opportunity": "Salgsmulighed",
+      "Lead": "Lead",
+      "Case": "Sag"
+    },
+    "names": {
+      "id": "Id",
+      "modified": "Ændret",
+      "link": "Salesforce-link",
+      "others": "{column} (andre)",
+      "fields": {
+        "industry": "Branche",
+        "type": "Type",
+        "website": "Websted",
+        "phone": "Telefon",
+        "city": "By",
+        "country": "Land",
+        "revenue": "Årlig omsætning",
+        "employees": "Medarbejdere",
+        "owner": "Ejer",
+        "email": "E-mail",
+        "jobTitle": "Stilling",
+        "department": "Afdeling",
+        "account": "Konto",
+        "stage": "Fase",
+        "amount": "Beløb",
+        "closeDate": "Lukkedato",
+        "probability": "Sandsynlighed",
+        "leadSource": "Lead-kilde",
+        "company": "Virksomhed",
+        "status": "Status",
+        "caseNumber": "Sagsnummer",
+        "priority": "Prioritet",
+        "origin": "Oprindelse",
+        "contact": "Kontakt",
+        "created": "Oprettet"
+      }
+    },
+    "errors": {
+      "unauthorized": "Salesforce afviste consumer key og secret.",
+      "forbidden": "Salesforce tillader ikke denne app at logge ind med client credentials-flowet, eller brugeren, den kører som, må ikke læse dette objekt.",
+      "notFound": "Ingen Salesforce-org svarede på denne adresse. Brug organisationens My Domain-adresse.",
+      "badQuery": "Salesforce afviste forespørgslen.",
+      "badQueryDetail": "Salesforce afviste forespørgslen: {detail}",
+      "unreachable": "Salesforce kunne ikke nås, eller grænsen for forespørgsler er brugt. Synkroniseringen prøver igen næste gang.",
+      "runAsGone": "Personen, der satte synkroniseringen op, har ikke længere en konto.",
+      "accessLost": "Personen, synkroniseringen kører som, kan ikke længere redigere denne database.",
+      "keyGone": "Egenskaben Id er slettet eller har skiftet type, så poster kan ikke knyttes til rækker.",
+      "failed": "Synkroniseringen mislykkedes. Den prøver igen næste gang.",
+      "invalidSite": "Det er ikke en adresse, Leafdesk kan nå.",
+      "invalidInput": "Udfyld My Domain-adressen, consumer key og secret, og vælg et objekt.",
+      "alreadyRunning": "En synkronisering kører. Prøv igen om et øjeblik."
     }
   }
 }

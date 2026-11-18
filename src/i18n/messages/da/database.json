@@ -2512,5 +2512,18 @@
     "unchecked": "Ikke markeret",
     "loading": "Indlæser rækker…",
     "unavailable": "Disse rækker kan ikke vises."
+  },
+  "zendeskSync": {
+    "button": "Synkroniseret fra Zendesk",
+    "buttonPaused": "Zendesk-synkronisering sat på pause",
+    "title": "Zendesk-synkronisering"
+  },
+  "salesforceSync": {
+    "button": "Synkroniseret fra Salesforce",
+    "buttonPaused": "Salesforce-synkronisering sat på pause",
+    "title": "Salesforce-synkronisering"
+  },
+  "crmSync": {
+    "overwrite": "{source} er kilden: de synkroniserede egenskaber og rækketitler overskrives ved hver synkronisering, så ret dem dér. Egenskaber, du selv tilføjer, forbliver, som de er, og rækker, hvis poster er slettet ved kilden, røres ikke."
   }
 }
