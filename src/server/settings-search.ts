@@ -4,7 +4,7 @@ import { env } from "@/lib/env";
 import { SETTINGS_SEARCH_ENTRIES, type SettingsSearchContext, type SettingsSearchItem } from "@/lib/settings-search";
 import { ACCOUNT_SETTINGS_TABS, accountTabForSettings, type SettingsTab, visibleSettingsTabs } from "@/lib/settings-tabs";
 import { isGuest } from "./access";
-import { isEnabled as aiMayBeOn } from "./ai";
+import { isEnabled as aiMayBeOn, autoModelsFor } from "./ai";
 import { hasOwnStorage } from "./storage/workspace";
 import { teamsOn } from "./teams/config";
 import { canInviteGuests, getWorkspace } from "./workspaces";
@@ -32,15 +32,21 @@ export async function settingsTabsFor(userId: string, workspaceId: string, role:
  */
 export async function settingsSearchIndex(userId: string, workspaceId: string): Promise<SettingsSearchItem[]> {
   const workspace = await getWorkspace(userId, workspaceId);
-  const [tabs, t] = await Promise.all([settingsTabsFor(userId, workspaceId, workspace.role), getTranslations()]);
+  const guest = isGuest(workspace.role);
+  const [tabs, t, auto] = await Promise.all([
+    settingsTabsFor(userId, workspaceId, workspace.role),
+    getTranslations(),
+    guest ? null : autoModelsFor(workspaceId).catch(() => null),
+  ]);
   const context: SettingsSearchContext = {
     owner: workspace.role === "owner",
-    guest: isGuest(workspace.role),
+    guest,
     local: env.localMode,
     ownAiKeys: env.ownAiKeysEnabled,
     telegram: Boolean(env.telegramBotToken),
     slack: Boolean(env.slackAppToken && env.slackBotToken),
     teams: teamsOn(),
+    autoModel: auto !== null,
   };
   const shown = new Set<string>([...ACCOUNT_SETTINGS_TABS, ...tabs]);
   // Keys come from the entries, checked against the English texts by settings-search.test.ts.

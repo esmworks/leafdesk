@@ -33,6 +33,8 @@ export type SettingsSearchContext = {
   slack: boolean;
   /** The server has a Teams bot (TEAMS_APP_ID, TEAMS_APP_PASSWORD and TEAMS_TENANT_ID). */
   teams: boolean;
+  /** The workspace's AI has a fast model besides its chat model (server/ai autoModelsFor), so Auto can pick between them. */
+  autoModel: boolean;
 };
 
 const member = ({ guest }: SettingsSearchContext) => !guest;
@@ -79,7 +81,7 @@ export const SETTINGS_SEARCH_ENTRIES: readonly SettingsSearchEntry[] = [
   { id: "workspaceName", tab: "general", label: "settings:workspace.heading", keywords: true },
   { id: "calloutStyles", tab: "general", label: "settings:calloutStyles.heading", when: member },
   { id: "ai", tab: "general", label: "ai:settings.heading", keywords: true, when: member },
-  { id: "aiAutoModel", tab: "general", label: "ai:settings.autoModel", keywords: true, when: member },
+  { id: "aiAutoModel", tab: "general", label: "ai:settings.autoModel", keywords: true, when: ({ guest, autoModel }) => !guest && autoModel },
   { id: "aiAutoChanges", tab: "general", label: "ai:settings.autoChanges", keywords: true, when: member },
   { id: "workspaceMail", tab: "general", label: "settings:email.heading", keywords: true, when: member },
   { id: "ownPageViews", tab: "general", label: "settings:pageViews.title", keywords: true, when: member },
