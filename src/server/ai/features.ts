@@ -39,6 +39,9 @@ const PLANS: [feature: string, plan: AiFeaturePlan][] = [
   // What a person missed in a channel or thread, as a few points linked to their messages, while
   // they wait: the words are all there.
   ["messages.catchUp", { fast: true, thinking: "off" }],
+  // The unread inbox sorted into what needs the person, news and what can be cleared, as a short
+  // JSON list while they wait: the words are all there.
+  ["inbox.digest", { fast: true, thinking: "off" }],
   // A thread's tasks as a short JSON list: dates worked out from the mail need a little thinking.
   ["mail.tasks", { thinking: "low" }],
   // The Mail tab's writer, like the editor's: what it writes goes to someone outside.

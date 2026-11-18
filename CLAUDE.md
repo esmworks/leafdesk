@@ -458,6 +458,12 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   line, block spacing; the rules in `docs/design.md` *Sidebar panel*): a new panel or block takes
   them, and the panel's head in `sidebar.tsx` (`headActions`) holds what the place makes and its
   list's ⋯ (the chat's is drawn there by `ConversationList` through `actionsSlot`).
+- **The inbox's Catch up** (`server/inbox-digest.ts`, pure part `lib/inbox-digest.ts`, feature
+  `inbox.digest`, read `inboxDigest`, the view `components/sidebar/inbox-digest.tsx`, a `lazyPart`
+  of `inbox-dialog.tsx`): the fast model sorts the unread notifications `listNotifications` gives
+  the person (so access is applied there) from their push-message lines, framed as outside data;
+  items link and mark read only through ids it was sent, and what the answer left out lands under
+  Updates. The AI chat has no tool of its own for it: it reads `list_notifications` through `find_tools`.
 - **The sidebar's tasks tab** (`components/sidebar/task-panel.tsx`, a `lazyPart`): My tasks' views
   and places with counts (`lib/assigned.ts` `TaskView`, `countTasks`; `server/assigned.ts`
   `taskCounts`, read as `taskCounts`), which narrow the page through `?view=` and `?in=`. My tasks'

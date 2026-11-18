@@ -14,7 +14,11 @@ import {
   unreadCount,
   unsnoozeNotification,
 } from "@/server/notifications";
+import { getTranslations } from "next-intl/server";
+import type { InboxDigest } from "@/lib/inbox-digest";
 import { findMembership } from "@/server/access";
+import { isAiError } from "@/server/ai";
+import { inboxDigest } from "@/server/inbox-digest";
 import { requireUserId } from "@/server/session";
 import { workspaceSettings } from "@/server/workspaces";
 
@@ -35,6 +39,24 @@ export async function listInboxAction(workspaceId: string, tab: "all" | "email" 
     findMembership(userId, String(workspaceId)),
   ]);
   return { items, email: membership ? settings.email : false };
+}
+
+export type DigestResult = { ok: true; data: InboxDigest } | { ok: false; error: string; code?: string };
+
+/**
+ * Catch up on the inbox: the AI sorts the unread notifications of the workspace into what needs
+ * the person, news and what can be cleared. Changes nothing (marking a group read is
+ * `markReadAction`). `language` is the language the person reads the app in.
+ */
+export async function inboxDigestAction(workspaceId: string, language?: string): Promise<DigestResult> {
+  const userId = await requireUserId();
+  try {
+    return { ok: true, data: await inboxDigest(userId, String(workspaceId), language) };
+  } catch (error) {
+    if (!isAiError(error)) throw error;
+    const t = await getTranslations();
+    return { ok: false, error: t(`ai.errors.${error.code}`, { seconds: error.retryAfterMs ? Math.ceil(error.retryAfterMs / 1000) : 0 }), code: error.code };
+  }
 }
 
 const ids = (list: unknown) =>

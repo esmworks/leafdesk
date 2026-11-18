@@ -921,7 +921,13 @@
   the reminders the AI chat and agents set for you (with the page they are about) and what you
   snoozed. Move one to another time (one of the snooze choices, or a time typed in words such as
   `fri 17:00`; a day alone means 9:00), cancel a reminder, or bring a snoozed item back now.
-  *Unread only*, beside the tabs, lists just what you haven't read. Choose per kind
+  *Unread only*, beside the tabs, lists just what you haven't read. Where AI is on, *Catch up* in
+  the inbox's head has the fast model read your unread items (the newest 100) and sort them into
+  *Needs you* (a reply, an approval, a decision), *Updates* and *Can be cleared*, each with a line
+  on what happened and each opening its notification; *Mark these as read* clears a group. It reads
+  only what the inbox shows you (who did what on which page, and an automation's message), changes
+  nothing until you click, and counts toward the workspace's AI limits ([AI features](ai.md)). In
+  the AI chat, ask what needs your attention: the chat reads your unread notifications too. Choose per kind
   whether it shows in the inbox, whether it comes by email and, on the devices where you turn them
   on, as a [push notification](self-hosting.md#push-notifications).
 - **Verified pages**: someone with full access marks a page, database or row as checked and right

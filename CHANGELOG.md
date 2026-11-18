@@ -4,6 +4,13 @@
 
 ### Added
 
+- **Catch up on the inbox with AI.** *Catch up* in the inbox's head (where AI is on) sorts your
+  unread notifications, the newest 100, into *Needs you*, *Updates* and *Can be cleared*, each item
+  with a one-line summary and a link to its notification, and *Mark these as read* for a group. It
+  runs on the fast model (feature `inbox.digest`), reads only what the inbox shows you, framed as
+  outside data, and changes nothing until you click. The AI chat's `list_notifications` (found with
+  `find_tools`) now has a hint in its prompt for "what needs my attention?". No migration, no new
+  environment variables.
 - **Plan first in the AI chat.** A *Plan first* switch in the chat box (remembered in the browser)
   makes the next questions read only and end with either up to four clarifying questions, each with
   options and a field for your own words, or a plan card with its steps, where each changes

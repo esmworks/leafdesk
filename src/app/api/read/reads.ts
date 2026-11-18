@@ -8,7 +8,7 @@ import { listDatabasesAction, loadDatabaseAction, loadRowAction } from "@/app/ac
 import { getThreadAction, listMailboxesAction, listThreadsAction, openDraftAction, openMailboxAction, prefetchBodiesAction, readBodyAction, refreshFolderAction, sendStatusAction, suggestAddressesAction } from "@/app/actions/mail";
 import { sidebarMeetingsAction } from "@/app/actions/meetings";
 import { backlinksAction, unlinkedMentionsAction } from "@/app/actions/mentions";
-import { arrivalsAction, dueRemindersAction, listInboxAction, unreadCountAction } from "@/app/actions/notifications";
+import { arrivalsAction, dueRemindersAction, inboxDigestAction, listInboxAction, unreadCountAction } from "@/app/actions/notifications";
 import { approvalCandidatesAction, approvalHistoryAction } from "@/app/actions/page-approvals";
 import { recordPageViewAction } from "@/app/actions/page-views";
 import { quizAction, quizPeopleAction, quizResultsAction } from "@/app/actions/quizzes";
@@ -63,6 +63,7 @@ export const READS = {
   settingsSearch: settingsSearchAction,
   trash: listTrashAction,
   inbox: listInboxAction,
+  inboxDigest: inboxDigestAction,
   loadDatabase: loadDatabaseAction,
   loadRow: loadRowAction,
   listDatabases: listDatabasesAction,

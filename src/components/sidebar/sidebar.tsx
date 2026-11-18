@@ -2202,6 +2202,7 @@ export function Sidebar({
           }}
           version={inboxVersion}
           onRead={refreshInbox}
+          aiAvailable={Boolean(aiChat?.available)}
         />
       )}
       {reminders.length > 0 && (

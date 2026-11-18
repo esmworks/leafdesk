@@ -40,6 +40,9 @@ import { browserTimeZone } from "@/lib/time-zone";
 import type { InboxAccessRequest, InboxItem, InboxLimitRequest, InboxRowUpdate } from "@/server/notifications";
 import { aiLimitLine } from "@/lib/agent-guardrails";
 import { read } from "@/components/read";
+import { lazyPart } from "@/components/lazy-part";
+
+const InboxDigestView = lazyPart(() => import("./inbox-digest").then((m) => m.InboxDigestView));
 
 /**
  * The workspace inbox: rows the user was assigned to, pages shared with them, comments, mentions,
@@ -56,7 +59,9 @@ import { read } from "@/components/read";
  * back from there. The Scheduled tab lists what is still to come, soonest first, with its time: the
  * reminders the AI chat and agents set for the user and the notifications they snoozed. Each can be
  * moved to another time (a choice, or a time typed in words), a reminder cancelled, and a snoozed
- * notification brought back to the inbox at once.
+ * notification brought back to the inbox at once. Where AI is on, Catch up (inbox-digest.tsx)
+ * replaces the list with the AI's sorting of the unread ones: what needs the person, news and what
+ * can be cleared, each item opening its notification.
  */
 export function InboxDialog({
   workspaceId,
@@ -65,6 +70,7 @@ export function InboxDialog({
   onClose,
   version,
   onRead,
+  aiAvailable = false,
 }: {
   workspaceId: string;
   open: boolean;
@@ -75,6 +81,8 @@ export function InboxDialog({
   version: number;
   /** Called after notifications were marked read, so the unread count updates. */
   onRead: () => void;
+  /** The workspace has AI on: the inbox offers Catch up. */
+  aiAvailable?: boolean;
 }) {
   const router = useRouter();
   const locale = useLocale();
@@ -94,6 +102,8 @@ export function InboxDialog({
   // What is still to come: never read, archived or grouped, only moved, cancelled or brought back.
   const scheduledTab = tab === "scheduled";
   const [emailTab, setEmailTab] = useState(false);
+  // The AI's sorting of the unread ones, shown in place of the list.
+  const [catchingUp, setCatchingUp] = useState(false);
   // Only the notifications not read yet (not in the archive, where they are read).
   const [unreadOnly, setUnreadOnly] = useState(false);
   const onlyUnread = unreadOnly && !archivedTab && !scheduledTab;
@@ -720,6 +730,12 @@ export function InboxDialog({
               <span className="max-sm:sr-only">{t("archiveRead")}</span>
             </Button>
           )}
+          {aiAvailable && tab === "all" && unread.length > 0 && !catchingUp && (
+            <Button size="sm" variant="ghost" className="whitespace-nowrap" title={t("digest.buttonTitle")} onPointerEnter={() => void InboxDigestView.preload()} onClick={() => setCatchingUp(true)}>
+              <Sparkles aria-hidden className="h-3.5 w-3.5" />
+              <span className="max-sm:sr-only">{t("digest.button")}</span>
+            </Button>
+          )}
           {unread.length > 0 && !archivedTab && !scheduledTab && (
             <Button size="sm" variant="ghost" className="whitespace-nowrap" title={t("markAllRead")} onClick={() => void markRead()}>
               <CheckCheck aria-hidden className="h-3.5 w-3.5" />
@@ -741,6 +757,7 @@ export function InboxDialog({
                   tab === value ? "border-fg font-medium text-fg" : "border-transparent text-fg-muted hover:text-fg",
                 )}
                 onClick={() => {
+                  setCatchingUp(false);
                   if (tab === value) return;
                   setItems(null);
                   setTab(value);
@@ -779,6 +796,17 @@ export function InboxDialog({
           {tc("genericError")}
         </p>
       )}
+      {catchingUp && tab === "all" ? (
+        <InboxDigestView
+          workspaceId={workspaceId}
+          onRead={(ids) => void markRead(ids)}
+          onOpen={(item) => {
+            if (unread.some((other) => other.id === item.id)) void markRead([item.id]);
+            onClose();
+            router.push(item.href);
+          }}
+        />
+      ) : (
       <ul className="max-h-[60vh] overflow-y-auto p-1.5">
         {items?.length === 0 && (
           <li className="flex flex-col items-center gap-2 px-3 py-10 text-center text-sm text-fg-muted">
@@ -800,6 +828,7 @@ export function InboxDialog({
         )}
         {entries?.map((entry) => (entry.type === "item" ? itemRow(entry.item) : groupRow(entry)))}
       </ul>
+      )}
     </Dialog>
   );
 }
