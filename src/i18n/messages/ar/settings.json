@@ -2397,7 +2397,10 @@
     "quizFinishedChannel": "نتائج الاختبارات: {channel}",
     "approvalTitle": "الموافقات",
     "approvalDescription": "يطلب منك أحدهم الموافقة على صفحة، أو ينتهي طلب موافقة قدّمته.",
-    "approvalChannel": "الموافقات: {channel}"
+    "approvalChannel": "الموافقات: {channel}",
+    "bookingMadeTitle": "الحجوزات",
+    "bookingMadeDescription": "يحجز شخص ما وقتًا عبر أحد روابط الحجز الخاصة بك.",
+    "bookingMadeChannel": "الحجوزات: {channel}"
   },
   "site": {
     "description": "امنح الصفحات المنشورة لمساحة العمل هذه عنوانًا واحدًا سهل القراءة، وصفحة رئيسية، وتنقلًا بينها.",

@@ -490,6 +490,14 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   (pure part `lib/work-blocks.ts`): theirs alone, read with the page's access each time, moved and
   resized through `moveCalendarItem`; a ticked to-do leaves `page_task`, so a block keeps the
   title it was planned with. The page's To plan list is `read("tasksToPlan")`.
+- **Booking links and calendar writes**: `server/calendar-events.ts` writes an event as a row of a gcal
+  database synced both ways (`direction: "both"`; a read-only sync would drop it), the only writable
+  calendars; `server/booking.ts` (pure slots in `lib/booking.ts`, table `booking_link`, left out of
+  backups) serves the session-less page `app/b/[token]` (`b/` is a 404 on site hosts) and books under
+  `pg_advisory_xact_lock` per owner, reading `calendar.ts` `busyDates` afresh (dates only, no titles);
+  the visitor's row is `insertRows(…, { boundTo: owner })`. A disabled, lost-calendar or local-mode
+  link answers as unknown. Notification kind `booking_made` has its own preference columns (the
+  email one unused). `scripts/booking-e2e.ts` needs no server.
 - **The Library** (`app/w/[workspaceId]/library`, `components/library/library-page.tsx`, the rail's
   link beside the settings, go key L): one tab per list (`?tab=`), loaded on the server only for the
   tab shown; teamspaces and agents are left out for guests. A new list is a tab there.
@@ -959,7 +967,7 @@ plus the `scripts/*-e2e.ts` of the area you touched (`pnpm tsx scripts/<name>-e2
 - **Needs no server on the same database**, because a server's workers would take the queued work:
   agents, agent-api, agent-approvers, agent-chat, agent-copy, agent-handoff, agent-memory, agent-mention, desktop-files,
   agent-schedule, agent-sharing, agent-guardrails, agent-skills, agent-channel, automation, button, row-buttons, timed-automation, schedule, concurrent-writes,
-  row-activity, row-follow, row-mail, ai-reminders, work-blocks, web-links, discussions, page-approvals, message-polls, follow-ups (starts its own GreenMail container
+  row-activity, row-follow, row-mail, ai-reminders, work-blocks, booking, web-links, discussions, page-approvals, message-polls, follow-ups (starts its own GreenMail container
   unless given ports), page-watch, page-webhooks, quizzes, verify, wins-log, jira-sync, github-pulls-sync, sheets-sync, sprints. `connector-e2e` starts its own `next dev` against
   `<database>_peer`, which must exist; no other dev server may run in the same checkout.
 - Each script's header says what it needs. `.github/workflows/ci.yml` shows the env each step gets;

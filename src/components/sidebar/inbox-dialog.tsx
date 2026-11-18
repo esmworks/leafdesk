@@ -473,6 +473,8 @@ export function InboxDialog({
                             actor: item.actorName || t("someone"),
                             score: parseQuizNotice(item.automationMessage)?.score ?? 0,
                           })
+                      : item.kind === "booking_made"
+                        ? t("bookingMade", { name: item.automationMessage || t("someone"), date: item.reminderDate ? formatIsoDate(item.reminderDate, locale) : "" })
                       : item.kind === "row_email"
                         ? t("rowEmail", { from: item.rowEmail?.from || t("someone") })
                       : item.kind === "follow_up"

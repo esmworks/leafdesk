@@ -109,6 +109,7 @@ const CATEGORIES: Record<string, readonly string[]> = {
   ],
   sequences: ["list_sequences", "enroll_in_sequence", "change_enrollment", "list_enrollments"],
   people: ["list_users", "list_groups", "invite_member"],
+  calendar: ["find_free_time", "create_calendar_event"],
   messages: ["list_channels", "read_channel_messages", "search_messages", "send_channel_message"],
 };
 

@@ -340,7 +340,8 @@
     "quizPassed": "{actor} passed the quiz with {score}%",
     "quizFailed": "{actor} ran out of attempts at the quiz ({score}%)",
     "approvalRequested": "{actor} asks you to approve this page",
-    "approvalDecided": "{outcome, select, approved {Approved: {actor} gave the last approval needed} other {{actor} requested changes to this page}}"
+    "approvalDecided": "{outcome, select, approved {Approved: {actor} gave the last approval needed} other {{actor} requested changes to this page}}",
+    "bookingMade": "{name} booked a time on {date}"
   },
   "templates": {
     "title": "Templates",

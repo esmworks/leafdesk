@@ -13,6 +13,15 @@
   fields, incrementally by `SystemModstamp`. Both are one way, run like Jira syncs (people matched
   by email address, a sealed sign-in, `CONNECTOR_ALLOWED_HOSTS` only for syncs of workspace owners),
   show in the database's sync dialog and pause on refused sign-ins. No migration.
+- **Booking links and calendar tools for AI.** *Booking links* in the Calendar place make a public
+  page (`/b/<token>`, no account) that offers the free slots of your calendar for a meeting of the
+  length, days, hours, buffer and notice you chose; a visitor picks one and leaves a name, an email
+  address and a note, which makes a row in a Google Calendar synced both ways (written on to
+  Google), a *Booking made* notification for you and a confirmation email to them. A slot is
+  checked again under a lock per person, so one time is never given twice, and the page is rate
+  limited and guarded against bots. The AI chat gets `find_free_time` and `create_calendar_event`
+  (MCP tools, category `calendar`, outside the core list). Migration 0213 (`booking_link`, and the
+  `booking_made` notification preference columns), no new environment variables.
 - **Auto, a model that picks itself.** Where the server has a fast model next to the main one, the
   AI chat's model picker offers *Auto*: each turn of an answer goes to the fast model for a short,
   simple question and to the main model for a long one, one with files, code or a task list, research,

@@ -133,6 +133,12 @@ export const userPreference = pgTable("user_preference", {
   quizFinishedInbox: boolean("quiz_finished_inbox").notNull().default(true),
   quizFinishedEmails: boolean("quiz_finished_emails").notNull().default(false),
   /**
+   * Someone booked a time through my booking link (server/booking.ts): show it in my inbox. No
+   * email goes out about it (`bookingMadeEmails` is kept for the shape every kind has, and unused).
+   */
+  bookingMadeInbox: boolean("booking_made_inbox").notNull().default(true),
+  bookingMadeEmails: boolean("booking_made_emails").notNull().default(false),
+  /**
    * Reactions to my comments: show them in my inbox. No email goes out about them (`reactionEmails`
    * is kept for the shape every kind has, and unused); push and Telegram are off until turned on.
    */
@@ -164,6 +170,7 @@ export const userPreference = pgTable("user_preference", {
   aiChatWaitingPush: boolean("ai_chat_waiting_push").notNull().default(true),
   quizAssignedPush: boolean("quiz_assigned_push").notNull().default(true),
   quizFinishedPush: boolean("quiz_finished_push").notNull().default(true),
+  bookingMadePush: boolean("booking_made_push").notNull().default(true),
   approvalPush: boolean("approval_push").notNull().default(true),
   /**
    * Chat-app messages per kind, to every chat app the person linked (Telegram, Slack: see
@@ -191,6 +198,7 @@ export const userPreference = pgTable("user_preference", {
   aiChatWaitingTelegram: boolean("ai_chat_waiting_telegram").notNull().default(true),
   quizAssignedTelegram: boolean("quiz_assigned_telegram").notNull().default(true),
   quizFinishedTelegram: boolean("quiz_finished_telegram").notNull().default(true),
+  bookingMadeTelegram: boolean("booking_made_telegram").notNull().default(true),
   approvalTelegram: boolean("approval_telegram").notNull().default(true),
   /**
    * Leafdesk's links opened in a browser go on to the desktop app (lib/desktop-links.ts): "off",
@@ -458,6 +466,7 @@ export const NOTIFICATION_KINDS = [
   "quiz_finished",
   "approval_requested",
   "approval_decided",
+  "booking_made",
 ] as const;
 export type NotificationKind = (typeof NOTIFICATION_KINDS)[number];
 /**
@@ -570,6 +579,9 @@ export type PreferenceKind = Exclude<NotificationKind, OwnerKind>;
  * unread ones go once the request ends or is withdrawn. "approval_decided": the user's request to
  * approve page `pageId` ended, `message` saying how ("approved" or "changes_requested"), `actorId`
  * the approver whose decision ended it.
+ * "booking_made": a visitor booked a time through the user's booking link (server/booking.ts): row
+ * `pageId` of the calendar database is the booking, `message` the visitor's name, `date` its day
+ * (YYYY-MM-DD, in the link's time zone).
  * Unread ones are dropped when the change is
  * undone (or the request decided). Rows are recorded
  * whatever the user's preferences; the inbox leaves out the kinds they turned off.

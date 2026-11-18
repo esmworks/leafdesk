@@ -340,7 +340,8 @@
     "quizPassed": "{actor} läpäisi tietovisan tuloksella {score} %",
     "quizFailed": "{actor} käytti kaikki yritykset tietovisaan ({score} %)",
     "approvalRequested": "{actor} pyytää sinua hyväksymään tämän sivun",
-    "approvalDecided": "{outcome, select, approved {Hyväksytty: {actor} antoi viimeisen tarvittavan hyväksynnän} other {{actor} pyysi muutoksia tähän sivuun}}"
+    "approvalDecided": "{outcome, select, approved {Hyväksytty: {actor} antoi viimeisen tarvittavan hyväksynnän} other {{actor} pyysi muutoksia tähän sivuun}}",
+    "bookingMade": "{name} varasi ajan {date}"
   },
   "templates": {
     "title": "Mallit",

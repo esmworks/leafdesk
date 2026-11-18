@@ -324,7 +324,8 @@
     "quizPassed": "{actor} a réussi le quiz avec {score} %",
     "quizFailed": "{actor} a épuisé ses tentatives au quiz ({score} %)",
     "approvalRequested": "{actor} vous demande d’approuver cette page",
-    "approvalDecided": "{outcome, select, approved {Approuvée : {actor} a donné la dernière approbation nécessaire} other {{actor} a demandé des modifications à cette page}}"
+    "approvalDecided": "{outcome, select, approved {Approuvée : {actor} a donné la dernière approbation nécessaire} other {{actor} a demandé des modifications à cette page}}",
+    "bookingMade": "{name} a réservé un créneau le {date}"
   },
   "agentReply": {
     "aiOff": "Je ne peux pas répondre : l’IA est désactivée dans cet espace de travail.",
@@ -411,5 +412,15 @@
     "note": "Son motif : « {note} »",
     "answer": "Approuvez-la ou refusez-la dans votre boîte de réception Leafdesk.",
     "action": "Ouvrir l’agent"
+  },
+  "bookingEvent": {
+    "by": "Réservé via votre lien de réservation par {name} ({email}).",
+    "note": "Note : {note}"
+  },
+  "bookingConfirmation": {
+    "subject": "Votre réservation : {title} avec {owner}",
+    "heading": "C’est réservé",
+    "body": "Bonjour {name}, votre rendez-vous de {minutes} minutes « {title} » avec {owner} a lieu le {when}.",
+    "hint": "Si ce créneau ne convient plus, prévenez {owner}."
   }
 }

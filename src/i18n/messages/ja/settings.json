@@ -2397,7 +2397,10 @@
     "quizFinishedChannel": "クイズの結果：{channel}",
     "approvalTitle": "承認",
     "approvalDescription": "ページの承認を依頼されたとき、または自分の承認依頼が終わったとき。",
-    "approvalChannel": "承認: {channel}"
+    "approvalChannel": "承認: {channel}",
+    "bookingMadeTitle": "予約",
+    "bookingMadeDescription": "誰かが予約リンクから時間を予約したとき。",
+    "bookingMadeChannel": "予約: {channel}"
   },
   "site": {
     "description": "このワークスペースの公開ページに、わかりやすい1つのアドレス、ホームページ、ページ間のナビゲーションを用意します。",

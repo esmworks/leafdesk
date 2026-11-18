@@ -340,7 +340,8 @@
     "quizPassed": "{actor} is geslaagd voor de quiz met {score}%",
     "quizFailed": "{actor} heeft geen pogingen meer voor de quiz ({score}%)",
     "approvalRequested": "{actor} vraagt je deze pagina goed te keuren",
-    "approvalDecided": "{outcome, select, approved {Goedgekeurd: {actor} gaf de laatste nodige goedkeuring} other {{actor} vroeg wijzigingen aan deze pagina}}"
+    "approvalDecided": "{outcome, select, approved {Goedgekeurd: {actor} gaf de laatste nodige goedkeuring} other {{actor} vroeg wijzigingen aan deze pagina}}",
+    "bookingMade": "{name} heeft een tijd geboekt op {date}"
   },
   "templates": {
     "title": "Sjablonen",

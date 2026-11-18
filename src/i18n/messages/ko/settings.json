@@ -2397,7 +2397,10 @@
     "quizFinishedChannel": "퀴즈 결과: {channel}",
     "approvalTitle": "승인",
     "approvalDescription": "누군가 페이지 승인을 요청하거나, 내 승인 요청이 끝났을 때.",
-    "approvalChannel": "승인: {channel}"
+    "approvalChannel": "승인: {channel}",
+    "bookingMadeTitle": "예약",
+    "bookingMadeDescription": "누군가 내 예약 링크로 시간을 예약할 때.",
+    "bookingMadeChannel": "예약: {channel}"
   },
   "site": {
     "description": "이 워크스페이스의 게시된 페이지에 읽기 쉬운 하나의 주소, 홈 페이지, 페이지 간 탐색을 제공합니다.",

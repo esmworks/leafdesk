@@ -165,6 +165,8 @@ describe("routeOnSiteHost", () => {
       "/api/files",
       "/api/v1/pages",
       "/mcp",
+      "/f/some-token",
+      "/b/some-token",
       "/s/other-site",
       "/s/acme/duplicate",
       "/s/acme/report",

@@ -2397,7 +2397,10 @@
     "quizFinishedChannel": "Kết quả bài kiểm tra: {channel}",
     "approvalTitle": "Phê duyệt",
     "approvalDescription": "Ai đó đề nghị bạn phê duyệt một trang, hoặc một yêu cầu phê duyệt của bạn kết thúc.",
-    "approvalChannel": "Phê duyệt: {channel}"
+    "approvalChannel": "Phê duyệt: {channel}",
+    "bookingMadeTitle": "Đặt lịch",
+    "bookingMadeDescription": "Có người đặt lịch qua một trong các liên kết đặt lịch của bạn.",
+    "bookingMadeChannel": "Đặt lịch: {channel}"
   },
   "site": {
     "description": "Cho các trang đã xuất bản của không gian làm việc này một địa chỉ dễ đọc, một trang chủ và điều hướng giữa chúng.",

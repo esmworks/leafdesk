@@ -2397,7 +2397,10 @@
     "quizFinishedChannel": "Quizresultater: {channel}",
     "approvalTitle": "Godkjenninger",
     "approvalDescription": "Noen ber deg godkjenne en side, eller en av dine godkjenningsforespørsler avsluttes.",
-    "approvalChannel": "Godkjenninger: {channel}"
+    "approvalChannel": "Godkjenninger: {channel}",
+    "bookingMadeTitle": "Bookinger",
+    "bookingMadeDescription": "Noen booker en tid via en av bookinglenkene dine.",
+    "bookingMadeChannel": "Bookinger: {channel}"
   },
   "site": {
     "description": "Gi de publiserte sidene i dette arbeidsområdet én lettlest adresse, en startside og navigasjon mellom dem.",

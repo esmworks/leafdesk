@@ -2397,7 +2397,10 @@
     "quizFinishedChannel": "ผลแบบทดสอบ: {channel}",
     "approvalTitle": "การอนุมัติ",
     "approvalDescription": "มีคนขอให้คุณอนุมัติหน้า หรือคำขออนุมัติของคุณสิ้นสุดลง",
-    "approvalChannel": "การอนุมัติ: {channel}"
+    "approvalChannel": "การอนุมัติ: {channel}",
+    "bookingMadeTitle": "การจอง",
+    "bookingMadeDescription": "มีคนจองเวลาผ่านลิงก์จองลิงก์ใดลิงก์หนึ่งของคุณ",
+    "bookingMadeChannel": "การจอง: {channel}"
   },
   "site": {
     "description": "ให้หน้าที่เผยแพร่ของพื้นที่ทำงานนี้มีที่อยู่ที่อ่านง่ายหนึ่งที่อยู่ หน้าแรก และการนำทางระหว่างหน้า",

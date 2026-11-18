@@ -327,6 +327,9 @@ export function pushPayload(
         line = t(notice?.passed === false ? "quizFailed" : "quizPassed", { actor, score: notice?.score ?? 0 });
         break;
       }
+      case "booking_made":
+        line = t("bookingMade", { name: item.automationMessage || t("someone"), date: item.reminderDate ? formatDate(item.reminderDate, "UTC") : "" });
+        break;
       case "approval_requested":
         line = t("approvalRequested", { actor });
         break;

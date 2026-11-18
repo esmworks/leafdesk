@@ -324,7 +324,8 @@
     "quizPassed": "{actor} zalicza quiz z wynikiem {score}%",
     "quizFailed": "{actor} wykorzystuje wszystkie próby w quizie ({score}%)",
     "approvalRequested": "{actor} prosi Cię o zatwierdzenie tej strony",
-    "approvalDecided": "{outcome, select, approved {Zatwierdzona: {actor} udzielił(a) ostatniego potrzebnego zatwierdzenia} other {{actor} poprosił(a) o zmiany na tej stronie}}"
+    "approvalDecided": "{outcome, select, approved {Zatwierdzona: {actor} udzielił(a) ostatniego potrzebnego zatwierdzenia} other {{actor} poprosił(a) o zmiany na tej stronie}}",
+    "bookingMade": "{name} zarezerwował(a) termin: {date}"
   },
   "agentReply": {
     "aiOff": "Nie mogę odpowiedzieć: AI jest wyłączone w tym obszarze roboczym.",
@@ -411,5 +412,15 @@
     "note": "Powód: “{note}”",
     "answer": "Zatwierdź lub odrzuć w skrzynce odbiorczej Leafdesk.",
     "action": "Otwórz agenta"
+  },
+  "bookingEvent": {
+    "by": "Zarezerwowano przez Twój link: {name} ({email}).",
+    "note": "Notatka: {note}"
+  },
+  "bookingConfirmation": {
+    "subject": "Twoja rezerwacja: {title} z {owner}",
+    "heading": "Rezerwacja gotowa",
+    "body": "Cześć {name}, Twoje spotkanie „{title}” z {owner} ({minutes} min) odbędzie się {when}.",
+    "hint": "Jeśli ten termin już Ci nie odpowiada, daj znać: {owner}."
   }
 }

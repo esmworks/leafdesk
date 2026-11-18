@@ -36,6 +36,7 @@ const COLUMNS = {
   ai_chat_waiting: { inbox: "aiChatWaitingInbox", email: "aiChatWaitingEmails", push: "aiChatWaitingPush", telegram: "aiChatWaitingTelegram" },
   quiz_assigned: { inbox: "quizAssignedInbox", email: "quizAssignedEmails", push: "quizAssignedPush", telegram: "quizAssignedTelegram" },
   quiz_finished: { inbox: "quizFinishedInbox", email: "quizFinishedEmails", push: "quizFinishedPush", telegram: "quizFinishedTelegram" },
+  booking_made: { inbox: "bookingMadeInbox", email: "bookingMadeEmails", push: "bookingMadePush", telegram: "bookingMadeTelegram" },
   // One choice for both: requests to approve a page and how they ended.
   approval_requested: { inbox: "approvalInbox", email: "approvalEmails", push: "approvalPush", telegram: "approvalTelegram" },
   approval_decided: { inbox: "approvalInbox", email: "approvalEmails", push: "approvalPush", telegram: "approvalTelegram" },

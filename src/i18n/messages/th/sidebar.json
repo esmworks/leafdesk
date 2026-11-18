@@ -340,7 +340,8 @@
     "quizPassed": "{actor} ทำแบบทดสอบผ่านด้วยคะแนน {score}%",
     "quizFailed": "{actor} ใช้สิทธิ์ทำแบบทดสอบหมดแล้ว ({score}%)",
     "approvalRequested": "{actor} ขอให้คุณอนุมัติหน้านี้",
-    "approvalDecided": "{outcome, select, approved {อนุมัติแล้ว: {actor} ให้การอนุมัติสุดท้ายที่ต้องการ} other {{actor} ขอให้แก้ไขหน้านี้}}"
+    "approvalDecided": "{outcome, select, approved {อนุมัติแล้ว: {actor} ให้การอนุมัติสุดท้ายที่ต้องการ} other {{actor} ขอให้แก้ไขหน้านี้}}",
+    "bookingMade": "{name} จองเวลาวันที่ {date}"
   },
   "templates": {
     "title": "เทมเพลต",

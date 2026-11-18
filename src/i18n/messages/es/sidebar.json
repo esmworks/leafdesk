@@ -340,7 +340,8 @@
     "quizPassed": "{actor} aprobó el cuestionario con un {score} %",
     "quizFailed": "{actor} se quedó sin intentos en el cuestionario ({score} %)",
     "approvalRequested": "{actor} te pide que apruebes esta página",
-    "approvalDecided": "{outcome, select, approved {Aprobada: {actor} dio la última aprobación necesaria} other {{actor} pidió cambios en esta página}}"
+    "approvalDecided": "{outcome, select, approved {Aprobada: {actor} dio la última aprobación necesaria} other {{actor} pidió cambios en esta página}}",
+    "bookingMade": "{name} reservó una hora el {date}"
   },
   "templates": {
     "title": "Plantillas",

@@ -2397,7 +2397,10 @@
     "quizFinishedChannel": "نتایج آزمون: {channel}",
     "approvalTitle": "تأییدها",
     "approvalDescription": "کسی از شما می‌خواهد صفحه‌ای را تأیید کنید، یا یکی از درخواست‌های تأیید شما به پایان می‌رسد.",
-    "approvalChannel": "تأییدها: {channel}"
+    "approvalChannel": "تأییدها: {channel}",
+    "bookingMadeTitle": "رزروها",
+    "bookingMadeDescription": "کسی از طریق یکی از پیوندهای رزرو شما زمانی رزرو می‌کند.",
+    "bookingMadeChannel": "رزروها: {channel}"
   },
   "site": {
     "description": "به صفحه‌های منتشرشده این فضای کاری یک نشانی خوانا، یک صفحه اصلی و ناوبری بین آن‌ها بدهید.",

@@ -134,6 +134,23 @@
   steps, and right-click it (or use its ⋯) to open the task, mark it done (a row's status, a to-do
   ticked) or remove the block. A block of a done task stays, struck through; one whose task went
   to the trash, or that you can no longer open, stops showing (a restore brings it back).
+  *Booking links*: the calendar's *Booking links* button lists the links you made and makes new
+  ones: a title, a length (15 minutes to 8 hours), the days and hours you can be booked (in your
+  time zone), a buffer kept free around other entries, how many days ahead (up to 60), the least
+  notice, and the calendar that receives bookings, which must be a Google Calendar synced both
+  ways that you may add rows to (one read only would drop the booking again). A link's address,
+  `/b/<token>` on the app's address and never on a site's own domain, opens a page that needs no
+  account: it offers the free slots, in the visitor's own time zone, and asks for a name, an
+  email address and a note. Free time is worked out from your calendar's entries with a time,
+  meeting notes and time planned for tasks; all-day entries don't block, and an entry with a start
+  and no end takes an hour. The page shows nothing else of your calendar. A booking becomes a row of
+  the chosen calendar (which the sync writes to Google as an event), a *Booking made* notification
+  for you (inbox, push, and chat apps; its own switch in Settings > Notifications) and a
+  confirmation email to the visitor. Bookings are made one at a time per person and the slot is
+  checked again then, so two visitors never get one time; pages and bookings are rate limited per
+  address and per link, and a hidden field and a minimum fill time turn bots away. Switching a link
+  off, deleting it, or losing the calendar makes its address answer as if it never existed. Links
+  are not part of a backup: set them up again after a restore.
 - **Messages** (on the sidebar's rail): the workspace's own conversations, live over a websocket:
   public and private channels, direct messages, threads, mentions, reactions, pins, saved and
   scheduled messages, search, push notifications, agents that answer in channels and *Catch up*

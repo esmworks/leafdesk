@@ -2397,7 +2397,10 @@
     "quizFinishedChannel": "Hasil kuis: {channel}",
     "approvalTitle": "Persetujuan",
     "approvalDescription": "Seseorang meminta Anda menyetujui halaman, atau permintaan persetujuan Anda selesai.",
-    "approvalChannel": "Persetujuan: {channel}"
+    "approvalChannel": "Persetujuan: {channel}",
+    "bookingMadeTitle": "Pemesanan",
+    "bookingMadeDescription": "Seseorang memesan waktu melalui salah satu tautan pemesanan Anda.",
+    "bookingMadeChannel": "Pemesanan: {channel}"
   },
   "site": {
     "description": "Beri halaman terbit ruang kerja ini satu alamat yang mudah dibaca, sebuah beranda, dan navigasi di antaranya.",

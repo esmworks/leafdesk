@@ -340,7 +340,8 @@
     "quizPassed": "{actor} foi aprovado no quiz com {score}%",
     "quizFailed": "{actor} esgotou as tentativas no quiz ({score}%)",
     "approvalRequested": "{actor} pede que você aprove esta página",
-    "approvalDecided": "{outcome, select, approved {Aprovada: {actor} deu a última aprovação necessária} other {{actor} pediu alterações nesta página}}"
+    "approvalDecided": "{outcome, select, approved {Aprovada: {actor} deu a última aprovação necessária} other {{actor} pediu alterações nesta página}}",
+    "bookingMade": "{name} agendou um horário em {date}"
   },
   "templates": {
     "title": "Modelos",

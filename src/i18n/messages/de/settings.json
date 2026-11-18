@@ -2397,7 +2397,10 @@
     "quizFinishedChannel": "Quiz-Ergebnisse: {channel}",
     "approvalTitle": "Freigaben",
     "approvalDescription": "Jemand bittet dich, eine Seite freizugeben, oder deine Freigabeanfrage ist abgeschlossen.",
-    "approvalChannel": "Freigaben: {channel}"
+    "approvalChannel": "Freigaben: {channel}",
+    "bookingMadeTitle": "Buchungen",
+    "bookingMadeDescription": "Jemand bucht eine Zeit über einen deiner Buchungslinks.",
+    "bookingMadeChannel": "Buchungen: {channel}"
   },
   "site": {
     "description": "Gib den veröffentlichten Seiten dieses Workspace eine gemeinsame, gut lesbare Adresse, eine Startseite und eine Navigation zwischen ihnen.",

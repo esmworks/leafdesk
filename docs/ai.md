@@ -540,6 +540,14 @@ later on its own, so work to be done again and again ("every morning, list what'
 `create_agent` when you have none and may make one, and asks you before each. With changes off it
 says so instead. People turn reminders off under *AI reminders* in Settings → Preferences.
 
+The chat reads your calendar too: ask "when am I free for an hour on Thursday?" and it lists the
+stretches inside your working days and hours (`find_free_time`, from your calendar's entries,
+meetings and planned time; it sees times only, never what takes them). Ask it to put something on
+the calendar ("lunch with Ayşe Friday at 12:30") and, where the workspace has a Google Calendar
+synced both ways that you may add to, it writes the event there after the box asks first
+(`create_calendar_event`; with several such calendars it asks which). Both are MCP tools in the
+`calendar` category, found with `find_tools`.
+
 **Your own questions on a schedule.** A question can also come round by itself without an agent: a
 repeat rule in your time zone and the question (up to 10 per person and workspace). Each time it is
 asked as you, with your access, model and limits, as if you had typed it, and its answers line up in

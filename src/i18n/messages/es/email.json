@@ -324,7 +324,8 @@
     "quizPassed": "{actor} aprobó el cuestionario con un {score} %",
     "quizFailed": "{actor} se quedó sin intentos en el cuestionario ({score} %)",
     "approvalRequested": "{actor} te pide que apruebes esta página",
-    "approvalDecided": "{outcome, select, approved {Aprobada: {actor} dio la última aprobación necesaria} other {{actor} pidió cambios en esta página}}"
+    "approvalDecided": "{outcome, select, approved {Aprobada: {actor} dio la última aprobación necesaria} other {{actor} pidió cambios en esta página}}",
+    "bookingMade": "{name} reservó una hora el {date}"
   },
   "agentReply": {
     "aiOff": "No puedo responder: la IA está desactivada en este espacio de trabajo.",
@@ -411,5 +412,15 @@
     "note": "Su motivo: «{note}»",
     "answer": "Apruébala o recházala en tu bandeja de entrada de Leafdesk.",
     "action": "Abrir el agente"
+  },
+  "bookingEvent": {
+    "by": "Reservado con tu enlace de reserva por {name} ({email}).",
+    "note": "Nota: {note}"
+  },
+  "bookingConfirmation": {
+    "subject": "Tu reserva: {title} con {owner}",
+    "heading": "Reserva hecha",
+    "body": "Hola {name}, tu reunión «{title}» de {minutes} minutos con {owner} es el {when}.",
+    "hint": "Si esta hora ya no te viene bien, avisa a {owner}."
   }
 }

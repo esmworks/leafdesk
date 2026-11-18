@@ -340,7 +340,8 @@
     "quizPassed": "{actor} besto quizen med {score} %",
     "quizFailed": "{actor} har brukt opp forsøkene på quizen ({score} %)",
     "approvalRequested": "{actor} ber deg godkjenne denne siden",
-    "approvalDecided": "{outcome, select, approved {Godkjent: {actor} ga den siste nødvendige godkjenningen} other {{actor} ba om endringer på denne siden}}"
+    "approvalDecided": "{outcome, select, approved {Godkjent: {actor} ga den siste nødvendige godkjenningen} other {{actor} ba om endringer på denne siden}}",
+    "bookingMade": "{name} booket en tid den {date}"
   },
   "templates": {
     "title": "Maler",

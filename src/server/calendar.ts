@@ -82,6 +82,30 @@ export async function calendarItems(userId: string, workspaceId: string, input: 
   return items.filter((item) => inRange(item.date)).sort((a, b) => start(a) - start(b));
 }
 
+/** The most days `busyDates` reads: the longest a booking link looks ahead (BOOKING_LIMITS.daysAhead), a day either way spare. */
+const BUSY_MAX_DAYS = 70;
+
+/**
+ * When the person is taken from `from` to `to` (YYYY-MM-DD, both included): the dates (lib/date-value)
+ * of the synced calendars' events they see, their meeting notes and the time planned for their tasks.
+ * Nothing else about them leaves it, no titles: it is what a booking link and `find_free_time`
+ * work free time out of (lib/booking.ts `busyFromDates`). Tasks and reminders aren't time taken.
+ * Items a day either way of the range may come with it.
+ */
+export async function busyDates(userId: string, workspaceId: string, input: { from: string; to: string; timeZone: string }): Promise<string[]> {
+  await requireMembership(userId, workspaceId);
+  const { from, to, timeZone } = input;
+  if (!isDay(from) || !isDay(to) || dayNumber(to) < dayNumber(from) || dayNumber(to) - dayNumber(from) >= BUSY_MAX_DAYS) {
+    throw new Error("Busy time is read for whole days, at most BUSY_MAX_DAYS of them");
+  }
+  const [events, meetings, blocks] = await Promise.all([
+    syncedEvents(userId, workspaceId, from, to),
+    meetingItems(userId, workspaceId, from, to),
+    workBlockItems(userId, workspaceId, new Date(zonedInstant(dayNumber(from), 0, timeZone)), new Date(zonedInstant(dayNumber(to) + 1, 0, timeZone))),
+  ]);
+  return [...events, ...meetings, ...blocks].map((item) => item.date);
+}
+
 /**
  * The events of the workspace's synced calendars the person sees, on the days asked for. Rows are
  * picked out in SQL by the first ten characters of their When, a day either way of the range

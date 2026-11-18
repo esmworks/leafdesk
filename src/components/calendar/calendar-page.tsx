@@ -1,6 +1,6 @@
 "use client";
 
-import { AlarmClock, CalendarClock, CalendarDays, ChevronLeft, ChevronRight, CircleCheck, List, ListTodo, MoreHorizontal, NotebookPen } from "lucide-react";
+import { AlarmClock, CalendarClock, CalendarDays, CalendarPlus, ChevronLeft, ChevronRight, CircleCheck, List, ListTodo, MoreHorizontal, NotebookPen } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useFormatter, useLocale, useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useRef, useState, type DragEvent, type PointerEvent as ReactPointerEvent } from "react";
@@ -41,6 +41,7 @@ const TO_PLAN_KEY = "leafdesk:calendar-to-plan";
 const ToPlanListPart = lazyPart(() => import("./to-plan-list").then((m) => m.ToPlanList));
 const PlanTimePart = lazyPart(() => import("./plan-time-dialog").then((m) => m.PlanTimeDialog));
 const BlockMenuPart = lazyPart(() => import("./block-menu").then((m) => m.BlockMenu));
+const BookingLinksPart = lazyPart(() => import("./booking-links-dialog").then((m) => m.BookingLinksDialog));
 
 /** Where a block's menu opens: at a right click, or under its ⋯. */
 type MenuAt = { item: CalendarItem; at: { x: number; y: number } | Element };
@@ -104,6 +105,7 @@ export function CalendarPage({ workspaceId }: { workspaceId: string }) {
   const [planVersion, setPlanVersion] = useState(0);
   const [taskDrag, setTaskDrag] = useState<TaskToPlan | null>(null);
   const [planning, setPlanning] = useState<TaskToPlan | null>(null);
+  const [bookingOpen, setBookingOpen] = useState(false);
   const [menu, setMenu] = useState<MenuAt | null>(null);
   const onMenu = useCallback<OnMenu>((item, at) => setMenu({ item, at }), []);
 
@@ -228,6 +230,16 @@ export function CalendarPage({ workspaceId }: { workspaceId: string }) {
         >
           <ListTodo className="h-4 w-4" aria-hidden />
         </button>
+        <button
+          type="button"
+          aria-label={t("booking.linksTitle")}
+          title={t("booking.linksTitle")}
+          onPointerEnter={() => void BookingLinksPart.preload()}
+          onClick={() => setBookingOpen(true)}
+          className="flex h-7 w-7 items-center justify-center rounded-md text-fg-icon hover:bg-bg-hover hover:text-fg"
+        >
+          <CalendarPlus className="h-4 w-4" aria-hidden />
+        </button>
       </PlaceTopBar>
       <div className="page-gutter pt-6 pb-12">
       <header className="mb-4 flex min-w-0 items-baseline gap-3">
@@ -288,6 +300,7 @@ export function CalendarPage({ workspaceId }: { workspaceId: string }) {
           }}
         />
       )}
+      {bookingOpen && <BookingLinksPart workspaceId={workspaceId} onClose={() => setBookingOpen(false)} />}
       {menu && <BlockMenuPart workspaceId={workspaceId} item={menu.item} at={menu.at} onClose={() => setMenu(null)} onChanged={changed} />}
     </>
   );

@@ -2397,7 +2397,10 @@
     "quizFinishedChannel": "Risultati dei quiz: {channel}",
     "approvalTitle": "Approvazioni",
     "approvalDescription": "Qualcuno ti chiede di approvare una pagina, o una tua richiesta di approvazione si conclude.",
-    "approvalChannel": "Approvazioni: {channel}"
+    "approvalChannel": "Approvazioni: {channel}",
+    "bookingMadeTitle": "Prenotazioni",
+    "bookingMadeDescription": "Qualcuno prenota un orario tramite uno dei tuoi link di prenotazione.",
+    "bookingMadeChannel": "Prenotazioni: {channel}"
   },
   "site": {
     "description": "Dai alle pagine pubblicate di questo spazio di lavoro un unico indirizzo leggibile, una home page e la navigazione tra di loro.",

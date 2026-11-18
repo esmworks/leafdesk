@@ -38,6 +38,7 @@ const KIND_KEYS = {
   ai_chat_waiting: "aiChatWaiting",
   quiz_assigned: "quizAssigned",
   quiz_finished: "quizFinished",
+  booking_made: "bookingMade",
   approval_requested: "approval",
   approval_decided: "approval",
 } as const satisfies Record<PreferenceKind, string>;
@@ -62,6 +63,7 @@ const EMAILLESS_KINDS: readonly PreferenceKind[] = [
   "ai_chat_waiting",
   "quiz_assigned",
   "quiz_finished",
+  "booking_made",
   "approval_requested",
 ];
 /**

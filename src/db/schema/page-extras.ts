@@ -101,6 +101,55 @@ export const workBlock = pgTable(
 );
 
 /**
+ * A booking link (server/booking.ts): a person's public page `/b/<token>` where visitors pick a
+ * free time (lib/booking.ts, worked out from the person's calendar) and book it as a row of
+ * `databaseId`, a Google Calendar synced both ways in the workspace. Kept per person; the link
+ * stops working when it is turned off, deleted, or its owner leaves the workspace or loses the
+ * database. `weekdays` are 0 (Sunday) to 6; the hours are minutes past midnight in `timeZone`.
+ */
+export const bookingLink = pgTable(
+  "booking_link",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    token: text("token").notNull(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspace.id, { onDelete: "cascade" }),
+    databaseId: text("database_id")
+      .notNull()
+      .references(() => page.id, { onDelete: "cascade" }),
+    title: text("title").notNull().default(""),
+    description: text("description").notNull().default(""),
+    durationMinutes: integer("duration_minutes").notNull(),
+    weekdays: jsonb("weekdays").$type<number[]>().notNull(),
+    startMinute: integer("start_minute").notNull(),
+    endMinute: integer("end_minute").notNull(),
+    bufferMinutes: integer("buffer_minutes").notNull().default(0),
+    daysAhead: integer("days_ahead").notNull(),
+    minNoticeMinutes: integer("min_notice_minutes").notNull().default(0),
+    timeZone: text("time_zone").notNull(),
+    enabled: boolean("enabled").notNull().default(true),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
+  },
+  (t) => [
+    uniqueIndex("booking_link_token_idx").on(t.token),
+    index("booking_link_user_idx").on(t.userId, t.workspaceId),
+    index("booking_link_database_idx").on(t.databaseId),
+    check("booking_link_hours_check", sql`${t.startMinute} >= 0 and ${t.endMinute} <= 1440 and ${t.endMinute} - ${t.startMinute} >= ${t.durationMinutes}`),
+    check("booking_link_ranges_check", sql`${t.durationMinutes} between 5 and 480 and ${t.bufferMinutes} between 0 and 120 and ${t.daysAhead} between 1 and 60 and ${t.minNoticeMinutes} >= 0`),
+  ],
+);
+
+/**
  * Pages whose to-dos are still to be indexed (server/page-tasks.ts backfillPageTasks): the pages
  * written before the index, and those of a workspace restored from a backup made before it. Each
  * is read once, then taken off.

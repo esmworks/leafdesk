@@ -507,6 +507,31 @@ export const inputs = {
     to: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional().describe("Only meetings held or planned on or before this day (YYYY-MM-DD, UTC)."),
     limit: z.number().int().min(1).max(100).default(25).describe("Maximum meetings (1-100, default 25)."),
   }),
+  findFreeTime: z.object({
+    workspace_id: id("workspace"),
+    from: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).describe("First day to look at (YYYY-MM-DD, the user's day in time_zone)."),
+    to: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).describe("Last day to look at, included (YYYY-MM-DD; at most 31 days from `from`)."),
+    duration_minutes: z.number().int().min(5).max(480).default(30).describe("How long a free stretch must be (5-480 minutes, default 30)."),
+    working_hours: z
+      .object({
+        start: z.string().regex(/^\d{1,2}:\d{2}$/).default("09:00").describe("Earliest start, HH:MM on the user's clock."),
+        end: z.string().regex(/^\d{1,2}:\d{2}$/).default("17:00").describe("Latest end, HH:MM (24:00 allowed)."),
+      })
+      .default({ start: "09:00", end: "17:00" })
+      .describe("The hours of a day to look in (multiples of 5 minutes)."),
+    weekdays: z.array(z.number().int().min(0).max(6)).min(1).max(7).default([1, 2, 3, 4, 5]).describe("The days of the week to look at, 0 Sunday to 6 Saturday (default Monday to Friday)."),
+    buffer_minutes: z.number().int().min(0).max(120).default(0).describe("Minutes to keep clear before and after what is already planned (default 0)."),
+    time_zone: z.string().max(64).optional().describe('The user\'s IANA time zone, such as "Europe/Istanbul"; every day and clock time here is in it. Defaults to UTC.'),
+  }),
+  createCalendarEvent: z.object({
+    workspace_id: id("workspace"),
+    title: z.string().min(1).max(300).describe("The event's title."),
+    start: z.string().max(40).describe("Start as an ISO 8601 time with its offset or Z, such as 2026-12-01T14:00:00+03:00."),
+    end: z.string().max(40).describe("End, in the same form, after the start and at most a day later."),
+    description: z.string().max(5000).optional().describe("Notes for the event."),
+    location: z.string().max(500).optional().describe("Where it is."),
+    database_id: id("database").optional().describe("The calendar's database (from list_pages or get_database). Needed only when the workspace has more than one Google Calendar synced both ways."),
+  }),
   listSkills: z.object({
     workspace_id: z.string().optional().describe("Only this workspace's skills. Leave out for every workspace."),
   }),
@@ -2122,6 +2147,60 @@ export async function changeComment(ctx: OperationContext, { page_id, thread_id,
   const { threads, url } = await listComments(ctx, { page_id, include_resolved: true });
   const thread = threads.find((t) => t.id === thread_id);
   return thread ? { page_id, thread, url } : { page_id, thread_id, deleted: true, url };
+}
+
+/**
+ * The stretches of the user's working hours that are free (server/booking.ts `findFreeTime`): times
+ * only, never what fills the rest.
+ */
+export async function findFreeTime(ctx: OperationContext, args: Args<"findFreeTime">) {
+  const { parseClock } = await import("@/lib/booking");
+  const { BookingError, findFreeTime: freeTime } = await import("@/server/booking");
+  const timeZone = args.time_zone ?? ctx.timeZone ?? "UTC";
+  if (!isTimeZone(timeZone)) throw new ToolInputError(`"${timeZone}" is not an IANA time zone such as "Europe/Istanbul".`);
+  const startMinute = parseClock(args.working_hours.start);
+  const endMinute = parseClock(args.working_hours.end);
+  if (startMinute === null || endMinute === null) throw new ToolInputError("working_hours are times of day such as 09:00 and 17:30.");
+  try {
+    const { stretches, truncated } = await freeTime(ctx.userId, args.workspace_id, {
+      from: args.from,
+      to: args.to,
+      timeZone,
+      weekdays: args.weekdays,
+      startMinute,
+      endMinute,
+      durationMinutes: args.duration_minutes,
+      bufferMinutes: args.buffer_minutes,
+    });
+    return {
+      workspace_id: args.workspace_id,
+      time_zone: timeZone,
+      free: stretches.map((s) => ({ day: s.day, from: s.from, to: s.to, start: s.start, end: s.end })),
+      ...(truncated ? { truncated: true } : {}),
+    };
+  } catch (error) {
+    if (error instanceof BookingError) throw new ToolInputError(`${error.message}. Check from, to, working_hours (multiples of 5 minutes, long enough for duration_minutes) and weekdays.`);
+    throw error;
+  }
+}
+
+/**
+ * Adds an event to a Google Calendar of the workspace that is synced both ways, as the user
+ * (server/calendar-events.ts): a row of its database, which the sync writes back to Google. No
+ * guests are invited.
+ */
+export async function createCalendarEvent(ctx: OperationContext, args: Args<"createCalendarEvent">) {
+  const { CalendarEventError, createCalendarEvent: create } = await import("@/server/calendar-events");
+  try {
+    const created = await create(ctx.userId, args.workspace_id, args, args.database_id);
+    return { id: created.rowId, database_id: created.databaseId, calendar: created.calendar, url: pageUrl(args.workspace_id, created.rowId), note: "It reaches Google Calendar within a minute or so." };
+  } catch (error) {
+    if (error instanceof CalendarEventError) {
+      const which = error.calendars.map((c) => `${c.calendarName || c.title} (database_id ${c.databaseId})`).join(", ");
+      throw new ToolInputError(error.code === "which" ? `${error.message}: ${which}.` : `${error.message}.`);
+    }
+    throw error;
+  }
 }
 
 /** The meetings of a workspace the user can see, newest first, narrowed as asked. */

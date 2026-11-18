@@ -2397,7 +2397,10 @@
     "quizFinishedChannel": "测验结果：{channel}",
     "approvalTitle": "审批",
     "approvalDescription": "有人请你审批页面，或你的审批请求有了结果。",
-    "approvalChannel": "审批：{channel}"
+    "approvalChannel": "审批：{channel}",
+    "bookingMadeTitle": "预约",
+    "bookingMadeDescription": "有人通过你的某个预约链接预约时间。",
+    "bookingMadeChannel": "预约：{channel}"
   },
   "site": {
     "description": "为此工作区已发布的页面提供一个易读的地址、一个主页以及页面之间的导航。",

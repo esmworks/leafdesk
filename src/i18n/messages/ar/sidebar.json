@@ -340,7 +340,8 @@
     "quizPassed": "نجح {actor} في الاختبار بنسبة {score}%",
     "quizFailed": "استنفد {actor} محاولاته في الاختبار ({score}%)",
     "approvalRequested": "يطلب منك {actor} الموافقة على هذه الصفحة",
-    "approvalDecided": "{outcome, select, approved {تمت الموافقة: منح {actor} آخر موافقة مطلوبة} other {طلب {actor} تغييرات على هذه الصفحة}}"
+    "approvalDecided": "{outcome, select, approved {تمت الموافقة: منح {actor} آخر موافقة مطلوبة} other {طلب {actor} تغييرات على هذه الصفحة}}",
+    "bookingMade": "حجز {name} وقتًا في {date}"
   },
   "templates": {
     "title": "القوالب",

@@ -2397,7 +2397,10 @@
     "quizFinishedChannel": "Wyniki quizów: {channel}",
     "approvalTitle": "Zatwierdzenia",
     "approvalDescription": "Ktoś prosi Cię o zatwierdzenie strony albo Twoja prośba o zatwierdzenie się kończy.",
-    "approvalChannel": "Zatwierdzenia: {channel}"
+    "approvalChannel": "Zatwierdzenia: {channel}",
+    "bookingMadeTitle": "Rezerwacje",
+    "bookingMadeDescription": "Ktoś rezerwuje termin przez jeden z Twoich linków do rezerwacji.",
+    "bookingMadeChannel": "Rezerwacje: {channel}"
   },
   "site": {
     "description": "Nadaj opublikowanym stronom tego obszaru roboczego jeden czytelny adres, stronę główną i nawigację między nimi.",

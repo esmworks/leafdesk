@@ -2397,7 +2397,10 @@
     "quizFinishedChannel": "Test sonuçları: {channel}",
     "approvalTitle": "Onaylar",
     "approvalDescription": "Biri sizden bir sayfayı onaylamanızı istediğinde ya da sizin onay isteğiniz sonuçlandığında.",
-    "approvalChannel": "Onaylar: {channel}"
+    "approvalChannel": "Onaylar: {channel}",
+    "bookingMadeTitle": "Rezervasyonlar",
+    "bookingMadeDescription": "Biri rezervasyon bağlantılarınızdan biriyle bir saat ayırtır.",
+    "bookingMadeChannel": "Rezervasyonlar: {channel}"
   },
   "site": {
     "description": "Bu çalışma alanının yayındaki sayfalarına okunabilir tek bir adres, bir ana sayfa ve aralarında gezinme menüsü verin.",

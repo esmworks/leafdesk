@@ -340,7 +340,8 @@
     "quizPassed": "{actor} با {score}% در آزمون قبول شد",
     "quizFailed": "تلاش‌های {actor} در آزمون تمام شد ({score}%)",
     "approvalRequested": "{actor} از شما می‌خواهد این صفحه را تأیید کنید",
-    "approvalDecided": "{outcome, select, approved {تأیید شد: {actor} آخرین تأیید لازم را داد} other {{actor} برای این صفحه تغییر خواست}}"
+    "approvalDecided": "{outcome, select, approved {تأیید شد: {actor} آخرین تأیید لازم را داد} other {{actor} برای این صفحه تغییر خواست}}",
+    "bookingMade": "{name} برای {date} زمانی رزرو کرد"
   },
   "templates": {
     "title": "الگوها",

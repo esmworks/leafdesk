@@ -1,6 +1,7 @@
 import { agentChatInfoAction, agentChatTurnAction, agentThreadAction, agentThreadRunsAction, getAgentConversationAction, searchAgentChatsAction } from "@/app/actions/agent-chat";
 import { dueTasksAction, taskCountsAction } from "@/app/actions/assigned";
 import { automationChannelsAction } from "@/app/actions/automations";
+import { bookingCalendarsAction, bookingLinksAction } from "@/app/actions/booking";
 import { calendarItemsAction } from "@/app/actions/calendar";
 import { agentChainsAction, agentCreationAction, agentMailboxesAction, pendingAgentLimitRequestAction, sidebarAgentsAction } from "@/app/actions/agents";
 import { getConversationAction, listConversationsAction } from "@/app/actions/ai";
@@ -51,6 +52,8 @@ export const READS = {
   agentChains: agentChainsAction,
   sidebarMeetings: sidebarMeetingsAction,
   calendarItems: calendarItemsAction,
+  bookingLinks: bookingLinksAction,
+  bookingCalendars: bookingCalendarsAction,
   tasksToPlan: tasksToPlanAction,
   agentCreation: agentCreationAction,
   agentLimitRequest: pendingAgentLimitRequestAction,

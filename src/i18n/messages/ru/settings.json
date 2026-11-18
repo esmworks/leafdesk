@@ -2397,7 +2397,10 @@
     "quizFinishedChannel": "Результаты тестов: {channel}",
     "approvalTitle": "Согласования",
     "approvalDescription": "Вас просят согласовать страницу, или ваш запрос на согласование завершился.",
-    "approvalChannel": "Согласования: {channel}"
+    "approvalChannel": "Согласования: {channel}",
+    "bookingMadeTitle": "Записи",
+    "bookingMadeDescription": "Кто-то записывается на время по одной из ваших ссылок для записи.",
+    "bookingMadeChannel": "Записи: {channel}"
   },
   "site": {
     "description": "Дайте опубликованным страницам этого рабочего пространства один понятный адрес, главную страницу и навигацию между ними.",

@@ -324,7 +324,8 @@
     "quizPassed": "{actor} 以 {score}% 通过了测验",
     "quizFailed": "{actor} 用完了测验的作答次数（{score}%）",
     "approvalRequested": "{actor} 请你审批此页面",
-    "approvalDecided": "{outcome, select, approved {已批准：{actor} 给出了最后一个所需的批准} other {{actor} 请求修改此页面}}"
+    "approvalDecided": "{outcome, select, approved {已批准：{actor} 给出了最后一个所需的批准} other {{actor} 请求修改此页面}}",
+    "bookingMade": "{name} 预约了 {date} 的时间"
   },
   "agentReply": {
     "aiOff": "我无法回答：此工作区已关闭 AI。",
@@ -411,5 +412,15 @@
     "note": "对方的原因：“{note}”",
     "answer": "请在你的 Leafdesk 收件箱中批准或拒绝。",
     "action": "打开智能体"
+  },
+  "bookingEvent": {
+    "by": "{name}（{email}）通过你的预约链接预约。",
+    "note": "备注：{note}"
+  },
+  "bookingConfirmation": {
+    "subject": "你的预约：与 {owner} 的{title}",
+    "heading": "预约成功",
+    "body": "{name}，你与 {owner} 的 {minutes} 分钟会议“{title}”已安排在 {when}。",
+    "hint": "如果这个时间不再合适，请告知 {owner}。"
   }
 }

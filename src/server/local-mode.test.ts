@@ -17,6 +17,7 @@ const { visibleSettingsTabs } = await import("@/lib/settings-tabs");
 const { AccessError } = await import("./access");
 const accessRequests = await import("./access-requests");
 const allowedDomains = await import("./allowed-domains");
+const booking = await import("./booking");
 const forms = await import("./forms");
 const groups = await import("./groups");
 const joinRequests = await import("./join-requests");
@@ -123,6 +124,12 @@ describe("in local mode nothing is public or open to others", () => {
     await expect(forms.submitPublicForm("a-token", { answers: {}, ticket: null } as never, { userId: null, ip: "127.0.0.1" })).rejects.toMatchObject({
       code: "closed",
     });
+  });
+
+  it("serves no booking link and takes no booking", async () => {
+    expect(await booking.getPublicBooking("a-token", { ip: "127.0.0.1" })).toBeNull();
+    const request = { start: 0, name: "Ayşe", email: "ayse@example.com", note: "", ticket: "" };
+    await expect(booking.bookSlot("a-token", request, { ip: "127.0.0.1", locale: "en" })).rejects.toMatchObject({ code: "closed" });
   });
 
   it("finds no invitation, join link or workspace to join, and lets nobody invite", async () => {

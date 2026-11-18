@@ -340,7 +340,8 @@
     "quizPassed": "{actor} прошёл(-ла) тест с результатом {score}%",
     "quizFailed": "{actor} исчерпал(а) попытки в тесте ({score}%)",
     "approvalRequested": "{actor} просит вас согласовать эту страницу",
-    "approvalDecided": "{outcome, select, approved {Согласовано: {actor} дал(а) последнее нужное согласование} other {{actor} запросил(а) изменения на этой странице}}"
+    "approvalDecided": "{outcome, select, approved {Согласовано: {actor} дал(а) последнее нужное согласование} other {{actor} запросил(а) изменения на этой странице}}",
+    "bookingMade": "{name} записался(-ась) на {date}"
   },
   "templates": {
     "title": "Шаблоны",

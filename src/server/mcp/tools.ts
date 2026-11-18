@@ -1850,6 +1850,8 @@ export function createMcpServer(principal: McpPrincipal, options: { actor?: Writ
                             ? `${who} asked the user to take the quiz on "${title}"${n.reminderDate ? ` by ${n.reminderDate}` : ""} (it is taken in the app)`
                           : n.kind === "quiz_finished"
                             ? `${who}, whom the user asked to take the quiz on "${title}", ${parseQuizNotice(n.automationMessage)?.passed === false ? "ran out of attempts" : "passed it"} with ${parseQuizNotice(n.automationMessage)?.score ?? 0}%`
+                          : n.kind === "booking_made"
+                            ? `${n.automationMessage || "Someone"} booked a time through the user's booking link${n.reminderDate ? ` on ${n.reminderDate}` : ""}; the booking is the row "${title}" in ${pageLabel(n.databaseTitle)}`
                           : n.kind === "follow_up"
                             ? `The follow-up "${n.followUp?.sequence ?? ""}" on "${title}" in ${pageLabel(n.databaseTitle)} is paused: its next email didn't pass the check (list_enrollments shows what it found; fix the row or the sequence, then resume it in the app)`
                           : n.kind === "row_email"
@@ -1976,6 +1978,31 @@ export function createMcpServer(principal: McpPrincipal, options: { actor?: Writ
       annotations: READ,
     },
     (args) => runTool(() => ops.listMeetingNotes(ctx, args)),
+  );
+
+  server.registerTool(
+    "find_free_time",
+    {
+      title: "Find free time",
+      description:
+        "Find when the user is free: the stretches inside their working days and hours (from, to, working_hours, weekdays, in time_zone) at least duration_minutes long that nothing on their calendar covers (events of the calendars synced into the workspace, meeting notes, time planned for tasks; all-day entries don't count). It returns times only, never what fills the rest. Use it before proposing a meeting time, then create_calendar_event.",
+      inputSchema: ops.inputs.findFreeTime,
+      annotations: READ,
+    },
+    (args) => runTool(() => ops.findFreeTime(ctx, args)),
+  );
+
+  server.registerTool(
+    "create_calendar_event",
+    {
+      title: "Create a calendar event",
+      description:
+        "Add an event to the user's Google Calendar, as a row of the synced calendar database in the workspace (only a calendar synced both ways takes events; the sync writes it to Google within a minute or so). It sends no invitations. Check the time with find_free_time first.",
+      inputSchema: ops.inputs.createCalendarEvent,
+      annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true },
+      scopeChallenge: requireWrite,
+    },
+    write((args) => ops.createCalendarEvent(ctx, args)),
   );
 
   server.registerTool(

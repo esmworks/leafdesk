@@ -2397,7 +2397,10 @@
     "quizFinishedChannel": "Quizresultat: {channel}",
     "approvalTitle": "Godkännanden",
     "approvalDescription": "Någon ber dig godkänna en sida, eller en av dina begäranden om godkännande avslutas.",
-    "approvalChannel": "Godkännanden: {channel}"
+    "approvalChannel": "Godkännanden: {channel}",
+    "bookingMadeTitle": "Bokningar",
+    "bookingMadeDescription": "Någon bokar en tid via en av dina bokningslänkar.",
+    "bookingMadeChannel": "Bokningar: {channel}"
   },
   "site": {
     "description": "Ge den här arbetsytans publicerade sidor en läsbar adress, en startsida och navigering mellan dem.",

@@ -324,7 +324,8 @@
     "quizPassed": "{actor}님이 퀴즈에 {score}%로 합격했습니다",
     "quizFailed": "{actor}님이 퀴즈 응시 기회를 모두 썼습니다({score}%)",
     "approvalRequested": "{actor}님이 이 페이지의 승인을 요청했습니다",
-    "approvalDecided": "{outcome, select, approved {승인됨: {actor}님이 마지막으로 필요한 승인을 했습니다} other {{actor}님이 이 페이지의 변경을 요청했습니다}}"
+    "approvalDecided": "{outcome, select, approved {승인됨: {actor}님이 마지막으로 필요한 승인을 했습니다} other {{actor}님이 이 페이지의 변경을 요청했습니다}}",
+    "bookingMade": "{name} 님이 {date}에 시간을 예약했습니다"
   },
   "agentReply": {
     "aiOff": "답할 수 없습니다: 이 워크스페이스에서 AI가 꺼져 있습니다.",
@@ -411,5 +412,15 @@
     "note": "요청 이유: “{note}”",
     "answer": "Leafdesk 받은 편지함에서 승인하거나 거절하세요.",
     "action": "에이전트 열기"
+  },
+  "bookingEvent": {
+    "by": "{name}({email}) 님이 예약 링크로 예약했습니다.",
+    "note": "메모: {note}"
+  },
+  "bookingConfirmation": {
+    "subject": "예약 확인: {owner} 님과 {title}",
+    "heading": "예약되었습니다",
+    "body": "{name} 님, {owner} 님과의 {minutes}분 미팅 “{title}”이(가) {when}에 잡혔습니다.",
+    "hint": "이 시간이 더 이상 맞지 않으면 {owner} 님에게 알려 주세요."
   }
 }

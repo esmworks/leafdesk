@@ -340,7 +340,8 @@
     "quizPassed": "{actor} hat das Quiz mit {score} % bestanden",
     "quizFailed": "{actor} hat keine Versuche mehr für das Quiz ({score} %)",
     "approvalRequested": "{actor} bittet dich, diese Seite freizugeben",
-    "approvalDecided": "{outcome, select, approved {Freigegeben: {actor} hat die letzte nötige Freigabe erteilt} other {{actor} hat Änderungen an dieser Seite angefordert}}"
+    "approvalDecided": "{outcome, select, approved {Freigegeben: {actor} hat die letzte nötige Freigabe erteilt} other {{actor} hat Änderungen an dieser Seite angefordert}}",
+    "bookingMade": "{name} hat eine Zeit am {date} gebucht"
   },
   "templates": {
     "title": "Vorlagen",

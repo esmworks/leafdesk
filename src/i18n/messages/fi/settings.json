@@ -2397,7 +2397,10 @@
     "quizFinishedChannel": "Tietovisojen tulokset: {channel}",
     "approvalTitle": "Hyväksynnät",
     "approvalDescription": "Joku pyytää sinua hyväksymään sivun, tai jokin hyväksyntäpyyntösi päättyy.",
-    "approvalChannel": "Hyväksynnät: {channel}"
+    "approvalChannel": "Hyväksynnät: {channel}",
+    "bookingMadeTitle": "Varaukset",
+    "bookingMadeDescription": "Joku varaa ajan yhden varauslinkkisi kautta.",
+    "bookingMadeChannel": "Varaukset: {channel}"
   },
   "site": {
     "description": "Anna tämän työtilan julkaistuille sivuille yksi helppolukuinen osoite, etusivu ja navigointi niiden välillä.",

@@ -324,7 +324,8 @@
     "quizPassed": "{actor} is geslaagd voor de quiz met {score}%",
     "quizFailed": "{actor} heeft geen pogingen meer voor de quiz ({score}%)",
     "approvalRequested": "{actor} vraagt je deze pagina goed te keuren",
-    "approvalDecided": "{outcome, select, approved {Goedgekeurd: {actor} gaf de laatste nodige goedkeuring} other {{actor} vroeg wijzigingen aan deze pagina}}"
+    "approvalDecided": "{outcome, select, approved {Goedgekeurd: {actor} gaf de laatste nodige goedkeuring} other {{actor} vroeg wijzigingen aan deze pagina}}",
+    "bookingMade": "{name} heeft een tijd geboekt op {date}"
   },
   "agentReply": {
     "aiOff": "Ik kan niet antwoorden: AI staat uit in deze werkruimte.",
@@ -411,5 +412,15 @@
     "note": "De reden: “{note}”",
     "answer": "Keur het goed of wijs het af in je Leafdesk-inbox.",
     "action": "De agent openen"
+  },
+  "bookingEvent": {
+    "by": "Geboekt via je boekingslink door {name} ({email}).",
+    "note": "Notitie: {note}"
+  },
+  "bookingConfirmation": {
+    "subject": "Je boeking: {title} met {owner}",
+    "heading": "Je staat ingepland",
+    "body": "Hallo {name}, je afspraak van {minutes} minuten “{title}” met {owner} staat gepland op {when}.",
+    "hint": "Past deze tijd niet meer, laat het {owner} dan weten."
   }
 }

@@ -586,6 +586,20 @@ export function agentLimitRequestEmail(
   });
 }
 
+/** To a visitor who booked a time through a booking link (server/booking.ts): the time, in the link's time zone. */
+export function bookingConfirmationEmail(
+  locale: Locale,
+  booking: { name: string; title: string; owner: string; when: string; minutes: number },
+): RenderedEmail {
+  const t = emailTranslator(locale);
+  const names = { name: booking.name, title: booking.title, owner: booking.owner, when: booking.when, minutes: booking.minutes };
+  return renderEmail(locale, {
+    subject: t("bookingConfirmation.subject", names),
+    heading: t("bookingConfirmation.heading", names),
+    paragraphs: [t("bookingConfirmation.body", names), t("bookingConfirmation.hint", names)],
+  });
+}
+
 /** The link that proves an address belongs to its account (Better Auth's email verification). */
 export function verificationEmail(locale: Locale, verification: { name: string; url: string }): RenderedEmail {
   const t = emailTranslator(locale);

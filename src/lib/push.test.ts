@@ -106,6 +106,7 @@ const texts: Record<string, string> = {
   quizAssignedDue: "{actor} asked you to take the quiz by {date}",
   quizPassed: "{actor} passed the quiz with {score}%",
   quizFailed: "{actor} ran out of attempts at the quiz ({score}%)",
+  bookingMade: "{name} booked a time on {date}",
 };
 const t = (key: string, values: Record<string, string | number> = {}) => texts[key].replace(/\{(\w+)\}/g, (_, name: string) => String(values[name] ?? ""));
 const date = (iso: string) => `on ${iso}`;
@@ -152,6 +153,7 @@ describe("pushPayload", () => {
     expect(pushPayload(item({ kind: "quiz_assigned", reminderDate: "2026-11-20" }), t, date)?.body).toBe("Ayşe asked you to take the quiz by on 2026-11-20");
     expect(pushPayload(item({ kind: "quiz_finished", automationMessage: "passed:90" }), t, date)?.body).toBe("Ayşe passed the quiz with 90%");
     expect(pushPayload(item({ kind: "quiz_finished", automationMessage: "failed:40" }), t, date)?.body).toBe("Ayşe ran out of attempts at the quiz (40%)");
+    expect(pushPayload(item({ kind: "booking_made", automationMessage: "Can", reminderDate: "2026-12-01" }), t, date)?.body).toBe("Can booked a time on on 2026-12-01");
   });
 
   it("says who reacted with what, not the comment, and opens its thread", () => {

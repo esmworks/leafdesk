@@ -2397,7 +2397,10 @@
     "quizFinishedChannel": "Quiz results: {channel}",
     "approvalTitle": "Approvals",
     "approvalDescription": "Someone asks you to approve a page, or a request of yours to approve one ends.",
-    "approvalChannel": "Approvals: {channel}"
+    "approvalChannel": "Approvals: {channel}",
+    "bookingMadeTitle": "Bookings",
+    "bookingMadeDescription": "Someone books a time through one of your booking links.",
+    "bookingMadeChannel": "Bookings: {channel}"
   },
   "site": {
     "description": "Give this workspace's published pages one readable address, a home page and navigation between them.",

@@ -2397,7 +2397,10 @@
     "quizFinishedChannel": "תוצאות בחנים: {channel}",
     "approvalTitle": "אישורים",
     "approvalDescription": "מישהו מבקש שתאשרו דף, או שבקשת אישור שלכם הסתיימה.",
-    "approvalChannel": "אישורים: {channel}"
+    "approvalChannel": "אישורים: {channel}",
+    "bookingMadeTitle": "הזמנות",
+    "bookingMadeDescription": "מישהו מזמין זמן דרך אחד מקישורי ההזמנה שלכם.",
+    "bookingMadeChannel": "הזמנות: {channel}"
   },
   "site": {
     "description": "כתובת קריאה אחת לדפים המפורסמים של סביבת העבודה הזו, עם דף בית וניווט ביניהם.",
