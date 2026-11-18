@@ -849,7 +849,8 @@ latter assigned (`@Name:`) when they name an attendee or a named speaker; AI rea
 with the speakers' names, so a task is given to whoever took it on (name the speakers, then
 *Regenerate summary*). *Add as to-dos* puts the open action items on the page as to-dos, each
 mentioning the member it names (attendees, and speakers named after members; a name that matches no
-one, or two people, stays plain text before the task). Each point ends with the moment it comes from;
+one, or two people, stays plain text before the task); clicking it again adds only the items not on
+the page yet. Each point ends with the moment it comes from;
 clicking it opens the transcript there. The points can be edited, action items ticked, and
 *Regenerate summary* writes them again from the transcript. A long transcript is summarized in
 parts and the parts merged; each part is one AI request, and the transcription of each piece is one

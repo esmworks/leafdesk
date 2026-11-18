@@ -114,7 +114,10 @@ async function updateMeeting(
 
 /** The meeting block's props as they are now, or "notFound". */
 async function readMeeting(pageId: string, meetingId: string): Promise<MeetingProps> {
-  const { blocks } = await getCollab().readBlocks(pageId);
+  return meetingIn((await getCollab().readBlocks(pageId)).blocks, meetingId);
+}
+
+function meetingIn(blocks: unknown[], meetingId: string): MeetingProps {
   const walk = (list: unknown[]): Record<string, unknown> | null => {
     for (const block of list as { type?: string; props?: Record<string, unknown>; children?: unknown[] }[]) {
       if (block.type === MEETING_BLOCK && block.props?.meetingId === meetingId) return block.props;
@@ -387,10 +390,15 @@ async function summarizeMeeting(userId: string, pageId: string, meetingId: strin
  */
 export async function addMeetingTodos(userId: string, pageId: string, meetingId: string): Promise<{ count: number }> {
   await meetingPage(userId, pageId);
-  const props = await readMeeting(pageId, meetingId);
+  const { blocks: onPage } = await getCollab().readBlocks(pageId);
+  const props = meetingIn(onPage, meetingId);
   const people = knownPeople(props);
-  const items = parseTakeaways(props.actions).filter((item) => !item.done);
-  if (!items.length) throw new MeetingError("invalid", "There are no action items to add");
+  const open = parseTakeaways(props.actions).filter((item) => !item.done);
+  if (!open.length) throw new MeetingError("invalid", "There are no action items to add");
+  // Clicking again adds only the items not on the page yet (ticked or not): a to-do ending in an item's words is it.
+  const todos = todoTexts(onPage);
+  const items = open.filter((item) => !todos.some((text) => text.endsWith(fold(item.text))));
+  if (!items.length) return { count: 0 };
   const blocks = items.map((item) => {
     const who = item.assignee ? matchPerson(item.assignee, people) : null;
     const lead = who
@@ -402,6 +410,23 @@ export async function addMeetingTodos(userId: string, pageId: string, meetingId:
   });
   await getCollab().appendBlocks(pageId, blocks, { userId }, true);
   return { count: blocks.length };
+}
+
+const fold = (text: string) => text.replace(/\s+/g, " ").trim();
+
+/** The text of every to-do on the page, inline text joined, spaces folded. */
+function todoTexts(blocks: unknown[]): string[] {
+  const out: string[] = [];
+  const walk = (list: unknown[]) => {
+    for (const block of list as { type?: string; content?: unknown; children?: unknown[] }[]) {
+      if (block.type === TODO_BLOCK && Array.isArray(block.content)) {
+        out.push(fold((block.content as { text?: unknown }[]).map((c) => (typeof c.text === "string" ? c.text : "")).join("")));
+      }
+      if (block.children?.length) walk(block.children);
+    }
+  };
+  walk(blocks);
+  return out;
 }
 
 /**

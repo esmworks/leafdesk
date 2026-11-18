@@ -132,6 +132,24 @@ describe("meeting to-dos", () => {
     expect(blocks[1].content[0].text).toBe("Zeynep: ");
     expect(blocks[2].content).toHaveLength(1);
   });
+
+  it("adds only the action items not on the page yet when clicked again", async () => {
+    const appended: unknown[][] = [];
+    const todo = (text: string, checked = false) => ({ type: "checkListItem", props: { checked }, content: [{ type: "mention", props: {} }, { type: "text", text }] });
+    vi.mocked(requirePageAccess).mockResolvedValue({ archivedAt: null, kind: "page", workspaceId: "w1" } as never);
+    vi.mocked(getCollab).mockReturnValue({
+      readBlocks: async () => ({
+        blocks: [
+          { type: "meeting", props: { meetingId: "m1", actions: ["- [ ] @Ayşe: Tell the customer", "- [ ] Send notes", "- [ ] Book the room"].join("\n") } },
+          todo(" Tell  the customer", true),
+          { type: "paragraph", children: [todo("Send notes")] },
+        ],
+      }),
+      appendBlocks: async (_page: string, blocks: unknown[]) => void appended.push(blocks),
+    } as never);
+    expect(await addMeetingTodos("u1", "p1", "m1")).toEqual({ count: 1 });
+    expect((appended[0] as { content: { text?: string }[] }[])[0].content.at(-1)?.text).toBe("Book the room");
+  });
 });
 
 import { meetingProps } from "@/lib/meetings";

@@ -262,6 +262,8 @@ try {
   check(callPrompt.includes("Owner: Okay everyone") && callPrompt.includes("Others: Ayşe will tell") && callPrompt.includes("Ayşe Yılmaz: Ayşe will tell the customer") && callPrompt.includes("Speaker 2: by Friday."), "the AI read who said what, with the names people gave", callPrompt);
   const todos = await meetings.addMeetingTodos(ids.owner, callPage, call!.meetingId);
   check(todos.count === 1, "the open action item is added to the page as a to-do", todos);
+  const todosAgain = await meetings.addMeetingTodos(ids.owner, callPage, call!.meetingId);
+  check(todosAgain.count === 0, "…and clicking again adds nothing twice", todosAgain);
   const [afterTodos] = await db.select({ markdown: page.contentMarkdown }).from(page).where(eq(page.id, callPage));
   check(afterTodos.markdown.includes("Tell the customer by Friday") && afterTodos.markdown.includes("- [00:00] Owner: Okay everyone"), "…and the Markdown names the speakers", afterTodos.markdown);
   const { blocks: callBlocks } = await getCollab().readBlocks(callPage);
