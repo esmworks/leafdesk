@@ -111,7 +111,9 @@
     "nameLabel": "ワークスペース名",
     "ownersOnly": "ワークスペースの名前を変更できるのはオーナーだけです。",
     "description": "このワークスペースの名前と基本設定です。",
-    "nameDescription": "サイドバー、招待、メールに表示されます。"
+    "nameDescription": "サイドバー、招待、メールに表示されます。",
+    "idLabel": "ワークスペースID",
+    "idDescription": "ワークスペースをIDで指定する REST API、MCP、スクリプト用です。"
   },
   "export": {
     "heading": "エクスポート",

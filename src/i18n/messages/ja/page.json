@@ -95,7 +95,8 @@
     "watchHint": "ほかの人がこのページを編集したり、コメントスレッドを始めたりすると受信トレイに通知します。",
     "mute": "ミュート",
     "muteHint": "ほかの人がこのページを編集したり、コメントスレッドを始めたりすると受信トレイに通知されます。止めるにはミュートしてください。",
-    "editMarkdown": "Markdownとして編集"
+    "editMarkdown": "Markdownとして編集",
+    "idCopied": "IDをコピーしました"
   },
   "comments": {
     "aboutPage": "このページについて",
@@ -865,7 +866,8 @@
     "openInNewTab": "新しいタブで開く",
     "quoteSize": "引用のサイズ",
     "quoteSizeDefault": "標準",
-    "quoteSizeLarge": "大"
+    "quoteSizeLarge": "大",
+    "copyId": "ブロックIDをコピー"
   },
   "imageLink": {
     "menuItem": "リンク…",

@@ -44,7 +44,9 @@
     "removePicture": "Poista",
     "uploading": "Ladataan…",
     "name": "Nimi",
-    "nameHelp": "Koko nimesi tai nimi, jolla tiimisi tuntee sinut."
+    "nameHelp": "Koko nimesi tai nimi, jolla tiimisi tuntee sinut.",
+    "idLabel": "Käyttäjätunnus (ID)",
+    "idDescription": "Tunnuksesi REST API:ssa ja MCP:ssä, jossa ihmiset nimetään sillä."
   },
   "email": {
     "heading": "Sähköposti",

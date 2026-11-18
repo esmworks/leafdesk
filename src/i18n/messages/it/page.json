@@ -95,7 +95,8 @@
     "watchHint": "Ricevi un avviso nella posta in arrivo quando qualcun altro modifica questa pagina o vi avvia una discussione.",
     "mute": "Silenzia",
     "muteHint": "Ricevi un avviso nella posta in arrivo quando qualcun altro modifica questa pagina o vi avvia una discussione. Silenziala per smettere.",
-    "editMarkdown": "Modifica come Markdown"
+    "editMarkdown": "Modifica come Markdown",
+    "idCopied": "ID copiato"
   },
   "comments": {
     "aboutPage": "Su questa pagina",
@@ -865,7 +866,8 @@
     "openInNewTab": "Apri in una nuova scheda",
     "quoteSize": "Dimensione della citazione",
     "quoteSizeDefault": "Predefinita",
-    "quoteSizeLarge": "Grande"
+    "quoteSizeLarge": "Grande",
+    "copyId": "Copia ID del blocco"
   },
   "imageLink": {
     "menuItem": "Link…",

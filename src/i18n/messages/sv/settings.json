@@ -111,7 +111,9 @@
     "nameLabel": "Arbetsytans namn",
     "ownersOnly": "Bara ägare kan byta namn på arbetsytan.",
     "description": "Den här arbetsytans namn och grundläggande inställningar.",
-    "nameDescription": "Visas i sidofältet, i inbjudningar och i e-postmeddelanden."
+    "nameDescription": "Visas i sidofältet, i inbjudningar och i e-postmeddelanden.",
+    "idLabel": "Arbetsyte-ID",
+    "idDescription": "För REST-API:et, MCP och skript, som anger en arbetsyta med dess ID."
   },
   "export": {
     "heading": "Export",

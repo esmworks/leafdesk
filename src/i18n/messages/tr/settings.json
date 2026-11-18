@@ -111,7 +111,9 @@
     "nameLabel": "Çalışma alanı adı",
     "ownersOnly": "Çalışma alanını yalnızca sahipler yeniden adlandırabilir.",
     "description": "Bu çalışma alanının adı ve temel ayarları.",
-    "nameDescription": "Kenar çubuğunda, davetlerde ve e-postalarda görünür."
+    "nameDescription": "Kenar çubuğunda, davetlerde ve e-postalarda görünür.",
+    "idLabel": "Çalışma alanı kimliği",
+    "idDescription": "Bir çalışma alanını kimliğiyle belirten REST API, MCP ve betikler için."
   },
   "export": {
     "heading": "Dışa aktarma",

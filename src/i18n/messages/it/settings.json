@@ -111,7 +111,9 @@
     "nameLabel": "Nome dello spazio di lavoro",
     "ownersOnly": "Solo i proprietari possono rinominare lo spazio di lavoro.",
     "description": "Il nome e le impostazioni di base di questo spazio di lavoro.",
-    "nameDescription": "Appare nella barra laterale, negli inviti e nelle email."
+    "nameDescription": "Appare nella barra laterale, negli inviti e nelle email.",
+    "idLabel": "ID dello spazio di lavoro",
+    "idDescription": "Per l'API REST, MCP e gli script, che indicano uno spazio di lavoro con il suo ID."
   },
   "export": {
     "heading": "Esportazione",

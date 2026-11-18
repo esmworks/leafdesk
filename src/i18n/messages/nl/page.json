@@ -95,7 +95,8 @@
     "watchHint": "Krijg een melding in je inbox als iemand anders deze pagina bewerkt of er een discussie op begint.",
     "mute": "Dempen",
     "muteHint": "Je krijgt een melding in je inbox als iemand anders deze pagina bewerkt of er een discussie op begint. Demp de pagina om dat te stoppen.",
-    "editMarkdown": "Bewerken als Markdown"
+    "editMarkdown": "Bewerken als Markdown",
+    "idCopied": "ID gekopieerd"
   },
   "comments": {
     "aboutPage": "Over deze pagina",
@@ -865,7 +866,8 @@
     "openInNewTab": "Openen in nieuw tabblad",
     "quoteSize": "Citaatgrootte",
     "quoteSizeDefault": "Standaard",
-    "quoteSizeLarge": "Groot"
+    "quoteSizeLarge": "Groot",
+    "copyId": "Blok-ID kopiëren"
   },
   "imageLink": {
     "menuItem": "Link…",

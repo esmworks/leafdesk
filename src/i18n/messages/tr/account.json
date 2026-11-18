@@ -44,7 +44,9 @@
     "removePicture": "Kaldır",
     "uploading": "Yükleniyor…",
     "name": "Ad",
-    "nameHelp": "Tam adınız veya ekibinizin sizi tanıdığı ad."
+    "nameHelp": "Tam adınız veya ekibinizin sizi tanıdığı ad.",
+    "idLabel": "Kullanıcı kimliği",
+    "idDescription": "REST API ve MCP için kimliğin; kişiler orada bununla belirtilir."
   },
   "email": {
     "heading": "E-posta",

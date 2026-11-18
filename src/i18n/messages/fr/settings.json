@@ -111,7 +111,9 @@
     "nameLabel": "Nom de l’espace de travail",
     "ownersOnly": "Seuls les propriétaires peuvent renommer l’espace de travail.",
     "description": "Le nom et les paramètres de base de cet espace de travail.",
-    "nameDescription": "Affiché dans la barre latérale, dans les invitations et dans les e-mails."
+    "nameDescription": "Affiché dans la barre latérale, dans les invitations et dans les e-mails.",
+    "idLabel": "ID de l'espace de travail",
+    "idDescription": "Pour l'API REST, MCP et les scripts, qui désignent un espace de travail par son ID."
   },
   "export": {
     "heading": "Exporter",

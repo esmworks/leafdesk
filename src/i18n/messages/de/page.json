@@ -95,7 +95,8 @@
     "watchHint": "Erfahre in deinem Posteingang, wenn jemand anderes diese Seite bearbeitet oder einen Kommentar-Thread darauf beginnt.",
     "mute": "Stummschalten",
     "muteHint": "Du erfährst in deinem Posteingang, wenn jemand anderes diese Seite bearbeitet oder einen Kommentar-Thread darauf beginnt. Schalte sie stumm, um das zu beenden.",
-    "editMarkdown": "Als Markdown bearbeiten"
+    "editMarkdown": "Als Markdown bearbeiten",
+    "idCopied": "ID kopiert"
   },
   "comments": {
     "aboutPage": "Zu dieser Seite",
@@ -865,7 +866,8 @@
     "openInNewTab": "In neuem Tab öffnen",
     "quoteSize": "Zitatgröße",
     "quoteSizeDefault": "Standard",
-    "quoteSizeLarge": "Groß"
+    "quoteSizeLarge": "Groß",
+    "copyId": "Block-ID kopieren"
   },
   "imageLink": {
     "menuItem": "Link…",

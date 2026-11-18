@@ -23,6 +23,7 @@ import type { Metadata } from "next";
 import dynamic from "next/dynamic";
 import { notFound, redirect } from "next/navigation";
 import { getLocale, getTimeZone, getTranslations } from "next-intl/server";
+import { IdRow } from "@/components/settings/id-row";
 import { ACCOUNT_ICONS, AccountTabContent } from "@/components/account/account-tabs";
 import { AgentsPanel } from "@/components/settings/agents-panel";
 import { AnalyticsPanel } from "@/components/settings/analytics-panel";
@@ -266,6 +267,7 @@ export default async function SettingsPage({
               <SettingsHeader title={t("nav.general")} description={t("workspace.description")} />
               <SettingsGroup anchor="workspaceName" title={t("workspace.heading")}>
                 <WorkspaceNameForm workspaceId={workspaceId} name={workspace.name} canEdit={isOwner} />
+                <IdRow title={t("workspace.idLabel")} description={t("workspace.idDescription")} value={workspaceId} />
                 {/* Guests can't open the members list, where everyone else leaves from. */}
                 {guest && <LeaveWorkspaceRow workspaceId={workspaceId} userId={user.id} />}
               </SettingsGroup>

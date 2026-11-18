@@ -95,7 +95,8 @@
     "watchHint": "Soyez averti dans votre boîte de réception quand quelqu’un d’autre modifie cette page ou y lance un fil de commentaires.",
     "mute": "Mettre en sourdine",
     "muteHint": "Vous êtes averti dans votre boîte de réception quand quelqu’un d’autre modifie cette page ou y lance un fil de commentaires. Mettez-la en sourdine pour arrêter.",
-    "editMarkdown": "Modifier en Markdown"
+    "editMarkdown": "Modifier en Markdown",
+    "idCopied": "ID copié"
   },
   "comments": {
     "aboutPage": "À propos de cette page",
@@ -865,7 +866,8 @@
     "openInNewTab": "Ouvrir dans un nouvel onglet",
     "quoteSize": "Taille de la citation",
     "quoteSizeDefault": "Par défaut",
-    "quoteSizeLarge": "Grande"
+    "quoteSizeLarge": "Grande",
+    "copyId": "Copier l'ID du bloc"
   },
   "imageLink": {
     "menuItem": "Lien…",

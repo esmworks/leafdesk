@@ -95,7 +95,8 @@
     "watchHint": "Saiba na sua caixa de entrada quando outra pessoa editar esta página ou iniciar uma conversa de comentários nela.",
     "mute": "Silenciar",
     "muteHint": "Você fica sabendo na sua caixa de entrada quando outra pessoa edita esta página ou inicia uma conversa de comentários nela. Silencie para parar.",
-    "editMarkdown": "Editar como Markdown"
+    "editMarkdown": "Editar como Markdown",
+    "idCopied": "ID copiado"
   },
   "comments": {
     "aboutPage": "Sobre esta página",
@@ -865,7 +866,8 @@
     "openInNewTab": "Abrir em nova aba",
     "quoteSize": "Tamanho da citação",
     "quoteSizeDefault": "Padrão",
-    "quoteSizeLarge": "Grande"
+    "quoteSizeLarge": "Grande",
+    "copyId": "Copiar ID do bloco"
   },
   "imageLink": {
     "menuItem": "Link…",

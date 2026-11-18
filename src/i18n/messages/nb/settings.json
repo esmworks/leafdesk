@@ -111,7 +111,9 @@
     "nameLabel": "Navn på arbeidsområdet",
     "ownersOnly": "Bare eiere kan gi arbeidsområdet nytt navn.",
     "description": "Navnet og de grunnleggende innstillingene for dette arbeidsområdet.",
-    "nameDescription": "Vises i sidepanelet, i invitasjoner og i e-poster."
+    "nameDescription": "Vises i sidepanelet, i invitasjoner og i e-poster.",
+    "idLabel": "Arbeidsområde-ID",
+    "idDescription": "For REST-API-et, MCP og skript, som angir et arbeidsområde med ID-en."
   },
   "export": {
     "heading": "Eksport",

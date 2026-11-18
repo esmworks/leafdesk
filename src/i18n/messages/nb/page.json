@@ -95,7 +95,8 @@
     "watchHint": "Få beskjed i innboksen når noen andre redigerer denne siden eller starter en kommentartråd på den.",
     "mute": "Demp",
     "muteHint": "Du får beskjed i innboksen når noen andre redigerer denne siden eller starter en kommentartråd på den. Demp for å stoppe.",
-    "editMarkdown": "Rediger som Markdown"
+    "editMarkdown": "Rediger som Markdown",
+    "idCopied": "ID kopiert"
   },
   "comments": {
     "aboutPage": "Om denne siden",
@@ -865,7 +866,8 @@
     "openInNewTab": "Åpne i ny fane",
     "quoteSize": "Sitatstørrelse",
     "quoteSizeDefault": "Standard",
-    "quoteSizeLarge": "Stor"
+    "quoteSizeLarge": "Stor",
+    "copyId": "Kopier blokk-ID"
   },
   "imageLink": {
     "menuItem": "Lenke…",

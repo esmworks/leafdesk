@@ -44,7 +44,9 @@
     "removePicture": "Usuń",
     "uploading": "Przesyłanie…",
     "name": "Imię i nazwisko",
-    "nameHelp": "Twoje imię i nazwisko lub nazwa, pod którą zna cię zespół."
+    "nameHelp": "Twoje imię i nazwisko lub nazwa, pod którą zna cię zespół.",
+    "idLabel": "ID użytkownika",
+    "idDescription": "Twoje ID dla REST API i MCP, gdzie osoby wskazuje się za jego pomocą."
   },
   "email": {
     "heading": "E-mail",

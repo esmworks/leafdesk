@@ -44,7 +44,9 @@
     "removePicture": "Hapus",
     "uploading": "Mengunggah…",
     "name": "Nama",
-    "nameHelp": "Nama lengkap Anda atau nama yang dikenal tim Anda."
+    "nameHelp": "Nama lengkap Anda atau nama yang dikenal tim Anda.",
+    "idLabel": "ID pengguna",
+    "idDescription": "ID Anda untuk REST API dan MCP, tempat orang dirujuk dengannya."
   },
   "email": {
     "heading": "Email",

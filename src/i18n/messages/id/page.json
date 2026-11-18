@@ -95,7 +95,8 @@
     "watchHint": "Dapatkan kabar di kotak masuk saat orang lain mengedit halaman ini atau memulai utas komentar di dalamnya.",
     "mute": "Bisukan",
     "muteHint": "Anda mendapat kabar di kotak masuk saat orang lain mengedit halaman ini atau memulai utas komentar di dalamnya. Bisukan untuk berhenti.",
-    "editMarkdown": "Edit sebagai Markdown"
+    "editMarkdown": "Edit sebagai Markdown",
+    "idCopied": "ID disalin"
   },
   "comments": {
     "aboutPage": "Tentang halaman ini",
@@ -865,7 +866,8 @@
     "openInNewTab": "Buka di tab baru",
     "quoteSize": "Ukuran kutipan",
     "quoteSizeDefault": "Bawaan",
-    "quoteSizeLarge": "Besar"
+    "quoteSizeLarge": "Besar",
+    "copyId": "Salin ID blok"
   },
   "imageLink": {
     "menuItem": "Tautan…",

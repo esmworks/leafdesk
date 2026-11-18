@@ -6,6 +6,7 @@ import { AccountEmailSettings } from "@/components/account/email-settings";
 import { AboutLeafdesk } from "@/components/account/about";
 import { DeleteAccountSettings } from "@/components/account/delete-account";
 import { PasswordSettings } from "@/components/account/password-settings";
+import { IdRow } from "@/components/settings/id-row";
 import { ProfileSettings } from "@/components/account/profile-settings";
 import { PhoneSignIn } from "@/components/account/phone-sign-in";
 import { SessionList } from "@/components/account/session-list";
@@ -160,6 +161,7 @@ async function ProfileTab({ session }: { session: Session }) {
       <div className="space-y-10">
         <SettingsGroup anchor="profile" title={t("profile.heading")}>
           <ProfileSettings name={overview.name} image={overview.image} />
+          <IdRow title={t("profile.idLabel")} description={t("profile.idDescription")} value={session.user.id} />
         </SettingsGroup>
         {/* On one computer the account's address is the app's own and reaches nobody: nothing to change or verify. */}
         {!env.localMode && (

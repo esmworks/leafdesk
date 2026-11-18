@@ -95,7 +95,8 @@
     "watchHint": "Få besked i din indbakke, når en anden redigerer denne side eller starter en kommentartråd på den.",
     "mute": "Slå lyden fra",
     "muteHint": "Du får besked i din indbakke, når en anden redigerer denne side eller starter en kommentartråd på den. Slå lyden fra for at stoppe.",
-    "editMarkdown": "Redigér som Markdown"
+    "editMarkdown": "Redigér som Markdown",
+    "idCopied": "ID kopieret"
   },
   "comments": {
     "aboutPage": "Om denne side",
@@ -865,7 +866,8 @@
     "openInNewTab": "Åbn i ny fane",
     "quoteSize": "Citatstørrelse",
     "quoteSizeDefault": "Standard",
-    "quoteSizeLarge": "Stor"
+    "quoteSizeLarge": "Stor",
+    "copyId": "Kopiér blok-ID"
   },
   "imageLink": {
     "menuItem": "Link…",

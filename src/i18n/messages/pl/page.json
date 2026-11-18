@@ -95,7 +95,8 @@
     "watchHint": "Dowiaduj się w skrzynce odbiorczej, gdy ktoś inny edytuje tę stronę lub rozpocznie na niej wątek komentarzy.",
     "mute": "Wycisz",
     "muteHint": "Dowiadujesz się w skrzynce odbiorczej, gdy ktoś inny edytuje tę stronę lub rozpocznie na niej wątek komentarzy. Wycisz ją, aby przestać.",
-    "editMarkdown": "Edytuj jako Markdown"
+    "editMarkdown": "Edytuj jako Markdown",
+    "idCopied": "Skopiowano ID"
   },
   "comments": {
     "aboutPage": "O tej stronie",
@@ -865,7 +866,8 @@
     "openInNewTab": "Otwórz w nowej karcie",
     "quoteSize": "Rozmiar cytatu",
     "quoteSizeDefault": "Domyślny",
-    "quoteSizeLarge": "Duży"
+    "quoteSizeLarge": "Duży",
+    "copyId": "Kopiuj ID bloku"
   },
   "imageLink": {
     "menuItem": "Link…",

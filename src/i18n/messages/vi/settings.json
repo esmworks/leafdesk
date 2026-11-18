@@ -111,7 +111,9 @@
     "nameLabel": "Tên không gian làm việc",
     "ownersOnly": "Chỉ chủ sở hữu mới có thể đổi tên không gian làm việc.",
     "description": "Tên và các cài đặt cơ bản của không gian làm việc này.",
-    "nameDescription": "Hiển thị trên thanh bên, trong lời mời và trong email."
+    "nameDescription": "Hiển thị trên thanh bên, trong lời mời và trong email.",
+    "idLabel": "ID không gian làm việc",
+    "idDescription": "Dành cho REST API, MCP và script, vốn chỉ định không gian làm việc bằng ID."
   },
   "export": {
     "heading": "Xuất",

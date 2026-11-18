@@ -47,7 +47,9 @@ get the scopes chosen, like a new token. The scopes are the REST API's own: thos
 unchanged.
 
 The ids the API takes are in the app too: *Copy ID* in a page's, database's or row's menu (under *More actions*), and
-*Copy property ID* in a column's menu (under *More settings*) (properties are also taken by name).
+*Copy property ID* in a column's menu (under *More settings*) (properties are also taken by name), *Copy block ID* in a
+block's side menu (the `block_id` of `PATCH /pages/{id}`), the workspace's ID under Settings > General > Workspace and your
+own user ID under Account > Profile, each with a copy button.
 
 ```bash
 curl http://localhost:3000/api/v1/workspaces -H "Authorization: Bearer $LEAFDESK_TOKEN"

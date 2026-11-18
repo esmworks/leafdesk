@@ -111,7 +111,9 @@
     "nameLabel": "Naam van de werkruimte",
     "ownersOnly": "Alleen eigenaren kunnen de werkruimte hernoemen.",
     "description": "De naam en basisinstellingen van deze werkruimte.",
-    "nameDescription": "Wordt getoond in de zijbalk, in uitnodigingen en in e-mails."
+    "nameDescription": "Wordt getoond in de zijbalk, in uitnodigingen en in e-mails.",
+    "idLabel": "Werkruimte-ID",
+    "idDescription": "Voor de REST API, MCP en scripts, die een werkruimte met zijn ID aanduiden."
   },
   "export": {
     "heading": "Exporteren",

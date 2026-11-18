@@ -4,6 +4,9 @@
 
 ### Added
 
+- **Copy IDs for the REST API and MCP.** A block's side menu has *Copy block ID*, Settings > General
+  shows the workspace's ID and Account > Profile your user ID, each with a copy button (pages,
+  databases, rows and properties already had theirs).
 - **Suggest skills from your own work.** *Suggest skills* in the library's Skills tab (where AI is
   on) has the fast model read your own AI chat questions of the last 60 days and the titles of the
   pages you edited, framed as outside data, and propose 3 to 5 skills, each with a name, when to use

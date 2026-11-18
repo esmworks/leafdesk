@@ -44,7 +44,9 @@
     "removePicture": "Verwijderen",
     "uploading": "Uploaden…",
     "name": "Naam",
-    "nameHelp": "Je volledige naam of de naam waaronder je team je kent."
+    "nameHelp": "Je volledige naam of de naam waaronder je team je kent.",
+    "idLabel": "Gebruikers-ID",
+    "idDescription": "Je ID voor de REST API en MCP, waar mensen ermee worden aangeduid."
   },
   "email": {
     "heading": "E-mail",

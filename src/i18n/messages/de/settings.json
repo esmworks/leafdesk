@@ -111,7 +111,9 @@
     "nameLabel": "Name des Workspace",
     "ownersOnly": "Nur Inhaber können den Workspace umbenennen.",
     "description": "Der Name und die grundlegenden Einstellungen dieses Workspace.",
-    "nameDescription": "Wird in der Seitenleiste, in Einladungen und in E-Mails angezeigt."
+    "nameDescription": "Wird in der Seitenleiste, in Einladungen und in E-Mails angezeigt.",
+    "idLabel": "Workspace-ID",
+    "idDescription": "Für die REST-API, MCP und Skripte, die einen Workspace über seine ID ansprechen."
   },
   "export": {
     "heading": "Export",

@@ -44,7 +44,9 @@
     "removePicture": "Rimuovi",
     "uploading": "Caricamento…",
     "name": "Nome",
-    "nameHelp": "Il tuo nome completo o il nome con cui ti conosce il tuo team."
+    "nameHelp": "Il tuo nome completo o il nome con cui ti conosce il tuo team.",
+    "idLabel": "ID utente",
+    "idDescription": "Il tuo ID per l'API REST e MCP, dove le persone sono indicate con esso."
   },
   "email": {
     "heading": "Email",

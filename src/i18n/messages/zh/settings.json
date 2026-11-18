@@ -111,7 +111,9 @@
     "nameLabel": "工作区名称",
     "ownersOnly": "只有所有者可以重命名工作区。",
     "description": "此工作区的名称和基本设置。",
-    "nameDescription": "显示在侧边栏、邀请和邮件中。"
+    "nameDescription": "显示在侧边栏、邀请和邮件中。",
+    "idLabel": "工作区 ID",
+    "idDescription": "供 REST API、MCP 和脚本使用，它们通过 ID 指定工作区。"
   },
   "export": {
     "heading": "导出",

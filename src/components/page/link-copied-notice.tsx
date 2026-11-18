@@ -15,8 +15,12 @@ const SHOWN_MS = 1800;
 export function LinkCopiedNotice() {
   const t = useTranslations("page.header");
   const [shown, setShown] = useState(0);
+  const [what, setWhat] = useState<"link" | "id">("link");
   useEffect(() => {
-    const onCopied = () => setShown((n) => n + 1);
+    const onCopied = (e: Event) => {
+      setWhat((e as CustomEvent).detail === "id" ? "id" : "link");
+      setShown((n) => n + 1);
+    };
     window.addEventListener(BLOCK_LINK_COPIED_EVENT, onCopied);
     return () => window.removeEventListener(BLOCK_LINK_COPIED_EVENT, onCopied);
   }, []);
@@ -30,7 +34,7 @@ export function LinkCopiedNotice() {
       {shown > 0 && (
         <span className="flex items-center gap-1.5 rounded-md border border-border bg-bg px-3 py-1.5 text-sm text-fg shadow-lg">
           <Check className="h-4 w-4 text-accent" aria-hidden />
-          {t("linkCopied")}
+          {what === "id" ? t("idCopied") : t("linkCopied")}
         </span>
       )}
     </div>

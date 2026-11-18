@@ -111,7 +111,9 @@
     "nameLabel": "Työtilan nimi",
     "ownersOnly": "Vain omistajat voivat nimetä työtilan uudelleen.",
     "description": "Tämän työtilan nimi ja perusasetukset.",
-    "nameDescription": "Näkyy sivupalkissa, kutsuissa ja sähköposteissa."
+    "nameDescription": "Näkyy sivupalkissa, kutsuissa ja sähköposteissa.",
+    "idLabel": "Työtilan tunnus",
+    "idDescription": "REST API:lle, MCP:lle ja skripteille, jotka tunnistavat työtilan sen tunnuksella."
   },
   "export": {
     "heading": "Vienti",

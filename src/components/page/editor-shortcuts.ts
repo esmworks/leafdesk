@@ -15,6 +15,11 @@ import { CODE_LANGUAGE_COMBO, COPY_BLOCK_LINK_COMBO, STRIKE_COMBO } from "@/lib/
 /** Sent when a link to a block or a thread was copied; the editor shows "Link copied" (LinkCopiedNotice). */
 export const BLOCK_LINK_COPIED_EVENT = "leafdesk:block-link-copied";
 
+/** Copies a block's id (for the REST API's `block_id`) and says "ID copied" (LinkCopiedNotice). */
+export async function copyBlockId(blockId: string, returnFocus: HTMLElement) {
+  if (await copyText(blockId, returnFocus)) window.dispatchEvent(new CustomEvent(BLOCK_LINK_COPIED_EVENT, { detail: "id" }));
+}
+
 /** Copies an address of the app (`path`) and says so ("Link copied", LinkCopiedNotice). */
 export async function copyAppLink(path: string, returnFocus: HTMLElement) {
   const url = new URL(path, window.location.origin).href;

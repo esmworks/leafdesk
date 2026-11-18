@@ -111,7 +111,9 @@
     "nameLabel": "Workspace name",
     "ownersOnly": "Only owners can rename the workspace.",
     "description": "The name and basic settings of this workspace.",
-    "nameDescription": "Shown in the sidebar, in invitations and in emails."
+    "nameDescription": "Shown in the sidebar, in invitations and in emails.",
+    "idLabel": "Workspace ID",
+    "idDescription": "For the REST API, MCP and scripts, which take a workspace by its ID."
   },
   "export": {
     "heading": "Export",

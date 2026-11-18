@@ -44,7 +44,9 @@
     "removePicture": "削除",
     "uploading": "アップロード中…",
     "name": "名前",
-    "nameHelp": "フルネーム、またはチームで呼ばれている名前。"
+    "nameHelp": "フルネーム、またはチームで呼ばれている名前。",
+    "idLabel": "ユーザーID",
+    "idDescription": "REST API と MCP で自分を指定するためのIDです。"
   },
   "email": {
     "heading": "メールアドレス",

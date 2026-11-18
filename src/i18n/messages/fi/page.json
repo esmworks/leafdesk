@@ -95,7 +95,8 @@
     "watchHint": "Saat ilmoituksen saapuneisiin, kun joku muu muokkaa tätä sivua tai aloittaa siinä kommenttiketjun.",
     "mute": "Mykistä",
     "muteHint": "Saat ilmoituksen saapuneisiin, kun joku muu muokkaa tätä sivua tai aloittaa siinä kommenttiketjun. Mykistä lopettaaksesi.",
-    "editMarkdown": "Muokkaa Markdownina"
+    "editMarkdown": "Muokkaa Markdownina",
+    "idCopied": "Tunnus kopioitu"
   },
   "comments": {
     "aboutPage": "Tästä sivusta",
@@ -865,7 +866,8 @@
     "openInNewTab": "Avaa uudessa välilehdessä",
     "quoteSize": "Lainauksen koko",
     "quoteSizeDefault": "Oletus",
-    "quoteSizeLarge": "Suuri"
+    "quoteSizeLarge": "Suuri",
+    "copyId": "Kopioi lohkon tunnus"
   },
   "imageLink": {
     "menuItem": "Linkki…",

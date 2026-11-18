@@ -111,7 +111,9 @@
     "nameLabel": "Nama ruang kerja",
     "ownersOnly": "Hanya pemilik yang dapat mengubah nama ruang kerja.",
     "description": "Nama dan pengaturan dasar ruang kerja ini.",
-    "nameDescription": "Ditampilkan di bilah samping, di undangan, dan di email."
+    "nameDescription": "Ditampilkan di bilah samping, di undangan, dan di email.",
+    "idLabel": "ID ruang kerja",
+    "idDescription": "Untuk REST API, MCP, dan skrip, yang menunjuk ruang kerja lewat ID-nya."
   },
   "export": {
     "heading": "Ekspor",

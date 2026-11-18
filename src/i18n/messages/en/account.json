@@ -44,7 +44,9 @@
     "removePicture": "Remove",
     "uploading": "Uploading…",
     "name": "Name",
-    "nameHelp": "Your full name or the name your team knows you by."
+    "nameHelp": "Your full name or the name your team knows you by.",
+    "idLabel": "User ID",
+    "idDescription": "Your ID for the REST API and MCP, where people are named by it."
   },
   "email": {
     "heading": "Email",

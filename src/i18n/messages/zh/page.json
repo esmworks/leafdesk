@@ -95,7 +95,8 @@
     "watchHint": "其他人编辑此页面或在其中发起评论串时，在收件箱中收到通知。",
     "mute": "静音",
     "muteHint": "其他人编辑此页面或在其中发起评论串时，你会在收件箱中收到通知。静音即可停止。",
-    "editMarkdown": "以 Markdown 编辑"
+    "editMarkdown": "以 Markdown 编辑",
+    "idCopied": "已复制 ID"
   },
   "comments": {
     "aboutPage": "关于此页面",
@@ -865,7 +866,8 @@
     "openInNewTab": "在新标签页中打开",
     "quoteSize": "引用大小",
     "quoteSizeDefault": "默认",
-    "quoteSizeLarge": "大"
+    "quoteSizeLarge": "大",
+    "copyId": "复制块 ID"
   },
   "imageLink": {
     "menuItem": "链接…",

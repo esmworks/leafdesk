@@ -95,7 +95,8 @@
     "watchHint": "Nhận thông báo trong hộp thư đến khi người khác chỉnh sửa trang này hoặc bắt đầu một chuỗi bình luận trên đó.",
     "mute": "Tắt thông báo",
     "muteHint": "Bạn nhận thông báo trong hộp thư đến khi người khác chỉnh sửa trang này hoặc bắt đầu một chuỗi bình luận trên đó. Hãy tắt thông báo để dừng.",
-    "editMarkdown": "Chỉnh sửa dưới dạng Markdown"
+    "editMarkdown": "Chỉnh sửa dưới dạng Markdown",
+    "idCopied": "Đã sao chép ID"
   },
   "comments": {
     "aboutPage": "Về trang này",
@@ -865,7 +866,8 @@
     "openInNewTab": "Mở trong tab mới",
     "quoteSize": "Cỡ trích dẫn",
     "quoteSizeDefault": "Mặc định",
-    "quoteSizeLarge": "Lớn"
+    "quoteSizeLarge": "Lớn",
+    "copyId": "Sao chép ID khối"
   },
   "imageLink": {
     "menuItem": "Liên kết…",

@@ -44,7 +44,9 @@
     "removePicture": "Ta bort",
     "uploading": "Laddar upp…",
     "name": "Namn",
-    "nameHelp": "Ditt fullständiga namn eller det namn som ditt team känner dig under."
+    "nameHelp": "Ditt fullständiga namn eller det namn som ditt team känner dig under.",
+    "idLabel": "Användar-ID",
+    "idDescription": "Ditt ID för REST-API:et och MCP, där personer anges med det."
   },
   "email": {
     "heading": "E-post",

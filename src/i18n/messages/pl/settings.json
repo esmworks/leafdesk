@@ -111,7 +111,9 @@
     "nameLabel": "Nazwa obszaru roboczego",
     "ownersOnly": "Tylko właściciele mogą zmienić nazwę obszaru roboczego.",
     "description": "Nazwa i podstawowe ustawienia tego obszaru roboczego.",
-    "nameDescription": "Wyświetlana na pasku bocznym, w zaproszeniach i w e-mailach."
+    "nameDescription": "Wyświetlana na pasku bocznym, w zaproszeniach i w e-mailach.",
+    "idLabel": "ID przestrzeni roboczej",
+    "idDescription": "Dla REST API, MCP i skryptów, które wskazują przestrzeń roboczą przez jej ID."
   },
   "export": {
     "heading": "Eksport",

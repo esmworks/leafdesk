@@ -44,7 +44,9 @@
     "removePicture": "Fjern",
     "uploading": "Laster opp…",
     "name": "Navn",
-    "nameHelp": "Det fulle navnet ditt eller navnet teamet ditt kjenner deg under."
+    "nameHelp": "Det fulle navnet ditt eller navnet teamet ditt kjenner deg under.",
+    "idLabel": "Bruker-ID",
+    "idDescription": "Din ID for REST-API-et og MCP, der personer angis med den."
   },
   "email": {
     "heading": "E-post",

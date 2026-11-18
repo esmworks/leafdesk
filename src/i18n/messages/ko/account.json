@@ -44,7 +44,9 @@
     "removePicture": "제거",
     "uploading": "업로드 중…",
     "name": "이름",
-    "nameHelp": "실명이나 팀에서 부르는 이름을 입력하세요."
+    "nameHelp": "실명이나 팀에서 부르는 이름을 입력하세요.",
+    "idLabel": "사용자 ID",
+    "idDescription": "REST API와 MCP에서 사람을 가리키는 내 ID입니다."
   },
   "email": {
     "heading": "이메일",

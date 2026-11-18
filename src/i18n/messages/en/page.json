@@ -95,7 +95,8 @@
     "watchHint": "Hear in your inbox when someone else edits this page or starts a comment thread on it.",
     "mute": "Mute",
     "muteHint": "You hear in your inbox when someone else edits this page or starts a comment thread on it. Mute it to stop.",
-    "editMarkdown": "Edit as Markdown"
+    "editMarkdown": "Edit as Markdown",
+    "idCopied": "ID copied"
   },
   "comments": {
     "aboutPage": "About this page",
@@ -865,7 +866,8 @@
     "openInNewTab": "Open in new tab",
     "quoteSize": "Quote size",
     "quoteSizeDefault": "Default",
-    "quoteSizeLarge": "Large"
+    "quoteSizeLarge": "Large",
+    "copyId": "Copy block ID"
   },
   "imageLink": {
     "menuItem": "Link…",

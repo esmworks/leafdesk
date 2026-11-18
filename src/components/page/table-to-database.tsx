@@ -31,7 +31,7 @@ import { QuoteSizeItem } from "./quote-size-item";
 import { ImageLinkItem } from "./image-link";
 import { ImageCropItem } from "./image-crop-item";
 import { FormatCodeItem } from "./code-format-item";
-import { copyBlockLink } from "./editor-shortcuts";
+import { copyBlockId, copyBlockLink } from "./editor-shortcuts";
 import { AlignMediaItems, CopyOriginalLinkItem, DownloadMediaItem, OpenLinkedPageItem } from "./media-menu";
 import { WideColumnsItem } from "./columns";
 import { CodeCaptionItem } from "./code-block";
@@ -129,6 +129,20 @@ function CopyBlockLinkItem() {
   );
 }
 
+/** "Copy block ID": the id the REST API's `block_id` takes (and `get_page` shows). */
+function CopyBlockIdItem() {
+  const Components = useComponentsContext()!;
+  const editor = useBlockNoteEditor() as unknown as PageEditor;
+  const block = useExtensionState(SideMenuExtension, { editor, selector: (state) => state?.block });
+  const t = useTranslations("page.blockMenu");
+  if (!block) return null;
+  return (
+    <Components.Generic.Menu.Item className="bn-menu-item" onClick={() => void copyBlockId(block.id, editor.domElement ?? document.body)}>
+      {t("copyId")}
+    </Components.Generic.Menu.Item>
+  );
+}
+
 /**
  * "Hide when printing" in a callout's side menu: the callout stays on screen but is left out of the
  * print view and of what the browser prints (see lib/content-blocks).
@@ -156,7 +170,7 @@ function HideInPrintItem() {
 /**
  * The page editor's side menu (add block, drag handle). Its block menu has the editor's own entries
  * (delete, colors, table headers), the callout's style (or turning a block of text into a callout,
- * callout-menu.tsx), its title, a quote's size (quote-size-item.tsx), "Copy link to block", for a link to a page "Open in new tab", for
+ * callout-menu.tsx), its title, a quote's size (quote-size-item.tsx), "Copy link to block", "Copy block ID", for a link to a page "Open in new tab", for
  * a bookmark or embed "Copy link to original", for media "Download" and alignment (media-menu.tsx), in a column "Wide columns" (columns.tsx), for a callout "Hide when printing", for a
  * code block "Format code", for a table "Turn into database", "Turn into synced block" and "Save as snippet"; `onError` shows why
  * a change failed. Made once per editor: a new
@@ -179,6 +193,7 @@ export function pageSideMenu(onError: (message: string) => void): FC<SideMenuPro
         <HideInPrintItem />
         <OpenLinkedPageItem />
         <CopyBlockLinkItem />
+        <CopyBlockIdItem />
         <CopyOriginalLinkItem />
         <DownloadMediaItem />
         <AlignMediaItems />

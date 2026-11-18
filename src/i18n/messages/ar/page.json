@@ -95,7 +95,8 @@
     "watchHint": "اعرف في صندوق الوارد عندما يعدّل شخص آخر هذه الصفحة أو يبدأ سلسلة تعليقات عليها.",
     "mute": "كتم",
     "muteHint": "تعرف في صندوق الوارد عندما يعدّل شخص آخر هذه الصفحة أو يبدأ سلسلة تعليقات عليها. اكتمها لتتوقف.",
-    "editMarkdown": "تحرير بصيغة Markdown"
+    "editMarkdown": "تحرير بصيغة Markdown",
+    "idCopied": "تم نسخ المعرّف"
   },
   "comments": {
     "aboutPage": "حول هذه الصفحة",
@@ -865,7 +866,8 @@
     "openInNewTab": "فتح في علامة تبويب جديدة",
     "quoteSize": "حجم الاقتباس",
     "quoteSizeDefault": "افتراضي",
-    "quoteSizeLarge": "كبير"
+    "quoteSizeLarge": "كبير",
+    "copyId": "نسخ معرّف الكتلة"
   },
   "imageLink": {
     "menuItem": "رابط…",

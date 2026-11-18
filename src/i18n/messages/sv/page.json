@@ -95,7 +95,8 @@
     "watchHint": "Få veta i din inkorg när någon annan redigerar den här sidan eller startar en kommentarstråd på den.",
     "mute": "Tysta",
     "muteHint": "Du får veta i din inkorg när någon annan redigerar den här sidan eller startar en kommentarstråd på den. Tysta den för att sluta.",
-    "editMarkdown": "Redigera som Markdown"
+    "editMarkdown": "Redigera som Markdown",
+    "idCopied": "ID kopierat"
   },
   "comments": {
     "aboutPage": "Om den här sidan",
@@ -865,7 +866,8 @@
     "openInNewTab": "Öppna i ny flik",
     "quoteSize": "Citatstorlek",
     "quoteSizeDefault": "Standard",
-    "quoteSizeLarge": "Stor"
+    "quoteSizeLarge": "Stor",
+    "copyId": "Kopiera block-ID"
   },
   "imageLink": {
     "menuItem": "Länk…",

@@ -44,7 +44,9 @@
     "removePicture": "移除",
     "uploading": "正在上传…",
     "name": "姓名",
-    "nameHelp": "你的全名或团队对你的称呼。"
+    "nameHelp": "你的全名或团队对你的称呼。",
+    "idLabel": "用户 ID",
+    "idDescription": "你在 REST API 和 MCP 中的 ID，人员通过它来指定。"
   },
   "email": {
     "heading": "邮箱",

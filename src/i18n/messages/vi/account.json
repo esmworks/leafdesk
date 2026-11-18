@@ -44,7 +44,9 @@
     "removePicture": "Gỡ",
     "uploading": "Đang tải lên…",
     "name": "Tên",
-    "nameHelp": "Họ tên đầy đủ của bạn hoặc tên mà nhóm vẫn gọi bạn."
+    "nameHelp": "Họ tên đầy đủ của bạn hoặc tên mà nhóm vẫn gọi bạn.",
+    "idLabel": "ID người dùng",
+    "idDescription": "ID của bạn cho REST API và MCP, nơi mọi người được chỉ định bằng ID."
   },
   "email": {
     "heading": "Email",
