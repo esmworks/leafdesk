@@ -204,12 +204,22 @@ describe("meeting speakers", () => {
       { speaker: "B", start: 7, end: 40, text: "Yes." },
     ];
     expect(chunkPieces(place, "Hello. Ready? Yes.", segments)).toEqual([
-      { c: 2, d: 6, t: 60, s: "d:A", x: "Hello. Ready?" },
-      { c: 2, d: 23, t: 67, s: "d:B", x: "Yes." },
+      { c: 2, d: 6, t: 60, s: "d:2:A", x: "Hello. Ready?" },
+      { c: 2, d: 23, t: 67, s: "d:2:B", x: "Yes." },
     ]);
-    expect(chunkPieces({ ...place, stream: "others" }, "Yes.", [segments[2]])[0]).toMatchObject({ s: "o:B", r: "o" });
+    expect(chunkPieces({ ...place, stream: "others" }, "Yes.", [segments[2]])[0]).toMatchObject({ s: "o:2:B", r: "o" });
     // The microphone's pieces are the recorder's whatever the provider heard.
     expect(chunkPieces({ ...place, stream: "mic" }, "x", segments)).toHaveLength(1);
+  });
+
+  it("never take the provider's A in two pieces for one person: only a name given joins them", () => {
+    const said = [{ speaker: "A", start: 0, end: 5, text: "hi" }];
+    const chunks = [...chunkPieces({ chunk: 0, offset: 0, duration: 30 }, "hi", said), ...chunkPieces({ chunk: 1, offset: 30, duration: 30 }, "hi", said)];
+    expect(chunks.map((c) => c.s)).toEqual(["d:0:A", "d:1:A"]);
+    const labels = ENGLISH_SPEAKER_LABELS();
+    expect(chunks.map((c) => speakerNamer(chunks, {}, labels)(c.s!))).toEqual(["Speaker 1", "Speaker 2"]);
+    const named = { "d:0:A": { name: "Ayşe" }, "d:1:A": { name: "Ayşe" } };
+    expect(transcriptLines(chunks, "", speakerNamer(chunks, named, labels))).toEqual(["[00:00] Ayşe: hi", "[00:30] Ayşe: hi"]);
   });
 
   it("keep both streams of a chunk, replacing only the stream that came again", () => {

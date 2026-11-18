@@ -206,7 +206,9 @@ export function chunkPieces(
   if (!text.trim()) return [{ ...base, t: place.offset, x: "" }];
   if (place.stream === "mic") return [{ ...base, t: place.offset, s: "you", x: text }];
   if (!segments?.length) return [{ ...base, t: place.offset, ...(place.stream === "others" ? { s: "others" } : {}), x: text }];
-  const key = (speaker: string) => (place.stream === "others" ? `o:${speaker}` : `d:${speaker}`);
+  // The provider numbers speakers within this piece alone: its "A" in the next piece may be someone
+  // else, so the key carries the piece and only a name given in the block joins speakers across pieces.
+  const key = (speaker: string) => `${place.stream === "others" ? "o" : "d"}:${place.chunk}:${speaker}`.slice(0, 32);
   const out: TranscriptChunk[] = [];
   for (const seg of segments) {
     const s = key(seg.speaker);

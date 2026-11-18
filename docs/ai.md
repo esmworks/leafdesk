@@ -831,8 +831,9 @@ upload starts.
   `chunking_strategy` `auto`). Other models, Whisper servers included, are asked for plain text and
   never labelled by guesswork: a recording of one microphone without such a model has no speakers.
   The provider numbers speakers within one piece of about 30 seconds, so across pieces its *A* and
-  *B* are not guaranteed to be the same people; naming two speakers alike in the block reads them
-  as one. With *Record with others*, the shared stream's speakers are told apart this way and the
+  *B* are not guaranteed to be the same people: each piece's speakers get numbers of their own
+  (*Speaker 1*, *Speaker 2* … in the order they first speak), and naming two of them alike in the
+  block reads them as one. With *Record with others*, the shared stream's speakers are told apart this way and the
   microphone stays *you*.
 
 Above the transcript the block lists the speakers (*You*, *Others*, *Speaker 2* …). Anyone who can

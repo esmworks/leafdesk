@@ -250,12 +250,12 @@ try {
   setAiEnv(AI_ENV);
   const diarized = parseTranscript((await meetingOn(callPage))?.transcript);
   check(
-    JSON.stringify(diarized.filter((c) => c.c === 1).map((c) => ("x" in c ? [c.s, c.t, c.x] : []))) === JSON.stringify([["you", 30, SAID[1000]], ["o:A", 30, "Ayşe will tell the customer"], ["o:B", 36, "by Friday."]]),
+    JSON.stringify(diarized.filter((c) => c.c === 1).map((c) => ("x" in c ? [c.s, c.t, c.x] : []))) === JSON.stringify([["you", 30, SAID[1000]], ["o:1:A", 30, "Ayşe will tell the customer"], ["o:1:B", 36, "by Friday."]]),
     "a diarizing model's speakers become keyed pieces at their own times (the microphone's piece is still you)",
     diarized,
   );
   // Name a speaker after a member, and the write-up and the to-dos use the name.
-  await getCollab().updateBlockAttributes(callPage, MEETING_BLOCK, (p) => p.meetingId === call!.meetingId, () => ({ speakers: JSON.stringify({ "o:A": { name: "Ayşe Yılmaz", id: ids.member } }) }), { userId: ids.owner });
+  await getCollab().updateBlockAttributes(callPage, MEETING_BLOCK, (p) => p.meetingId === call!.meetingId, () => ({ speakers: JSON.stringify({ "o:1:A": { name: "Ayşe Yılmaz", id: ids.member } }) }), { userId: ids.owner });
   await meetings.finishMeeting(ids.owner, callPage, call!.meetingId, 60);
   await waitFor(() => meetingOn(callPage), (m) => m?.status === "done", "the call is written up");
   const callPrompt = textOf(fake.chats.at(-1)?.messages.at(-1)?.content ?? "");
