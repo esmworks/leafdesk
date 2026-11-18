@@ -62,6 +62,12 @@
     "openRun": "Buka eksekusi",
     "notePrompt": "Apa yang harus diubah agen? Jawab pesan ini dengan sebuah catatan.",
     "notePlaceholder": "Apa yang harus diubah",
+    "reply": "Balas",
+    "replyPrompt": "Tulis balasanmu untuk komentar itu, sebagai jawaban atas pesan ini.",
+    "replyPlaceholder": "Balasanmu",
+    "replySent": "Balasanmu sudah diposting.",
+    "replyEmpty": "Tulis balasanmu sebagai jawaban atas pertanyaan.",
+    "replyFailed": "Balasan tidak dapat diposting: komentarnya mungkin sudah dihapus, atau kamu tidak bisa lagi berkomentar di sana.",
     "call": {
       "approved": "Disetujui: agen melanjutkan.",
       "declined": "Ditolak: tidak ada yang dikirim.",
@@ -221,6 +227,16 @@
     "onlyPrivate": "Saya hanya menjawab di pesan langsung dengan saya.",
     "notify": {
       "notePrompt": "Apa yang harus diubah agen? Jawab di utas ini dengan sebuah catatan."
+    }
+  },
+  "teams": {
+    "notLinked": "Obrolan ini belum tertaut ke akun Leafdesk. Di Leafdesk, buka Pengaturan → Aplikasi terhubung → Teams, pilih Tautkan Teams, lalu kirim perintah yang ditampilkannya ke sini.",
+    "badCode": "Kode itu sudah habis masa berlakunya atau sudah dipakai. Buat yang baru di Leafdesk: Pengaturan → Aplikasi terhubung → Teams.",
+    "help": "Ajukan pertanyaan dan aku menjawab dari halaman Leafdesk-mu, lengkap dengan sumbernya.\n\n/new: mulai percakapan baru\n/new summary: mulai percakapan baru dengan agen dari ringkasan percakapan sebelumnya\n/workspace: pilih ruang kerja sumber jawaban saya\n/agent: mengobrol dengan salah satu agen Anda\n/mode: pilih apa yang boleh saya ubah\n/stop: hentikan jawaban yang sedang ditulis\n/notifications: aktifkan atau nonaktifkan notifikasi Anda di obrolan ini\n/unlink: putuskan tautan akun Teams ini",
+    "unlinked": "Akun Teams ini tidak lagi tertaut ke Leafdesk.",
+    "onlyPrivate": "Saya hanya menjawab di pesan langsung dengan saya.",
+    "notify": {
+      "notePrompt": "Apa yang harus diubah agen? Jawab dengan catatan di pesan berikutnya."
     }
   }
 }

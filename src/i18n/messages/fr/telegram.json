@@ -62,6 +62,12 @@
     "openRun": "Ouvrir l’exécution",
     "notePrompt": "Que doit changer l’agent ? Répondez à ce message avec une note.",
     "notePlaceholder": "Ce qui doit changer",
+    "reply": "Répondre",
+    "replyPrompt": "Écris ta réponse au commentaire, en réponse à ce message.",
+    "replyPlaceholder": "Ta réponse",
+    "replySent": "Ta réponse a été publiée.",
+    "replyEmpty": "Écris ta réponse, en réponse à la question.",
+    "replyFailed": "La réponse n’a pas pu être publiée : le commentaire a peut-être été supprimé, ou tu ne peux plus y commenter.",
     "call": {
       "approved": "Approuvé : l’agent continue.",
       "declined": "Refusé : rien n’est envoyé.",
@@ -221,6 +227,16 @@
     "onlyPrivate": "Je ne réponds que dans un message direct avec moi.",
     "notify": {
       "notePrompt": "Que doit changer l’agent ? Répondez dans ce fil avec une note."
+    }
+  },
+  "teams": {
+    "notLinked": "Cette conversation n’est liée à aucun compte Leafdesk. Dans Leafdesk, ouvrez Paramètres → Applications connectées → Teams, choisissez Lier Teams et envoyez ici la commande affichée.",
+    "badCode": "Ce code a expiré ou a déjà été utilisé. Créez-en un nouveau dans Leafdesk : Paramètres → Applications connectées → Teams.",
+    "help": "Pose une question et je réponds à partir de tes pages Leafdesk, en les citant.\n\n/new : commencer une nouvelle conversation\n/new summary : commencer une nouvelle conversation avec un agent à partir d’un résumé de la précédente\n/workspace : choisir l’espace de travail depuis lequel je réponds\n/agent : discuter avec l’un de vos agents\n/mode : choisir ce que je peux modifier\n/stop : arrêter la réponse en cours d’écriture\n/notifications : activer ou désactiver vos notifications dans cette conversation\n/unlink : délier ce compte Teams",
+    "unlinked": "Ce compte Teams n’est plus lié à Leafdesk.",
+    "onlyPrivate": "Je ne réponds que dans un message direct avec moi.",
+    "notify": {
+      "notePrompt": "Que doit changer l’agent ? Réponds par une note dans ton prochain message."
     }
   }
 }

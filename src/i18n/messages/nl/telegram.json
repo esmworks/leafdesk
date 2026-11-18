@@ -62,6 +62,12 @@
     "openRun": "De run openen",
     "notePrompt": "Wat moet de agent veranderen? Beantwoord dit bericht met een notitie.",
     "notePlaceholder": "Wat er moet veranderen",
+    "reply": "Beantwoorden",
+    "replyPrompt": "Schrijf je antwoord op de opmerking, als antwoord op dit bericht.",
+    "replyPlaceholder": "Je antwoord",
+    "replySent": "Je antwoord is geplaatst.",
+    "replyEmpty": "Schrijf je antwoord als antwoord op de vraag.",
+    "replyFailed": "Het antwoord kon niet worden geplaatst: de opmerking is misschien verwijderd, of je kunt daar niet meer reageren.",
     "call": {
       "approved": "Goedgekeurd: de agent gaat verder.",
       "declined": "Geweigerd: er wordt niets verstuurd.",
@@ -221,6 +227,16 @@
     "onlyPrivate": "Ik antwoord alleen in een direct bericht met mij.",
     "notify": {
       "notePrompt": "Wat moet de agent veranderen? Antwoord in deze thread met een notitie."
+    }
+  },
+  "teams": {
+    "notLinked": "Deze chat is niet gekoppeld aan een Leafdesk-account. Open in Leafdesk Instellingen → Gekoppelde apps → Teams, kies Teams koppelen en stuur het commando dat daar staat hierheen.",
+    "badCode": "Die code is verlopen of al gebruikt. Maak een nieuwe in Leafdesk: Instellingen → Gekoppelde apps → Teams.",
+    "help": "Stel een vraag en ik antwoord vanuit je Leafdesk-pagina’s, met bronvermelding.\n\n/new: een nieuw gesprek beginnen\n/new summary: begin een nieuw gesprek met een agent vanuit een samenvatting van het vorige\n/workspace: de werkruimte kiezen waaruit ik antwoord\n/agent: chatten met een van je agents\n/mode: kiezen wat ik mag wijzigen\n/stop: het antwoord stoppen dat wordt geschreven\n/notifications: je meldingen in deze chat aan- of uitzetten\n/unlink: dit Teams-account ontkoppelen",
+    "unlinked": "Dit Teams-account is niet meer gekoppeld aan Leafdesk.",
+    "onlyPrivate": "Ik antwoord alleen in een direct bericht met mij.",
+    "notify": {
+      "notePrompt": "Wat moet de agent wijzigen? Antwoord met een notitie in je volgende bericht."
     }
   }
 }

@@ -1,7 +1,8 @@
 /**
  * What the chat-app bot (server/chat-apps) needs of a chat app: a transport sends and changes
  * messages there and turns what comes from there into the events below. Telegram
- * (server/telegram/transport.ts) and Slack (server/slack/transport.ts) are the two. The core never
+ * (server/telegram/transport.ts), Slack (server/slack/transport.ts) and Microsoft Teams
+ * (server/teams/transport.ts) are the three. The core never
  * speaks a chat app's own API: every text it hands a transport is the small HTML subset of
  * lib/telegram-format.ts (`<b> <i> <s> <a> <code> <pre> <blockquote>`, `<tg-spoiler>` for what a
  * lock screen shouldn't show, text escaped with escapeHtml), which each transport turns into its
@@ -9,7 +10,7 @@
  */
 
 /** The chat apps a Leafdesk account can link (`channel_link.channel`). */
-export const CHAT_CHANNELS = ["telegram", "slack"] as const;
+export const CHAT_CHANNELS = ["telegram", "slack", "teams"] as const;
 export type ChatChannel = (typeof CHAT_CHANNELS)[number];
 
 /** A button under a message: `data` comes back in a ButtonPress; `url` opens an address instead. */

@@ -62,6 +62,12 @@
     "openRun": "Åbn kørslen",
     "notePrompt": "Hvad skal agenten ændre? Svar på denne besked med en note.",
     "notePlaceholder": "Hvad der skal ændres",
+    "reply": "Svar",
+    "replyPrompt": "Skriv dit svar på kommentaren som svar på denne besked.",
+    "replyPlaceholder": "Dit svar",
+    "replySent": "Dit svar er sendt.",
+    "replyEmpty": "Skriv dit svar som svar på spørgsmålet.",
+    "replyFailed": "Svaret kunne ikke sendes: kommentaren er måske slettet, eller du kan ikke længere kommentere der.",
     "call": {
       "approved": "Godkendt: agenten fortsætter.",
       "declined": "Afvist: intet sendes.",
@@ -221,6 +227,16 @@
     "onlyPrivate": "Jeg svarer kun i en direkte besked med mig.",
     "notify": {
       "notePrompt": "Hvad skal agenten ændre? Svar i denne tråd med en note."
+    }
+  },
+  "teams": {
+    "notLinked": "Denne chat er ikke forbundet med en Leafdesk-konto. Åbn Indstillinger → Forbundne apps → Teams i Leafdesk, vælg Forbind Teams, og send den kommando, der vises, her.",
+    "badCode": "Den kode er udløbet eller allerede brugt. Lav en ny i Leafdesk: Indstillinger → Forbundne apps → Teams.",
+    "help": "Stil et spørgsmål, så svarer jeg ud fra dine Leafdesk-sider og henviser til dem.\n\n/new: start en ny samtale\n/new summary: start en ny samtale med en agent ud fra et resumé af den forrige\n/workspace: vælg det arbejdsområde, jeg svarer ud fra\n/agent: chat med en af dine agenter\n/mode: vælg, hvad jeg må ændre\n/stop: stop svaret, der er ved at blive skrevet\n/notifications: slå dine notifikationer i denne chat til eller fra\n/unlink: afbryd forbindelsen til denne Teams-konto",
+    "unlinked": "Denne Teams-konto er ikke længere forbundet med Leafdesk.",
+    "onlyPrivate": "Jeg svarer kun i en direkte besked med mig.",
+    "notify": {
+      "notePrompt": "Hvad skal agenten ændre? Svar med en note i din næste besked."
     }
   }
 }

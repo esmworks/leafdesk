@@ -62,6 +62,12 @@
     "openRun": "Abrir la ejecución",
     "notePrompt": "¿Qué debe cambiar el agente? Responde a este mensaje con una nota.",
     "notePlaceholder": "Qué debe cambiar",
+    "reply": "Responder",
+    "replyPrompt": "Escribe tu respuesta al comentario, en respuesta a este mensaje.",
+    "replyPlaceholder": "Tu respuesta",
+    "replySent": "Tu respuesta se ha publicado.",
+    "replyEmpty": "Escribe tu respuesta, en respuesta a la pregunta.",
+    "replyFailed": "No se pudo publicar la respuesta: puede que el comentario ya no exista o que ya no puedas comentar ahí.",
     "call": {
       "approved": "Aprobado: el agente sigue adelante.",
       "declined": "Rechazado: no se envía nada.",
@@ -221,6 +227,16 @@
     "onlyPrivate": "Solo respondo en un mensaje directo conmigo.",
     "notify": {
       "notePrompt": "¿Qué debe cambiar el agente? Responde en este hilo con una nota."
+    }
+  },
+  "teams": {
+    "notLinked": "Este chat no está conectado a ninguna cuenta de Leafdesk. En Leafdesk, abre Configuración → Apps conectadas → Teams, elige Conectar Teams y envía aquí el comando que aparece.",
+    "badCode": "Ese código ha caducado o ya se usó. Crea uno nuevo en Leafdesk: Configuración → Apps conectadas → Teams.",
+    "help": "Hazme una pregunta y respondo a partir de tus páginas de Leafdesk, citándolas.\n\n/new: empezar una conversación nueva\n/new summary: empezar una nueva conversación con un agente a partir de un resumen de la anterior\n/workspace: elegir el espacio de trabajo desde el que respondo\n/agent: chatear con uno de tus agentes\n/mode: elegir qué puedo cambiar\n/stop: detener la respuesta que se está escribiendo\n/notifications: activar o desactivar tus notificaciones en este chat\n/unlink: desconectar esta cuenta de Teams",
+    "unlinked": "Esta cuenta de Teams ya no está conectada a Leafdesk.",
+    "onlyPrivate": "Solo respondo en un mensaje directo conmigo.",
+    "notify": {
+      "notePrompt": "¿Qué debe cambiar el agente? Responde con una nota en tu siguiente mensaje."
     }
   }
 }

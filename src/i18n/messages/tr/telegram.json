@@ -62,6 +62,12 @@
     "openRun": "Çalışmayı aç",
     "notePrompt": "Ajan neyi değiştirsin? Bu mesaja bir notla yanıt ver.",
     "notePlaceholder": "Neyin değişmesi gerektiği",
+    "reply": "Yanıtla",
+    "replyPrompt": "Yoruma yanıtınızı bu iletiye cevap olarak yazın.",
+    "replyPlaceholder": "Yanıtınız",
+    "replySent": "Yanıtınız gönderildi.",
+    "replyEmpty": "Yanıtınızı soruya cevap olarak yazın.",
+    "replyFailed": "Yanıt gönderilemedi: yorum silinmiş olabilir ya da artık orada yorum yapamıyor olabilirsiniz.",
     "call": {
       "approved": "Onaylandı: ajan devam ediyor.",
       "declined": "Reddedildi: hiçbir şey gönderilmiyor.",
@@ -221,6 +227,16 @@
     "onlyPrivate": "Yalnızca benimle doğrudan mesajda yanıt veririm.",
     "notify": {
       "notePrompt": "Ajan neyi değiştirsin? Bu mesaj dizisinde bir notla yanıt ver."
+    }
+  },
+  "teams": {
+    "notLinked": "Bu sohbet bir Leafdesk hesabına bağlı değil. Leafdesk’te Ayarlar → Bağlı uygulamalar → Teams’i açıp Teams’i bağla’yı seç ve gösterdiği komutu buraya gönder.",
+    "badCode": "Bu kodun süresi dolmuş ya da zaten kullanılmış. Leafdesk’te yenisini oluştur: Ayarlar → Bağlı uygulamalar → Teams.",
+    "help": "Bir soru sorun, Leafdesk sayfalarınızdan kaynak göstererek yanıtlayayım.\n\n/new: yeni bir sohbet başlat\n/new summary: bir ajanla, son sohbetin özetinden yeni bir sohbet başlat\n/workspace: yanıt verdiğim çalışma alanını seç\n/agent: ajanlarından biriyle sohbet et\n/mode: neleri değiştirebileceğimi seç\n/stop: yazılmakta olan yanıtı durdur\n/notifications: bu sohbetteki bildirimlerini aç ya da kapat\n/unlink: bu Teams hesabının bağlantısını kaldır",
+    "unlinked": "Bu Teams hesabı artık Leafdesk’e bağlı değil.",
+    "onlyPrivate": "Yalnızca benimle doğrudan mesajda yanıt veririm.",
+    "notify": {
+      "notePrompt": "Aracı neyi değiştirmeli? Bir sonraki iletinizde bir notla yanıtlayın."
     }
   }
 }

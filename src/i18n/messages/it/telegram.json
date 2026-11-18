@@ -62,6 +62,12 @@
     "openRun": "Apri l’esecuzione",
     "notePrompt": "Cosa deve cambiare l’agente? Rispondi a questo messaggio con una nota.",
     "notePlaceholder": "Cosa deve cambiare",
+    "reply": "Rispondi",
+    "replyPrompt": "Scrivi la tua risposta al commento, in risposta a questo messaggio.",
+    "replyPlaceholder": "La tua risposta",
+    "replySent": "La tua risposta è stata pubblicata.",
+    "replyEmpty": "Scrivi la tua risposta, in risposta alla domanda.",
+    "replyFailed": "Non è stato possibile pubblicare la risposta: il commento potrebbe essere stato eliminato, o forse non puoi più commentare lì.",
     "call": {
       "approved": "Approvato: l’agente va avanti.",
       "declined": "Rifiutato: non viene inviato nulla.",
@@ -221,6 +227,16 @@
     "onlyPrivate": "Rispondo solo in un messaggio diretto con me.",
     "notify": {
       "notePrompt": "Cosa deve cambiare l’agente? Rispondi in questo thread con una nota."
+    }
+  },
+  "teams": {
+    "notLinked": "Questa chat non è collegata a un account Leafdesk. In Leafdesk apri Impostazioni → App connesse → Teams, scegli Collega Teams e invia qui il comando che viene mostrato.",
+    "badCode": "Questo codice è scaduto o è già stato usato. Creane uno nuovo in Leafdesk: Impostazioni → App connesse → Teams.",
+    "help": "Fai una domanda e rispondo in base alle tue pagine di Leafdesk, citandole.\n\n/new: inizia una nuova conversazione\n/new summary: inizia una nuova conversazione con un agente a partire da un riepilogo della precedente\n/workspace: scegli lo spazio di lavoro da cui rispondo\n/agent: chatta con uno dei tuoi agenti\n/mode: scegli cosa posso modificare\n/stop: ferma la risposta in corso\n/notifications: attiva o disattiva le tue notifiche in questa chat\n/unlink: scollega questo account Teams",
+    "unlinked": "Questo account Teams non è più collegato a Leafdesk.",
+    "onlyPrivate": "Rispondo solo in un messaggio diretto con me.",
+    "notify": {
+      "notePrompt": "Cosa deve cambiare l’agente? Rispondi con una nota nel tuo prossimo messaggio."
     }
   }
 }

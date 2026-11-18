@@ -55,6 +55,7 @@
       "aiAccounts": "khóa api khóa riêng nhà cung cấp",
       "telegram": "bot trò chuyện tin nhắn",
       "slack": "bot trò chuyện tin nhắn trực tiếp",
+      "teams": "bot trò chuyện tin nhắn trực tiếp",
       "mcp": "trợ lý model context protocol máy chủ",
       "apiTokens": "rest api token khóa nhà phát triển",
       "about": "phiên bản giấy phép cập nhật",
@@ -2160,7 +2161,7 @@
         "updated": "Đã thay đổi kết nối “{target}”",
         "deleted": "Đã xóa kết nối “{target}”",
         "tool_called": "Đã gọi “{tool}” trên “{target}” ({outcome})",
-        "approval_decided": "{decision} lệnh gọi “{tool}” trên “{target}” của tác tử “{agent}”{channel, select, telegram { (từ Telegram)} slack { (từ Slack)} other {}}"
+        "approval_decided": "{decision} lệnh gọi “{tool}” trên “{target}” của tác tử “{agent}”{channel, select, telegram { (từ Telegram)} slack { (từ Slack)} teams { (từ Teams)} other {}}"
       },
       "mail": {
         "databases_changed": "Đã đặt các cơ sở dữ liệu nhận email: {names}",
@@ -2275,6 +2276,7 @@
     "push": "Đẩy",
     "telegram": "Telegram",
     "slack": "Slack",
+    "teams": "Teams",
     "chatApps": "Ứng dụng trò chuyện",
     "pushDescription": "Thông báo đẩy được gửi cho những gì hiện trong hộp thư đến của bạn, trên các thiết bị bạn bật chúng.",
     "pushDeviceTitle": "Thông báo đẩy trên thiết bị này",

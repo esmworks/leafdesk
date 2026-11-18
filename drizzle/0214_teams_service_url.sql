@@ -1,0 +1,1 @@
+ALTER TABLE "channel_link" ADD COLUMN "service_url" text;

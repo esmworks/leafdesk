@@ -190,6 +190,7 @@ export async function closeChatTurn(run: EndedRun, ending: { answer?: string; co
             after: run.id,
             ...(turn.telegram ? { telegram: true as const } : {}),
             ...(turn.slack ? { slack: true as const } : {}),
+            ...(turn.teams ? { teams: true as const } : {}),
             ...(turn.otherApp ? { otherApp: true as const } : {}),
             ...(turn.sessionId ? { sessionId: turn.sessionId } : {}),
           },

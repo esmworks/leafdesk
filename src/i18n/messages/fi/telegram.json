@@ -62,6 +62,12 @@
     "openRun": "Avaa ajo",
     "notePrompt": "Mitä agentin pitäisi muuttaa? Vastaa tähän viestiin huomautuksella.",
     "notePlaceholder": "Mitä pitäisi muuttaa",
+    "reply": "Vastaa",
+    "replyPrompt": "Kirjoita vastauksesi kommenttiin vastaukseksi tähän viestiin.",
+    "replyPlaceholder": "Vastauksesi",
+    "replySent": "Vastauksesi lähetettiin.",
+    "replyEmpty": "Kirjoita vastauksesi kysymykseen.",
+    "replyFailed": "Vastausta ei voitu lähettää: kommentti on ehkä poistettu, tai et voi enää kommentoida siellä.",
     "call": {
       "approved": "Hyväksytty: agentti jatkaa.",
       "declined": "Hylätty: mitään ei lähetetä.",
@@ -221,6 +227,16 @@
     "onlyPrivate": "Vastaan vain yksityisviestissä kanssani.",
     "notify": {
       "notePrompt": "Mitä agentin pitäisi muuttaa? Vastaa tähän ketjuun huomautuksella."
+    }
+  },
+  "teams": {
+    "notLinked": "Tätä keskustelua ei ole yhdistetty Leafdesk-tiliin. Avaa Leafdeskissä Asetukset → Yhdistetyt sovellukset → Teams, valitse Yhdistä Teams ja lähetä tänne komento, jonka se näyttää.",
+    "badCode": "Koodi on vanhentunut tai jo käytetty. Luo uusi Leafdeskissä: Asetukset → Yhdistetyt sovellukset → Teams.",
+    "help": "Kysy jotain, niin vastaan Leafdesk-sivuillasi olevan tiedon pohjalta ja viittaan niihin.\n\n/new: aloita uusi keskustelu\n/new summary: aloita uusi keskustelu agentin kanssa edellisen tiivistelmästä\n/workspace: valitse työtila, josta vastaan\n/agent: keskustele jonkin agenttisi kanssa\n/mode: valitse, mitä saan muuttaa\n/stop: keskeytä kirjoitettava vastaus\n/notifications: ota ilmoitukset käyttöön tai pois tässä keskustelussa\n/unlink: poista tämän Teams-tilin yhteys",
+    "unlinked": "Tätä Teams-tiliä ei ole enää yhdistetty Leafdeskiin.",
+    "onlyPrivate": "Vastaan vain yksityisviestissä kanssani.",
+    "notify": {
+      "notePrompt": "Mitä agentin pitäisi muuttaa? Vastaa muistiinpanolla seuraavassa viestissäsi."
     }
   }
 }

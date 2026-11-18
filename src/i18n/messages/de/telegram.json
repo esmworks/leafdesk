@@ -62,6 +62,12 @@
     "openRun": "Durchlauf öffnen",
     "notePrompt": "Was soll der Agent ändern? Antworte auf diese Nachricht mit einer Notiz.",
     "notePlaceholder": "Was sich ändern soll",
+    "reply": "Antworten",
+    "replyPrompt": "Schreibe deine Antwort auf den Kommentar als Antwort auf diese Nachricht.",
+    "replyPlaceholder": "Deine Antwort",
+    "replySent": "Deine Antwort wurde gepostet.",
+    "replyEmpty": "Schreibe deine Antwort als Antwort auf die Frage.",
+    "replyFailed": "Die Antwort konnte nicht gepostet werden: Der Kommentar ist vielleicht gelöscht, oder du kannst dort nicht mehr kommentieren.",
     "call": {
       "approved": "Freigegeben: Der Agent macht weiter.",
       "declined": "Abgelehnt: Nichts wird gesendet.",
@@ -221,6 +227,16 @@
     "onlyPrivate": "Ich antworte nur in einer Direktnachricht mit mir.",
     "notify": {
       "notePrompt": "Was soll der Agent ändern? Antworte in diesem Thread mit einer Notiz."
+    }
+  },
+  "teams": {
+    "notLinked": "Dieser Chat ist mit keinem Leafdesk-Konto verbunden. Öffne in Leafdesk Einstellungen → Verbundene Apps → Teams, wähle Teams verbinden und schick den Befehl, der dort angezeigt wird, hierher.",
+    "badCode": "Dieser Code ist abgelaufen oder wurde schon benutzt. Erstelle in Leafdesk einen neuen: Einstellungen → Verbundene Apps → Teams.",
+    "help": "Stelle eine Frage, und ich antworte anhand deiner Leafdesk-Seiten und nenne die Quellen.\n\n/new: ein neues Gespräch beginnen\n/new summary: eine neue Unterhaltung mit einem Agenten aus einer Zusammenfassung der letzten beginnen\n/workspace: den Workspace wählen, aus dem ich antworte\n/agent: mit einem deiner Agenten chatten\n/mode: wählen, was ich ändern darf\n/stop: die Antwort anhalten, die gerade geschrieben wird\n/notifications: deine Benachrichtigungen in diesem Chat an- oder ausschalten\n/unlink: die Verbindung dieses Teams-Kontos trennen",
+    "unlinked": "Dieses Teams-Konto ist nicht mehr mit Leafdesk verbunden.",
+    "onlyPrivate": "Ich antworte nur in einer Direktnachricht mit mir.",
+    "notify": {
+      "notePrompt": "Was soll der Agent ändern? Antworte mit einer Notiz in deiner nächsten Nachricht."
     }
   }
 }

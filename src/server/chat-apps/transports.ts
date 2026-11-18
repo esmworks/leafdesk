@@ -1,12 +1,15 @@
 import { env } from "@/lib/env";
 import { slackTransport } from "@/server/slack/transport";
 import { telegramTransport } from "@/server/telegram/transport";
+import { teamsOn } from "@/server/teams/config";
+import { teamsTransport } from "@/server/teams/transport";
 import { CHAT_CHANNELS, type ChatChannel, type Transport } from "./transport";
 
 /** The chat apps this server has a bot in (set up through its env), by channel. */
 
 export function chatAppOn(channel: ChatChannel): boolean {
   if (channel === "telegram") return Boolean(env.telegramBotToken);
+  if (channel === "teams") return teamsOn();
   return Boolean(env.slackAppToken && env.slackBotToken);
 }
 
@@ -19,5 +22,6 @@ export const chatAppsOn = (): ChatChannel[] => CHAT_CHANNELS.filter(chatAppOn);
 /** The transport of a chat app set up here, else null (its links wait until it is again). */
 export function transportOf(channel: ChatChannel): Transport | null {
   if (!chatAppOn(channel)) return null;
-  return channel === "telegram" ? telegramTransport : slackTransport;
+  if (channel === "telegram") return telegramTransport;
+  return channel === "teams" ? teamsTransport : slackTransport;
 }

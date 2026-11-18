@@ -55,6 +55,7 @@
       "aiAccounts": "api avain oma avain palveluntarjoaja tekoäly",
       "telegram": "botti chat viestit",
       "slack": "botti chat yksityisviestit",
+      "teams": "botti chat yksityisviestit",
       "mcp": "avustaja model context protocol palvelin",
       "apiTokens": "rest api tunnus avain kehittäjä",
       "about": "versio lisenssi päivitys tietoja",
@@ -2160,7 +2161,7 @@
         "updated": "Muutti yhteyttä ”{target}”",
         "deleted": "Poisti yhteyden ”{target}”",
         "tool_called": "Kutsui työkalua ”{tool}” yhteydessä ”{target}” ({outcome})",
-        "approval_decided": "{decision}: agentin ”{agent}” kutsu työkaluun ”{tool}” yhteydessä ”{target}”{channel, select, telegram { (Telegramista)} slack { (Slackista)} other {}}"
+        "approval_decided": "{decision}: agentin ”{agent}” kutsu työkaluun ”{tool}” yhteydessä ”{target}”{channel, select, telegram { (Telegramista)} slack { (Slackista)} teams { (Teamsista)} other {}}"
       },
       "mail": {
         "databases_changed": "Asetti tietokannat, joihin sähköposti saapuu: {names}",
@@ -2275,6 +2276,7 @@
     "push": "Push",
     "telegram": "Telegram",
     "slack": "Slack",
+    "teams": "Teams",
     "chatApps": "Chat-sovellukset",
     "pushDescription": "Push-ilmoitukset tulevat saapuneisiin tulevista asioista niille laitteille, joilla otat ne käyttöön.",
     "pushDeviceTitle": "Push-ilmoitukset tällä laitteella",

@@ -490,7 +490,7 @@ export function createDispatch(
   outside.read = readOutside;
   /**
    * Whether a chat run, at this point, has read nothing but its person's words and the workspace:
-   * its message is theirs (typed in the app or sent from Telegram or Slack, not written by another connected
+   * its message is theirs (typed in the app or sent from Telegram, Slack or Teams, not written by another connected
    * app), no file came with it, and it read no email (mailRead: this run's, or the conversation's
    * before), web page or search, connection tool's answer or other agent's answer (readOthersWords,
    * and externalChars for anything a service sent back). A chat of someone who can edit the agent
@@ -502,7 +502,7 @@ export function createDispatch(
     // No message of the turn came from another connected app (one of a merged queue may have);
     // runs queued before `otherApp` existed still need theirs to be a chat app's bot's.
     !run.source.otherApp &&
-    (!run.source.fromApp || run.source.telegram === true || run.source.slack === true) &&
+    (!run.source.fromApp || run.source.telegram === true || run.source.slack === true || run.source.teams === true) &&
     !askEveryTool &&
     !filesAttached &&
     !mailRead &&

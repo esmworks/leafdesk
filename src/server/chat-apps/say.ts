@@ -21,16 +21,17 @@ export type Translator = (key: TextKey, values?: Record<string, string | number>
 const NAMED_COMMAND = /(^|[\s(“"«„'‘「（])\/(new|workspace|agent|mode|stop|notifications|unlink|help)\b/g;
 
 /**
- * The bot's texts in a language, as a chat app shows them: in Slack, the texts kept for it under
- * `telegram.slack.*` take the place of those that speak of Telegram, and commands are written as
- * its slash command takes them.
+ * The bot's texts in a language, as a chat app shows them: in Slack and Teams, the texts kept for
+ * them under `telegram.slack.*` and `telegram.teams.*` take the place of those that speak of
+ * Telegram; in Slack, commands are written as its slash command takes them.
  */
 export function translatorFor(locale: Locale, channel: ChatChannel = "telegram"): Translator {
   const t = baseTranslator(locale);
-  if (channel !== "slack") return (key, values) => t(key, values as never);
+  if (channel === "telegram") return (key, values) => t(key, values as never);
   return (key, values) => {
-    const own = `slack.${key}` as TextKey;
-    return t(t.has(own) ? own : key, values as never).replace(NAMED_COMMAND, "$1/leafdesk $2");
+    const own = `${channel}.${key}` as TextKey;
+    const text = t(t.has(own) ? own : key, values as never);
+    return channel === "slack" ? text.replace(NAMED_COMMAND, "$1/leafdesk $2") : text;
   };
 }
 

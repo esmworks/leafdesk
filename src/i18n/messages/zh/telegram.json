@@ -62,6 +62,12 @@
     "openRun": "打开运行记录",
     "notePrompt": "智能体应该改什么？请回复此消息并附上备注。",
     "notePlaceholder": "需要改什么",
+    "reply": "回复",
+    "replyPrompt": "请以回复这条消息的方式，写下你对这条评论的回复。",
+    "replyPlaceholder": "你的回复",
+    "replySent": "你的回复已发布。",
+    "replyEmpty": "请以回答这个问题的方式写下你的回复。",
+    "replyFailed": "无法发布回复：评论可能已被删除，或你已无法在那里发表评论。",
     "call": {
       "approved": "已批准：智能体继续执行。",
       "declined": "已拒绝：不会发送任何内容。",
@@ -221,6 +227,16 @@
     "onlyPrivate": "我只在与我的私信中回答。",
     "notify": {
       "notePrompt": "智能体应该改什么？请在此消息列中回复并附上备注。"
+    }
+  },
+  "teams": {
+    "notLinked": "此聊天未关联 Leafdesk 账户。在 Leafdesk 中打开 设置 → 已连接的应用 → Teams，选择“关联 Teams”，然后把显示的命令发送到这里。",
+    "badCode": "此代码已过期或已被使用。请在 Leafdesk 中新建一个：设置 → 已连接的应用 → Teams。",
+    "help": "提出问题，我会根据你的 Leafdesk 页面回答并注明出处。\n\n/new：开始新对话\n/new summary：从上一段对话的摘要开始与代理的新对话\n/workspace：选择我回答所用的工作区\n/agent：与你的某个智能体聊天\n/mode：选择我可以更改什么\n/stop：停止正在撰写的回答\n/notifications：开启或关闭此聊天中的通知\n/unlink：取消关联此 Teams 账户",
+    "unlinked": "此 Teams 账户已不再关联 Leafdesk。",
+    "onlyPrivate": "我只在与我的私信中回答。",
+    "notify": {
+      "notePrompt": "智能体应该改什么？请在下一条消息中用备注回答。"
     }
   }
 }

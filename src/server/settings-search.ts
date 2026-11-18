@@ -6,6 +6,7 @@ import { ACCOUNT_SETTINGS_TABS, accountTabForSettings, type SettingsTab, visible
 import { isGuest } from "./access";
 import { isEnabled as aiMayBeOn } from "./ai";
 import { hasOwnStorage } from "./storage/workspace";
+import { teamsOn } from "./teams/config";
 import { canInviteGuests, getWorkspace } from "./workspaces";
 
 /**
@@ -39,6 +40,7 @@ export async function settingsSearchIndex(userId: string, workspaceId: string): 
     ownAiKeys: env.ownAiKeysEnabled,
     telegram: Boolean(env.telegramBotToken),
     slack: Boolean(env.slackAppToken && env.slackBotToken),
+    teams: teamsOn(),
   };
   const shown = new Set<string>([...ACCOUNT_SETTINGS_TABS, ...tabs]);
   // Keys come from the entries, checked against the English texts by settings-search.test.ts.

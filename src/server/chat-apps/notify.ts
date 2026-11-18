@@ -9,6 +9,7 @@ import { env } from "@/lib/env";
 import { formatIsoDate } from "@/lib/mentions";
 import { pushPayload } from "@/lib/push";
 import { escapeHtml } from "@/lib/telegram-format";
+import { CommentError, MAX_COMMENT_LENGTH } from "@/lib/comments";
 import { AccessError, ConnectedAppReadOnlyError, workspacesHiddenFromApp } from "@/server/access";
 import { asWrite, runAsConnectedApp } from "@/server/connected-app";
 import { ApprovalError, decideApproval } from "@/server/connections/approvals";
@@ -35,6 +36,9 @@ import { anyChatApp, transportOf } from "./transports";
  * read or snooze it for an hour. The chat is a connected app's: notifications of a workspace that
  * turned connected apps off don't go there. A chat that blocked the bot gets nothing more: its
  * notifications are turned off until the person turns them on again in the settings.
+ *
+ * A comment's message has a Reply button too: the person writes the reply as the bot asks
+ * (Transport.askForReply) and it is posted in the comment's thread as them (replyToComment).
  *
  * An agent's call waiting for an owner comes with what it would send, as the inbox shows it
  * (credentials masked, cut short) and hidden until tapped, so a lock screen doesn't show it; and
@@ -105,8 +109,11 @@ function itemMessage(item: InboxItem, { locale, push, t }: NotifyTexts): { text:
     escapeHtml(payload.body),
     `<i>${escapeHtml(item.workspaceName)}</i> · <a href="${escapeHtml(`${env.appUrl}${payload.url}`)}">${escapeHtml(t("open"))}</a>`,
   ].join("\n");
+  // A comment can be answered from here (not a suggested edit's: that is decided in the page).
+  const reply = item.kind === "comment" && !item.suggestion && item.pageId && item.threadId;
   const buttons: Buttons = [
     [
+      ...(reply ? [{ text: t("reply"), data: `nc:${item.id}` }] : []),
       { text: t("markRead"), data: `nr:${item.id}` },
       ...(payload.snooze ? [{ text: payload.snooze, data: `nz:${item.id}` }] : []),
     ],
@@ -157,6 +164,41 @@ export async function answerNotification(userId: string, notificationId: string,
       return true;
     } catch (error) {
       if (error instanceof AccessError) return false;
+      throw error;
+    }
+  });
+}
+
+/** How a reply to a comment, written in a chat app, went (`telegram.notify.reply*`). */
+export type ReplyOutcome = "sent" | "gone" | "readOnly" | "failed" | "emptyNote";
+
+/**
+ * Posts the person's reply (written in a chat app) in the thread of the comment notification
+ * `notificationId`, as them: held to their access to the page and to the workspace's connected-apps
+ * setting as a write, so a workspace that lets apps only read is answered in the app.
+ */
+export async function replyToComment(userId: string, notificationId: string, text: string): Promise<ReplyOutcome> {
+  const body = text.trim();
+  if (!body) return "emptyNote";
+  const [found] = await db
+    .select({ workspaceId: notification.workspaceId, kind: notification.kind, pageId: notification.pageId, threadId: notification.threadId })
+    .from(notification)
+    .where(and(eq(notification.id, notificationId), eq(notification.userId, userId)))
+    .limit(1);
+  if (!found || found.kind !== "comment" || !found.pageId || !found.threadId) return "gone";
+  const { pageId, threadId } = found;
+  return runAsConnectedApp({ userId }, async () => {
+    if ((await workspacesHiddenFromApp(userId)).has(found.workspaceId)) return "gone";
+    // Imported here: comments.ts reaches the notifications, which reach this.
+    const { changeComments } = await import("@/server/comments");
+    try {
+      await asWrite(() => changeComments(userId, pageId, { type: "addComment", threadId, body: body.slice(0, MAX_COMMENT_LENGTH) }));
+      return "sent";
+    } catch (error) {
+      if (error instanceof ConnectedAppReadOnlyError) return "readOnly";
+      if (error instanceof AccessError) return "gone";
+      // A thread that is gone, a page in the trash …: the comment can't be answered.
+      if (error instanceof CommentError) return "failed";
       throw error;
     }
   });

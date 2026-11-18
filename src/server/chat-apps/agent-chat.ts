@@ -76,7 +76,7 @@ export type FollowHooks = { waiting: (on: boolean) => void; release: () => void;
 /** The runs a follow here (or a wait for one) is on, as `link:run`: a message queued behind one of them is taken by that follow. */
 const watched = new Map<string, number>();
 /** The run that took a queue to follow next: one a message from here went with, that no follow here is on yet. */
-const toFollow = (link: ChatLinkRow, next: { id: string; telegram: boolean; slack: boolean } | null) =>
+const toFollow = (link: ChatLinkRow, next: { id: string; telegram: boolean; slack: boolean; teams: boolean } | null) =>
   next?.[link.channel] && !watched.has(`${link.id}:${next.id}`) ? next.id : null;
 const watch = (linkId: string, runId: string) => {
   const key = `${linkId}:${runId}`;

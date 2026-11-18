@@ -55,6 +55,7 @@
       "aiAccounts": "مفتاح api مفتاح خاص مزود",
       "telegram": "بوت دردشة رسائل",
       "slack": "بوت دردشة رسائل مباشرة",
+      "teams": "بوت دردشة رسائل مباشرة",
       "mcp": "مساعد model context protocol خادم",
       "apiTokens": "rest api رمز مفتاح مطور",
       "about": "الإصدار الترخيص تحديث",
@@ -2160,7 +2161,7 @@
         "updated": "غيّر الاتصال «{target}»",
         "deleted": "أزال الاتصال «{target}»",
         "tool_called": "استدعى «{tool}» على «{target}» ({outcome})",
-        "approval_decided": "{decision}: استدعاء الوكيل «{agent}» لـ «{tool}» على «{target}»{channel, select, telegram { (من Telegram)} slack { (من Slack)} other {}}"
+        "approval_decided": "{decision}: استدعاء الوكيل «{agent}» لـ «{tool}» على «{target}»{channel, select, telegram { (من Telegram)} slack { (من Slack)} teams { (من Teams)} other {}}"
       },
       "mail": {
         "databases_changed": "حدّد قواعد البيانات التي يصل إليها البريد: {names}",
@@ -2275,6 +2276,7 @@
     "push": "إشعارات فورية",
     "telegram": "Telegram",
     "slack": "Slack",
+    "teams": "Teams",
     "chatApps": "تطبيقات الدردشة",
     "pushDescription": "تصل الإشعارات الفورية لما يظهر في صندوق الوارد، على الأجهزة التي تفعّلها عليها.",
     "pushDeviceTitle": "الإشعارات الفورية على هذا الجهاز",

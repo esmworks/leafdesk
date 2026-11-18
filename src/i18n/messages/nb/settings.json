@@ -55,6 +55,7 @@
       "aiAccounts": "api-nøkkel egen nøkkel leverandør",
       "telegram": "bot chat meldinger",
       "slack": "bot chat direktemeldinger",
+      "teams": "bot chat direktemeldinger",
       "mcp": "assistent model context protocol server",
       "apiTokens": "rest api token nøkkel utvikler",
       "about": "versjon lisens oppdatering",
@@ -2160,7 +2161,7 @@
         "updated": "Endret tilkoblingen «{target}»",
         "deleted": "Fjernet tilkoblingen «{target}»",
         "tool_called": "Kalte «{tool}» på «{target}» ({outcome})",
-        "approval_decided": "{decision}: kallet til «{tool}» på «{target}» fra agenten «{agent}»{channel, select, telegram { (fra Telegram)} slack { (fra Slack)} other {}}"
+        "approval_decided": "{decision}: kallet til «{tool}» på «{target}» fra agenten «{agent}»{channel, select, telegram { (fra Telegram)} slack { (fra Slack)} teams { (fra Teams)} other {}}"
       },
       "mail": {
         "databases_changed": "Valgte databasene som e-post havner i: {names}",
@@ -2275,6 +2276,7 @@
     "push": "Push",
     "telegram": "Telegram",
     "slack": "Slack",
+    "teams": "Teams",
     "chatApps": "Chatapper",
     "pushDescription": "Pushvarsler sendes for det som vises i innboksen din, på enhetene der du slår dem på.",
     "pushDeviceTitle": "Pushvarsler på denne enheten",

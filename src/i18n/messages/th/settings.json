@@ -55,6 +55,7 @@
       "aiAccounts": "คีย์ api คีย์ของตัวเอง ผู้ให้บริการ",
       "telegram": "บอท แชท ข้อความ",
       "slack": "บอท แชท ข้อความส่วนตัว",
+      "teams": "บอท แชท ข้อความส่วนตัว",
       "mcp": "ผู้ช่วย model context protocol เซิร์ฟเวอร์",
       "apiTokens": "rest api โทเค็น คีย์ นักพัฒนา",
       "about": "เวอร์ชัน สัญญาอนุญาต อัปเดต",
@@ -2160,7 +2161,7 @@
         "updated": "เปลี่ยนการเชื่อมต่อ “{target}”",
         "deleted": "นำการเชื่อมต่อ “{target}” ออก",
         "tool_called": "เรียก “{tool}” บน “{target}” ({outcome})",
-        "approval_decided": "{decision}การเรียก “{tool}” บน “{target}” ของเอเจนต์ “{agent}”{channel, select, telegram { (จาก Telegram)} slack { (จาก Slack)} other {}}"
+        "approval_decided": "{decision}การเรียก “{tool}” บน “{target}” ของเอเจนต์ “{agent}”{channel, select, telegram { (จาก Telegram)} slack { (จาก Slack)} teams { (จาก Teams)} other {}}"
       },
       "mail": {
         "databases_changed": "ตั้งฐานข้อมูลที่อีเมลเข้าไป: {names}",
@@ -2275,6 +2276,7 @@
     "push": "พุช",
     "telegram": "Telegram",
     "slack": "Slack",
+    "teams": "Teams",
     "chatApps": "แอปแชท",
     "pushDescription": "การแจ้งเตือนแบบพุชจะมาสำหรับสิ่งที่แสดงในกล่องข้อความของคุณ บนอุปกรณ์ที่คุณเปิดไว้",
     "pushDeviceTitle": "การแจ้งเตือนแบบพุชบนอุปกรณ์นี้",

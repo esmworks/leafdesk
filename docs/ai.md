@@ -1146,6 +1146,80 @@ read* and *Snooze 1 hour*. My account → Preferences has one column for chat ap
 names the app when only one is linked (*Telegram* or *Slack*) and is called *Chat apps* when both
 are: what is chosen there comes to every chat app linked with notifications on.
 
+### AI chat from Microsoft Teams
+
+The same chat as [from Telegram](#ai-chat-from-telegram) works in Microsoft Teams: in a personal
+chat with the server's Teams app, by text, answered as the person is in the app, with the same
+commands, approvals, notifications and agent chats. Unlike the other two it needs an address that
+Microsoft can reach: Teams sends each message to `https://<your address>/api/teams/messages`.
+
+**Registering the bot.** In the Azure portal create an *Azure Bot* resource: type *Single Tenant*
+(the server answers only people of its own directory), a new Microsoft app ID. Under *Configuration*
+set the messaging endpoint to `https://<your address>/api/teams/messages`, open *Manage Password*
+and make a client secret, and under *Channels* add *Microsoft Teams*. Then set the three values on
+the server and restart:
+
+```bash
+TEAMS_APP_ID=<the bot's Microsoft app ID>
+TEAMS_APP_PASSWORD=<the client secret's value>
+TEAMS_TENANT_ID=<the directory's ID>
+```
+
+(`TEAMS_LOGIN_URL`, `TEAMS_OPENID_URL` and `TEAMS_SERVICE_URL_HOSTS` exist only for tests.) The
+server checks the signed token on every call (issuer, audience, expiry, signature against
+Microsoft's published keys, and that the call's service address is the token's) and answers only
+through the service address of the conversation, which must be one of Microsoft's bot service
+hosts; the people of other directories are ignored.
+
+**The app package.** Teams needs an app that points at the bot. Make a zip with two icons (`outline.png`,
+32x32, and `color.png`, 192x192) and this `manifest.json` (use a new GUID for `id`, the bot's app
+ID for `botId`, and your address for `validDomains`), then upload it in Teams under *Apps* → *Manage your apps* → *Upload an app*
+(or to the organisation's catalog in the Teams admin centre):
+
+```json
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/teams/v1.17/MicrosoftTeams.schema.json",
+  "manifestVersion": "1.17",
+  "version": "1.0.0",
+  "id": "<a new GUID>",
+  "developer": {
+    "name": "Leafdesk",
+    "websiteUrl": "https://<your address>",
+    "privacyUrl": "https://<your address>",
+    "termsOfUseUrl": "https://<your address>"
+  },
+  "name": { "short": "Leafdesk", "full": "Leafdesk AI chat" },
+  "description": { "short": "Ask Leafdesk and get its notifications.", "full": "Ask the AI chat questions about your workspace, approve its changes and get your inbox notifications in Teams." },
+  "icons": { "outline": "outline.png", "color": "color.png" },
+  "accentColor": "#2F7D5B",
+  "bots": [{ "botId": "<the bot's app ID>", "scopes": ["personal"], "isNotificationOnly": false, "supportsFiles": false }],
+  "permissions": ["identity", "messageTeamMembers"],
+  "validDomains": ["<your address>"]
+}
+```
+
+**Linking an account.** In My account → *Connected apps* → *Microsoft Teams*, *Link Microsoft
+Teams* shows a command with a one-time code, `/link <code>` (also accepted without the slash), to
+send in the personal chat with the app (*Open Microsoft Teams* opens it). The code works once, for 10
+minutes, and only a hash of it is kept. A Teams account links to one Leafdesk account at a time, and
+the other way round.
+
+**What differs from Telegram.** Teams has no slash commands, so a message that is exactly a command
+word (`new`, `agent`, `help`, `link <code>`, optionally with a `/`) is a command and anything else
+is a question. Only the personal chat is answered; in channels and group chats a command is
+answered with a note to use the direct message. Answers come as Teams' Markdown in messages of up
+to 3,500 characters; questions to approve and notifications come with an Adaptive Card's buttons,
+which are replaced by a line saying what was chosen once pressed. Files and voice messages are not
+taken. Teams cannot read messages back, so
+the server keeps the text of the latest messages it sent in memory to edit them. The address a chat
+is served at is kept on the link (`channel_link.service_url`), so notifications still reach a chat
+after a restart.
+
+**Notifications.** As from Telegram, each new inbox item comes to the personal chat with *Mark read* and
+*Snooze 1 hour*, and the chat apps' column of My account → Preferences covers Teams too. A
+comment's notification also has *Reply*: press it and the next message you send is posted as your
+reply in the comment's thread (this works in Telegram and Slack as well).
+
 ## Skills
 
 A skill is a page or database row whose body is instructions to reuse: a review checklist, how to

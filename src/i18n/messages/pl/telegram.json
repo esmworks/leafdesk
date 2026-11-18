@@ -62,6 +62,12 @@
     "openRun": "Otwórz przebieg",
     "notePrompt": "Co agent ma zmienić? Odpowiedz na tę wiadomość notatką.",
     "notePlaceholder": "Co ma się zmienić",
+    "reply": "Odpowiedz",
+    "replyPrompt": "Napisz odpowiedź na komentarz, w odpowiedzi na tę wiadomość.",
+    "replyPlaceholder": "Twoja odpowiedź",
+    "replySent": "Twoja odpowiedź została opublikowana.",
+    "replyEmpty": "Napisz swoją odpowiedź, w odpowiedzi na pytanie.",
+    "replyFailed": "Nie udało się opublikować odpowiedzi: komentarz mógł zostać usunięty albo nie możesz już tam komentować.",
     "call": {
       "approved": "Zatwierdzono: agent działa dalej.",
       "declined": "Odrzucono: nic nie zostanie wysłane.",
@@ -221,6 +227,16 @@
     "onlyPrivate": "Odpowiadam tylko w wiadomości bezpośredniej ze mną.",
     "notify": {
       "notePrompt": "Co agent ma zmienić? Odpowiedz w tym wątku notatką."
+    }
+  },
+  "teams": {
+    "notLinked": "Ten czat nie jest połączony z kontem Leafdesk. W Leafdesk otwórz Ustawienia → Połączone aplikacje → Teams, wybierz Połącz ze Teamsem i wyślij tutaj polecenie, które się pojawi.",
+    "badCode": "Ten kod wygasł lub został już użyty. Utwórz nowy w Leafdesk: Ustawienia → Połączone aplikacje → Teams.",
+    "help": "Zadaj pytanie, a odpowiem na podstawie Twoich stron w Leafdesk, podając źródła.\n\n/new: zacznij nową rozmowę\n/new summary: zacznij nową rozmowę z agentem od podsumowania poprzedniej\n/workspace: wybierz obszar roboczy, z którego odpowiadam\n/agent: czatuj z jednym ze swoich agentów\n/mode: wybierz, co mogę zmieniać\n/stop: zatrzymaj pisaną odpowiedź\n/notifications: włącz lub wyłącz swoje powiadomienia w tym czacie\n/unlink: odłącz to konto Teams",
+    "unlinked": "To konto Teams nie jest już połączone z Leafdesk.",
+    "onlyPrivate": "Odpowiadam tylko w wiadomości bezpośredniej ze mną.",
+    "notify": {
+      "notePrompt": "Co agent ma zmienić? Odpowiedz notatką w następnej wiadomości."
     }
   }
 }

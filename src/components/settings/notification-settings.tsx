@@ -81,7 +81,7 @@ export function NotificationSettings({
   /** The server's VAPID public key and the endpoints of the user's devices; null when push is off. */
   push: { publicKey: string; endpoints: string[] } | null;
   /** The chat apps the person linked with notifications on (server/chat-apps/notify.ts). */
-  chatApps?: readonly ("telegram" | "slack")[];
+  chatApps?: readonly ("telegram" | "slack" | "teams")[];
 }) {
   // On one computer no email goes out, and nobody asks to join or for access.
   const localMode = useLocalMode();
@@ -119,7 +119,7 @@ function NotificationKindRow({
   kind: PreferenceKind;
   channels: NotificationChannel[];
   /** The text naming the chat apps' column (`telegram`). */
-  chatLabel: "telegram" | "slack" | "chatApps";
+  chatLabel: "telegram" | "slack" | "teams" | "chatApps";
   initial: Record<NotificationChannel, boolean>;
 }) {
   const t = useTranslations("settings.notifications");

@@ -218,6 +218,13 @@ services:
       SLACK_APP_TOKEN: ${SLACK_APP_TOKEN:-}
       SLACK_BOT_TOKEN: ${SLACK_BOT_TOKEN:-}
       SLACK_API_URL: ${SLACK_API_URL:-}
+      # The AI chat from Microsoft Teams: off unless all three Teams values are set (see docs/ai.md).
+      TEAMS_APP_ID: ${TEAMS_APP_ID:-}
+      TEAMS_APP_PASSWORD: ${TEAMS_APP_PASSWORD:-}
+      TEAMS_TENANT_ID: ${TEAMS_TENANT_ID:-}
+      TEAMS_LOGIN_URL: ${TEAMS_LOGIN_URL:-}
+      TEAMS_OPENID_URL: ${TEAMS_OPENID_URL:-}
+      TEAMS_SERVICE_URL_HOSTS: ${TEAMS_SERVICE_URL_HOSTS:-}
       # Address search and map images: OpenStreetMap's public servers unless set; empty turns them off.
       GEOCODER_URL: ${GEOCODER_URL-https://nominatim.openstreetmap.org}
       MAP_TILE_URL: ${MAP_TILE_URL-https://tile.openstreetmap.org/{z}/{x}/{y}.png}

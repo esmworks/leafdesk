@@ -11,6 +11,18 @@
   nothing is created or stored otherwise. The AI chat can do the same through a new `suggest_skills`
   tool (found with `find_tools`), offered only to a person's own chat, never to connected apps or
   agents. Feature `skills.suggest`. No migration, no new environment variables.
+- **Talk to the AI chat from Microsoft Teams.** A personal chat with the server's Teams bot works
+  like the Telegram and Slack ones: questions answered as the person is in the app (Markdown, sources
+  as links), changes approved with an Adaptive Card's buttons, `link <code>` to link an account,
+  `new`, `agent` and the other commands written as words (Teams has no slash commands), inbox
+  notifications with *Mark read* and *Snooze*, and agent chats. Calls to `POST /api/teams/messages`
+  are accepted only with a valid Bot Framework token (checked on the server, no new dependency) for
+  the server's own directory, and replies go only to Microsoft's bot service hosts. My account >
+  Connected apps shows the setup, and *AI chat from Microsoft Teams* in `docs/ai.md` walks through the
+  Azure bot and the app manifest. A comment's notification in any chat app now has *Reply*, which
+  posts your next message in the comment's thread. Migration 0214 (`channel_link.service_url`); new
+  environment variables `TEAMS_APP_ID`, `TEAMS_APP_PASSWORD`, `TEAMS_TENANT_ID` (and
+  `TEAMS_LOGIN_URL`, `TEAMS_OPENID_URL`, `TEAMS_SERVICE_URL_HOSTS` for tests).
 - **Sync Zendesk tickets and Salesforce records.** Import has two new tabs. *Zendesk* takes an
   account, an admin's email address and API token and keeps a database of its tickets (status,
   priority, type, requester, assignee, tags, dates, link, a board by status) through the

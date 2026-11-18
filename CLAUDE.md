@@ -530,9 +530,14 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   they follow a completion without changing; rollups show option names, so `updateProperty`
   rewrites such rollup filters when options are renamed), the chat-app bot `src/server/chat-apps/` (`bot.ts`
   `handleEvent` reads one app's normalized events, `transport.ts` is what an app offers it: Telegram
-  in `server/telegram/`, long polling, and Slack in `server/slack/`, Socket Mode, `/leafdesk
-  <command>`, its mrkdwn `lib/slack-format.ts`; texts are `telegram.json`, Slack's own under
-  `telegram.slack.*`, `say.ts` `translatorFor`; links in `channel_link` (`links.ts`), one per
+  in `server/telegram/`, long polling, Slack in `server/slack/`, Socket Mode, `/leafdesk
+  <command>`, its mrkdwn `lib/slack-format.ts`, and Teams in `server/teams/`, a webhook
+  (`api/teams/messages`: `auth.ts` checks the Bot Framework JWT with `node:crypto`, `serviceUrl` must
+  equal the token's claim and be a Microsoft host, `conversations.ts` keeps each chat's `serviceUrl`
+  in memory and on `channel_link.service_url` because the Next route and `server.ts` are separate
+  graphs; no slash commands, so `events.ts` reads bare command words; Markdown `lib/teams-format.ts`);
+  texts are `telegram.json`, Slack's and Teams' own under `telegram.slack.*` and `telegram.teams.*`,
+  `say.ts` `translatorFor`; a comment's notification has *Reply* (`notify.ts` `replyToComment`, asked in `bot.ts` `notesAsked`); links in `channel_link` (`links.ts`), one per
   person and app; the notification preferences' `…_telegram` columns mean every chat app;
   `/agent` chats with an agent: `agent-chat.ts`, following its run as `chatTurn` and `followRun` show it, in the agent's latest conversation; a message queued behind a run no follow watches starts a waiter, `watched`, that follows only the queue's run), synced databases (own
   `database_sync` table, `source` jira, github, ical, gcal, postgres, sheets, zendesk or salesforce; the runs and the one-minute sweep

@@ -62,6 +62,12 @@
     "openRun": "Abrir a execução",
     "notePrompt": "O que o agente deve mudar? Responda a esta mensagem com uma nota.",
     "notePlaceholder": "O que deve mudar",
+    "reply": "Responder",
+    "replyPrompt": "Escreva a sua resposta ao comentário, em resposta a esta mensagem.",
+    "replyPlaceholder": "A sua resposta",
+    "replySent": "A sua resposta foi publicada.",
+    "replyEmpty": "Escreva a sua resposta, em resposta à pergunta.",
+    "replyFailed": "Não foi possível publicar a resposta: o comentário pode ter sido apagado ou talvez já não possa comentar aí.",
     "call": {
       "approved": "Aprovado: o agente segue em frente.",
       "declined": "Recusado: nada é enviado.",
@@ -221,6 +227,16 @@
     "onlyPrivate": "Só respondo em uma mensagem direta comigo.",
     "notify": {
       "notePrompt": "O que o agente deve mudar? Responda nesta thread com uma nota."
+    }
+  },
+  "teams": {
+    "notLinked": "Este chat não está conectado a uma conta do Leafdesk. No Leafdesk, abra Configurações → Apps conectados → Teams, escolha Conectar Teams e envie aqui o comando que aparecer.",
+    "badCode": "Esse código expirou ou já foi usado. Crie um novo no Leafdesk: Configurações → Apps conectados → Teams.",
+    "help": "Faça uma pergunta e eu respondo a partir das suas páginas do Leafdesk, citando-as.\n\n/new: começar uma nova conversa\n/new summary: começar uma nova conversa com um agente a partir de um resumo da anterior\n/workspace: escolher o espaço de trabalho de onde respondo\n/agent: conversar com um dos seus agentes\n/mode: escolher o que posso alterar\n/stop: parar a resposta que está sendo escrita\n/notifications: ativar ou desativar suas notificações neste chat\n/unlink: desconectar esta conta do Teams",
+    "unlinked": "Esta conta do Teams não está mais conectada ao Leafdesk.",
+    "onlyPrivate": "Só respondo em uma mensagem direta comigo.",
+    "notify": {
+      "notePrompt": "O que deve o agente alterar? Responda com uma nota na sua próxima mensagem."
     }
   }
 }

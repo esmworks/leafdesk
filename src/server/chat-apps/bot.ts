@@ -16,7 +16,7 @@ import { asWrite, runAsConnectedApp } from "@/server/connected-app";
 import { transcribeDictation } from "@/server/voice-notes";
 import { listWorkspaces } from "@/server/workspaces";
 import { agentPicker, askAgent, newAgentConversationFromSummary, pickAgent, type FollowHooks } from "./agent-chat";
-import { answerCall, answerNotification } from "./notify";
+import { answerCall, answerNotification, replyToComment } from "./notify";
 import { linkMode, linkOf, linkWithCode, setChatNotifications, touchLink, unlinkChat, updateLink, type ChatLinkRow } from "./links";
 import { appPageUrl, changeLines, chatOf, html, localeOf, packFor, send, sendHtml, translatorFor, type Chat, type Translator } from "./say";
 import { ChannelError, type ButtonPress, type Buttons, type ChatEvent, type IncomingFile, type IncomingMessage, type IncomingVoice, type Transport } from "./transport";
@@ -57,11 +57,11 @@ const agentAnswers = new WeakSet<AbortSignal>();
 const asked = new Map<string, { text: string; messageId: string | null }>();
 
 /**
- * Notes asked for to send an agent's call back (by the chat app, the chat and the reply's key,
- * Transport.askForReply): the approval message they answer. The newest MAX_NOTES_ASKED are kept; a
+ * Notes asked for to send an agent's call back, and replies asked for to a comment (by the chat
+ * app, the chat and the reply's key, Transport.askForReply): the message they answer. The newest MAX_NOTES_ASKED are kept; a
  * note asked for before the server restarted is read as a question.
  */
-const notesAsked = new Map<string, { notificationId: string; guard: string; messageId: string }>();
+const notesAsked = new Map<string, { notificationId: string; guard: string; messageId: string } | { comment: true; notificationId: string; messageId: string }>();
 const MAX_NOTES_ASKED = 1_000;
 
 /** How often "typing…" is sent again while an answer is written (Telegram shows it for 5 s). */
@@ -121,6 +121,12 @@ async function onMessage(transport: Transport, message: IncomingMessage) {
   const asked = replyTo ? notesAsked.get(replyTo) : undefined;
   if (asked && replyTo && !command) {
     notesAsked.delete(replyTo);
+    if ("comment" in asked) {
+      const outcome = await replyToComment(link.userId, asked.notificationId, text);
+      // An empty reply can be written again in answer to the same question.
+      if (outcome === "emptyNote") notesAsked.set(replyTo, asked);
+      return void (await transport.send(chat.id, escapeHtml(t(`notify.reply${outcome === "sent" ? "Sent" : outcome === "emptyNote" ? "Empty" : "Failed"}`)), { replyTo: asked.messageId }));
+    }
     const outcome = await answerCall(link.userId, asked.notificationId, asked.guard, "redo", link.channel, text.slice(0, MAX_REDO_NOTE));
     // An empty note can be written again in answer to the same question.
     if (outcome === "emptyNote") notesAsked.set(replyTo, asked);
@@ -584,6 +590,15 @@ async function onButton(transport: Transport, press: ButtonPress) {
     const outcome = await answerCall(link.userId, notificationId, guard, choice === "a" ? "approve" : "decline", link.channel);
     if (transport.canEdit) await transport.editButtons(chat.id, messageId).catch(() => {});
     await transport.send(chat.id, escapeHtml(t(`notify.call.${outcome}`)), { replyTo: messageId });
+    return;
+  }
+
+  const replying = /^nc:([\w-]{1,60})$/.exec(data);
+  if (replying) {
+    await transport.answerButton(press);
+    const key = await transport.askForReply(chat.id, escapeHtml(t("notify.replyPrompt")), t("notify.replyPlaceholder"), messageId);
+    notesAsked.set(`${transport.channel}:${chat.id}:${key}`, { comment: true, notificationId: replying[1], messageId });
+    if (notesAsked.size > MAX_NOTES_ASKED) notesAsked.delete(notesAsked.keys().next().value!);
     return;
   }
 

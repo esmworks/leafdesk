@@ -55,6 +55,7 @@
       "aiAccounts": "api-sleutel eigen sleutel aanbieder",
       "telegram": "bot chat berichten",
       "slack": "bot chat directe berichten",
+      "teams": "bot chat directe berichten",
       "mcp": "assistent model context protocol server",
       "apiTokens": "rest api token sleutel ontwikkelaar",
       "about": "versie licentie update over",
@@ -2160,7 +2161,7 @@
         "updated": "De koppeling “{target}” gewijzigd",
         "deleted": "De koppeling “{target}” verwijderd",
         "tool_called": "“{tool}” aangeroepen op “{target}” ({outcome})",
-        "approval_decided": "{decision}: de aanroep van “{tool}” op “{target}” door de agent “{agent}”{channel, select, telegram { (vanuit Telegram)} slack { (vanuit Slack)} other {}}"
+        "approval_decided": "{decision}: de aanroep van “{tool}” op “{target}” door de agent “{agent}”{channel, select, telegram { (vanuit Telegram)} slack { (vanuit Slack)} teams { (vanuit Teams)} other {}}"
       },
       "mail": {
         "databases_changed": "De databases ingesteld waarin e-mail terechtkomt: {names}",
@@ -2275,6 +2276,7 @@
     "push": "Push",
     "telegram": "Telegram",
     "slack": "Slack",
+    "teams": "Teams",
     "chatApps": "Chat-apps",
     "pushDescription": "Pushmeldingen komen voor wat in je inbox verschijnt, op de apparaten waarop je ze aanzet.",
     "pushDeviceTitle": "Pushmeldingen op dit apparaat",

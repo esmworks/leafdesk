@@ -15,6 +15,7 @@ import { CalendarFeeds } from "@/components/account/calendar-feeds";
 import { ImageSenders } from "@/components/account/image-senders";
 import { SenderRules } from "@/components/account/sender-rules";
 import { SlackGroup } from "@/components/account/slack-group";
+import { TeamsGroup } from "@/components/account/teams-group";
 import { TelegramGroup } from "@/components/account/telegram-group";
 import { ApiTokens } from "@/components/settings/api-tokens";
 import { ConnectedApps } from "@/components/settings/connected-apps";
@@ -42,6 +43,8 @@ import { getNotificationPreferences } from "@/server/notification-preferences";
 import { listWatches } from "@/server/page-watch";
 import { pushEndpoints, vapidPublicKey } from "@/server/push";
 import { slackNotificationsOn } from "@/server/slack/links";
+import { teamsOn } from "@/server/teams/config";
+import { teamsNotificationsOn } from "@/server/teams/links";
 import { telegramNotificationsOn } from "@/server/telegram/links";
 import type { requireSession } from "@/server/session";
 import { env } from "@/lib/env";
@@ -92,6 +95,7 @@ export async function AccountTabContent({ tab, session, query = {} }: { tab: Acc
         {env.ownAiKeysEnabled && <AiAccountsGroup />}
         {env.telegramBotToken && <TelegramGroup userId={session.user.id} />}
         {env.slackAppToken && env.slackBotToken && <SlackGroup userId={session.user.id} />}
+        {teamsOn() && <TeamsGroup userId={session.user.id} />}
         <McpInstructions />
         <ApiTokens />
       </div>
@@ -214,7 +218,7 @@ async function SecurityTab({ session }: { session: Session }) {
 
 async function PreferencesTab({ userId }: { userId: string }) {
   const publicKey = vapidPublicKey();
-  const [cookieStore, notificationPreferences, desktopLinks, openOnStart, watches, dashboardEmails, endpoints, telegram, slack, t, ts] = await Promise.all([
+  const [cookieStore, notificationPreferences, desktopLinks, openOnStart, watches, dashboardEmails, endpoints, telegram, slack, teams, t, ts] = await Promise.all([
     cookies(),
     getNotificationPreferences(userId),
     getDesktopLinks(userId),
@@ -225,6 +229,7 @@ async function PreferencesTab({ userId }: { userId: string }) {
     publicKey ? pushEndpoints(userId) : [],
     telegramNotificationsOn(userId),
     slackNotificationsOn(userId),
+    teamsNotificationsOn(userId),
     getTranslations("account"),
     getTranslations("settings"),
   ]);
@@ -265,7 +270,7 @@ async function PreferencesTab({ userId }: { userId: string }) {
             </>
           }
         >
-          <NotificationSettings preferences={notificationPreferences} push={publicKey ? { publicKey, endpoints } : null} chatApps={[...(telegram ? ["telegram" as const] : []), ...(slack ? ["slack" as const] : [])]} />
+          <NotificationSettings preferences={notificationPreferences} push={publicKey ? { publicKey, endpoints } : null} chatApps={[...(telegram ? ["telegram" as const] : []), ...(slack ? ["slack" as const] : []), ...(teams ? ["teams" as const] : [])]} />
         </SettingsGroup>
         <SettingsGroup anchor="watchedPages" title={ts("notifications.watchedHeading")} description={ts("notifications.watchedDescription")}>
           <WatchedPages pages={watches.pages} teamspaces={watches.teamspaces} />

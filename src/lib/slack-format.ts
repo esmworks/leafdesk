@@ -8,10 +8,11 @@
  * (`hideSpoilers`). Tags it doesn't know are dropped, their text kept.
  */
 
-type Node = { tag: string; href?: string; children: Node[] } | string;
+/** The tree of the known tags (also read by lib/teams-format.ts). */
+export type Node = { tag: string; href?: string; children: Node[] } | string;
 
 /** The HTML parsed into a tree of the known tags; unknown tags and stray closings are dropped. */
-function parse(html: string): Node[] {
+export function parse(html: string): Node[] {
   const root: { tag: string; children: Node[] } = { tag: "", children: [] };
   const stack: { tag: string; href?: string; children: Node[] }[] = [root];
   const tagPattern = /<(\/?)([a-z-]+)((?:\s+[a-z-]+="[^"]*")*)\s*\/?>/gi;
@@ -36,7 +37,7 @@ function parse(html: string): Node[] {
 }
 
 /** Text of a tree, with no marks (inside code and links' labels). */
-const plain = (nodes: Node[]): string => nodes.map((n) => (typeof n === "string" ? n : plain(n.children))).join("");
+export const plain = (nodes: Node[]): string => nodes.map((n) => (typeof n === "string" ? n : plain(n.children))).join("");
 
 /** A mark around text, outside its spaces (Slack reads `* bold*` as no mark). */
 function mark(text: string, sign: string): string {

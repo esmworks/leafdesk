@@ -298,6 +298,41 @@ export const env = {
     return (process.env.SLACK_API_URL?.trim() || "https://slack.com/api").replace(/\/$/, "");
   },
   /**
+   * TEAMS_APP_ID, TEAMS_APP_PASSWORD and TEAMS_TENANT_ID: the single-tenant Azure bot (Microsoft
+   * Entra app registration: its application id, a client secret and its directory id) through
+   * which people talk to the AI chat in a chat with the Leafdesk app in Microsoft Teams (see
+   * server/teams). Teams calls POST /api/teams/messages on the app's public address. Off unless
+   * all three are set.
+   */
+  get teamsAppId() {
+    return process.env.TEAMS_APP_ID?.trim() || null;
+  },
+  get teamsAppPassword() {
+    return process.env.TEAMS_APP_PASSWORD?.trim() || null;
+  },
+  get teamsTenantId() {
+    return process.env.TEAMS_TENANT_ID?.trim() || null;
+  },
+  /**
+   * TEAMS_LOGIN_URL: where the bot's access token is asked for (Microsoft's public sign-in by
+   * default; a sovereign cloud's, and tests', otherwise). TEAMS_OPENID_URL: the Bot Framework's
+   * OpenID metadata that the signing keys of Teams' calls are read from. TEAMS_SERVICE_URL_HOSTS:
+   * hosts besides Microsoft's public bot service that a conversation's service address may name
+   * (comma separated; tests). Only an owner of the server sets these.
+   */
+  get teamsLoginUrl() {
+    return (process.env.TEAMS_LOGIN_URL?.trim() || "https://login.microsoftonline.com").replace(/\/$/, "");
+  },
+  get teamsOpenIdUrl() {
+    return process.env.TEAMS_OPENID_URL?.trim() || "https://login.botframework.com/v1/.well-known/openidconfiguration";
+  },
+  get teamsServiceUrlHosts() {
+    return (process.env.TEAMS_SERVICE_URL_HOSTS ?? "")
+      .split(",")
+      .map((host) => host.trim().toLowerCase())
+      .filter(Boolean);
+  },
+  /**
    * GEOCODER_URL: the Nominatim-compatible search API place properties look addresses up with
    * (server/geocoder.ts); OpenStreetMap's public one when unset, off when set empty (places then
    * take coordinates only). One set on purpose may be on a private network.

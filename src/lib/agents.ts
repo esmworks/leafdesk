@@ -240,6 +240,8 @@ export type AgentRunSource =
       telegram?: true;
       /** The same for the Slack bot. */
       slack?: true;
+      /** The same for the Teams bot. */
+      teams?: true;
       /**
        * Its message (or one of those that waited) came from a connected app other than the
        * Telegram bot (MCP, the REST API): another app's words, never kept as the person's own.

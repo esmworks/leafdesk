@@ -23,7 +23,7 @@ export const queueView = (queue: readonly AgentChatQueuedRecord[]): AgentChatQue
  * The turn the queued messages make once the answer before them ends at `at` (ms): each as a
  * question of the run `runId`, a moment after the answer and in order; the run's prompt and files
  * (named apart from one another); whether a connected app sent one (the run is then one from an
- * app: no mail tools), whether the Telegram or the Slack bot did (it follows the answer) and whether an app other
+ * app: no mail tools), whether the Telegram, Slack or Teams bot did (it follows the answer) and whether an app other
  * than those bots did (its words aren't the person's: assistant/dispatch.ts `untainted`); the web session they were
  * all sent from, only when it is one and the same (agents/computer.ts lends the computer only then);
  * and the clock the last one was written on.
@@ -47,6 +47,7 @@ export function queuedTurn(queue: readonly AgentChatQueuedRecord[], runId: strin
     fromApp: queue.some((q) => q.fromApp),
     telegram: queue.some((q) => q.via === "telegram"),
     slack: queue.some((q) => q.via === "slack"),
+    teams: queue.some((q) => q.via === "teams"),
     otherApp: queue.some((q) => q.fromApp && !q.via),
     sessionId: queue.length && queue.every((q) => q.sessionId && q.sessionId === queue[0].sessionId) ? queue[0].sessionId : undefined,
     timeZone: queue.findLast((q) => q.timeZone)?.timeZone,

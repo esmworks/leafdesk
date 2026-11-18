@@ -62,6 +62,12 @@
     "openRun": "Mở lần chạy",
     "notePrompt": "Tác tử nên thay đổi gì? Hãy trả lời tin nhắn này bằng một ghi chú.",
     "notePlaceholder": "Cần thay đổi gì",
+    "reply": "Trả lời",
+    "replyPrompt": "Viết câu trả lời của bạn cho bình luận, để đáp lại tin nhắn này.",
+    "replyPlaceholder": "Câu trả lời của bạn",
+    "replySent": "Câu trả lời của bạn đã được đăng.",
+    "replyEmpty": "Viết câu trả lời của bạn để đáp lại câu hỏi.",
+    "replyFailed": "Không thể đăng câu trả lời: bình luận có thể đã bị xóa, hoặc bạn không còn bình luận được ở đó.",
     "call": {
       "approved": "Đã phê duyệt: tác tử tiếp tục.",
       "declined": "Đã từ chối: không có gì được gửi.",
@@ -221,6 +227,16 @@
     "onlyPrivate": "Tôi chỉ trả lời trong tin nhắn trực tiếp với tôi.",
     "notify": {
       "notePrompt": "Tác tử nên thay đổi gì? Hãy trả lời trong chuỗi này bằng một ghi chú."
+    }
+  },
+  "teams": {
+    "notLinked": "Cuộc trò chuyện này chưa được liên kết với tài khoản Leafdesk nào. Trong Leafdesk, hãy mở Cài đặt → Ứng dụng đã kết nối → Teams, chọn Liên kết Teams và gửi lệnh hiện ra vào đây.",
+    "badCode": "Mã đó đã hết hạn hoặc đã được dùng. Hãy tạo mã mới trong Leafdesk: Cài đặt → Ứng dụng đã kết nối → Teams.",
+    "help": "Hãy đặt câu hỏi, tôi sẽ trả lời dựa trên các trang Leafdesk của bạn và dẫn nguồn.\n\n/new: bắt đầu cuộc trò chuyện mới\n/new summary: bắt đầu cuộc trò chuyện mới với tác nhân từ bản tóm tắt cuộc trước\n/workspace: chọn không gian làm việc tôi dùng để trả lời\n/agent: trò chuyện với một trong các tác tử của bạn\n/mode: chọn những gì tôi được phép thay đổi\n/stop: dừng việc viết câu trả lời\n/notifications: bật hoặc tắt thông báo của bạn trong cuộc trò chuyện này\n/unlink: hủy liên kết tài khoản Teams này",
+    "unlinked": "Tài khoản Teams này không còn được liên kết với Leafdesk.",
+    "onlyPrivate": "Tôi chỉ trả lời trong tin nhắn trực tiếp với tôi.",
+    "notify": {
+      "notePrompt": "Tác nhân nên thay đổi điều gì? Hãy trả lời bằng một ghi chú trong tin nhắn tiếp theo."
     }
   }
 }

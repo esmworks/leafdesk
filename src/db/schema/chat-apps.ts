@@ -5,15 +5,17 @@ import { workspace } from "./app";
 import { user } from "./auth";
 
 /**
- * A chat-app account (`channel`: "telegram" or "slack") linked to a Leafdesk account, so its owner
+ * A chat-app account (`channel`: "telegram", "slack" or "teams") linked to a Leafdesk account, so its owner
  * can talk to the AI chat from there and get their notifications there (see server/chat-apps). One
  * per user and chat app, and one per account of a chat app; it stands for its user like an API
  * token, as a connected app (connected-app.ts). Only the person's own chat with the bot counts, so
- * `chatId` is that chat (Telegram's private chat, Slack's direct message). `workspaceId` and
+ * `chatId` is that chat (Telegram's private chat, Slack's direct message, Teams' personal chat). `workspaceId` and
  * `conversationId` are where the next question goes; `mode` what the chat may change there (an AI
  * chat mode). With `agentId`, messages go to that agent of the workspace instead (its own chat
  * with the person, joining `agentConversationId`, a new conversation when null), and
- * `conversationId` waits for the person's return to the AI chat.
+ * `conversationId` waits for the person's return to the AI chat. `serviceUrl` is Teams' only: the
+ * address of the Bot Connector that serves the person's chat, learned from each message they send
+ * (server/teams) and read when a notification goes there.
  */
 export const channelLink = pgTable(
   "channel_link",
@@ -28,6 +30,8 @@ export const channelLink = pgTable(
     /** The chat app's id of the person (Telegram's number, Slack's user id), as text. */
     externalUserId: text("external_user_id").notNull(),
     chatId: text("chat_id").notNull(),
+    /** Teams: the Bot Connector's address for the chat (checked against Microsoft's hosts each time it is used). */
+    serviceUrl: text("service_url"),
     /** Their username and name in the chat app when linked, to show in the settings. */
     username: text("username"),
     displayName: text("display_name").notNull().default(""),
@@ -57,7 +61,7 @@ export const channelLink = pgTable(
 
 /**
  * A one-time code that links a chat-app account to its user: the settings make one, and the bot
- * links the account that sends it (Telegram's `/start <code>`, Slack's `/leafdesk link <code>`).
+ * links the account that sends it (Telegram's `/start <code>`, Slack's `/leafdesk link <code>`, Teams' `/link <code>`).
  * One per user and chat app, replaced by a new one; it works for LINK_CODE_TTL_MS. Only a SHA-256
  * hash of the code is kept.
  */

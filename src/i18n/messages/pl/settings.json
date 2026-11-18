@@ -55,6 +55,7 @@
       "aiAccounts": "klucz api własny klucz dostawca",
       "telegram": "bot czat wiadomości",
       "slack": "bot czat wiadomości bezpośrednie",
+      "teams": "bot czat wiadomości bezpośrednie",
       "mcp": "asystent model context protocol serwer",
       "apiTokens": "rest api token klucz programista",
       "about": "wersja licencja aktualizacja",
@@ -2160,7 +2161,7 @@
         "updated": "Zmieniono połączenie „{target}”",
         "deleted": "Usunięto połączenie „{target}”",
         "tool_called": "Wywołano „{tool}” w „{target}” ({outcome})",
-        "approval_decided": "{decision}: wywołanie „{tool}” w „{target}” przez agenta „{agent}”{channel, select, telegram { (z Telegrama)} slack { (ze Slacka)} other {}}"
+        "approval_decided": "{decision}: wywołanie „{tool}” w „{target}” przez agenta „{agent}”{channel, select, telegram { (z Telegrama)} slack { (ze Slacka)} teams { (ze Teamsa)} other {}}"
       },
       "mail": {
         "databases_changed": "Ustawiono bazy danych, do których trafiają e-maile: {names}",
@@ -2275,6 +2276,7 @@
     "push": "Push",
     "telegram": "Telegram",
     "slack": "Slack",
+    "teams": "Teams",
     "chatApps": "Aplikacje do czatu",
     "pushDescription": "Powiadomienia push dotyczą tego, co pojawia się w skrzynce odbiorczej, na urządzeniach, na których je włączysz.",
     "pushDeviceTitle": "Powiadomienia push na tym urządzeniu",
