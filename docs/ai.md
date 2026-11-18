@@ -1164,6 +1164,16 @@ list until it is restored.
   `/w/<workspace>/skills`, the workspace's skills with their descriptions, searchable, and links to
   your skills database. *New skill* adds a row to it: your own, made private at the top of the
   workspace the first time, with *Description*, *Files*, *Tags* and *Created by* properties.
+- **Suggest skills**: where AI is on, *Suggest skills* in the library's Skills tab has the fast model
+  read what you asked your own AI chat in this workspace in the last 60 days (your questions only,
+  never the answers, and never anyone else's conversations) and the titles of the pages you edited
+  in that time and can still open, and propose 3 to 5 skills for work you repeat: a name, when to
+  use it and its instructions, which *Show the instructions* opens. *Create* adds the skill to your
+  skills database like *New skill* does (where you may add pages) and links to it; *Dismiss* hides
+  the card, and *Suggest again* asks anew. Nothing is created without a click, nothing is stored,
+  and it counts toward the workspace's AI limits. In the AI chat, ask which skills you should have:
+  the chat finds `suggest_skills`, which is offered to your own chat only, never to connected apps
+  or agents, and shows the proposals without making any.
 - **Ready-made skills**: six skills to start from (*Wrap up meeting notes*, *Weekly status summary*,
   *Reply to a customer*, *Proofread a text*, *Triage a request*, *Executive summary*), shown in the
   library while it is empty and under *Ready-made skills* after. Picking one adds it, in the user's

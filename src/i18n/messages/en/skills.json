@@ -3,6 +3,22 @@
   "heading": "Skills",
   "description": "Instructions your team reuses, kept as pages: how to wrap up meeting notes, reply to a customer or triage a request. Pick one in the AI chat with /, or from an AI app connected to the workspace. Each skill is a page or database row; people see the skills they can open.",
   "new": "New skill",
+  "suggest": {
+    "button": "Suggest skills",
+    "title": "Suggested skills",
+    "description": "Skills drawn from what you asked the AI chat and the pages you edited in the last 60 days. Only you see this; nothing is made until you click Create.",
+    "again": "Suggest again",
+    "reading": "Reading your recent work…",
+    "nothingToRead": "There's nothing to go on yet: ask the AI chat a few questions or edit some pages, then try again.",
+    "none": "Nothing you do repeatedly stood out yet.",
+    "allHandled": "You've gone through every suggestion.",
+    "instructions": "Show the instructions",
+    "create": "Create",
+    "dismiss": "Dismiss",
+    "created": "Skill created",
+    "open": "Open",
+    "from": "Questions read: {questions} · Page titles read: {pages}"
+  },
   "import": {
     "button": "Import",
     "label": "Import skills from SKILL.md, Markdown or ZIP files",

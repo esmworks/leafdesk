@@ -3,6 +3,22 @@
   "heading": "Skills",
   "description": "Anleitungen, die dein Team immer wieder nutzt, als Seiten: Besprechungsnotizen zusammenfassen, eine Kundennachricht beantworten, eine Anfrage einordnen. Wähle einen im KI-Chat mit / oder in einer mit dem Workspace verbundenen KI-App. Jeder Skill ist eine Seite oder Datenbankzeile; alle sehen die Skills, die sie öffnen können.",
   "new": "Neuer Skill",
+  "suggest": {
+    "button": "Skills vorschlagen",
+    "title": "Vorgeschlagene Skills",
+    "description": "Skills, abgeleitet aus dem, was du den KI-Chat in den letzten 60 Tagen gefragt hast, und aus den Seiten, die du bearbeitet hast. Nur du siehst das; erst mit einem Klick auf Erstellen entsteht etwas.",
+    "again": "Erneut vorschlagen",
+    "reading": "Deine letzte Arbeit wird gelesen …",
+    "nothingToRead": "Es gibt noch keinen Anhaltspunkt: Stell dem KI-Chat ein paar Fragen oder bearbeite einige Seiten und versuche es dann erneut.",
+    "none": "Bisher fiel nichts auf, was du wiederholt tust.",
+    "allHandled": "Du hast alle Vorschläge durchgesehen.",
+    "instructions": "Anweisungen anzeigen",
+    "create": "Erstellen",
+    "dismiss": "Verwerfen",
+    "created": "Skill erstellt",
+    "open": "Öffnen",
+    "from": "Gelesene Fragen: {questions} · gelesene Seitentitel: {pages}"
+  },
   "import": {
     "button": "Importieren",
     "label": "Fähigkeiten aus SKILL.md-, Markdown- oder ZIP-Dateien importieren",

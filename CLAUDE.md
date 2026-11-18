@@ -261,6 +261,12 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   instructions; SKILL.md export is the page export route's `format=skill`, import is
   `api/skills/import` → `server/skill-import.ts` (unpacked by `import/archive.ts` `collectFiles`, read
   by hand in `lib/skill-import.ts`, rows made by `createSkill`).
+  Suggest skills (`server/skill-suggestions.ts`, pure part `lib/skill-suggestions.ts`, feature
+  `skills.suggest`, read `suggestSkills`, the dialog `components/library/skill-suggestions.tsx`, a
+  `lazyPart` of the library's skills tab): the fast model reads the person's own AI chat questions
+  and their edited page titles, framed as data, and stores nothing; Create is `createSuggestedSkill`
+  (`createSkill` with `byModel`). The chat's `suggest_skills` MCP tool is registered only with
+  `createMcpServer`'s `ownChat` (set by `converseChat`), so connected apps and agents never read chat history.
 - **AI.** `src/server/ai/index.ts` is the only door to the model library: `complete`, `stream`,
   `embed`, `transcribe`, with limits and usage built in. The AI chat and agents' chats are one
   `ChatThread` (`components/ai-chat/chat-thread.tsx`, which takes a `ThreadChat`): an agent's

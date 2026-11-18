@@ -269,14 +269,15 @@ export async function skillDatabaseFor(userId: string, workspaceId: string, loca
 export async function createSkill(
   userId: string,
   workspaceId: string,
-  input: { title?: string; icon?: string | null; markdown?: string; description?: string } = {},
+  input: { title?: string; icon?: string | null; markdown?: string; description?: string; byModel?: boolean } = {},
   locale?: string,
 ): Promise<{ id: string; workspaceId: string; databaseId: string }> {
   const databaseId = await skillDatabaseFor(userId, workspaceId, locale);
   const property = await descriptionProperty(databaseId);
   const description = input.description?.trim().slice(0, MAX_SKILL_DESCRIPTION);
   const created = await createPage(
-    { userId },
+    // A skill the model drafted and the person accepted: its media from other sites become links.
+    input.byModel ? { userId, model: true } : { userId },
     {
       workspaceId,
       parentId: databaseId,

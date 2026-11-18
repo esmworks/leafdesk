@@ -30,6 +30,7 @@ import type { PageKind } from "@/db/schema";
 import type { TeamspaceAccess } from "@/db/schema/app";
 import type { AgentCreationInfo } from "@/server/agents/creation";
 
+const SkillSuggestionsDialog = lazyPart(() => import("./skill-suggestions").then((m) => m.SkillSuggestionsDialog));
 const NewAgentDialog = lazyPart(() => import("@/components/sidebar/new-agent").then((m) => m.NewAgentDialog));
 
 export type LibraryTab = "teamspaces" | "recents" | "favorites" | "shared" | "private" | "meetings" | "agents" | "skills";
@@ -66,6 +67,8 @@ export type LibraryData =
   | {
       tab: "skills";
       canCreate: boolean;
+      /** AI is on in the workspace: Suggest skills is offered. */
+      ai: boolean;
       skills: { id: string; title: string; icon: string | null; description: string; href: string; database: string | null; when: string }[];
     };
 
@@ -98,6 +101,7 @@ export function LibraryPage({
   const [pending, startTransition] = useTransition();
   const [teamspaceOpen, setTeamspaceOpen] = useState(false);
   const [newAgent, setNewAgent] = useState<"blank" | "describe" | null>(null);
+  const [suggesting, setSuggesting] = useState(false);
 
   const tabLabel: Record<LibraryTab, string> = {
     teamspaces: t("teamspaces.heading"),
@@ -210,14 +214,25 @@ export function LibraryPage({
         );
       break;
     case "skills":
-      if (data.canCreate)
-        action = primary(tk("new"), () =>
-          create(async () => {
-            const result = await createSkillAction(workspaceId);
-            if (!result.ok) throw new Error(result.error);
-            markNewPage(result.data.id);
-            return withRow(`/w/${workspaceId}/p/${result.data.databaseId}`, result.data.id);
-          }),
+      if (data.canCreate || data.ai)
+        action = (
+          <div className="flex items-center gap-2">
+            {data.ai && (
+              <Button size="sm" disabled={pending} onClick={() => setSuggesting(true)} onPointerEnter={() => SkillSuggestionsDialog.preload()}>
+                <Sparkles className="h-3.5 w-3.5" />
+                {tk("suggest.button")}
+              </Button>
+            )}
+            {data.canCreate &&
+              primary(tk("new"), () =>
+                create(async () => {
+                  const result = await createSkillAction(workspaceId);
+                  if (!result.ok) throw new Error(result.error);
+                  markNewPage(result.data.id);
+                  return withRow(`/w/${workspaceId}/p/${result.data.databaseId}`, result.data.id);
+                }),
+              )}
+          </div>
         );
       break;
   }
@@ -405,6 +420,9 @@ export function LibraryPage({
             router.refresh();
           }}
         />
+      )}
+      {data.tab === "skills" && data.ai && suggesting && (
+        <SkillSuggestionsDialog workspaceId={workspaceId} open onClose={() => setSuggesting(false)} onCreated={() => router.refresh()} />
       )}
       {data.tab === "agents" && newAgent && data.creation && (
         <NewAgentDialog

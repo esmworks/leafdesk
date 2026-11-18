@@ -3,6 +3,22 @@
   "heading": "Ferdigheter",
   "description": "Instruksjoner teamet ditt bruker om igjen, lagret som sider: hvordan du rydder opp i møtenotater, svarer en kunde eller sorterer en forespørsel. Velg en i KI-chatten med /, eller fra en KI-app som er koblet til arbeidsområdet. Hver ferdighet er en side eller en databaserad; folk ser ferdighetene de kan åpne.",
   "new": "Ny ferdighet",
+  "suggest": {
+    "button": "Foreslå ferdigheter",
+    "title": "Foreslåtte ferdigheter",
+    "description": "Ferdigheter hentet fra det du har spurt AI-chatten om, og sidene du har redigert de siste 60 dagene. Bare du ser dette; ingenting opprettes før du klikker Opprett.",
+    "again": "Foreslå på nytt",
+    "reading": "Leser det siste arbeidet ditt …",
+    "nothingToRead": "Det er ikke noe å bygge på ennå: still AI-chatten noen spørsmål eller rediger noen sider, og prøv igjen.",
+    "none": "Ingenting du gjentar har skilt seg ut ennå.",
+    "allHandled": "Du har gått gjennom alle forslagene.",
+    "instructions": "Vis instruksjonene",
+    "create": "Opprett",
+    "dismiss": "Avvis",
+    "created": "Ferdighet opprettet",
+    "open": "Åpne",
+    "from": "Leste spørsmål: {questions} · leste sidetitler: {pages}"
+  },
   "import": {
     "button": "Importer",
     "label": "Importer ferdigheter fra SKILL.md-, Markdown- eller ZIP-filer",

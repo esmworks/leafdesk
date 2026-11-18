@@ -3,6 +3,22 @@
   "heading": "Competenze",
   "description": "Istruzioni che il tuo team riutilizza, conservate come pagine: come riepilogare una riunione, rispondere a un cliente o smistare una richiesta. Scegline una nella chat IA con / oppure da un’app di IA collegata allo spazio di lavoro. Ogni competenza è una pagina o una riga di database; ognuno vede le competenze che può aprire.",
   "new": "Nuova competenza",
+  "suggest": {
+    "button": "Suggerisci competenze",
+    "title": "Competenze suggerite",
+    "description": "Competenze ricavate da ciò che hai chiesto alla chat IA e dalle pagine che hai modificato negli ultimi 60 giorni. Lo vedi solo tu; non viene creato nulla finché non fai clic su Crea.",
+    "again": "Suggerisci di nuovo",
+    "reading": "Lettura del tuo lavoro recente…",
+    "nothingToRead": "Non c'è ancora nulla su cui basarsi: fai qualche domanda alla chat IA o modifica alcune pagine, poi riprova.",
+    "none": "Per ora non spicca nulla che ripeti.",
+    "allHandled": "Hai esaminato tutti i suggerimenti.",
+    "instructions": "Mostra le istruzioni",
+    "create": "Crea",
+    "dismiss": "Scarta",
+    "created": "Competenza creata",
+    "open": "Apri",
+    "from": "Domande lette: {questions} · titoli di pagina letti: {pages}"
+  },
   "import": {
     "button": "Importa",
     "label": "Importa abilità da file SKILL.md, Markdown o ZIP",

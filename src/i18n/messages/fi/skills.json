@@ -3,6 +3,22 @@
   "heading": "Taidot",
   "description": "Ohjeet, joita tiimisi käyttää uudelleen, sivuina tallennettuina: miten kokousmuistiinpanoista tehdään yhteenveto, miten asiakkaalle vastataan tai miten pyyntö luokitellaan. Valitse taito tekoälychatissa /-merkillä tai työtilaan yhdistetystä tekoälysovelluksesta. Jokainen taito on sivu tai tietokannan rivi; käyttäjät näkevät ne taidot, jotka he voivat avata.",
   "new": "Uusi taito",
+  "suggest": {
+    "button": "Ehdota taitoja",
+    "title": "Ehdotetut taidot",
+    "description": "Taitoja, jotka on poimittu siitä, mitä olet kysynyt tekoälychatilta, ja sivuista, joita olet muokannut viimeisen 60 päivän aikana. Vain sinä näet tämän; mitään ei luoda ennen kuin napsautat Luo.",
+    "again": "Ehdota uudelleen",
+    "reading": "Luetaan viimeaikaista työtäsi…",
+    "nothingToRead": "Ei ole vielä mihin perustaa: kysy tekoälychatilta muutama kysymys tai muokkaa joitakin sivuja ja yritä uudelleen.",
+    "none": "Mikään toistamasi ei ole vielä erottunut.",
+    "allHandled": "Olet käynyt kaikki ehdotukset läpi.",
+    "instructions": "Näytä ohjeet",
+    "create": "Luo",
+    "dismiss": "Hylkää",
+    "created": "Taito luotu",
+    "open": "Avaa",
+    "from": "Luettuja kysymyksiä: {questions} · luettuja sivujen otsikoita: {pages}"
+  },
   "import": {
     "button": "Tuo",
     "label": "Tuo taitoja SKILL.md-, Markdown- tai ZIP-tiedostoista",

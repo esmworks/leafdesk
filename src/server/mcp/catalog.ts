@@ -57,6 +57,7 @@ const CATEGORIES: Record<string, readonly string[]> = {
     "get_page_history",
     "restore_page_version",
     "set_skill",
+    "suggest_skills",
     "change_comment",
     "check_workspace",
   ],

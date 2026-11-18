@@ -177,6 +177,8 @@ const agentSharing = vi.hoisted(() => ({
 vi.mock("@/server/agents/sharing", () => agentSharing);
 const agentCopies = vi.hoisted(() => ({ duplicateAgent: vi.fn() }));
 vi.mock("@/server/agents/duplicate", () => agentCopies);
+const skillSuggestions = vi.hoisted(() => ({ suggestSkills: vi.fn() }));
+vi.mock("@/server/skill-suggestions", () => skillSuggestions);
 const agentDraft = vi.hoisted(() => ({ draftAgent: vi.fn() }));
 vi.mock("@/server/agents/draft", () => agentDraft);
 
@@ -376,8 +378,8 @@ const writer: McpPrincipal = { userId: "user-1", clientId: "client-1", scopes: [
 const reader: McpPrincipal = { userId: "user-1", clientId: "client-1", scopes: ["pages:read"] };
 
 /** Calls one tool over an in-memory 2025-era session. */
-async function callTool(principal: McpPrincipal, name: string, args: Record<string, unknown>) {
-  const server = createMcpServer(principal);
+async function callTool(principal: McpPrincipal, name: string, args: Record<string, unknown>, options?: Parameters<typeof createMcpServer>[1]) {
+  const server = createMcpServer(principal, options);
   const [client, serverSide] = InMemoryTransport.createLinkedPair();
   const inbox: JSONRPCMessage[] = [];
   client.onmessage = (m) => void inbox.push(m);
@@ -3205,6 +3207,22 @@ describe("agents", () => {
     expect((await callTool(reader, "draft_agent", { workspace_id: "ws-1", description: "x" })).text).toMatch(/may not create agents/);
     agentDraft.draftAgent.mockRejectedValueOnce(new AiError("disabled", "AI is off for this workspace"));
     expect((await callTool(reader, "draft_agent", { workspace_id: "ws-1", description: "x" })).text).toMatch(/AI is off/);
+  });
+
+  it("offers suggest_skills to the person's own AI chat alone", async () => {
+    skillSuggestions.suggestSkills.mockResolvedValue({
+      suggestions: [{ id: "1", title: "Release notes", description: "Before a release", instructions: "List the changes." }],
+      questions: 3,
+      pages: 2,
+    });
+    // A connected app finds no such tool: the call is answered with a protocol error, not a result.
+    await expect(callTool(reader, "suggest_skills", { workspace_id: "ws-1" })).rejects.toThrow();
+    expect(skillSuggestions.suggestSkills).not.toHaveBeenCalled();
+    const own = await callTool(reader, "suggest_skills", { workspace_id: "ws-1" }, { ownChat: true });
+    expect(skillSuggestions.suggestSkills).toHaveBeenCalledWith("user-1", "ws-1", undefined);
+    expect(own.data).toMatchObject({ skills: [{ title: "Release notes", instructions: "List the changes." }], read: { questions: 3, pages: 2 } });
+    skillSuggestions.suggestSkills.mockRejectedValueOnce(new AiError("disabled", "AI is off for this workspace"));
+    expect((await callTool(reader, "suggest_skills", { workspace_id: "ws-1" }, { ownChat: true })).text).toMatch(/AI is off/);
   });
 
   it("lists runs with their steps summarized and rows linked only when the user can open them", async () => {

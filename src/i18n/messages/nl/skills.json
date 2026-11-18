@@ -3,6 +3,22 @@
   "heading": "Vaardigheden",
   "description": "Instructies die je team hergebruikt, bewaard als pagina’s: hoe je vergadernotities afrondt, een klant antwoordt of een verzoek beoordeelt. Kies er een in de AI-chat met /, of vanuit een AI-app die aan de werkruimte is gekoppeld. Elke vaardigheid is een pagina of databaserij; iedereen ziet de vaardigheden die hij of zij kan openen.",
   "new": "Nieuwe vaardigheid",
+  "suggest": {
+    "button": "Vaardigheden voorstellen",
+    "title": "Voorgestelde vaardigheden",
+    "description": "Vaardigheden afgeleid van wat je de afgelopen 60 dagen aan de AI-chat vroeg en van de pagina's die je bewerkte. Alleen jij ziet dit; er wordt niets gemaakt tot je op Maken klikt.",
+    "again": "Opnieuw voorstellen",
+    "reading": "Je recente werk wordt gelezen…",
+    "nothingToRead": "Er is nog niets om op voort te bouwen: stel de AI-chat een paar vragen of bewerk wat pagina's en probeer het opnieuw.",
+    "none": "Er viel nog niets op wat je herhaaldelijk doet.",
+    "allHandled": "Je hebt alle voorstellen bekeken.",
+    "instructions": "Instructies tonen",
+    "create": "Maken",
+    "dismiss": "Negeren",
+    "created": "Vaardigheid gemaakt",
+    "open": "Openen",
+    "from": "Gelezen vragen: {questions} · gelezen paginatitels: {pages}"
+  },
   "import": {
     "button": "Importeren",
     "label": "Vaardigheden importeren uit SKILL.md-, Markdown- of ZIP-bestanden",

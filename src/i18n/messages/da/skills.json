@@ -3,6 +3,22 @@
   "heading": "Færdigheder",
   "description": "Instruktioner, dit team genbruger, gemt som sider: hvordan man afslutter mødenoter, svarer en kunde eller sorterer en henvendelse. Vælg en i AI-chatten med /, eller fra en AI-app, der er forbundet med arbejdsområdet. Hver færdighed er en side eller en databaserække; man ser de færdigheder, man kan åbne.",
   "new": "Ny færdighed",
+  "suggest": {
+    "button": "Foreslå færdigheder",
+    "title": "Foreslåede færdigheder",
+    "description": "Færdigheder udledt af det, du har spurgt AI-chatten om, og de sider, du har redigeret de seneste 60 dage. Kun du ser dette; der oprettes intet, før du klikker på Opret.",
+    "again": "Foreslå igen",
+    "reading": "Læser dit seneste arbejde …",
+    "nothingToRead": "Der er intet at tage udgangspunkt i endnu: stil AI-chatten nogle spørgsmål eller rediger nogle sider, og prøv igen.",
+    "none": "Intet, du gentager, stak ud endnu.",
+    "allHandled": "Du har været alle forslag igennem.",
+    "instructions": "Vis instruktionerne",
+    "create": "Opret",
+    "dismiss": "Afvis",
+    "created": "Færdighed oprettet",
+    "open": "Åbn",
+    "from": "Læste spørgsmål: {questions} · læste sidetitler: {pages}"
+  },
   "import": {
     "button": "Importér",
     "label": "Importér færdigheder fra SKILL.md-, Markdown- eller ZIP-filer",

@@ -7,6 +7,7 @@ import { agentChainsAction, agentCreationAction, agentMailboxesAction, pendingAg
 import { getConversationAction, listConversationsAction } from "@/app/actions/ai";
 import { listDatabasesAction, loadDatabaseAction, loadRowAction } from "@/app/actions/databases";
 import { getThreadAction, listMailboxesAction, listThreadsAction, openDraftAction, openMailboxAction, prefetchBodiesAction, readBodyAction, refreshFolderAction, sendStatusAction, suggestAddressesAction } from "@/app/actions/mail";
+import { suggestSkillsAction } from "@/app/actions/skills";
 import { sidebarMeetingsAction } from "@/app/actions/meetings";
 import { backlinksAction, unlinkedMentionsAction } from "@/app/actions/mentions";
 import { arrivalsAction, dueRemindersAction, inboxDigestAction, listInboxAction, unreadCountAction } from "@/app/actions/notifications";
@@ -67,6 +68,7 @@ export const READS = {
   trash: listTrashAction,
   inbox: listInboxAction,
   inboxDigest: inboxDigestAction,
+  suggestSkills: suggestSkillsAction,
   loadDatabase: loadDatabaseAction,
   loadRow: loadRowAction,
   listDatabases: listDatabasesAction,

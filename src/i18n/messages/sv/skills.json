@@ -3,6 +3,22 @@
   "heading": "Färdigheter",
   "description": "Instruktioner som ditt team återanvänder, sparade som sidor: hur man sammanfattar mötesanteckningar, svarar en kund eller sorterar ett ärende. Välj en i AI-chatten med / eller från en AI-app som är ansluten till arbetsytan. Varje färdighet är en sida eller databasrad; personer ser de färdigheter de kan öppna.",
   "new": "Ny färdighet",
+  "suggest": {
+    "button": "Föreslå färdigheter",
+    "title": "Föreslagna färdigheter",
+    "description": "Färdigheter hämtade från det du frågat AI-chatten om och sidorna du redigerat de senaste 60 dagarna. Bara du ser detta; inget skapas förrän du klickar på Skapa.",
+    "again": "Föreslå igen",
+    "reading": "Läser ditt senaste arbete …",
+    "nothingToRead": "Det finns inget att utgå från ännu: ställ några frågor till AI-chatten eller redigera några sidor och försök igen.",
+    "none": "Inget du upprepar har stuckit ut ännu.",
+    "allHandled": "Du har gått igenom alla förslag.",
+    "instructions": "Visa instruktionerna",
+    "create": "Skapa",
+    "dismiss": "Avvisa",
+    "created": "Färdighet skapad",
+    "open": "Öppna",
+    "from": "Lästa frågor: {questions} · lästa sidtitlar: {pages}"
+  },
   "import": {
     "button": "Importera",
     "label": "Importera färdigheter från SKILL.md-, Markdown- eller ZIP-filer",

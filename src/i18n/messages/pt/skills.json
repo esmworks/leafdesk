@@ -3,6 +3,22 @@
   "heading": "Habilidades",
   "description": "Instruções que sua equipe reutiliza, guardadas como páginas: como resumir uma reunião, responder a um cliente ou fazer a triagem de uma solicitação. Escolha uma no chat de IA com / ou em um app de IA conectado ao espaço de trabalho. Cada habilidade é uma página ou linha de banco de dados; as pessoas veem as habilidades que podem abrir.",
   "new": "Nova habilidade",
+  "suggest": {
+    "button": "Sugerir habilidades",
+    "title": "Habilidades sugeridas",
+    "description": "Habilidades tiradas do que você perguntou ao chat de IA e das páginas que editou nos últimos 60 dias. Só você vê isto; nada é criado até você clicar em Criar.",
+    "again": "Sugerir de novo",
+    "reading": "Lendo seu trabalho recente…",
+    "nothingToRead": "Ainda não há em que se basear: faça algumas perguntas ao chat de IA ou edite algumas páginas e tente de novo.",
+    "none": "Nada que você repita se destacou ainda.",
+    "allHandled": "Você analisou todas as sugestões.",
+    "instructions": "Mostrar as instruções",
+    "create": "Criar",
+    "dismiss": "Dispensar",
+    "created": "Habilidade criada",
+    "open": "Abrir",
+    "from": "Perguntas lidas: {questions} · títulos de página lidos: {pages}"
+  },
   "import": {
     "button": "Importar",
     "label": "Importar habilidades de arquivos SKILL.md, Markdown ou ZIP",

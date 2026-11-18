@@ -3,6 +3,22 @@
   "heading": "Umiejętności",
   "description": "Instrukcje, z których twój zespół korzysta wielokrotnie, przechowywane jako strony: jak podsumować notatki ze spotkania, odpowiedzieć klientowi albo sklasyfikować zgłoszenie. Wybierz jedną na czacie AI za pomocą / lub z aplikacji AI połączonej z obszarem roboczym. Każda umiejętność to strona lub wiersz bazy danych; każdy widzi umiejętności, które może otworzyć.",
   "new": "Nowa umiejętność",
+  "suggest": {
+    "button": "Zaproponuj umiejętności",
+    "title": "Proponowane umiejętności",
+    "description": "Umiejętności wyciągnięte z tego, o co pytasz czat AI, i ze stron, które edytowałeś w ciągu ostatnich 60 dni. Widzisz to tylko ty; nic nie powstanie, dopóki nie klikniesz Utwórz.",
+    "again": "Zaproponuj ponownie",
+    "reading": "Czytanie Twojej ostatniej pracy…",
+    "nothingToRead": "Nie ma jeszcze na czym się oprzeć: zadaj czatowi AI kilka pytań albo edytuj kilka stron, po czym spróbuj ponownie.",
+    "none": "Nic, co powtarzasz, jeszcze się nie wyróżniło.",
+    "allHandled": "Przejrzano wszystkie propozycje.",
+    "instructions": "Pokaż instrukcje",
+    "create": "Utwórz",
+    "dismiss": "Odrzuć",
+    "created": "Utworzono umiejętność",
+    "open": "Otwórz",
+    "from": "Przeczytane pytania: {questions} · przeczytane tytuły stron: {pages}"
+  },
   "import": {
     "button": "Importuj",
     "label": "Importuj umiejętności z plików SKILL.md, Markdown lub ZIP",

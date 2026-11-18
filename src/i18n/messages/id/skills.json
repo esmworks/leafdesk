@@ -3,6 +3,22 @@
   "heading": "Keterampilan",
   "description": "Instruksi yang dipakai ulang tim Anda, disimpan sebagai halaman: cara merangkum catatan rapat, membalas pelanggan, atau memilah permintaan. Pilih satu di obrolan AI dengan /, atau dari aplikasi AI yang terhubung ke ruang kerja. Setiap keterampilan adalah halaman atau baris basis data; orang melihat keterampilan yang dapat mereka buka.",
   "new": "Keterampilan baru",
+  "suggest": {
+    "button": "Sarankan keahlian",
+    "title": "Keahlian yang disarankan",
+    "description": "Keahlian yang diambil dari apa yang Anda tanyakan ke obrolan AI dan halaman yang Anda edit dalam 60 hari terakhir. Hanya Anda yang melihat ini; tidak ada yang dibuat sampai Anda mengeklik Buat.",
+    "again": "Sarankan lagi",
+    "reading": "Membaca pekerjaan terbaru Anda…",
+    "nothingToRead": "Belum ada yang bisa dijadikan dasar: ajukan beberapa pertanyaan ke obrolan AI atau edit beberapa halaman, lalu coba lagi.",
+    "none": "Belum ada hal yang Anda ulangi yang menonjol.",
+    "allHandled": "Anda sudah melihat semua saran.",
+    "instructions": "Tampilkan petunjuk",
+    "create": "Buat",
+    "dismiss": "Abaikan",
+    "created": "Keahlian dibuat",
+    "open": "Buka",
+    "from": "Pertanyaan dibaca: {questions} · judul halaman dibaca: {pages}"
+  },
   "import": {
     "button": "Impor",
     "label": "Impor keterampilan dari file SKILL.md, Markdown, atau ZIP",

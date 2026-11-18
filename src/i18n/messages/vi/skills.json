@@ -3,6 +3,22 @@
   "heading": "Kỹ năng",
   "description": "Các hướng dẫn nhóm của bạn dùng lại, được lưu dưới dạng trang: cách hoàn thiện ghi chú cuộc họp, trả lời khách hàng hoặc phân loại một yêu cầu. Chọn một kỹ năng trong trò chuyện AI bằng /, hoặc từ một ứng dụng AI được kết nối với không gian làm việc. Mỗi kỹ năng là một trang hoặc một hàng cơ sở dữ liệu; mọi người thấy những kỹ năng họ có thể mở.",
   "new": "Kỹ năng mới",
+  "suggest": {
+    "button": "Gợi ý kỹ năng",
+    "title": "Kỹ năng được gợi ý",
+    "description": "Các kỹ năng rút ra từ những gì bạn đã hỏi trò chuyện AI và các trang bạn đã chỉnh sửa trong 60 ngày qua. Chỉ bạn thấy điều này; không có gì được tạo cho đến khi bạn nhấp Tạo.",
+    "again": "Gợi ý lại",
+    "reading": "Đang đọc công việc gần đây của bạn…",
+    "nothingToRead": "Chưa có gì để dựa vào: hãy hỏi trò chuyện AI vài câu hoặc chỉnh sửa một số trang rồi thử lại.",
+    "none": "Chưa có việc lặp lại nào nổi bật.",
+    "allHandled": "Bạn đã xem hết các gợi ý.",
+    "instructions": "Hiện hướng dẫn",
+    "create": "Tạo",
+    "dismiss": "Bỏ qua",
+    "created": "Đã tạo kỹ năng",
+    "open": "Mở",
+    "from": "Câu hỏi đã đọc: {questions} · tiêu đề trang đã đọc: {pages}"
+  },
   "import": {
     "button": "Nhập",
     "label": "Nhập kỹ năng từ tệp SKILL.md, Markdown hoặc ZIP",

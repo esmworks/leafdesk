@@ -4,6 +4,13 @@
 
 ### Added
 
+- **Suggest skills from your own work.** *Suggest skills* in the library's Skills tab (where AI is
+  on) has the fast model read your own AI chat questions of the last 60 days and the titles of the
+  pages you edited, framed as outside data, and propose 3 to 5 skills, each with a name, when to use
+  it and its instructions. *Create* makes the skill in your skills database, *Dismiss* hides it;
+  nothing is created or stored otherwise. The AI chat can do the same through a new `suggest_skills`
+  tool (found with `find_tools`), offered only to a person's own chat, never to connected apps or
+  agents. Feature `skills.suggest`. No migration, no new environment variables.
 - **Sync Zendesk tickets and Salesforce records.** Import has two new tabs. *Zendesk* takes an
   account, an admin's email address and API token and keeps a database of its tickets (status,
   priority, type, requester, assignee, tags, dates, link, a board by status) through the

@@ -150,6 +150,7 @@ import * as agentSkills from "@/server/agents/skills";
 import { draftAgent } from "@/server/agents/draft";
 import { duplicateAgent } from "@/server/agents/duplicate";
 import { isAiError } from "@/server/ai";
+import { suggestSkills } from "@/server/skill-suggestions";
 import { requestAgentRun } from "@/server/agents/requests";
 import { usageMonthsOf } from "@/server/agents/usage";
 import * as agentVersions from "@/server/agents/versions";
@@ -1449,7 +1450,7 @@ export function readDocs(id: string): { uri: string; title: string; text: string
  * shows, all of them (the default) or the core ones and the gates to the rest (catalog.ts, for
  * connected apps that load every definition up front; route.ts picks it per app).
  */
-export function createMcpServer(principal: McpPrincipal, options: { actor?: WriteActor; tools?: ToolList } = {}) {
+export function createMcpServer(principal: McpPrincipal, options: { actor?: WriteActor; tools?: ToolList; ownChat?: boolean } = {}) {
   const list = options.tools ?? "all";
   const server = new McpServer({ name: "leafdesk", title: "Leafdesk", version: APP_INFO.version }, { instructions: instructionsFor(list) });
   // Every tool not annotated read-only runs as a write, so a workspace that lets connected apps
@@ -4840,6 +4841,35 @@ export function createMcpServer(principal: McpPrincipal, options: { actor?: Writ
     },
     write((args) => ops.setSkill(ctx, args)),
   );
+
+  // Reads what the person asked their own AI chat, which no connected app or agent may: only the
+  // chat itself (ai-more-tools.ts, `ownChat`) is given this tool.
+  if (options.ownChat) {
+    server.registerTool(
+      "suggest_skills",
+      {
+        title: "Suggest skills",
+        description:
+          "Propose 3 to 5 skills (a name, when to use it and its instructions) from what the user asked their AI chat in the last 60 days and the titles of pages they edited, for work they repeat. Needs AI on in the workspace. Makes nothing: show the proposals and, when the user wants one, make it with create_page or create_database_row in their skills database and set_skill, which asks them first.",
+        inputSchema: z.object({ workspace_id: id("workspace") }),
+        annotations: READ,
+      },
+      ({ workspace_id }: { workspace_id: string }) =>
+        runTool(async () => {
+          try {
+            const found = await suggestSkills(userId, workspace_id, undefined);
+            return {
+              skills: found.suggestions.map((s) => ({ title: s.title, description: s.description, instructions: s.instructions })),
+              read: { questions: found.questions, pages: found.pages },
+              ...(found.suggestions.length ? {} : { note: "Nothing repeated enough to suggest a skill." }),
+            };
+          } catch (error) {
+            if (isAiError(error)) throw new ToolInputError(`The suggestions couldn't be made: ${error.message}.`);
+            throw error;
+          }
+        }),
+    );
+  }
 
   server.registerTool(
     "list_snippets",

@@ -42,6 +42,9 @@ const PLANS: [feature: string, plan: AiFeaturePlan][] = [
   // The unread inbox sorted into what needs the person, news and what can be cleared, as a short
   // JSON list while they wait: the words are all there.
   ["inbox.digest", { fast: true, thinking: "off" }],
+  // Skills proposed from a person's recent questions and page titles, as a short JSON list while
+  // they wait: the fast model, with a little thinking to find what repeats.
+  ["skills.suggest", { fast: true, thinking: "low" }],
   // A thread's tasks as a short JSON list: dates worked out from the mail need a little thinking.
   ["mail.tasks", { thinking: "low" }],
   // The Mail tab's writer, like the editor's: what it writes goes to someone outside.

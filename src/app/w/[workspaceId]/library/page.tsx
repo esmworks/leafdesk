@@ -13,6 +13,7 @@ import { listFavorites } from "@/server/page-meta";
 import { recentlyViewedPages } from "@/server/page-views";
 import { getTree, parentTitles, recentPages } from "@/server/pages";
 import { requireWorkspaceSession } from "@/server/session";
+import { aiAvailable } from "@/server/ai-writing";
 import { findSkillDatabase, listSkills } from "@/server/skills";
 import { canCreateTeamspace, listTeamspaces } from "@/server/teamspaces";
 import { topLevelAccess } from "@/server/workspaces";
@@ -152,10 +153,11 @@ export default async function LibraryRoute({
         };
       }
       case "skills": {
-        const [skills, database] = await Promise.all([listSkills(user.id, workspaceId), findSkillDatabase(user.id, workspaceId)]);
+        const [skills, database, ai] = await Promise.all([listSkills(user.id, workspaceId), findSkillDatabase(user.id, workspaceId), aiAvailable(workspaceId)]);
         return {
           tab,
           canCreate: topLevel !== null || database !== null,
+          ai,
           skills: skills.map((s) => ({
             id: s.id,
             title: s.title,

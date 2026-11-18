@@ -95,14 +95,15 @@ export type MoreTools = {
 /**
  * The MCP server as `userId`, connected in this process: its tools less those the chat has its own
  * of; with `writes` false only those that read, with `eachTime` false none of ASKED_EACH_TIME (for
- * agents' runs, where no one is asked).
+ * agents' runs, where no one is asked); with `ownChat` also the tools only the person's own AI chat
+ * may use (what they asked it before).
  */
-export async function openMoreTools(userId: string, { writes, eachTime = true }: { writes: boolean; eachTime?: boolean }): Promise<MoreTools> {
+export async function openMoreTools(userId: string, { writes, eachTime = true, ownChat = false }: { writes: boolean; eachTime?: boolean; ownChat?: boolean }): Promise<MoreTools> {
   // Without pages:write the server refuses every change itself, whatever the chat lets through.
   const scopes = [READ_SCOPE, NOTIFICATIONS_SCOPE, ...(writes ? [WRITE_SCOPE] : [])];
   // Loaded when first needed: the MCP server reaches the agents, which reach the chat.
   const { createMcpServer } = await import("@/server/mcp/tools");
-  const server = createMcpServer({ userId, clientId: "", scopes }, { actor: { userId, model: true } });
+  const server = createMcpServer({ userId, clientId: "", scopes }, { actor: { userId, model: true }, ownChat });
   const [clientSide, serverSide] = InMemoryTransport.createLinkedPair();
   await server.connect(serverSide);
   const client = new Client({ name: "Leafdesk AI", version: "1.0.0" });
@@ -141,7 +142,7 @@ export async function openMoreTools(userId: string, { writes, eachTime = true }:
 }
 
 /** openMoreTools when first needed; `close` closes it if it was opened. */
-export function lazyMoreTools(userId: string, options: { writes: boolean; eachTime?: boolean }) {
+export function lazyMoreTools(userId: string, options: { writes: boolean; eachTime?: boolean; ownChat?: boolean }) {
   let opened: Promise<MoreTools> | null = null;
   return {
     open: () => (opened ??= openMoreTools(userId, options)),

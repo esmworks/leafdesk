@@ -3,6 +3,22 @@
   "heading": "Beceriler",
   "description": "Ekibinin tekrar tekrar kullandığı talimatlar, sayfa olarak: toplantı notunu toparlamak, bir müşteriye yanıt yazmak, bir talebi sınıflandırmak. AI sohbetinde / ile ya da çalışma alanına bağlı bir AI uygulamasından seç. Her beceri bir sayfa ya da veritabanı satırıdır; herkes açabildiği becerileri görür.",
   "new": "Yeni beceri",
+  "suggest": {
+    "button": "Beceri öner",
+    "title": "Önerilen beceriler",
+    "description": "Son 60 günde yapay zekâ sohbetine sorduklarınızdan ve düzenlediğiniz sayfalardan çıkarılan beceriler. Bunu yalnızca siz görürsünüz; Oluştur'a tıklamadan hiçbir şey oluşturulmaz.",
+    "again": "Yeniden öner",
+    "reading": "Son çalışmalarınız okunuyor…",
+    "nothingToRead": "Henüz dayanılacak bir şey yok: yapay zekâ sohbetine birkaç soru sorun ya da bazı sayfaları düzenleyin, sonra yeniden deneyin.",
+    "none": "Tekrarladığınız ve öne çıkan bir şey henüz yok.",
+    "allHandled": "Tüm önerilere baktınız.",
+    "instructions": "Yönergeleri göster",
+    "create": "Oluştur",
+    "dismiss": "Kapat",
+    "created": "Beceri oluşturuldu",
+    "open": "Aç",
+    "from": "Okunan sorular: {questions} · okunan sayfa başlıkları: {pages}"
+  },
   "import": {
     "button": "İçe aktar",
     "label": "SKILL.md, Markdown veya ZIP dosyalarından beceri içe aktar",

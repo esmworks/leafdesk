@@ -570,7 +570,7 @@ async function* converseChat(run: AssistantRun, setup: ChatSetup, signal: AbortS
   for (const record of saved ? steps : carried) yield { type: "step", step: await viewStep(userId, record) };
   // Leafdesk's further tools, started when the model first looks for one; a read-only chat gets
   // those that only read.
-  const moreTools = lazyMoreTools(userId, { writes: initialMode !== "read" });
+  const moreTools = lazyMoreTools(userId, { writes: initialMode !== "read", ownChat: true });
   let answer = "";
   let stopReason: "stop" | "length" = "stop";
   let failure: AiErrorCode | null = null;
