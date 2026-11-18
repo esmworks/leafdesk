@@ -524,6 +524,22 @@
       "openPage": "Buka halaman",
       "saveFailed": "Laporan tidak dapat disimpan sebagai halaman."
     },
+    "plan": {
+      "toggle": "Rencanakan dulu",
+      "toggleHint": "Rencanakan dulu: asisten membaca, mungkin mengajukan beberapa pertanyaan, dan mengusulkan rencana sebelum ada yang diubah. Anda yang memutuskan apakah rencana dijalankan.",
+      "asked": "Rencanakan dulu",
+      "runAsked": "Menjalankan rencana yang disetujui",
+      "run": "Jalankan rencana ini",
+      "change": "Ubah",
+      "runMessage": "Jalankan rencana ini.",
+      "questionsHeading": "Beberapa pertanyaan sebelum merencanakan",
+      "other": "Lainnya",
+      "otherPlaceholder": "Tulis jawaban Anda sendiri",
+      "submit": "Kirim jawaban",
+      "stepsHeading": "Apa yang akan berubah",
+      "risksHeading": "Risiko",
+      "readOnly": "Perencanaan hanya membaca: tidak ada yang berubah sampai Anda menjalankan rencana"
+    },
     "starters": {
       "label": "Saran",
       "summarize": "Ringkas “{title}”",

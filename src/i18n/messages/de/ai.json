@@ -524,6 +524,22 @@
       "openPage": "Seite öffnen",
       "saveFailed": "Der Bericht konnte nicht als Seite gespeichert werden."
     },
+    "plan": {
+      "toggle": "Erst planen",
+      "toggleHint": "Erst planen: Der Assistent liest, stellt ggf. ein paar Fragen und schlägt einen Plan vor, bevor etwas geändert wird. Sie entscheiden, ob er ausgeführt wird.",
+      "asked": "Erst planen",
+      "runAsked": "Genehmigter Plan wird ausgeführt",
+      "run": "Diesen Plan ausführen",
+      "change": "Ändern",
+      "runMessage": "Diesen Plan ausführen.",
+      "questionsHeading": "Ein paar Fragen vor der Planung",
+      "other": "Etwas anderes",
+      "otherPlaceholder": "Eigene Antwort schreiben",
+      "submit": "Antworten senden",
+      "stepsHeading": "Was sich ändert",
+      "risksHeading": "Risiken",
+      "readOnly": "Planen liest nur: nichts ändert sich, bis Sie den Plan ausführen"
+    },
     "starters": {
       "label": "Vorschläge",
       "summarize": "„{title}“ zusammenfassen",

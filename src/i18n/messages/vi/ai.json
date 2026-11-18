@@ -524,6 +524,22 @@
       "openPage": "Mở trang",
       "saveFailed": "Không thể lưu báo cáo thành trang."
     },
+    "plan": {
+      "toggle": "Lập kế hoạch trước",
+      "toggleHint": "Lập kế hoạch trước: trợ lý đọc, có thể hỏi vài câu và đề xuất kế hoạch trước khi thay đổi bất cứ điều gì. Bạn quyết định có chạy kế hoạch hay không.",
+      "asked": "Lập kế hoạch trước",
+      "runAsked": "Đang chạy kế hoạch đã duyệt",
+      "run": "Chạy kế hoạch này",
+      "change": "Thay đổi",
+      "runMessage": "Hãy chạy kế hoạch này.",
+      "questionsHeading": "Vài câu hỏi trước khi lập kế hoạch",
+      "other": "Khác",
+      "otherPlaceholder": "Viết câu trả lời của bạn",
+      "submit": "Gửi câu trả lời",
+      "stepsHeading": "Điều sẽ thay đổi",
+      "risksHeading": "Rủi ro",
+      "readOnly": "Lập kế hoạch chỉ đọc: không có gì thay đổi cho đến khi bạn chạy kế hoạch"
+    },
     "starters": {
       "label": "Gợi ý",
       "summarize": "Tóm tắt “{title}”",

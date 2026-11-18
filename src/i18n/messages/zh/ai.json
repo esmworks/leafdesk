@@ -524,6 +524,22 @@
       "openPage": "打开页面",
       "saveFailed": "无法将报告另存为页面。"
     },
+    "plan": {
+      "toggle": "先做计划",
+      "toggleHint": "先做计划：助手会先阅读，可能提几个问题，并在更改任何内容之前提出计划。是否执行由你决定。",
+      "asked": "先做计划",
+      "runAsked": "正在执行已批准的计划",
+      "run": "执行此计划",
+      "change": "修改",
+      "runMessage": "执行此计划。",
+      "questionsHeading": "规划前的几个问题",
+      "other": "其他",
+      "otherPlaceholder": "写下你自己的答案",
+      "submit": "发送答案",
+      "stepsHeading": "将会更改的内容",
+      "risksHeading": "风险",
+      "readOnly": "规划只读取：在你执行计划之前不会更改任何内容"
+    },
     "starters": {
       "label": "建议",
       "summarize": "总结“{title}”",

@@ -524,6 +524,22 @@
       "openPage": "Open the page",
       "saveFailed": "The report couldn't be saved as a page."
     },
+    "plan": {
+      "toggle": "Plan first",
+      "toggleHint": "Plan first: the assistant reads, may ask a few questions, and proposes a plan before anything is changed. You decide whether to run it.",
+      "asked": "Plan first",
+      "runAsked": "Running the approved plan",
+      "run": "Run this plan",
+      "change": "Change",
+      "runMessage": "Run this plan.",
+      "questionsHeading": "A few questions before planning",
+      "other": "Something else",
+      "otherPlaceholder": "Write your own answer",
+      "submit": "Send answers",
+      "stepsHeading": "What will change",
+      "risksHeading": "Risks",
+      "readOnly": "Planning only reads: nothing changes until you run the plan"
+    },
     "starters": {
       "label": "Suggestions",
       "summarize": "Summarize “{title}”",

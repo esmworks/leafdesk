@@ -524,6 +524,22 @@
       "openPage": "Öppna sidan",
       "saveFailed": "Rapporten kunde inte sparas som en sida."
     },
+    "plan": {
+      "toggle": "Planera först",
+      "toggleHint": "Planera först: assistenten läser, kan ställa några frågor och föreslår en plan innan något ändras. Du bestämmer om den ska köras.",
+      "asked": "Planera först",
+      "runAsked": "Kör den godkända planen",
+      "run": "Kör den här planen",
+      "change": "Ändra",
+      "runMessage": "Kör den här planen.",
+      "questionsHeading": "Några frågor före planeringen",
+      "other": "Något annat",
+      "otherPlaceholder": "Skriv ditt eget svar",
+      "submit": "Skicka svar",
+      "stepsHeading": "Vad som ändras",
+      "risksHeading": "Risker",
+      "readOnly": "Planering läser bara: inget ändras förrän du kör planen"
+    },
     "starters": {
       "label": "Förslag",
       "summarize": "Sammanfatta ”{title}”",

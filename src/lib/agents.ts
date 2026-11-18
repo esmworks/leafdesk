@@ -5,7 +5,7 @@ import { agentPagePath } from "./agent-page";
 import { agentSettingsPath } from "./agent-settings";
 import type { AgentShareLevel } from "./agent-sharing";
 import type { AgentHelpersMode } from "./agent-team";
-import type { ChatAttachmentRecord, ChatStepRecord, MemoryKind, MemoryStatus } from "@/db/schema/ai";
+import type { ChatAttachmentRecord, ChatPlanMode, ChatStepRecord, MemoryKind, MemoryStatus } from "@/db/schema/ai";
 import type { ChatActionView, ChatMode, ChatScope, ChatThinking } from "./ai-chat";
 import type { QuietHours } from "./quiet-hours";
 import type { RepeatRule, ScheduleError } from "./schedule";
@@ -282,6 +282,8 @@ export type AssistantRunSource = {
   timeZone: string;
   /** Research mode: a plan, searches and reads, then a long cited report; nothing is changed. */
   research?: true;
+  /** Plan first: only reads, then ends with questions or a proposed plan (`first`); or the person's go-ahead to run the plan the last answer proposed (`run`). */
+  plan?: ChatPlanMode;
   /** What it writes in page bodies goes in as the AI's suggested edits. */
   asSuggestions?: true;
   /** Asked through a connected app (the Telegram bot), which follows the answer and gets no mail tools. */

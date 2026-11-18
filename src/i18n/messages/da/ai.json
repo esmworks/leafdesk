@@ -524,6 +524,22 @@
       "openPage": "Åbn siden",
       "saveFailed": "Rapporten kunne ikke gemmes som en side."
     },
+    "plan": {
+      "toggle": "Planlæg først",
+      "toggleHint": "Planlæg først: assistenten læser, kan stille et par spørgsmål og foreslår en plan, før noget ændres. Du bestemmer, om den skal køres.",
+      "asked": "Planlæg først",
+      "runAsked": "Kører den godkendte plan",
+      "run": "Kør denne plan",
+      "change": "Ændr",
+      "runMessage": "Kør denne plan.",
+      "questionsHeading": "Et par spørgsmål før planlægningen",
+      "other": "Noget andet",
+      "otherPlaceholder": "Skriv dit eget svar",
+      "submit": "Send svar",
+      "stepsHeading": "Hvad der ændres",
+      "risksHeading": "Risici",
+      "readOnly": "Planlægning læser kun: intet ændres, før du kører planen"
+    },
     "starters": {
       "label": "Forslag",
       "summarize": "Opsummer “{title}”",

@@ -60,7 +60,7 @@ export async function readAnswer(body: ReadableStream<Uint8Array>, state: Answer
           // Followed again: the question as it was asked, and an answer to come.
           const again = Boolean(event.replaceLast);
           state.again = again;
-          state.question = { question: shown.content, skill: shown.skill ?? null, scope: shown.scope ?? null, files: shown.attachments ?? [], research: Boolean(shown.research) };
+          state.question = { question: shown.content, skill: shown.skill ?? null, scope: shown.scope ?? null, files: shown.attachments ?? [], research: Boolean(shown.research), plan: shown.plan ?? null };
           const asked: ChatMessage[] = [
             { ...shown, key: nextKey() },
             { key: nextKey(), role: "assistant", content: "", steps: [], startedAt: event.startedAt ?? Date.now(), ...(shown.research ? { research: true } : {}) },

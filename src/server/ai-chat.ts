@@ -41,7 +41,8 @@
  * kept with the conversation; a new one starts with the person's latest) and how much it thinks
  * (kept the same way), and may be only files. In
  * research mode it plans sub-questions, searches and reads (the web too, where on) and writes a
- * long cited report, with read-only tools, more turns and a token budget of its own.
+ * long cited report, with read-only tools, more turns and a token budget of its own. With plan
+ * first (ai-chat-plan.ts) a turn reads, then ends with questions or a proposed plan to approve.
  *
  * Conversations are kept per person (`conversation`, without an agent) and only ever shown to them; cited pages are
  * looked up again with their current access whenever a conversation is shown.
@@ -54,6 +55,7 @@ import {
   type AgentRunState,
   type ChatAttachmentRecord,
   type ChatMessageRecord,
+  type ChatPlanMode,
   type ChatSourceRef,
   type ChatStepRecord,
 } from "@/db/schema";
@@ -111,6 +113,8 @@ import { runTurns } from "@/server/assistant/turns";
 import { attachmentRecords, deleteConversationFiles, keepQuestionFiles, questionFiles, readConversationFiles, type ChatFileContent } from "@/server/ai-chat-files";
 import { chatMailToolset } from "@/server/ai-chat-mail";
 import { chatWebOn, chatWebToolset, PLAN_TOOL } from "@/server/ai-chat-web";
+import { approvedPlanPrompt, endPlanTurn, planningTools } from "@/server/ai-chat-plan";
+import { isPlanCall, lastProposal, planText, type PlanCard } from "@/lib/chat-plan";
 import type { FileRow } from "@/server/files";
 import { getSkillContent, SkillError } from "@/server/skills";
 import { teamspaceLabel } from "@/server/teamspaces";
@@ -119,7 +123,7 @@ import { accountNotesOf } from "@/server/account-memory";
 import { CHAT_READ_MEMORY_TOOL, fitNotes, memoryAvailable, memoryForPrompt, MemoryError, memoryOn, MEMORY_TOOLS, undoNote } from "@/server/ai-memory";
 import { summaryForPrompt } from "@/server/memory-summary";
 import { otherTeamspaces, pageTeamspace, sharedMemoryFor } from "@/server/shared-memory";
-import { changeReminderTool, listRemindersTool, remindTool } from "@/server/ai-reminders";
+import { CHANGE_REMINDER_TOOL_NAME, changeReminderTool, listRemindersTool, REMIND_TOOL_NAME, remindTool } from "@/server/ai-reminders";
 import { awaitDecision, decideChange, runsWaitingHere, type ChatDecision } from "@/server/ai-chat-approvals";
 import { answeringIn, conversationBusy, followedIn, openRun, runEvents, runningIn, stopRunsIn } from "@/server/ai-chat-runs";
 import { dropChatWaiting, noteChatWaiting, pushChatAnswered, tellsPerson } from "@/server/ai-chat-notices";
@@ -188,6 +192,12 @@ export type ChatInput = {
   research?: boolean;
   /** The person's choice: what the chat writes in page bodies goes in as the AI's suggested edits. */
   asSuggestions?: boolean;
+  /**
+   * Plan first (`first`): the turn only reads, then ends with questions or a proposed plan (see
+   * ai-chat-plan.ts). `run`: the person approved the plan the conversation's last answer proposed;
+   * the question is asked in their own mode, with that plan attached.
+   */
+  plan?: ChatPlanMode;
 };
 
 /** Refusals before anything is sent: access problems look like missing things. */
@@ -268,6 +278,9 @@ export async function startChat(userId: string, input: ChatInput, signal?: Abort
   const model = await pickModel(userId, input.workspaceId, input.model ?? existing?.model ?? (existing ? null : await latestModel(userId, input.workspaceId)));
   const thinking = isChatThinking(input.thinking) ? input.thinking : existing ? (existing.thinking ?? "balanced") : await latestThinking(userId, input.workspaceId);
   const feature = input.research ? "chat.research" : "chat";
+  if (input.plan && input.research) refuse("invalid", "Research has no plan first");
+  // The plan to run is the one the conversation's last answer proposed, not what a page says it is.
+  if (input.plan === "run" && !lastProposal((existing?.messages ?? []).slice(0, (existing?.messages.length ?? 0) - (input.replaceLast ? 2 : 0)))) refuse("invalid", "There is no plan to run");
   // A question is as long as the model's context window takes; nothing else bounds it.
   if (message.length > (await promptRoomFor(input.workspaceId, feature, model?.id))) refuse("tooLarge", "The question is longer than the model takes");
   const scope = await chatScope(userId, input.workspaceId, input.scope);
@@ -308,10 +321,11 @@ export async function startChat(userId: string, input: ChatInput, signal?: Abort
     skillId: skill?.id ?? null,
     model: model?.id ?? null,
     thinking,
-    // Research only reads.
-    mode: appReadOnly || input.research ? "read" : (input.mode ?? "ask"),
+    // Research only reads, and so does a turn that plans first.
+    mode: appReadOnly || input.research || input.plan === "first" ? "read" : (input.mode ?? "ask"),
     timeZone,
     ...(input.research ? { research: true as const } : {}),
+    ...(input.plan ? { plan: input.plan } : {}),
     ...(input.asSuggestions ? { asSuggestions: true as const } : {}),
     ...(connectedAppCall(userId) ? { fromApp: true as const } : {}),
     ...(appReadOnly ? { appReadOnly: true as const } : {}),
@@ -478,6 +492,8 @@ async function* converseChat(run: AssistantRun, setup: ChatSetup, signal: AbortS
   const { userId, timeZone, thinking, replaced } = source;
   const workspaceId = run.workspaceId;
   const research = source.research === true;
+  // Plan first: only reads, and ends with questions or a plan (ai-chat-plan.ts).
+  const planning = source.plan === "first" && !research;
   // Told about away from its page when no page follows it (ai-chat-notices.ts).
   const tells = tellsPerson(source);
   // An owner may have turned changing without asking off since the question was asked.
@@ -503,6 +519,7 @@ async function* converseChat(run: AssistantRun, setup: ChatSetup, signal: AbortS
       ...(scopeView ? { scope: scopeView } : {}),
       ...(files.records.length ? { attachments: files.records.map(attachmentView) } : {}),
       ...(research ? { research: true } : {}),
+      ...(source.plan ? { plan: source.plan } : {}),
       at: new Date(started).toISOString(),
     },
     startedAt: started,
@@ -543,7 +560,7 @@ async function* converseChat(run: AssistantRun, setup: ChatSetup, signal: AbortS
     // and asked about unless the mode is `auto` (a read-only chat asks too), while both the person and
     // the workspace have the memory on.
     // Research only reads: no changes, notes or other services.
-    const remembers = !research && !source.appReadOnly && (await memoryOn(userId, workspaceId));
+    const remembers = !research && !planning && !source.appReadOnly && (await memoryOn(userId, workspaceId));
     // The notes of the workspace and of the teamspace the question is asked in, by their own
     // rules (shared-memory.ts): not the person's, so their switch leaves them alone. Research reads
     // none. The person's notes for all their workspaces go where their own notes here go.
@@ -574,7 +591,7 @@ async function* converseChat(run: AssistantRun, setup: ChatSetup, signal: AbortS
     const mailTools = research ? [] : await chatMailToolset(userId, workspaceId, { writes: initialMode !== "read" });
     // Reminding the person of something changes nothing in the workspace: offered in every mode but
     // research, as are listing their reminders and cancelling or moving one (asked about unless `auto`).
-    const tools = research
+    const allTools = research
       ? [PLAN_TOOL, ...CHAT_TOOLS, ...fileTools, ...webTools]
       : [
           ...CHAT_TOOLS,
@@ -590,10 +607,12 @@ async function* converseChat(run: AssistantRun, setup: ChatSetup, signal: AbortS
           ...mailTools,
           ...(external?.tools ?? []),
         ];
+    // Planning changes nothing, notes and reminders included, and ends with a card.
+    const tools = planning ? planningTools(allTools, new Set([REMIND_TOOL_NAME, CHANGE_REMINDER_TOOL_NAME])) : allTools;
     const skillTitle = skill ? pageLabel(skill.title) : null;
     const system = research
       ? researchSystemPrompt(promptScope, webTools.length > 0, skillTitle, hasFiles)
-      : chatSystemPrompt(promptScope, initialMode !== "read", skillTitle, remembers, services, webTools.length > 0, hasFiles, mailTools.length > 0, !research);
+      : chatSystemPrompt(promptScope, initialMode !== "read", skillTitle, remembers, services, webTools.length > 0, hasFiles, mailTools.length > 0, !research, planning);
     const toolsSize = tools.reduce((n, t) => n + t.description.length + JSON.stringify(t.parameters).length, 0);
     const feature = research ? "chat.research" : "chat";
     // What the model takes, less what every turn sends: the history, the map, memory and tool results
@@ -614,6 +633,7 @@ async function* converseChat(run: AssistantRun, setup: ChatSetup, signal: AbortS
       autoChanges: setup.autoChanges,
       ...(saved?.alike ? { alike: saved.alike } : {}),
       research,
+      planning,
       external,
       moreTools,
       web: webTools.length > 0,
@@ -665,7 +685,10 @@ async function* converseChat(run: AssistantRun, setup: ChatSetup, signal: AbortS
       const mapRoom = Math.min(MAP_CHARS, room() - sizeOf(history) - message.length - (skill?.body.length ?? 0) - memory.text.length - notesSize - filesText.length - imagesSize - 2_000);
       const map = mapRoom >= 500 ? await workspaceMap(ctx, workspaceId, scope, mapRoom) : "";
       // A question that is only files asks about the files.
-      const asked = message || "(The person attached the files without a question: say briefly what they hold and what you could do with them.)";
+      const asked0 = message || "(The person attached the files without a question: say briefly what they hold and what you could do with them.)";
+      // The plan the person approved comes from the conversation itself (startChat checked it is there).
+      const approved = source.plan === "run" ? lastProposal(earlier) : null;
+      const asked = approved ? `${asked0}\n\n${approvedPlanPrompt(planText(approved))}` : asked0;
       question = {
         role: "user",
         content: chatQuestionPrompt(asked, map, skill?.body, memory.text, { now: new Date(), timeZone }, filesText, notesText, summary),
@@ -768,7 +791,9 @@ async function* converseChat(run: AssistantRun, setup: ChatSetup, signal: AbortS
     // Turns go on until the model answers; the last (turns.ts) answers with what it has (research
     // writes its report). Each turn also counts against the workspace's rate and cost limits, and
     // the person can stop the answer (the request's signal).
-    const turns = runTurns<ChatEvent, never>(
+    // What ended a planning turn: its card and text.
+    type PlanEnding = { card: PlanCard; text: string };
+    const turns = runTurns<ChatEvent, PlanEnding>(
       messages,
       { round, pending: queue.length > 0 },
       {
@@ -826,6 +851,20 @@ async function* converseChat(run: AssistantRun, setup: ChatSetup, signal: AbortS
           }
           while (queue.length) {
             const call = queue[0];
+            // A planning turn ends with its questions or its plan: what else the model called with
+            // them isn't run.
+            if (planning && isPlanCall(call.name)) {
+              const ended = endPlanTurn(call);
+              if ("card" in ended) {
+                queue = [];
+                yield await step(ended.card);
+                return ended;
+              }
+              messages.push({ role: "tool", toolCallId: call.id, name: call.name, content: ended.content, isError: ended.isError });
+              queue.shift();
+              await checkpoint();
+              continue;
+            }
             const left = roomToRead(messages, () => room() - sizeOf(messages) - 300);
             let out = await dispatch.answer(call, decided, left);
             decided = null;
@@ -852,6 +891,10 @@ async function* converseChat(run: AssistantRun, setup: ChatSetup, signal: AbortS
           if (next.value.answered) {
             answer = next.value.text;
             stopReason = next.value.stopReason;
+          } else {
+            // The card ended the turn: its words are the answer (what the conversation keeps and the next turn reads).
+            answer = next.value.ending.text;
+            yield { type: "text", text: answer };
           }
           break;
         }
@@ -902,6 +945,7 @@ async function* converseChat(run: AssistantRun, setup: ChatSetup, signal: AbortS
             ...(scope ? { scope: { kind: scope.kind, id: scope.id } } : {}),
             ...(kept.length ? { attachments: kept } : {}),
             ...(research ? { research: true } : {}),
+            ...(source.plan ? { plan: source.plan } : {}),
             at: now,
           },
           {
@@ -1337,6 +1381,7 @@ export async function getConversation(userId: string, workspaceId: string, conve
         ...(m.scope ? { scope: scopes.get(`${m.scope.kind}:${m.scope.id}`) } : {}),
         ...(m.attachments ? { attachments: m.attachments.map(attachmentView) } : {}),
         ...(m.research ? { research: true } : {}),
+        ...(m.plan ? { plan: m.plan } : {}),
         ...(m.model ? { model: m.model } : {}),
         ...(sources ? { sources } : {}),
         ...(m.note ? { note: m.note } : {}),

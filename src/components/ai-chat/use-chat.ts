@@ -24,6 +24,8 @@ import { decideChangeAction, deleteConversationAction, saveReportAsPageAction, s
 import { read } from "@/components/read";
 import { isAiErrorCode } from "@/lib/ai";
 import { aiAsSuggestions, setAiAsSuggestions } from "@/lib/ai-suggestions";
+import { aiPlanFirst, setAiPlanFirst } from "@/lib/ai-plan-first";
+import type { ChatPlanMode } from "@/db/schema/ai";
 import { CHAT_MODES, type ChatActionView, type ChatMessageView, type ChatMode, type ChatOptions, type ChatScopeView, type ChatStepView, type ChatThinking } from "@/lib/ai-chat";
 import {
   CHAT_CSV_MAX_COLUMNS,
@@ -77,7 +79,7 @@ async function uploadFile(workspaceId: string, file: File): Promise<{ ok: true; 
 let uploads = 0;
 
 /** A question asked while an answer was on its way, waiting to be asked. */
-export type QueuedQuestion = { question: string; skill: ChatSkillPick | null; scope: ChatScopeView | null; files: ChatFile[]; research: boolean };
+export type QueuedQuestion = { question: string; skill: ChatSkillPick | null; scope: ChatScopeView | null; files: ChatFile[]; research: boolean; plan?: ChatPlanMode | null };
 
 /** Without options from the server (the full page outside the provider): one model, no picker. */
 const NO_OPTIONS: ChatOptions = { models: [], defaultModel: null, defaultThinking: "balanced", webSearch: false, autoChanges: true };
@@ -178,6 +180,13 @@ export function useChat(
   useEffect(() => setAsSuggestionsState(aiAsSuggestions()), []);
   const asSuggestionsRef = useRef(asSuggestions);
   asSuggestionsRef.current = asSuggestions;
+  // Plan first (ai-chat-plan.ts): the person's choice, kept in the browser like the mode.
+  const [planFirst, setPlanFirstState] = useState(false);
+  useEffect(() => setPlanFirstState(aiPlanFirst()), []);
+  const setPlanFirst = useCallback((on: boolean) => {
+    setPlanFirstState(on);
+    setAiPlanFirst(on);
+  }, []);
   const setAsSuggestions = useCallback((on: boolean) => {
     setAsSuggestionsState(on);
     setAiAsSuggestions(on);
@@ -402,7 +411,7 @@ export function useChat(
     }
     if (running) {
       if (again) return;
-      setQueue([...queue.current, { question, skill, scope, files: attached, research }]);
+      setQueue([...queue.current, { question, skill, scope, files: attached, research, plan: planFirst && !research ? "first" : null }]);
       setInput("");
       setSkill(null);
       setFilesNow([]);
@@ -413,10 +422,23 @@ export function useChat(
       setSkill(null);
       setFilesNow([]);
     }
-    await ask(question, again ? (again.skill ?? null) : skill, scope, Boolean(again), attached, again ? Boolean(messages[messages.length - 2]?.research) : research);
+    const planned = again ? (messages[messages.length - 2]?.plan ?? null) : planFirst && !research ? "first" : null;
+    await ask(question, again ? (again.skill ?? null) : skill, scope, Boolean(again), attached, again ? Boolean(messages[messages.length - 2]?.research) : research, planned);
   }
 
-  async function ask(question: string, used: ChatSkillPick | null, scope: ChatScopeView | null, again: boolean, attached: ChatFile[] = [], researching = false) {
+  /**
+   * Answers a planning card (ai-chat-plan.ts): the answers to its questions, as plan first goes on
+   * (`first`), or "Run this plan" (`run`, in the person's own mode). Asked in the scope of the
+   * question before it; not while an answer is on its way.
+   */
+  function reply(question: string, plan: ChatPlanMode) {
+    const text = question.trim();
+    if (running || !text) return;
+    const asked = [...messages].reverse().find((m) => m.role === "user");
+    void ask(text, null, asked?.scope ?? null, false, [], false, plan);
+  }
+
+  async function ask(question: string, used: ChatSkillPick | null, scope: ChatScopeView | null, again: boolean, attached: ChatFile[] = [], researching = false, plan: ChatPlanMode | null = null) {
     const runId = newRunId();
     const startedAt = Date.now();
     const before = messages;
@@ -431,6 +453,7 @@ export function useChat(
         ...(scope ? { scope } : {}),
         ...(shownFiles?.length ? { attachments: shownFiles } : {}),
         ...(researching ? { research: true } : {}),
+        ...(plan ? { plan } : {}),
         at: new Date(startedAt).toISOString(),
       },
       { key: nextKey(), role: "assistant", content: "", steps: [], startedAt, ...(researching ? { research: true } : {}) },
@@ -438,7 +461,7 @@ export function useChat(
     setMessages((list) => [...(again ? list.slice(0, -2) : list), ...asked]);
     await answer({
       runId,
-      question: { question, skill: used, scope, files: attached, research: researching },
+      question: { question, skill: used, scope, files: attached, research: researching, plan },
       again,
       before,
       open: (signal) =>
@@ -461,6 +484,7 @@ export function useChat(
             ...(options.models.length > 1 && modelNow.current ? { model: modelNow.current } : {}),
             thinking: thinkingNow.current,
             ...(researching ? { research: true } : {}),
+            ...(plan ? { plan } : {}),
           }),
           signal,
         }),
@@ -577,7 +601,7 @@ export function useChat(
         if (failed) giveBack(!changed && !again && question ? [question] : []);
         else if (finished && next) {
           setQueue(queue.current.slice(1));
-          void ask(next.question, next.skill, next.scope, false, next.files, next.research);
+          void ask(next.question, next.skill, next.scope, false, next.files, next.research, next.plan ?? null);
         } else if (!finished && !stoppedHere && !gone) giveBack();
       }
     }
@@ -727,6 +751,9 @@ export function useChat(
     setThinking,
     research,
     setResearch,
+    planFirst,
+    setPlanFirst,
+    reply,
     saveReport,
     undoNote,
     status,
@@ -762,7 +789,7 @@ export type ThreadChat = Pick<
   Partial<
     Pick<
       Chat,
-      "skill" | "setSkill" | "pastes" | "pasteInput" | "options" | "model" | "setModel" | "thinking" | "setThinking" | "research" | "setResearch" | "mode" | "setMode" | "asSuggestions" | "setAsSuggestions" | "saveReport" | "stop" | "undoNote"
+      "skill" | "setSkill" | "pastes" | "pasteInput" | "options" | "model" | "setModel" | "thinking" | "setThinking" | "research" | "setResearch" | "planFirst" | "setPlanFirst" | "reply" | "mode" | "setMode" | "asSuggestions" | "setAsSuggestions" | "saveReport" | "stop" | "undoNote"
     >
   > & {
     /** The files it takes: the picker's `accept`, and whether a dropped or pasted file is one (the AI chat's otherwise). */

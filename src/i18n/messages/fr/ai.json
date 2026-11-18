@@ -524,6 +524,22 @@
       "openPage": "Ouvrir la page",
       "saveFailed": "Impossible d’enregistrer le rapport comme page."
     },
+    "plan": {
+      "toggle": "Planifier d'abord",
+      "toggleHint": "Planifier d'abord : l'assistant lit, peut poser quelques questions et propose un plan avant de modifier quoi que ce soit. Vous décidez de l'exécuter ou non.",
+      "asked": "Planifier d'abord",
+      "runAsked": "Exécution du plan approuvé",
+      "run": "Exécuter ce plan",
+      "change": "Modifier",
+      "runMessage": "Exécute ce plan.",
+      "questionsHeading": "Quelques questions avant de planifier",
+      "other": "Autre chose",
+      "otherPlaceholder": "Écrivez votre propre réponse",
+      "submit": "Envoyer les réponses",
+      "stepsHeading": "Ce qui va changer",
+      "risksHeading": "Risques",
+      "readOnly": "La planification ne fait que lire : rien ne change tant que vous n'exécutez pas le plan"
+    },
     "starters": {
       "label": "Suggestions",
       "summarize": "Résumer « {title} »",

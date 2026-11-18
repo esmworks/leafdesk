@@ -239,3 +239,19 @@ describe("the person's reminders in the AI chat", () => {
     expect(await dispatchWith().answer({ ...cancel, id: "c2" }, null, 10_000)).toEqual({ content: "There is no reminder still to come with that id.", isError: true });
   });
 });
+
+describe("a planning turn (plan first)", () => {
+  const planning = () => dispatchWith({ initialMode: "read", mode: "read", planning: true });
+
+  it("refuses a change the model calls anyway", async () => {
+    const out = await planning().answer(update("r1"), null, 10_000);
+    expect("ask" in out).toBe(false);
+    expect(out).toMatchObject({ isError: true });
+    expect(applied).toEqual([]);
+  });
+
+  it("refuses reminders, which change things too", async () => {
+    const out = await planning().answer({ id: "c1", name: "remind_person", arguments: { text: "x", at: "2030-01-01 09:00" } }, null, 10_000);
+    expect(out).toMatchObject({ isError: true });
+  });
+});

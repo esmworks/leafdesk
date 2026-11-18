@@ -524,6 +524,22 @@
       "openPage": "Sayfayı aç",
       "saveFailed": "Rapor sayfa olarak kaydedilemedi."
     },
+    "plan": {
+      "toggle": "Önce planla",
+      "toggleHint": "Önce planla: asistan okur, birkaç soru sorabilir ve bir şey değişmeden önce plan önerir. Planı çalıştırıp çalıştırmamaya siz karar verirsiniz.",
+      "asked": "Önce planla",
+      "runAsked": "Onaylanan plan çalıştırılıyor",
+      "run": "Bu planı çalıştır",
+      "change": "Değiştir",
+      "runMessage": "Bu planı çalıştır.",
+      "questionsHeading": "Planlamadan önce birkaç soru",
+      "other": "Başka bir şey",
+      "otherPlaceholder": "Kendi yanıtınızı yazın",
+      "submit": "Yanıtları gönder",
+      "stepsHeading": "Neler değişecek",
+      "risksHeading": "Riskler",
+      "readOnly": "Planlama yalnızca okur: planı çalıştırana kadar hiçbir şey değişmez"
+    },
     "starters": {
       "label": "Öneriler",
       "summarize": "“{title}” sayfasını özetle",

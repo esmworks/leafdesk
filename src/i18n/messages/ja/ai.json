@@ -524,6 +524,22 @@
       "openPage": "ページを開く",
       "saveFailed": "レポートをページとして保存できませんでした。"
     },
+    "plan": {
+      "toggle": "先に計画する",
+      "toggleHint": "先に計画する: アシスタントは読み取りだけを行い、いくつか質問したうえで、何かを変更する前に計画を提案します。実行するかどうかはあなたが決めます。",
+      "asked": "先に計画する",
+      "runAsked": "承認した計画を実行中",
+      "run": "この計画を実行",
+      "change": "変更",
+      "runMessage": "この計画を実行してください。",
+      "questionsHeading": "計画の前にいくつか質問",
+      "other": "その他",
+      "otherPlaceholder": "自分の答えを入力",
+      "submit": "回答を送信",
+      "stepsHeading": "変更される内容",
+      "risksHeading": "リスク",
+      "readOnly": "計画中は読み取りのみ。計画を実行するまで何も変更されません"
+    },
     "starters": {
       "label": "候補",
       "summarize": "「{title}」を要約して",

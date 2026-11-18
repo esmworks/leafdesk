@@ -390,6 +390,20 @@ cost limits like any other); past it, it writes the report with what it has. *Sa
 report makes it a private page at the top of the workspace, its citations links to the sources
 with a list of them at the end.
 
+**Plan first.** For a big change, turn on *Plan first* in the box's toolbar (kept in your browser).
+The turns that follow only read: the model gets the chat's reads (search, pages, databases, further
+read tools) and no tool that changes anything, notes and reminders included, whatever the mode under
+the box. It ends its turn in one of two ways. With *ask_questions* it asks 1 to 4 clarifying
+questions, each with 2 to 4 options and a field for your own words; *Send answers* sends them as
+your next message and it plans again. With *propose_plan* it shows a card with a title, the steps
+(what changes, and where) and the risks. *Run this plan* asks the next question in your own mode
+(*Ask*, *Auto* or *Read only*) with the plan attached, read by the server from the conversation's
+last answer, so the usual approvals apply; *Change* takes you back to the box to say what to
+adjust. The questions and the plan are kept in the conversation as the answer's text, so later
+turns read them. A card can be answered while its answer is the latest and nothing is on its way;
+older ones stay as a record. Plan first isn't in research mode, agents' chats, MCP or the Telegram
+and Slack bots.
+
 **Reviewing AI changes.** After an AI app, the chat or an agent writes to a page's body, the page
 shows a bar above the body with how many blocks changed and who changed them. *Review* opens the
 changes block by block, with *Keep* and *Undo* for each, next to *Keep all* and *Undo all*. Undoing

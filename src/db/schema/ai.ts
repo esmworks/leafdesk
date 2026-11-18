@@ -148,6 +148,8 @@ export type ChatStepRecord =
   | { kind: "search"; query: string | null; results: number }
   | { kind: "read"; pageId: string }
   | { kind: "plan"; questions: string[] }
+  | ChatQuestionsRecord
+  | ChatProposalRecord
   | ChatWebRecord
   | ChatMailRecord
   | { kind: "query"; databaseId: string; conditions: ChatQueryCondition[]; any?: boolean; results: number }
@@ -157,6 +159,18 @@ export type ChatStepRecord =
   | ChatToolRecord
   | ChatReminderRecord
   | { kind: "thought"; text: string };
+
+/**
+ * What a planning turn (plan first, server/ai-chat-plan.ts) ended with: questions for the person
+ * (`ask_questions`: each with its options, they may write their own answer) or the plan it
+ * proposes (`propose_plan`: what changes where, and the risks). The turn's text is the same thing
+ * in words, so the conversation (and the model, next turn) has it.
+ */
+export type ChatQuestionsRecord = { kind: "questions"; questions: { question: string; options: string[] }[] };
+export type ChatProposalRecord = { kind: "proposal"; title: string; steps: { what: string; where?: string }[]; risks: string[] };
+
+/** How a question was asked with plan first: to plan (`first`), or to run the plan the last answer proposed (`run`). */
+export type ChatPlanMode = "first" | "run";
 
 /**
  * A reminder the AI chat set for the person asking (server/ai-reminders.ts, no `action`): what it
@@ -311,6 +325,8 @@ export type ChatMessageRecord = {
   attachments?: ChatAttachmentRecord[];
   /** Questions asked in research mode, and their answers (a report). */
   research?: boolean;
+  /** Questions asked with plan first (`first`), or to run the plan proposed before (`run`). */
+  plan?: ChatPlanMode;
   /** Answers: the model that wrote it. */
   model?: string;
   /** Assistant answers: the sources the answer cites as [n]. */

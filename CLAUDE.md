@@ -271,7 +271,12 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   once the answer read words from outside (`chat-dispatch.ts` `outside()`), "don't ask again"
   covers only the same kind of change in the same place, kept in `agent_run.state.alike`; an ask the
   choice never covers (a note, a web call, a connection's call …) carries `eachTime`, the one mark
-  the card and the Telegram bot read, so a new kind of ask sets it there. An answer's text flows in a few
+  the card and the Telegram bot read, so a new kind of ask sets it there. Plan first (`ai-chat-plan.ts`, pure part `lib/chat-plan.ts`; source and message field `plan`,
+  `first`/`run`): a `first` turn is forced to mode `read`, drops notes and reminders (`planningTools`)
+  and is offered `ask_questions`/`propose_plan`, which `answerCalls` in `ai-chat.ts` turns into a
+  card step (`questions`/`proposal`) that ends the turn, its words being the answer's text; the
+  cards (`components/ai-chat/plan-cards.tsx`, a `lazyPart`) are drawn by `Answer`, not the steps
+  fold. `run` reads the plan from the last answer's `proposal` step, never from the client. An answer's text flows in a few
   letters a frame (`ai-chat/smooth-text.ts`, called by the lazy markdown renderer when `writing`);
   `chat-thread.tsx` memoizes `Answer` and `Question`, so their props stay stable (`handlers`, read
   through a ref) or every piece redraws the whole conversation. The panel and the full-page chat

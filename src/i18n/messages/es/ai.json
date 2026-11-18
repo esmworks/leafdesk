@@ -524,6 +524,22 @@
       "openPage": "Abrir la página",
       "saveFailed": "No se pudo guardar el informe como página."
     },
+    "plan": {
+      "toggle": "Planificar primero",
+      "toggleHint": "Planificar primero: el asistente lee, puede hacer algunas preguntas y propone un plan antes de cambiar nada. Tú decides si se ejecuta.",
+      "asked": "Planificar primero",
+      "runAsked": "Ejecutando el plan aprobado",
+      "run": "Ejecutar este plan",
+      "change": "Cambiar",
+      "runMessage": "Ejecuta este plan.",
+      "questionsHeading": "Unas preguntas antes de planificar",
+      "other": "Otra cosa",
+      "otherPlaceholder": "Escribe tu propia respuesta",
+      "submit": "Enviar respuestas",
+      "stepsHeading": "Qué cambiará",
+      "risksHeading": "Riesgos",
+      "readOnly": "Planificar solo lee: nada cambia hasta que ejecutes el plan"
+    },
     "starters": {
       "label": "Sugerencias",
       "summarize": "Resume «{title}»",

@@ -4,6 +4,12 @@
 
 ### Added
 
+- **Plan first in the AI chat.** A *Plan first* switch in the chat box (remembered in the browser)
+  makes the next questions read only and end with either up to four clarifying questions, each with
+  options and a field for your own words, or a plan card with its steps, where each changes
+  something and the risks. *Run this plan* then runs it in your own mode, with the usual approvals;
+  *Change* takes you back to the box. No migration.
+
 - **Chains of agents.** *New chain* in the sidebar's *Agents* tab runs agents one after another,
   each handed the answer of the step before: a name, 2 to 8 steps (an agent, its task and the
   database it may change) and, if you like, a repeat rule. *Run now* starts it from the tab, where

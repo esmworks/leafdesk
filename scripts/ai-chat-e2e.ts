@@ -152,7 +152,9 @@ const stepLabel = (step: ChatStepView) =>
                     ? `mail:${step.action}`
                     : step.kind === "reminder"
                       ? `reminder:${step.action ?? "set"}`
-                      : `thought:${step.text}`;
+                      : step.kind === "questions" || step.kind === "proposal"
+                        ? step.kind
+                        : `thought:${step.text}`;
 
 /** Runs a question to the end; returns its events and what they add up to. */
 async function ask(userId: string, input: ChatInput, options: { signal?: AbortSignal; onEvent?: (e: ChatEvent) => void | Promise<void> } = {}) {

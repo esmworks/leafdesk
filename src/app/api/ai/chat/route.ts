@@ -33,18 +33,19 @@ const chatInput = z.object({
   // Checked by startChat: the person's own files, not attached elsewhere.
   attachments: z.array(z.string().min(1).max(100)).max(CHAT_FILE_LIMITS.perQuestion).nullish(),
   research: z.boolean().optional(),
+  plan: z.enum(["first", "run"]).optional(),
 });
 
 /**
  * The AI chat (#41): `POST /api/ai/chat` with `{runId, workspaceId, conversationId?, message, scope?, mode?,
- * replaceLast?, skillId?, timeZone?, model?, thinking?, attachments?, research?, asSuggestions?}` (`runId`:
+ * replaceLast?, skillId?, timeZone?, model?, thinking?, attachments?, research?, plan?, asSuggestions?}` (`runId`:
  * the browser's id for the answer, unused before; `scope`:
  * `{pageId}` for a page and the pages under it, `{teamspaceId}` for a teamspace's pages; `replaceLast`:
  * ask again in place of the last question and answer; `skillId`: a skill whose instructions the
  * answer follows; `timeZone`: the browser's, for what today is; `model`: one the chat offers;
  * `thinking`: how much the model thinks (fast, balanced, deep);
  * `attachments`: ids of files from /api/ai/chat/files, which may stand without a question;
- * `research`: research mode; `asSuggestions`: what it writes in page bodies goes in as suggested edits).
+ * `research`: research mode; `plan`: `first` plans before changing anything, `run` runs the plan the last answer proposed; `asSuggestions`: what it writes in page bodies goes in as suggested edits).
  * Answers with newline-delimited JSON as the assistant works (see ChatEvent in lib/ai-chat.ts); in
  * mode `ask` the answer waits on each change for decideChangeAction.
  * Checks that fail before anything is sent answer with a status and `{"error":{"code","message"}}`;

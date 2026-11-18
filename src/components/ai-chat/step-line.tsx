@@ -237,6 +237,8 @@ export function StepLine({ step, onSource }: { step: ChatStepView; onSource: (so
       </>
     );
   }
+  // Questions and plans of plan first are cards under the answer, not lines.
+  if (step.kind !== "thought") return null;
   return (
     <>
       <Lightbulb className={icon} />

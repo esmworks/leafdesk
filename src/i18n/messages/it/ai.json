@@ -524,6 +524,22 @@
       "openPage": "Apri la pagina",
       "saveFailed": "Impossibile salvare il rapporto come pagina."
     },
+    "plan": {
+      "toggle": "Pianifica prima",
+      "toggleHint": "Pianifica prima: l'assistente legge, può fare alcune domande e propone un piano prima di modificare qualsiasi cosa. Sei tu a decidere se eseguirlo.",
+      "asked": "Pianifica prima",
+      "runAsked": "Esecuzione del piano approvato",
+      "run": "Esegui questo piano",
+      "change": "Modifica",
+      "runMessage": "Esegui questo piano.",
+      "questionsHeading": "Alcune domande prima di pianificare",
+      "other": "Altro",
+      "otherPlaceholder": "Scrivi la tua risposta",
+      "submit": "Invia le risposte",
+      "stepsHeading": "Cosa cambierà",
+      "risksHeading": "Rischi",
+      "readOnly": "La pianificazione si limita a leggere: nulla cambia finché non esegui il piano"
+    },
     "starters": {
       "label": "Suggerimenti",
       "summarize": "Riassumi «{title}»",

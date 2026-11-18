@@ -31,6 +31,7 @@ import {
   Globe,
   Crosshair,
   Lightbulb,
+  ListChecks,
   Loader2,
   MessageCircle,
   MessageSquareDiff,
@@ -64,6 +65,7 @@ import {
   stripCitations,
 } from "@/lib/ai-chat";
 import { CHAT_FILE_ACCEPT, chatFileKind } from "@/lib/chat-attachments";
+import { isPlanCard } from "@/lib/chat-plan";
 import { PROPERTY_TYPES, type PropertyType } from "@/lib/property-types";
 import { caretOutsideLabels, deleteLabel, insertDictation, normalizePaste, shouldCollapsePaste, type PastePart } from "@/lib/chat-paste";
 import type { VoiceNoteLimits } from "@/lib/voice-notes";
@@ -80,6 +82,8 @@ import { useReasoning, type ChangeDecision, type ChatMessage, type ChatSkillPick
 // Lines to the chat's questions, and the way back to its latest answer: loaded once there is a conversation.
 const TurnLines = lazyPart(() => import("@/components/chat-navigation").then((m) => m.TurnLines));
 const ToLatest = lazyPart(() => import("@/components/chat-navigation").then((m) => m.ToLatest));
+// The cards a planning turn ends with (plan first): loaded when such an answer shows.
+const PlanCardView = lazyPart(() => import("./plan-cards").then((m) => m.default));
 
 export function ChatThread({
   chat,
@@ -144,6 +148,10 @@ export function ChatThread({
       edit: (index: number, question: string) => latest.current.onSend({ question, skill: latest.current.chat.messages[index]?.skill }),
       saveReport: (index: number) => latest.current.chat.saveReport?.(index) ?? Promise.resolve(null),
       undoNote: (memoryId: string) => latest.current.chat.undoNote?.(memoryId) ?? Promise.resolve(null),
+      /** A planning card's answers or go-ahead, asked as the next question. */
+      reply: (text: string, plan: "first" | "run") => latest.current.chat.reply?.(text, plan),
+      /** A plan's Change: back to the box. */
+      focus: () => latest.current.chat.inputRef.current?.focus(),
     }),
     [],
   );
@@ -359,6 +367,8 @@ export function ChatThread({
                           onSource={handlers.source}
                           onUndoNote={chat.undoNote ? handlers.undoNote : undefined}
                           onSaveReport={m.research && chat.conversationId ? handlers.saveReport : undefined}
+                          onReply={chat.reply ? handlers.reply : undefined}
+                          onChange={handlers.focus}
                           workspaceId={chat.workspaceId}
                           labels={labels}
                         />
@@ -595,6 +605,7 @@ export function ChatThread({
                         if (picked.length) void chat.attachFiles(picked);
                       }}
                     />
+                    {chat.setPlanFirst && !chat.research && <PlanToggle on={Boolean(chat.planFirst)} onChange={chat.setPlanFirst} />}
                     {chat.mode && chat.setMode && chat.setAsSuggestions && (
                       <ModePicker
                         modes={chat.options?.autoChanges === false ? CHAT_MODES.filter((m) => m !== "auto") : CHAT_MODES}
@@ -703,6 +714,8 @@ const Answer = memo(function Answer({
   onSource,
   onUndoNote,
   onSaveReport,
+  onReply,
+  onChange,
   workspaceId,
   labels,
 }: {
@@ -722,6 +735,10 @@ const Answer = memo(function Answer({
   onUndoNote?: (memoryId: string) => Promise<string | null>;
   /** A research report: saves it as a page, giving its id (null when it couldn't). */
   onSaveReport?: (index: number) => Promise<string | null>;
+  /** A planning card's answers or go-ahead, asked as the next question (not in an agent's chat). */
+  onReply?: (text: string, plan: "first" | "run") => void;
+  /** A plan's Change: back to the box. */
+  onChange: () => void;
   workspaceId: string;
   labels: Labels;
 }) {
@@ -733,6 +750,8 @@ const Answer = memo(function Answer({
   // Kept across renders: a new one would redraw the answer's citation buttons as new elements.
   const byNumber = useMemo(() => new Map((message.sources ?? []).map((s) => [s.n, s])), [message.sources]);
   const done = status === null && !waiting && (message.content.trim() !== "" || message.ms !== undefined);
+  // What a planning turn ended with (plan first): drawn as a card, in place of its text.
+  const card = message.steps?.find(isPlanCard);
   return (
     <div className="group/answer font-sans text-sm leading-normal">
       {message.steps ? (
@@ -747,7 +766,8 @@ const Answer = memo(function Answer({
           </p>
         )
       )}
-      {message.content && <AnswerText text={message.content} sources={byNumber} onSource={onSource} writing={status !== null} />}
+      {message.content && !card && <AnswerText text={message.content} sources={byNumber} onSource={onSource} writing={status !== null} />}
+      {card && <PlanCardView card={card} live={last && done && !message.note} onReply={onReply} onChange={onChange} />}
       {message.note && <p className="mt-1 text-xs text-fg-muted">{message.note === "stopped" ? labels.stopped : labels.cutOff}</p>}
       {/* Notes kept or dropped show even with the steps folded: the person should know. */}
       {done && message.steps?.some(changedMemory) && (
@@ -856,6 +876,12 @@ const Question = memo(function Question({
           <span>{t("research.asked")}</span>
         </p>
       )}
+      {message.plan && (
+        <p className={cn("mb-1 flex items-center gap-1.5 text-xs text-fg-muted", page ? "justify-end" : "ms-8")}>
+          <ListChecks className="h-3.5 w-3.5 shrink-0" />
+          <span>{t(message.plan === "run" ? "plan.runAsked" : "plan.asked")}</span>
+        </p>
+      )}
       {message.scope && (
         <p className={cn("mb-1 flex items-center gap-1.5 text-xs text-fg-muted", page ? "justify-end" : "ms-8")}>
           <Crosshair className="h-3.5 w-3.5 shrink-0" />
@@ -910,9 +936,12 @@ function Steps({
   onUndoNote?: (memoryId: string) => Promise<string | null>;
 }) {
   const t = useTranslations("ai.chat");
+  // The cards of plan first are drawn under the answer.
+  const shown = (message.steps ?? []).filter((s) => !isPlanCard(s));
+  if (status === null && !waiting && shown.length === 0 && message.steps?.some(isPlanCard)) return null;
   return (
     <StepsFold live={status !== null} ms={message.ms} startedAt={message.startedAt}>
-      {(message.steps ?? []).map((step, i) => (
+      {shown.map((step, i) => (
         <li key={i} className="flex min-w-0 items-start gap-1.5">
           {onUndoNote && undoableNote(step) ? (
             <UndoableStepLine step={step} onSource={onSource} onUndo={() => onUndoNote(step.memoryId)} />
@@ -1103,6 +1132,23 @@ function AddMenu({
         </div>
       )}
     </Popover>
+  );
+}
+
+/** Plan first: the next questions read, then end with questions or a plan to approve (ai-chat-plan.ts). */
+function PlanToggle({ on, onChange }: { on: boolean; onChange: (on: boolean) => void }) {
+  const t = useTranslations("ai.chat.plan");
+  return (
+    <button
+      type="button"
+      aria-pressed={on}
+      title={t("toggleHint")}
+      onClick={() => onChange(!on)}
+      className={cn(chipTrigger, "shrink-0 whitespace-nowrap", on ? "bg-bg-active" : "text-fg-muted")}
+    >
+      <ListChecks className="h-3.5 w-3.5 shrink-0 @max-sm:hidden" />
+      {t("toggle")}
+    </button>
   );
 }
 

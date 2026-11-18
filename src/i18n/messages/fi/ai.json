@@ -524,6 +524,22 @@
       "openPage": "Avaa sivu",
       "saveFailed": "Raporttia ei voitu tallentaa sivuna."
     },
+    "plan": {
+      "toggle": "Suunnittele ensin",
+      "toggleHint": "Suunnittele ensin: avustaja lukee, voi esittää muutaman kysymyksen ja ehdottaa suunnitelman ennen kuin mitään muutetaan. Sinä päätät, ajetaanko se.",
+      "asked": "Suunnittele ensin",
+      "runAsked": "Hyväksyttyä suunnitelmaa ajetaan",
+      "run": "Aja tämä suunnitelma",
+      "change": "Muuta",
+      "runMessage": "Aja tämä suunnitelma.",
+      "questionsHeading": "Muutama kysymys ennen suunnittelua",
+      "other": "Jotain muuta",
+      "otherPlaceholder": "Kirjoita oma vastauksesi",
+      "submit": "Lähetä vastaukset",
+      "stepsHeading": "Mitä muuttuu",
+      "risksHeading": "Riskit",
+      "readOnly": "Suunnittelu vain lukee: mikään ei muutu, ennen kuin ajat suunnitelman"
+    },
     "starters": {
       "label": "Ehdotuksia",
       "summarize": "Tiivistä ”{title}”",

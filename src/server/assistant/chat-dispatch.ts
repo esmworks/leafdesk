@@ -66,6 +66,8 @@ export type ChatDispatchContext = {
   /** Changes "don't ask again" covers after words from outside (the run's `state.alike`), for one taken up again. */
   alike?: readonly string[];
   research: boolean;
+  /** A planning turn (plan first): it changes nothing, reminders and notes included. */
+  planning?: boolean;
   /** The connections' tools the chat was offered (null: none). */
   external: ConnectionToolset | null;
   moreTools: ReturnType<typeof lazyMoreTools>;
@@ -251,6 +253,8 @@ export function createChatDispatch(cx: ChatDispatchContext) {
   }
 
   async function route(call: AiToolCall, decision: ChatDecision | null, left: number): Promise<ChatAnswer> {
+    // Reminders aren't offered while planning; called anyway they are refused like a change.
+    if (cx.planning && (call.name === REMIND_TOOL_NAME || call.name === CHANGE_REMINDER_TOOL_NAME)) return { content: "Planning only reads: nothing is set or changed in this turn. Put it in the plan.", isError: true };
     const entry = external?.byName.get(call.name);
     if (entry) return connection(entry, call, decision, left);
     if (MORE_TOOL_NAMES.has(call.name) && !research) return more(call, decision, left);

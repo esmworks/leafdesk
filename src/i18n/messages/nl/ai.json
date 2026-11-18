@@ -524,6 +524,22 @@
       "openPage": "De pagina openen",
       "saveFailed": "Het rapport kon niet als pagina worden opgeslagen."
     },
+    "plan": {
+      "toggle": "Eerst plannen",
+      "toggleHint": "Eerst plannen: de assistent leest, stelt eventueel enkele vragen en stelt een plan voor voordat er iets verandert. U beslist of het wordt uitgevoerd.",
+      "asked": "Eerst plannen",
+      "runAsked": "Goedgekeurd plan wordt uitgevoerd",
+      "run": "Dit plan uitvoeren",
+      "change": "Wijzigen",
+      "runMessage": "Voer dit plan uit.",
+      "questionsHeading": "Een paar vragen voor het plannen",
+      "other": "Iets anders",
+      "otherPlaceholder": "Schrijf uw eigen antwoord",
+      "submit": "Antwoorden versturen",
+      "stepsHeading": "Wat er verandert",
+      "risksHeading": "Risico's",
+      "readOnly": "Plannen leest alleen: er verandert niets totdat u het plan uitvoert"
+    },
     "starters": {
       "label": "Suggesties",
       "summarize": "Vat ‘{title}’ samen",

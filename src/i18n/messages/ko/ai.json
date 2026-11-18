@@ -524,6 +524,22 @@
       "openPage": "페이지 열기",
       "saveFailed": "보고서를 페이지로 저장하지 못했습니다."
     },
+    "plan": {
+      "toggle": "먼저 계획",
+      "toggleHint": "먼저 계획: 어시스턴트가 읽고, 몇 가지 질문을 할 수 있으며, 무언가를 바꾸기 전에 계획을 제안합니다. 실행 여부는 직접 결정합니다.",
+      "asked": "먼저 계획",
+      "runAsked": "승인한 계획 실행 중",
+      "run": "이 계획 실행",
+      "change": "수정",
+      "runMessage": "이 계획을 실행해 주세요.",
+      "questionsHeading": "계획 전에 몇 가지 질문",
+      "other": "기타",
+      "otherPlaceholder": "직접 답변 입력",
+      "submit": "답변 보내기",
+      "stepsHeading": "변경될 내용",
+      "risksHeading": "위험",
+      "readOnly": "계획 중에는 읽기만 합니다. 계획을 실행하기 전에는 아무것도 바뀌지 않습니다"
+    },
     "starters": {
       "label": "추천",
       "summarize": "“{title}” 요약해 줘",
