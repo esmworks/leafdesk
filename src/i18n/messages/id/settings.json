@@ -950,7 +950,9 @@
       "requestNotFound": "Permintaan ini sudah dijawab.",
       "noteChanged": "Catatan ini sudah berubah sejak itu. Ubah di tab Memori agen.",
       "chainNotFound": "Rantai ini sudah tidak ada, atau Anda tidak dapat menjalankannya.",
-      "chainRunning": "Rantai ini masih berjalan. Jalankan lagi setelah selesai."
+      "chainRunning": "Rantai ini masih berjalan. Jalankan lagi setelah selesai.",
+      "external": "Agen eksternal tidak berjalan di Leafdesk.",
+      "bindingInvalid": "Pilih salah satu aplikasi Anda yang terhubung."
     },
     "connections": {
       "description": "Alat dari setiap koneksi yang boleh dipakai agen ini. Alat yang hanya membaca langsung berjalan, kecuali pada baris dari jawaban formulir anonim; yang lain menunggu persetujuan pemilik setiap kali agen memanggilnya.",
@@ -1167,6 +1169,51 @@
         "skipped": "Email yang kamu kirim, draf, balasan otomatis, milis, dan email massal tidak pernah menjalankannya. Paling banyak {hour} proses per jam dan {day} per hari dari kotak surat ini.",
         "limited": "Beberapa email terlewat belakangan ini: batas per jam atau per hari tercapai."
       }
+    },
+    "external": {
+      "button": "Agen eksternal baru",
+      "badge": "Agen eksternal",
+      "dialogTitle": "Agen eksternal baru",
+      "dialogHelp": "Agen luar seperti Claude Code mengerjakan apa yang Anda tugaskan kepadanya. Agen ini tidak pernah berjalan di dalam Leafdesk; ia mengakses ruang kerja lewat MCP atau REST API.",
+      "viaLabel": "Diakses melalui",
+      "viaApp": "Salah satu aplikasi saya yang terhubung",
+      "viaToken": "Token tersendiri",
+      "appLabel": "Aplikasi terhubung",
+      "noApps": "Anda belum punya aplikasi terhubung. Hubungkan satu lewat MCP terlebih dahulu, atau pilih token.",
+      "create": "Buat",
+      "tokenTitle": "Token untuk agen ini",
+      "tokenHelp": "Salin token ini sekarang dan berikan ke agen. Token hanya ditampilkan sekali.",
+      "copy": "Salin",
+      "copied": "Tersalin",
+      "done": "Selesai",
+      "tab": {
+        "work": "Pekerjaan",
+        "connection": "Koneksi",
+        "setup": "Penyiapan",
+        "share": "Berbagi"
+      },
+      "workTitle": "Pekerjaan berjalan",
+      "workEmpty": "Saat ini tidak ada yang ditugaskan ke agen ini.",
+      "mentionsTitle": "Sebutan menunggu",
+      "mentionsEmpty": "Tidak ada sebutan yang menunggu.",
+      "activityTitle": "Aktivitas terakhir",
+      "activityEmpty": "Belum mengubah apa pun.",
+      "connectionTitle": "Cara diakses",
+      "notBound": "Belum terhubung. Hubungkan aplikasi atau buat token.",
+      "boundApp": "Aplikasi terhubung {app}, masuk oleh {person}",
+      "boundToken": "Token {token}",
+      "lastUsed": "Terakhir digunakan {when} ({tool})",
+      "neverUsed": "Belum digunakan.",
+      "broken": "Koneksi ini tidak berfungsi lagi. Hubungkan kembali.",
+      "rebindApp": "Gunakan aplikasi ini",
+      "newToken": "Buat token baru",
+      "unbind": "Putuskan",
+      "setupIntro": "Beri agen pekerjaan dengan memilihnya di properti orang atau menyebutnya. Agen membaca pekerjaannya lewat dua alat dan hanya bertindak pada apa yang dibagikan kepadanya.",
+      "setupClaude": "Claude Code",
+      "setupClaudeHelp": "Jalankan ini di terminal, lalu masuk sebagai orang yang aplikasinya dipakai untuk mengakses agen ini. Minta Claude Code mendaftar pekerjaan yang ditugaskan.",
+      "setupRest": "REST API",
+      "setupRestHelp": "Agen dengan token membaca pekerjaannya dengan permintaan ini. Atur LEAFDESK_TOKEN ke token tersebut.",
+      "setupLimits": "Hanya aplikasi atau token yang terikat di sini yang dapat bertindak sebagai agen ini. Memutuskan, menjeda, atau mengarsipkan agen langsung mengakhiri aksesnya."
     }
   },
   "analytics": {

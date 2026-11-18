@@ -102,7 +102,7 @@ export async function receiveEvent(connectionId: string, request: Request): Prom
   const triggers = await db
     .select({ trigger: connectionTrigger, agentEnabled: workspaceAgent.enabled })
     .from(connectionTrigger)
-    .innerJoin(workspaceAgent, and(eq(workspaceAgent.id, connectionTrigger.agentId), isNull(workspaceAgent.archivedAt)))
+    .innerJoin(workspaceAgent, and(eq(workspaceAgent.id, connectionTrigger.agentId), eq(workspaceAgent.kind, "internal"), isNull(workspaceAgent.archivedAt)))
     .where(and(eq(connectionTrigger.connectionId, conn.id), eq(connectionTrigger.enabled, true)));
   const matching = triggers.filter((t) => t.agentEnabled && triggerMatches(t.trigger.eventType, eventType));
   // Kept with each run it starts, for as long as the run is: credentials in it are masked first.

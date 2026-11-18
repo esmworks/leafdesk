@@ -34,7 +34,11 @@ export type AgentErrorCode =
   /** A chain of agents (chains.ts) that isn't there, or that the person may not run. */
   | "chainNotFound"
   /** Run now on a chain whose run is still going. */
-  | "chainRunning";
+  | "chainRunning"
+  /** An outside agent never runs in Leafdesk: it can't be chatted with, run, copied or put in a chain. */
+  | "external"
+  /** Binding an outside agent to an app or token the person doesn't have (or that can't be one). */
+  | "bindingInvalid";
 
 export class AgentError extends Error {
   constructor(

@@ -430,6 +430,17 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   edit is routed to its manager (`routeForPerson`: chat state `viaManager`, mentions in pages and
   channels). The team columns stay out of agent versions (`AGENT_SETTINGS_LEFT_OUT`), since a
   restore writes columns unchecked.
+  External agents (`workspace_agent.kind = 'external'`, `agents/external.ts`, pure `lib/external-agents.ts`,
+  MCP tools `mcp/external-agents.ts`, REST `GET`/`PATCH /assigned-work`): an outside MCP client or token
+  works as the agent's user but nothing runs here, so every starter of runs filters `kind = internal`
+  (`startTriggered`, `processRun` and `mentions.ts` refuse or skip; a new one must too). A caller proves
+  which agent it is only by `external_agent_binding`: the verified (person, `oauth_client`) of an MCP
+  call or the agent's own `api_token`, rechecked each call by `bindingHolds`; the tools' `agent_id`
+  only picks among the caller's bindings. App callers pass `connectedAppHold` as the person first,
+  since the writes then run as the agent's user (`updateRowProperties`, `changeComments`) with its
+  sharing alone. Mentions of such an agent are `external_agent_mention` rows (notifications skip
+  agent users); person properties offer them through `external-people.ts` (`workspacePeople` stays
+  without agent users).
   Chains of agents (`agents/chains.ts`, pure part `lib/agent-chains.ts`, the sidebar's
   `agent-chains.tsx`) are `schedule` rows of kind `agent_chain` (steps in `settings`, `nextRunAt`
   null unless `repeats`); each start is an `agent_chain_run` row (one running per chain, a unique
@@ -973,7 +984,7 @@ plus the `scripts/*-e2e.ts` of the area you touched (`pnpm tsx scripts/<name>-e2
 `pnpm lint` fails on warnings. `pnpm test` includes the translation check.
 
 - **Needs a running server** (`pnpm start` or `pnpm dev`): health, mcp, auth (and Mailpit), api,
-  columns, export, print, site, scim, security, security-switches, ip-allowlist, two-factor, account, admin (signs
+  columns, export, print, site, scim, security, security-switches, ip-allowlist, external-agents, two-factor, account, admin (signs
   everyone out), sso (with a mock identity provider; see its header), scale.
 - **Needs no server on the same database**, because a server's workers would take the queued work:
   agents, agent-api, agent-approvers, agent-chat, agent-copy, agent-handoff, agent-memory, agent-mention, desktop-files,

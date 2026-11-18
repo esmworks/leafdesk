@@ -496,6 +496,10 @@ export async function withAgentErrors<T>(fn: () => Promise<T>): Promise<T> {
           );
         case "noteChanged":
           throw new ToolInputError("The note changed since. Call get_agent to see it, and change it with change_agent_memory.");
+        case "external":
+          throw new ToolInputError("This is an outside agent: it works from outside Leafdesk (it asks for its work with list_assigned_work), so it can't be chatted with, run, scheduled or copied here.");
+        case "bindingInvalid":
+          throw new ToolInputError(`${error.message}.`);
       }
     }
     if (error instanceof PermissionError) throw new ToolInputError(`${error.message}.`);
@@ -527,6 +531,7 @@ export function describeAgentSummary(agent: AgentView, helpers?: string[]) {
     name: agent.name,
     icon: agent.icon,
     description: agent.description,
+    kind: agent.kind,
     enabled: agent.enabled,
     archived: agent.archived,
     model: agent.model,

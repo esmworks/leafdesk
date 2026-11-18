@@ -295,6 +295,35 @@ channel (`channel` in `list_agent_runs` and the REST API; the channel's name onl
 see it), end as `messageGone` when the message or its thread is deleted by then, and what they
 read and answered shows to the member who asked alone, not in their chat with the agent.
 
+**External agents.** An outside AI agent (Claude Code, Cursor, any MCP client) can be a teammate that
+never runs inside Leafdesk. *Settings → Agents → New external agent* makes one: a name and icon like
+any agent, with its own user, shared with the workspace at *interact* and with you at full access,
+and how it is reached, either one of *your own* connected apps (*Settings → Connected apps*, bound
+to the app and to you) or a token of its own, shown once. Put it in a person property of a database
+or mention it in a page or a comment, as with any agent; nothing starts, because Leafdesk has no run
+to start. The outside agent reads its work with two tools, `list_assigned_work` (rows whose person
+properties name it and mentions of it not yet handled, with each row's status options) and
+`update_assigned_work` (set a row's status, comment as the agent, mark a mention handled). They are
+outside the core tool list (find them with `find_tools`, category *agents*). They act as the agent's
+user and only with what was shared with it, so share the database (edit, to change a row's
+status) and the pages with it as with a person; a row it is assigned to but can't open is not listed.
+Board and history entries show the agent as the one who changed a status. The agent's page shows
+its work in progress, mentions waiting, its last activity, and for those who can edit it how it is
+reached and when it last asked; *Share* is as for other agents.
+
+To wire up Claude Code, run the command the agent's *Set up* tab shows
+(`claude mcp add --transport http <name> <mcp-url>`), start Claude Code and sign in as the person
+whose app the agent is bound to, then ask it to list its assigned work. A caller proves which agent
+it is by being the bound app of the bound person (the verified OAuth client and user of the call,
+never an argument): the same person with another app, the same app with another person, a paused or
+archived agent, an agent whose person left or whose app was revoked, and a binding made before the
+person consented are all refused, and unbinding ends access at once. An app bound to several agents
+names the one it works as in `agent_id` among those. Every call runs the person's connected-app
+policy first (*read only* and *off* hold), then acts as the agent. A token agent reads and changes
+its work over the REST API with `GET` and `PATCH /assigned-work` (the token is the agent's own, with
+a small scope set, limited to the workspace; `comments:write` is needed to comment). External agents
+can't be chatted with, scheduled, asked for tasks, copied, given as helpers or put under a manager.
+
 **The agents tab.** The sidebar's *Agents* tab lists the agents you may talk to, each with what it
 does, *Off* for one that is turned off, a pulse while a run of your chat with it is going and a
 count of runs waiting for your answer. Put them in groups of your own and drag agents and groups

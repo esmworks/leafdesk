@@ -950,7 +950,9 @@
       "requestNotFound": "Bu istek zaten yanıtlandı.",
       "noteChanged": "Bu not o zamandan beri değişti. Ajanın Hafıza sekmesinden değiştirin.",
       "chainNotFound": "Bu zincir artık yok ya da onu çalıştıramazsın.",
-      "chainRunning": "Bu zincir hâlâ çalışıyor. Bittiğinde yeniden çalıştır."
+      "chainRunning": "Bu zincir hâlâ çalışıyor. Bittiğinde yeniden çalıştır.",
+      "external": "Harici bir ajan Leafdesk içinde çalışmaz.",
+      "bindingInvalid": "Bağlı uygulamalarınızdan birini seçin."
     },
     "connections": {
       "description": "Bu ajanın her bağlantıda kullanabileceği araçlar. Yalnızca okuyan araçlar hemen çalışır (anonim bir form yanıtından gelen satırda hariç); diğerleri ajan her çağırdığında bir sahibin onayını bekler.",
@@ -1167,6 +1169,51 @@
         "skipped": "Gönderdikleriniz, taslaklar, otomatik cevaplar, e-posta listeleri ve toplu gönderiler onu hiç çalıştırmaz. Bu kutudan saatte en çok {hour}, günde en çok {day} çalışma.",
         "limited": "Son zamanlarda bazı e-postalar atlandı: saatlik ya da günlük sınıra ulaşıldı."
       }
+    },
+    "external": {
+      "button": "Yeni harici ajan",
+      "badge": "Harici ajan",
+      "dialogTitle": "Yeni harici ajan",
+      "dialogHelp": "Claude Code gibi dış bir ajan, ona atadığınız işler üzerinde çalışır. Leafdesk içinde hiç çalışmaz; çalışma alanına MCP veya REST API üzerinden ulaşır.",
+      "viaLabel": "Erişim yolu",
+      "viaApp": "Bağlı uygulamalarımdan biri",
+      "viaToken": "Kendi jetonu",
+      "appLabel": "Bağlı uygulama",
+      "noApps": "Henüz bağlı uygulamanız yok. Önce MCP ile bir uygulama bağlayın ya da jeton seçin.",
+      "create": "Oluştur",
+      "tokenTitle": "Bu ajanın jetonu",
+      "tokenHelp": "Bu jetonu şimdi kopyalayıp ajana verin. Yalnızca bir kez gösterilir.",
+      "copy": "Kopyala",
+      "copied": "Kopyalandı",
+      "done": "Bitti",
+      "tab": {
+        "work": "İş",
+        "connection": "Bağlantı",
+        "setup": "Kurulum",
+        "share": "Paylaşım"
+      },
+      "workTitle": "Süren işler",
+      "workEmpty": "Şu anda bu ajana atanmış bir iş yok.",
+      "mentionsTitle": "Bekleyen anmalar",
+      "mentionsEmpty": "Bekleyen anma yok.",
+      "activityTitle": "Son etkinlik",
+      "activityEmpty": "Henüz hiçbir şeyi değiştirmedi.",
+      "connectionTitle": "Nasıl erişiliyor",
+      "notBound": "Henüz bağlı değil. Bir uygulama bağlayın ya da jeton oluşturun.",
+      "boundApp": "Bağlı uygulama {app}, {person} tarafından giriş yapılmış",
+      "boundToken": "Jeton {token}",
+      "lastUsed": "Son kullanım {when} ({tool})",
+      "neverUsed": "Henüz kullanılmadı.",
+      "broken": "Bu bağlantı artık çalışmıyor. Yeniden bağlayın.",
+      "rebindApp": "Bu uygulamayı kullan",
+      "newToken": "Yeni jeton oluştur",
+      "unbind": "Bağlantıyı kes",
+      "setupIntro": "Ajana iş vermek için onu bir kişi özelliğinde seçin ya da anın. İşini iki araç üzerinden okur ve yalnızca kendisiyle paylaşılanlara işlem yapar.",
+      "setupClaude": "Claude Code",
+      "setupClaudeHelp": "Bunu bir terminalde çalıştırın, sonra bu ajanın erişim yolu olan uygulamanın sahibi kişi olarak giriş yapın. Claude Code'dan kendisine atanan işleri listelemesini isteyin.",
+      "setupRest": "REST API",
+      "setupRestHelp": "Jetonlu bir ajan işini bu istekle okur. LEAFDESK_TOKEN değişkenine jetonu yazın.",
+      "setupLimits": "Bu ajan adına yalnızca burada bağlanan uygulama veya jeton işlem yapabilir. Bağlantıyı kesmek ya da ajanı duraklatmak veya arşivlemek erişimini hemen sonlandırır."
     }
   },
   "analytics": {

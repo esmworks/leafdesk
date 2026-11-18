@@ -1,7 +1,7 @@
 import { createHash, randomBytes } from "node:crypto";
 import { and, count, desc, eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
-import { apiToken, workspace } from "@/db/schema";
+import { apiToken, workspace, workspaceAgent } from "@/db/schema";
 import { ALL_API_SCOPES, effectiveScopes, isApiTokenScope, isOwnerScope, normalizeScopes, type ApiTokenScope } from "@/lib/api-scopes";
 import { findMembership, getMembership, memberWorkspaceIds, signInPolicyRefusal } from "@/server/access";
 import { recordAudit } from "@/server/audit";
@@ -284,6 +284,13 @@ export async function verifyApiToken(secret: string, now = new Date()): Promise<
   const [row] = await db.select().from(apiToken).where(eq(apiToken.tokenHash, hashToken(secret))).limit(1);
   if (!row) return { ok: false, reason: "invalid" };
   if (row.expiresAt && row.expiresAt.getTime() <= now.getTime()) return { ok: false, reason: "expired" };
+  // The token of an external agent (its own user's) stops with the agent: paused or archived, it is no token.
+  const [outside] = await db
+    .select({ enabled: workspaceAgent.enabled, archivedAt: workspaceAgent.archivedAt })
+    .from(workspaceAgent)
+    .where(and(eq(workspaceAgent.userId, row.userId), eq(workspaceAgent.kind, "external")))
+    .limit(1);
+  if (outside && (!outside.enabled || outside.archivedAt)) return { ok: false, reason: "invalid" };
   if (!row.lastUsedAt || now.getTime() - row.lastUsedAt.getTime() >= TOUCH_INTERVAL_MS) {
     // Waits for a transaction deleting the token meanwhile (revoking it, or cutting off its owner's
     // sign-ins), and then finds it gone.

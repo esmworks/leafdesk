@@ -121,6 +121,14 @@ export const isAgentAccessLevel = (value: unknown): value is AgentAccessLevel =>
 export const AGENT_MODELS = ["main", "fast", "auto"] as const;
 export type AgentModel = (typeof AGENT_MODELS)[number];
 
+/**
+ * An internal agent runs in Leafdesk, on its instructions. An external one (Claude Code, Cursor, any
+ * MCP client) works as a teammate from outside: it never runs here, it asks for its work and reports
+ * it through MCP or the REST API (lib/external-agents.ts, server/agents/external.ts).
+ */
+export const AGENT_KINDS = ["internal", "external"] as const;
+export type AgentKind = (typeof AGENT_KINDS)[number];
+
 export const isAgentModel = (value: unknown): value is AgentModel => typeof value === "string" && (AGENT_MODELS as readonly string[]).includes(value);
 
 /**
@@ -628,6 +636,8 @@ export type AgentView = {
   name: string;
   icon: string | null;
   description: string;
+  /** External: it works from outside Leafdesk and never runs here. */
+  kind: AgentKind;
   instructions: string;
   enabled: boolean;
   archived: boolean;

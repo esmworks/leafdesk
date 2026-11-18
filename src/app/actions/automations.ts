@@ -83,7 +83,8 @@ export async function listAutomationsAction(databaseId: string) {
       automations,
       members: members.map((m) => ({ id: m.userId, name: m.name, email: m.email, image: avatarSrc(m.image) })),
       // Those who can edit an agent give it tasks too (agents/sharing.ts), not just owners.
-      agents: agents.map((a) => ({ id: a.id, name: a.name, icon: a.icon, description: a.description, enabled: a.enabled, canRun: a.access !== "interact" })),
+      // Outside agents never run here, so an automation can't give them tasks.
+      agents: agents.filter((a) => a.kind === "internal").map((a) => ({ id: a.id, name: a.name, icon: a.icon, description: a.description, enabled: a.enabled, canRun: a.access !== "interact" })),
       isOwner: membership?.role === "owner",
     };
   });

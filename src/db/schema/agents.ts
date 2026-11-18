@@ -2,6 +2,7 @@ import { sql } from "drizzle-orm";
 import { bigint, boolean, check, date, doublePrecision, foreignKey, index, integer, jsonb, pgTable, primaryKey, text, timestamp, unique, uniqueIndex, type AnyPgColumn } from "drizzle-orm/pg-core";
 import type {
   AgentAccessLevel,
+  AgentKind,
   AgentModel,
   AgentPendingCall,
   AgentRowChanges,
@@ -20,6 +21,7 @@ import type { MailTriggerFilters } from "@/lib/agent-mail-trigger";
 import type { AgentHelpersMode } from "@/lib/agent-team";
 import type { AgentShareLevel } from "@/lib/agent-sharing";
 import type { QuietHours } from "@/lib/quiet-hours";
+import { apiToken } from "./api-tokens";
 import { page, workspace, workspaceMember } from "./app";
 import { user } from "./auth";
 import { memberGroup } from "./groups";
@@ -85,6 +87,11 @@ export const workspaceAgent = pgTable(
     name: text("name").notNull(),
     icon: text("icon"),
     description: text("description").notNull().default(""),
+    /**
+     * `external`: an agent outside Leafdesk (Claude Code, Cursor, any MCP client) that works as a teammate: it
+     * has this user and sharing like the others but never runs here (see server/agents/external.ts). Never changes.
+     */
+    kind: text("kind").$type<AgentKind>().notNull().default("internal"),
     instructions: text("instructions").notNull().default(""),
     /** Paused agents don't run; their queued runs end as `agentDisabled`. */
     enabled: boolean("enabled").notNull().default(true),
@@ -123,7 +130,84 @@ export const workspaceAgent = pgTable(
       .defaultNow()
       .$onUpdate(() => new Date()),
   },
-  (t) => [index("workspace_agent_workspace_idx").on(t.workspaceId), index("workspace_agent_reports_to_idx").on(t.reportsTo)],
+  (t) => [
+    index("workspace_agent_workspace_idx").on(t.workspaceId),
+    index("workspace_agent_reports_to_idx").on(t.reportsTo),
+    check("workspace_agent_kind_check", sql`${t.kind} in ('internal', 'external')`),
+  ],
+);
+
+/**
+ * How an external agent (workspace_agent.kind `external`) is told apart from other callers of the MCP
+ * server and the REST API: one row per agent, bound either to a person's connected MCP app
+ * (`userId` and `clientId`: the pair, never the client alone, as clients of URL ids are shared by
+ * everyone) or to one of that person's API tokens (`tokenId`). `boundAt` is when the person
+ * allowed it: a consent given again after it ends the binding (see server/agents/external.ts).
+ */
+export const externalAgentBinding = pgTable(
+  "external_agent_binding",
+  {
+    agentId: text("agent_id")
+      .primaryKey()
+      .references(() => workspaceAgent.id, { onDelete: "cascade" }),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspace.id, { onDelete: "cascade" }),
+    /** The person whose app or token it is. */
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    /** The OAuth client of a connected MCP app; null for a token. */
+    clientId: text("client_id"),
+    /** The API token; null for a connected app. A revoked token deletes the binding. */
+    tokenId: text("token_id").references(() => apiToken.id, { onDelete: "cascade" }),
+    boundBy: text("bound_by").references(() => user.id, { onDelete: "set null" }),
+    boundAt: timestamp("bound_at", { withTimezone: true }).notNull().defaultNow(),
+    /** The last time the agent asked for or changed its work, and with which tool. */
+    lastUsedAt: timestamp("last_used_at", { withTimezone: true }),
+    lastTool: text("last_tool"),
+  },
+  (t) => [
+    index("external_agent_binding_app_idx").on(t.userId, t.clientId),
+    index("external_agent_binding_token_idx").on(t.tokenId),
+    check("external_agent_binding_kind_check", sql`(${t.clientId} is not null) <> (${t.tokenId} is not null)`),
+  ],
+);
+
+/**
+ * A comment that mentions an external agent and waits for it (agents never run for it here, so no
+ * notification exists): it is listed with its work until the agent marks it handled. `key` is
+ * `comment:<id>` so a mention recorded twice is one.
+ */
+export const externalAgentMention = pgTable(
+  "external_agent_mention",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    agentId: text("agent_id")
+      .notNull()
+      .references(() => workspaceAgent.id, { onDelete: "cascade" }),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspace.id, { onDelete: "cascade" }),
+    pageId: text("page_id")
+      .notNull()
+      .references(() => page.id, { onDelete: "cascade" }),
+    threadId: text("thread_id").notNull(),
+    commentId: text("comment_id").notNull(),
+    mentionedBy: text("mentioned_by").references(() => user.id, { onDelete: "set null" }),
+    /** What the comment said (cut), as data the agent reads. */
+    excerpt: text("excerpt").notNull().default(""),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    handledAt: timestamp("handled_at", { withTimezone: true }),
+    handledBy: text("handled_by").references(() => user.id, { onDelete: "set null" }),
+  },
+  (t) => [
+    uniqueIndex("external_agent_mention_comment_idx").on(t.agentId, t.commentId),
+    index("external_agent_mention_open_idx").on(t.agentId, t.handledAt),
+    index("external_agent_mention_page_idx").on(t.pageId),
+  ],
 );
 
 /**

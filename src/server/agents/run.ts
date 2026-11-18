@@ -427,7 +427,8 @@ async function heedEarlierStop(runId: string, stop: AbortController | null) {
 /** Does one run (or goes on with one an owner answered) and saves how it went. */
 export async function processRun(run: Run): Promise<void> {
   const [agent] = await db.select().from(workspaceAgent).where(eq(workspaceAgent.id, run.agentId));
-  if (!agent || agent.archivedAt || !agent.enabled) return finish(run, { status: "failed", code: "agentDisabled" });
+  // An outside agent never runs here, whatever queued the run (triggers.ts refuses to).
+  if (!agent || agent.archivedAt || !agent.enabled || agent.kind === "external") return finish(run, { status: "failed", code: "agentDisabled" });
   if (run.attempts > MAX_CLAIMS) return finish(run, { status: "failed", code: "tooManyAttempts" });
   if (!(await aiAvailable(run.workspaceId))) return finish(run, { status: "failed", code: "aiOff" });
   // A run going on after an owner's answer sends what they approved first; converse checks the

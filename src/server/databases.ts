@@ -141,6 +141,7 @@ import { trackSchema } from "@/server/database-changes";
 import { recordRowWrites } from "@/server/row-activity";
 import { queueRowWrites } from "@/server/row-follow";
 import { deleteForeverAllowed, workspacePeople, workspaceSettings, type WorkspacePerson } from "@/server/workspaces";
+import { outsideAgentPeople } from "@/server/agents/external-people";
 import { agentMarks, isAgentUser } from "@/server/agents/users";
 import { recordAudit } from "@/server/audit";
 import { heldPageIds, refuseHeldPages } from "@/server/legal-hold";
@@ -554,8 +555,8 @@ export async function normalizeRowProperties(
       // A row has one parent (see lib/sub-items).
       out[prop.id] = isParentProperty(prop) ? singleParent(ids, asIds(existing[prop.id])) : ids;
     } else if (prop.type === "person" && normalized) {
-      people ??= workspacePeopleOf(databaseId);
       asAgent ??= isAgentUser(userId);
+      people ??= asAgent.then((agent) => assignablePeopleOf(userId, databaseId, agent));
       out[prop.id] = resolvePersonValue(userId, prop, normalized as string[], asIds(existing[prop.id]), await people, await asAgent, options.template);
     } else if (prop.type === "files" && normalized) {
       workspace ??= workspaceOf(databaseId);
@@ -666,6 +667,20 @@ async function resolveFilesValue(
 async function workspacePeopleOf(databaseId: string): Promise<WorkspacePerson[]> {
   const [database] = await db.select({ workspaceId: page.workspaceId }).from(page).where(eq(page.id, databaseId));
   return database ? workspacePeople(database.workspaceId) : [];
+}
+
+/**
+ * The people a person value may name for `userId`: those of workspacePeopleOf and the outside agents
+ * (agents/external-people.ts) they may use, which get assigned work like teammates. Agents' own
+ * writes name people only.
+ */
+async function assignablePeopleOf(userId: string, databaseId: string, asAgent: boolean): Promise<(WorkspacePerson & { agentIcon?: string | null })[]> {
+  const [database] = await db.select({ workspaceId: page.workspaceId }).from(page).where(eq(page.id, databaseId));
+  if (!database) return [];
+  const people = await workspacePeople(database.workspaceId);
+  if (asAgent) return people;
+  const agents = await outsideAgentPeople(userId, database.workspaceId);
+  return [...people, ...agents.map((a) => ({ id: a.id, name: a.name, email: "", image: null, role: "guest" as const, agentIcon: a.icon }))];
 }
 
 /**
@@ -3963,7 +3978,8 @@ export type PersonRef = {
   image?: string | null;
   /**
    * An agent (see server/agents), named as created by or last edited by: shown as an agent, never
-   * offered (`active` is false). Absent for people.
+   * offered (`active` is false), except an outside agent (agents/external.ts), which is offered
+   * (`active`) to assign work to. Absent for people.
    */
   isAgent?: true;
   /** The agent's icon, an emoji. */
@@ -4021,7 +4037,10 @@ export async function getPeople(userId: string, properties: DatabaseProperty[]):
       active: true,
       image: avatarSrc(m.image),
     }));
-  const former = [...referenced].filter((id) => !members.some((m) => m.id === id));
+  // Outside agents the viewer may use are offered like teammates (agents/external-people.ts), marked as agents.
+  const outside = guest ? [] : await outsideAgentPeople(userId, database.workspaceId);
+  out.push(...outside.map((a) => ({ id: a.id, name: a.name, email: null, active: true, isAgent: true as const, agentIcon: a.icon })));
+  const former = [...referenced].filter((id) => !members.some((m) => m.id === id) && !outside.some((a) => a.id === id));
   if (former.length) {
     const [users, agents] = await Promise.all([
       db.select({ id: user.id, name: user.name }).from(user).where(inArray(user.id, former)),

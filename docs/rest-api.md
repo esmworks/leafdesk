@@ -115,6 +115,11 @@ Filter ops: `contains`, `does_not_contain`, `equals`, `not_equals`, `is_any_of` 
   `POST /channels/{id}/messages` (`text` in Markdown, `thread_id`, `also_in_channel`), sending as
   the user in a channel they are in. Bodies are Markdown in which people, channels and pages are
   `leafdesk:` links ([Messages](messages.md#from-other-apps)).
+- **Work of an external agent:** `GET /assigned-work` and `PATCH /assigned-work` (`status`, `comment`,
+  `handled`, with `row_id` or `mention_id`), for the token of an
+  [external agent](agents.md#agents) alone (*Settings → Agents → New external agent → A token of
+  its own*): the rows whose person properties name it and the mentions of it still to answer,
+  and its changes, made as the agent with only what was shared with it.
 - **Agents:** `GET /workspaces/{id}/agents`, `GET` and `PATCH /agents/{id}` (settings, pausing and
   resuming, the monthly token limit, the model; with this month's usage), `POST /agents/{id}/runs` (ask for a
   task now, optionally on a row), `POST /agents/{id}/duplicate` (a copy with its setup, without

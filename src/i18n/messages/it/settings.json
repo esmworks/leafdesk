@@ -950,7 +950,9 @@
       "requestNotFound": "Questa richiesta ha già ricevuto risposta.",
       "noteChanged": "Questa nota è cambiata nel frattempo. Modificala nella scheda Memoria dell’agente.",
       "chainNotFound": "Questa catena non esiste più o non puoi eseguirla.",
-      "chainRunning": "Questa catena è ancora in corso. Eseguila di nuovo quando finisce."
+      "chainRunning": "Questa catena è ancora in corso. Eseguila di nuovo quando finisce.",
+      "external": "Un agente esterno non gira in Leafdesk.",
+      "bindingInvalid": "Scegli una delle tue app collegate."
     },
     "connections": {
       "description": "Gli strumenti di ogni connessione che questo agente può usare. Gli strumenti che leggono soltanto vengono eseguiti subito, tranne su una riga nata da una risposta anonima a un modulo; tutti gli altri attendono l’approvazione di un proprietario ogni volta che l’agente li chiama.",
@@ -1167,6 +1169,51 @@
         "skipped": "Le email che invii, le bozze, le risposte automatiche, le mailing list e gli invii di massa non lo avviano mai. Al massimo {hour} esecuzioni all'ora e {day} al giorno da questa casella.",
         "limited": "Di recente alcune email sono state saltate: è stato raggiunto il limite orario o giornaliero."
       }
+    },
+    "external": {
+      "button": "Nuovo agente esterno",
+      "badge": "Agente esterno",
+      "dialogTitle": "Nuovo agente esterno",
+      "dialogHelp": "Un agente esterno come Claude Code lavora su ciò che gli assegni. Non gira mai dentro Leafdesk: raggiunge lo spazio di lavoro tramite MCP o l'API REST.",
+      "viaLabel": "Raggiungibile tramite",
+      "viaApp": "Una delle mie app collegate",
+      "viaToken": "Un token dedicato",
+      "appLabel": "App collegata",
+      "noApps": "Non hai ancora app collegate. Collegane una tramite MCP oppure scegli un token.",
+      "create": "Crea",
+      "tokenTitle": "Token di questo agente",
+      "tokenHelp": "Copia ora questo token e consegnalo all'agente. Viene mostrato una sola volta.",
+      "copy": "Copia",
+      "copied": "Copiato",
+      "done": "Fatto",
+      "tab": {
+        "work": "Lavoro",
+        "connection": "Connessione",
+        "setup": "Configurazione",
+        "share": "Condivisione"
+      },
+      "workTitle": "Lavoro in corso",
+      "workEmpty": "Al momento non c'è nulla assegnato a questo agente.",
+      "mentionsTitle": "Menzioni in attesa",
+      "mentionsEmpty": "Nessuna menzione in attesa.",
+      "activityTitle": "Ultima attività",
+      "activityEmpty": "Non ha ancora modificato nulla.",
+      "connectionTitle": "Come viene raggiunto",
+      "notBound": "Non ancora collegato. Collega un'app o crea un token.",
+      "boundApp": "App collegata {app}, con accesso di {person}",
+      "boundToken": "Token {token}",
+      "lastUsed": "Ultimo uso {when} ({tool})",
+      "neverUsed": "Non ancora usato.",
+      "broken": "Questa connessione non funziona più. Collegala di nuovo.",
+      "rebindApp": "Usa questa app",
+      "newToken": "Crea un nuovo token",
+      "unbind": "Scollega",
+      "setupIntro": "Assegna lavoro all'agente scegliendolo in una proprietà persona o menzionandolo. Legge il suo lavoro con due strumenti e agisce solo su ciò che è condiviso con lui.",
+      "setupClaude": "Claude Code",
+      "setupClaudeHelp": "Esegui questo in un terminale, poi accedi come la persona la cui app raggiunge questo agente. Chiedi a Claude Code di elencare il lavoro assegnato.",
+      "setupRest": "API REST",
+      "setupRestHelp": "Un agente con token legge il suo lavoro con questa richiesta. Imposta LEAFDESK_TOKEN sul token.",
+      "setupLimits": "Solo l'app o il token collegato qui può agire come questo agente. Scollegarlo, metterlo in pausa o archiviarlo ne termina subito l'accesso."
     }
   },
   "analytics": {

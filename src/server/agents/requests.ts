@@ -33,6 +33,7 @@ export type AgentRunRequest = {
 export async function requestAgentRun(userId: string, agentId: string, request: AgentRunRequest): Promise<AgentRunView> {
   const agent = await agentFor(userId, agentId, "edit");
   if (agent.archivedAt) throw new AgentError("archived", "Restore the agent to run it");
+  if (agent.kind === "external") throw new AgentError("external", "An outside agent doesn't run in Leafdesk");
   if (!agent.enabled) throw new AgentError("paused", "Turn the agent on to run it");
   const task = typeof request.task === "string" ? request.task.trim() : "";
   if (!task) throw new AgentError("invalid", "A run needs a task", { reason: "task" });

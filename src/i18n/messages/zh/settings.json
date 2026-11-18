@@ -950,7 +950,9 @@
       "requestNotFound": "此请求已被答复。",
       "noteChanged": "此笔记此后已更改。请在智能体的“记忆”标签页中更改。",
       "chainNotFound": "此链已不存在，或者你无法运行它。",
-      "chainRunning": "此链仍在运行。请在它结束后再运行。"
+      "chainRunning": "此链仍在运行。请在它结束后再运行。",
+      "external": "外部智能体不会在 Leafdesk 中运行。",
+      "bindingInvalid": "请选择你已连接的应用之一。"
     },
     "connections": {
       "description": "此智能体可以使用的各个连接的工具。只读工具会立即运行（来自匿名表单答复的行除外）；其他工具在智能体每次调用时都需要所有者批准。",
@@ -1167,6 +1169,51 @@
         "skipped": "你发出的邮件、草稿、自动回复、邮件列表和群发邮件都不会触发它。此邮箱每小时最多运行 {hour} 次,每天最多 {day} 次。",
         "limited": "最近有部分邮件被跳过:已达到每小时或每天的上限。"
       }
+    },
+    "external": {
+      "button": "新建外部智能体",
+      "badge": "外部智能体",
+      "dialogTitle": "新建外部智能体",
+      "dialogHelp": "Claude Code 等外部智能体会处理你分配给它的工作。它从不在 Leafdesk 内部运行，而是通过 MCP 或 REST API 访问工作区。",
+      "viaLabel": "接入方式",
+      "viaApp": "我已连接的应用之一",
+      "viaToken": "专用令牌",
+      "appLabel": "已连接的应用",
+      "noApps": "你还没有已连接的应用。请先通过 MCP 连接一个，或选择令牌。",
+      "create": "创建",
+      "tokenTitle": "此智能体的令牌",
+      "tokenHelp": "请立即复制此令牌并交给智能体。它只显示一次。",
+      "copy": "复制",
+      "copied": "已复制",
+      "done": "完成",
+      "tab": {
+        "work": "工作",
+        "connection": "连接",
+        "setup": "设置",
+        "share": "共享"
+      },
+      "workTitle": "进行中的工作",
+      "workEmpty": "目前没有分配给此智能体的工作。",
+      "mentionsTitle": "待处理的提及",
+      "mentionsEmpty": "没有待处理的提及。",
+      "activityTitle": "最近活动",
+      "activityEmpty": "它还没有更改任何内容。",
+      "connectionTitle": "接入方式详情",
+      "notBound": "尚未连接。请连接应用或创建令牌。",
+      "boundApp": "已连接的应用 {app}，由 {person} 登录",
+      "boundToken": "令牌 {token}",
+      "lastUsed": "上次使用 {when}（{tool}）",
+      "neverUsed": "尚未使用。",
+      "broken": "此连接已失效。请重新连接。",
+      "rebindApp": "使用此应用",
+      "newToken": "创建新令牌",
+      "unbind": "断开连接",
+      "setupIntro": "在人员属性中选择它或提及它，即可向智能体分配工作。它通过两个工具读取自己的工作，只对与它共享的内容进行操作。",
+      "setupClaude": "Claude Code",
+      "setupClaudeHelp": "在终端运行以下命令，然后以此智能体所连接应用的所属人员身份登录。再让 Claude Code 列出分配给它的工作。",
+      "setupRest": "REST API",
+      "setupRestHelp": "使用令牌的智能体通过此请求读取自己的工作。请将 LEAFDESK_TOKEN 设为该令牌。",
+      "setupLimits": "只有此处绑定的应用或令牌才能以该智能体的身份行事。断开连接、暂停或归档该智能体会立即终止其访问。"
     }
   },
   "analytics": {

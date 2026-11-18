@@ -950,7 +950,9 @@
       "requestNotFound": "Tähän pyyntöön on jo vastattu.",
       "noteChanged": "Tätä muistiinpanoa on sittemmin muutettu. Muuta sitä agentin Muisti-välilehdellä.",
       "chainNotFound": "Tätä ketjua ei enää ole, tai et voi suorittaa sitä.",
-      "chainRunning": "Tämä ketju on vielä käynnissä. Suorita se uudelleen, kun se päättyy."
+      "chainRunning": "Tämä ketju on vielä käynnissä. Suorita se uudelleen, kun se päättyy.",
+      "external": "Ulkoinen agentti ei suorita Leafdeskin sisällä.",
+      "bindingInvalid": "Valitse yksi yhdistetyistä sovelluksistasi."
     },
     "connections": {
       "description": "Kunkin yhteyden työkalut, joita tämä agentti saa käyttää. Pelkästään lukevat työkalut toimivat heti, paitsi anonyymin lomakevastauksen rivillä; muut odottavat omistajan hyväksyntää aina, kun agentti kutsuu niitä.",
@@ -1167,6 +1169,51 @@
         "skipped": "Lähettämäsi posti, luonnokset, automaattiset vastaukset, postituslistat ja joukkopostit eivät koskaan käynnistä sitä. Enintään {hour} ajoa tunnissa ja {day} päivässä tästä postilaatikosta.",
         "limited": "Joitakin sähköposteja jätettiin hiljattain väliin: tunti- tai päiväraja tuli täyteen."
       }
+    },
+    "external": {
+      "button": "Uusi ulkoinen agentti",
+      "badge": "Ulkoinen agentti",
+      "dialogTitle": "Uusi ulkoinen agentti",
+      "dialogHelp": "Ulkoinen agentti, kuten Claude Code, työskentelee sille osoittamiesi tehtävien parissa. Se ei koskaan suorita Leafdeskin sisällä, vaan käyttää työtilaa MCP:n tai REST API:n kautta.",
+      "viaLabel": "Yhteystapa",
+      "viaApp": "Yksi yhdistetyistä sovelluksistani",
+      "viaToken": "Oma tunnus",
+      "appLabel": "Yhdistetty sovellus",
+      "noApps": "Sinulla ei ole vielä yhdistettyjä sovelluksia. Yhdistä ensin yksi MCP:llä tai valitse tunnus.",
+      "create": "Luo",
+      "tokenTitle": "Tämän agentin tunnus",
+      "tokenHelp": "Kopioi tämä tunnus nyt ja anna se agentille. Se näytetään vain kerran.",
+      "copy": "Kopioi",
+      "copied": "Kopioitu",
+      "done": "Valmis",
+      "tab": {
+        "work": "Työ",
+        "connection": "Yhteys",
+        "setup": "Käyttöönotto",
+        "share": "Jakaminen"
+      },
+      "workTitle": "Työn alla",
+      "workEmpty": "Tälle agentille ei ole juuri nyt osoitettu mitään.",
+      "mentionsTitle": "Odottavat maininnat",
+      "mentionsEmpty": "Ei odottavia mainintoja.",
+      "activityTitle": "Viimeisin toiminta",
+      "activityEmpty": "Se ei ole vielä muuttanut mitään.",
+      "connectionTitle": "Miten se tavoitetaan",
+      "notBound": "Ei vielä yhdistetty. Yhdistä sovellus tai luo tunnus.",
+      "boundApp": "Yhdistetty sovellus {app}, kirjautunut {person}",
+      "boundToken": "Tunnus {token}",
+      "lastUsed": "Viimeksi käytetty {when} ({tool})",
+      "neverUsed": "Ei vielä käytetty.",
+      "broken": "Tämä yhteys ei enää toimi. Yhdistä uudelleen.",
+      "rebindApp": "Käytä tätä sovellusta",
+      "newToken": "Luo uusi tunnus",
+      "unbind": "Katkaise yhteys",
+      "setupIntro": "Anna agentille työtä valitsemalla se henkilöominaisuudessa tai mainitsemalla se. Se lukee työnsä kahdella työkalulla ja toimii vain sen kanssa jaetun sisällön parissa.",
+      "setupClaude": "Claude Code",
+      "setupClaudeHelp": "Suorita tämä päätteessä ja kirjaudu sitten sisään henkilönä, jonka sovelluksen kautta agentti tavoitetaan. Pyydä Claude Codea listaamaan sille osoitetut työt.",
+      "setupRest": "REST API",
+      "setupRestHelp": "Tunnuksella toimiva agentti lukee työnsä tällä pyynnöllä. Aseta LEAFDESK_TOKEN tunnukseksi.",
+      "setupLimits": "Vain tähän sidottu sovellus tai tunnus voi toimia tämän agentin nimissä. Yhteyden katkaisu tai agentin keskeytys tai arkistointi päättää pääsyn heti."
     }
   },
   "analytics": {

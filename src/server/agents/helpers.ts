@@ -40,7 +40,7 @@ export async function checkHelperIds(workspaceId: string, agentId: string | null
   const found = await db
     .select({ id: workspaceAgent.id })
     .from(workspaceAgent)
-    .where(and(inArray(workspaceAgent.id, ids), eq(workspaceAgent.workspaceId, workspaceId), isNull(workspaceAgent.archivedAt)));
+    .where(and(inArray(workspaceAgent.id, ids), eq(workspaceAgent.workspaceId, workspaceId), isNull(workspaceAgent.archivedAt), eq(workspaceAgent.kind, "internal")));
   return found.length === ids.length ? ids : null;
 }
 
@@ -91,7 +91,7 @@ export async function helperChoices(userId: string, workspaceId: string, agentId
   const all = await db
     .select({ id: workspaceAgent.id, name: workspaceAgent.name, icon: workspaceAgent.icon, enabled: workspaceAgent.enabled, reportsTo: workspaceAgent.reportsTo })
     .from(workspaceAgent)
-    .where(and(eq(workspaceAgent.workspaceId, workspaceId), isNull(workspaceAgent.archivedAt)))
+    .where(and(eq(workspaceAgent.workspaceId, workspaceId), isNull(workspaceAgent.archivedAt), eq(workspaceAgent.kind, "internal")))
     .orderBy(asc(workspaceAgent.createdAt));
   const selected = agentId ? ((await helperIdsOf([agentId])).get(agentId) ?? []) : [];
   const levels = await agentLevels(userId, workspaceId, all.map((a) => a.id));

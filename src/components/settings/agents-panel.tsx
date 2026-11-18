@@ -23,6 +23,8 @@ import { AgentForm, AgentIcon, type AgentModelNames } from "./agent-dialog";
 import { rememberCopy } from "./agent-copy-note";
 import { TemplateWizard } from "./agent-template-wizard";
 
+const ExternalAgentDialog = lazyPart(() => import("./external-agent-dialog").then((m) => m.ExternalAgentDialog));
+
 // Shown only while owners choose who creates agents.
 const AgentCreatorsList = lazyPart(() => import("./agent-creators-list").then((m) => m.AgentCreatorsList), <div aria-busy="true" className="h-16 animate-pulse rounded-md bg-bg-subtle" />);
 
@@ -68,6 +70,7 @@ export function AgentsPanel({
   const [view, setView] = useState<"active" | "archived">("active");
   const [creating, setCreating] = useState(false);
   const [describing, setDescribing] = useState(false);
+  const [outside, setOutside] = useState(false);
   const [archivingId, setArchivingId] = useState<string | null>(null);
   const [template, setTemplate] = useState<BuiltinAgentSummary | null>(null);
   const { pending, error, run } = useAction();
@@ -102,8 +105,14 @@ export function AgentsPanel({
               </TabButton>
             </div>
           )}
+          {canCreate && (
+            <Button className="ms-auto" disabled={full} onMouseEnter={() => void ExternalAgentDialog.preload()} onClick={() => setOutside(true)}>
+              <Plus className="h-3.5 w-3.5" />
+              {t("external.button")}
+            </Button>
+          )}
           {canCreate && ai === "on" && (
-            <Button className="ms-auto" disabled={full} onClick={() => setDescribing(true)}>
+            <Button disabled={full} onClick={() => setDescribing(true)}>
               <Sparkles className="h-3.5 w-3.5" />
               {t("describe.button")}
             </Button>
@@ -111,7 +120,6 @@ export function AgentsPanel({
           {canCreate && (
             <Button
               variant="primary"
-              className={ai === "on" ? undefined : "ms-auto"}
               disabled={full}
               title={full ? t("errors.tooMany", { max: MAX_AGENTS }) : undefined}
               onClick={() => setCreating(true)}
@@ -142,7 +150,7 @@ export function AgentsPanel({
                   onArchive={() => setArchivingId(agent.id)}
                   onRestore={() => run(() => restoreAgentAction(workspaceId, agent.id))}
                   onDuplicate={
-                    canCreate && editsAgent(agent) && !full
+                    canCreate && editsAgent(agent) && !full && agent.kind !== "external"
                       ? () =>
                           run(
                             () => duplicateAgentAction(workspaceId, agent.id),
@@ -204,6 +212,16 @@ export function AgentsPanel({
             }}
           />
         </Dialog>
+      )}
+      {outside && (
+        <ExternalAgentDialog
+          workspaceId={workspaceId}
+          onClose={() => setOutside(false)}
+          onCreated={(agent) => {
+            setOutside(false);
+            router.push(agentSettingsPath(workspaceId, agent.id));
+          }}
+        />
       )}
       {describing && (
         <AgentDescribeDialog
@@ -273,6 +291,7 @@ function AgentRow({
   const name = (
     <>
       <span className={cn("block truncate font-medium", status !== "active" && "text-fg-muted")}>{agent.name}</span>
+      {agent.kind === "external" && <span className="block truncate text-xs text-fg-muted">{t("external.badge")}</span>}
       {agent.description && <span className="block truncate text-xs text-fg-muted">{agent.description}</span>}
     </>
   );
@@ -307,6 +326,18 @@ function AgentRow({
             {onDuplicate && item(t("duplicate"), onDuplicate)}
             {/* Archiving and restoring take full access. */}
             {full && item(t("restore"), onRestore)}
+          </>
+        ) : agent.kind === "external" ? (
+          <>
+            {item(t("tabs.settings"), () => onOpen("settings"))}
+            {item(t("share.button"), () => onOpen("share"))}
+            {editsAgent(agent) && item(agent.enabled ? t("pause") : t("resume"), onToggle)}
+            {full && (
+              <>
+                <MenuSeparator />
+                {item(t("archive"), onArchive, true)}
+              </>
+            )}
           </>
         ) : (
           <>

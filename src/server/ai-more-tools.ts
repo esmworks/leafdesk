@@ -46,6 +46,9 @@ const HIDDEN: ReadonlySet<string> = new Set([
   "read_channel_messages",
   "search_messages",
   "send_channel_message",
+  // An outside agent's work tools act as that agent, for the app it is bound to: never in the chat (agents/external.ts).
+  "list_assigned_work",
+  "update_assigned_work",
 ]);
 
 /**

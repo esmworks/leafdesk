@@ -112,7 +112,8 @@ async function standing(userId: string, workspaceId: string, agentId: string) {
  */
 export async function chatState(role: string, level: AgentLevel, agent: Agent | null, workspaceId: string): Promise<AgentChatState> {
   if (isGuest(role as "guest")) return "guest";
-  if (!agent) return "gone";
+  // An outside agent isn't chatted with here (agents/external.ts): its chat doesn't exist.
+  if (!agent || agent.kind === "external") return "gone";
   if (level === "none") return "noAccess";
   // Working only through its manager: anyone who can't edit it writes to the manager instead.
   if (agent.viaManagerOnly && agent.reportsTo && !hasAgentLevel(level, "edit")) return "viaManager";

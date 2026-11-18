@@ -3,6 +3,7 @@ import { dueTasksAction, taskCountsAction } from "@/app/actions/assigned";
 import { automationChannelsAction } from "@/app/actions/automations";
 import { bookingCalendarsAction, bookingLinksAction } from "@/app/actions/booking";
 import { calendarItemsAction } from "@/app/actions/calendar";
+import { ownConnectedAppsAction } from "@/app/actions/external-agents";
 import { agentChainsAction, agentCreationAction, agentMailboxesAction, pendingAgentLimitRequestAction, sidebarAgentsAction } from "@/app/actions/agents";
 import { getConversationAction, listConversationsAction } from "@/app/actions/ai";
 import { listDatabasesAction, loadDatabaseAction, loadRowAction } from "@/app/actions/databases";
@@ -59,6 +60,7 @@ export const READS = {
   agentCreation: agentCreationAction,
   agentLimitRequest: pendingAgentLimitRequestAction,
   agentMailboxes: agentMailboxesAction,
+  ownConnectedApps: ownConnectedAppsAction,
   agentTriggers: listTriggersAction,
   recentSearch: recentSearchAction,
   searchFilterOptions: searchFilterOptionsAction,

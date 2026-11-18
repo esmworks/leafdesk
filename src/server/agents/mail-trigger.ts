@@ -28,7 +28,7 @@ export async function mailArrived(box: Box, messageIds: string[]): Promise<numbe
     .select({ agentId: agentMailbox.agentId, task: agentMailbox.task, filters: agentMailbox.filters, agent: workspaceAgent })
     .from(agentMailbox)
     .innerJoin(workspaceAgent, eq(workspaceAgent.id, agentMailbox.agentId))
-    .where(and(eq(agentMailbox.mailboxId, box.id), eq(agentMailbox.onNewMail, true), eq(workspaceAgent.enabled, true), isNull(workspaceAgent.archivedAt)));
+    .where(and(eq(agentMailbox.mailboxId, box.id), eq(agentMailbox.onNewMail, true), eq(workspaceAgent.enabled, true), eq(workspaceAgent.kind, "internal"), isNull(workspaceAgent.archivedAt)));
   if (!triggers.length) return 0;
   const fresh = new Date(Date.now() - FRESH_MS);
   const found = await db

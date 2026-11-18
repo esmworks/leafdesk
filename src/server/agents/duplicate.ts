@@ -23,6 +23,7 @@ import type { AgentView, CopyLeftOut } from "@/lib/agents";
 import { helperIdsOf } from "./helpers";
 import { agentWithLevel, agentLevels, requireAgentCreator } from "./sharing";
 import { copyableSkills } from "./skills";
+import { AgentError } from "./errors";
 import { createAgent, type AgentInput } from "./manage";
 
 /**
@@ -31,6 +32,8 @@ import { createAgent, type AgentInput } from "./manage";
  */
 export async function duplicateAgent(userId: string, agentId: string, overrides: AgentInput = {}): Promise<{ agent: AgentView; leftOut: CopyLeftOut }> {
   const { agent: source, owner } = await agentWithLevel(userId, agentId, "edit");
+  // An outside agent is bound to one app or token: a copy would be an agent that runs here.
+  if (source.kind === "external") throw new AgentError("external", "An outside agent can't be copied");
   await requireAgentCreator(userId, source.workspaceId);
   const workspaceId = source.workspaceId;
 

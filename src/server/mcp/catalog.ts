@@ -104,6 +104,8 @@ const CATEGORIES: Record<string, readonly string[]> = {
     "start_agent_run",
     "chat_with_agent",
     "get_agent_chat",
+    "list_assigned_work",
+    "update_assigned_work",
     "list_pending_changes",
     "answer_pending_change",
     "list_connections",

@@ -1,12 +1,15 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { AgentEditor } from "@/components/settings/agent-editor";
+import { ExternalAgentEditor } from "@/components/settings/external-agent-editor";
 import { agentPagePath } from "@/lib/agent-page";
 import { AccessError } from "@/server/access";
 import { aiInfoFor } from "@/server/ai";
+import { externalAgentOverview } from "@/server/agents/external";
 import { getAgent } from "@/server/agents/manage";
 import { proposedNoteCounts } from "@/server/agents/memory";
 import { webSearchService } from "@/server/agents/web";
+import { env, mcpResource } from "@/lib/env";
 import { requireWorkspaceSession } from "@/server/session";
 import { getWorkspace, getWorkspaceSettings } from "@/server/workspaces";
 
@@ -39,6 +42,10 @@ export default async function AgentSettingsRoute({ params, searchParams }: Props
   const found = await findAgent(workspaceId, agentId);
   if (!found) notFound();
   const { agent, userId } = found;
+  // An outside agent never runs here: its page is its work, how it is reached and who it is shared with.
+  if (agent.kind === "external") {
+    return <ExternalAgentEditor workspaceId={workspaceId} agent={agent} overview={await externalAgentOverview(userId, agent.id)} mcpUrl={mcpResource()} apiUrl={`${env.appUrl}/api/v1`} />;
+  }
   const [workspace, settings, proposals, info] = await Promise.all([
     getWorkspace(userId, workspaceId),
     getWorkspaceSettings(userId, workspaceId),

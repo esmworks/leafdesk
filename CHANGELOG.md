@@ -7,6 +7,16 @@
 - **Copy IDs for the REST API and MCP.** A block's side menu has *Copy block ID*, Settings > General
   shows the workspace's ID and Account > Profile your user ID, each with a copy button (pages,
   databases, rows and properties already had theirs).
+- **Assign work to outside agents.** *Settings → Agents → New external agent* makes an agent that
+  never runs in Leafdesk, for Claude Code, Cursor or any MCP client: it has its own user, can be put
+  in person properties and mentioned like other agents, and is bound to one of your connected apps
+  or to a token of its own. The new MCP tools `list_assigned_work` and `update_assigned_work`
+  (category *agents*) and the REST API's `GET` and `PATCH /assigned-work` list its rows and
+  mentions and let it set a status, comment as the agent and mark a mention handled, with only what
+  was shared with it and only for the bound caller. Its page shows work in progress, mentions waiting
+  and last activity, board changes name the agent, and the docs explain wiring up Claude Code.
+  Migration `0215_external_agents` (tables `external_agent_binding` and `external_agent_mention`,
+  column `workspace_agent.kind`). No new environment variables.
 - **Suggest skills from your own work.** *Suggest skills* in the library's Skills tab (where AI is
   on) has the fast model read your own AI chat questions of the last 60 days and the titles of the
   pages you edited, framed as outside data, and propose 3 to 5 skills, each with a name, when to use

@@ -2,6 +2,7 @@ import { CommentError } from "@/lib/comments";
 import { PropertyValueError } from "@/lib/properties";
 import { AccessError, ConnectedAppReadOnlyError } from "@/server/access";
 import { AgentError } from "@/server/agents/manage";
+import { ExternalAgentError } from "@/server/agents/external-error";
 import { AiError } from "@/server/ai/errors";
 import { ToolInputError, VersionConflictError } from "@/server/mcp/format";
 import { PageWebhookError } from "@/server/page-webhooks/manage";
@@ -157,6 +158,11 @@ export function apiErrorFor(error: unknown): ApiError {
       "invalid_request",
       "The database is locked, so its properties and views can't change. Someone with full access can unlock it in the app.",
     );
+  }
+  if (error instanceof ExternalAgentError) {
+    if (error.code === "notBound" || error.code === "notAssigned" || error.code === "noMention") return new ApiError(404, "not_found", error.message);
+    if (error.code === "readOnly") return new ApiError(403, "forbidden", error.message);
+    return new ApiError(400, "invalid_request", error.message);
   }
   if (error instanceof AgentError) {
     if (error.code === "notFound" || error.code === "notARow" || error.code === "notADatabase" || error.code === "scheduleNotFound") {

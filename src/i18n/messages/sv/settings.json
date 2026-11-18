@@ -950,7 +950,9 @@
       "requestNotFound": "Den här begäran har redan besvarats.",
       "noteChanged": "Den här anteckningen har ändrats sedan dess. Ändra den på agentens flik Minne.",
       "chainNotFound": "Den här kedjan finns inte längre, eller så kan du inte köra den.",
-      "chainRunning": "Den här kedjan körs fortfarande. Kör den igen när den är klar."
+      "chainRunning": "Den här kedjan körs fortfarande. Kör den igen när den är klar.",
+      "external": "En extern agent körs inte i Leafdesk.",
+      "bindingInvalid": "Välj en av dina anslutna appar."
     },
     "connections": {
       "description": "Verktygen i varje anslutning som den här agenten får använda. Verktyg som bara läser körs direkt, utom på en rad från ett anonymt formulärsvar; alla andra väntar på en ägares godkännande varje gång agenten anropar dem.",
@@ -1167,6 +1169,51 @@
         "skipped": "E-post du skickar, utkast, autosvar, e-postlistor och massutskick startar den aldrig. Högst {hour} körningar i timmen och {day} om dagen från den här brevlådan.",
         "limited": "Viss e-post hoppades över nyligen: gränsen per timme eller per dag nåddes."
       }
+    },
+    "external": {
+      "button": "Ny extern agent",
+      "badge": "Extern agent",
+      "dialogTitle": "Ny extern agent",
+      "dialogHelp": "En extern agent som Claude Code arbetar med det du tilldelar den. Den körs aldrig i Leafdesk; den når arbetsytan via MCP eller REST-API:t.",
+      "viaLabel": "Nås via",
+      "viaApp": "En av mina anslutna appar",
+      "viaToken": "En egen token",
+      "appLabel": "Ansluten app",
+      "noApps": "Du har inga anslutna appar ännu. Anslut en via MCP först, eller välj en token.",
+      "create": "Skapa",
+      "tokenTitle": "Token för den här agenten",
+      "tokenHelp": "Kopiera token nu och ge den till agenten. Den visas bara en gång.",
+      "copy": "Kopiera",
+      "copied": "Kopierad",
+      "done": "Klar",
+      "tab": {
+        "work": "Arbete",
+        "connection": "Anslutning",
+        "setup": "Konfiguration",
+        "share": "Delning"
+      },
+      "workTitle": "Pågående arbete",
+      "workEmpty": "Inget är tilldelat den här agenten just nu.",
+      "mentionsTitle": "Väntande omnämnanden",
+      "mentionsEmpty": "Inga omnämnanden väntar.",
+      "activityTitle": "Senaste aktivitet",
+      "activityEmpty": "Den har inte ändrat något ännu.",
+      "connectionTitle": "Hur den nås",
+      "notBound": "Inte ansluten ännu. Anslut en app eller skapa en token.",
+      "boundApp": "Ansluten app {app}, inloggad av {person}",
+      "boundToken": "Token {token}",
+      "lastUsed": "Senast använd {when} ({tool})",
+      "neverUsed": "Inte använd ännu.",
+      "broken": "Den här anslutningen fungerar inte längre. Anslut igen.",
+      "rebindApp": "Använd den här appen",
+      "newToken": "Skapa en ny token",
+      "unbind": "Koppla från",
+      "setupIntro": "Ge agenten arbete genom att välja den i en personegenskap eller omnämna den. Den läser sitt arbete med två verktyg och agerar bara på det som delas med den.",
+      "setupClaude": "Claude Code",
+      "setupClaudeHelp": "Kör detta i en terminal och logga sedan in som personen vars app agenten nås genom. Be Claude Code lista det tilldelade arbetet.",
+      "setupRest": "REST-API",
+      "setupRestHelp": "En agent med token läser sitt arbete med den här begäran. Sätt LEAFDESK_TOKEN till token.",
+      "setupLimits": "Bara appen eller token som är bunden här kan agera som den här agenten. Att koppla från, pausa eller arkivera agenten avslutar åtkomsten direkt."
     }
   },
   "analytics": {

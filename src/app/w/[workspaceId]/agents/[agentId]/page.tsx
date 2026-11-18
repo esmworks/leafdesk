@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { AgentPage } from "@/components/agent-chat/agent-page";
+import { agentSettingsPath } from "@/lib/agent-settings";
 import { AccessError } from "@/server/access";
 import { getAgent } from "@/server/agents/manage";
 import { listAgentSchedules } from "@/server/agents/schedules";
@@ -34,6 +35,8 @@ export default async function AgentRoute({ params, searchParams }: Props) {
   const found = await findAgent(workspaceId, agentId);
   if (!found) notFound();
   const { agent, userId } = found;
+  // An outside agent has no chat: its page is the settings page.
+  if (agent.kind === "external") redirect(agentSettingsPath(workspaceId, agent.id));
   const schedules = await listAgentSchedules(userId, agent.id).catch(() => []);
   return (
     <AgentPage

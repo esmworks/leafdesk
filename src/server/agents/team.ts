@@ -37,7 +37,7 @@ export async function askableAgents(agent: Pick<Agent, "id" | "workspaceId" | "h
   const team = await db
     .select(columns)
     .from(workspaceAgent)
-    .where(and(eq(workspaceAgent.reportsTo, agent.id), eq(workspaceAgent.workspaceId, agent.workspaceId), isNull(workspaceAgent.archivedAt)))
+    .where(and(eq(workspaceAgent.reportsTo, agent.id), eq(workspaceAgent.workspaceId, agent.workspaceId), isNull(workspaceAgent.archivedAt), eq(workspaceAgent.kind, "internal")))
     .orderBy(asc(workspaceAgent.name));
   let others: typeof team = [];
   if (agent.helpersMode === "chosen") {
@@ -45,13 +45,13 @@ export async function askableAgents(agent: Pick<Agent, "id" | "workspaceId" | "h
       .select(columns)
       .from(agentHelper)
       .innerJoin(workspaceAgent, eq(workspaceAgent.id, agentHelper.helperId))
-      .where(and(eq(agentHelper.agentId, agent.id), eq(workspaceAgent.workspaceId, agent.workspaceId), isNull(workspaceAgent.archivedAt)))
+      .where(and(eq(agentHelper.agentId, agent.id), eq(workspaceAgent.workspaceId, agent.workspaceId), isNull(workspaceAgent.archivedAt), eq(workspaceAgent.kind, "internal")))
       .orderBy(asc(agentHelper.createdAt));
   } else if (agent.helpersMode === "all" && agent.helpersSetBy) {
     const all = await db
       .select(columns)
       .from(workspaceAgent)
-      .where(and(eq(workspaceAgent.workspaceId, agent.workspaceId), isNull(workspaceAgent.archivedAt)))
+      .where(and(eq(workspaceAgent.workspaceId, agent.workspaceId), isNull(workspaceAgent.archivedAt), eq(workspaceAgent.kind, "internal")))
       .orderBy(asc(workspaceAgent.name));
     const levels = await agentLevels(agent.helpersSetBy, agent.workspaceId, all.map((a) => a.id));
     others = all.filter((a) => levels.get(a.id) !== "none");
@@ -79,11 +79,11 @@ export async function checkManager(userId: string, workspaceId: string, agentId:
   };
   if (typeof value !== "string" || !value) return invalid("An agent reports to another agent of its workspace, or to none");
   const agents = await db
-    .select({ id: workspaceAgent.id, reportsTo: workspaceAgent.reportsTo, archivedAt: workspaceAgent.archivedAt })
+    .select({ id: workspaceAgent.id, reportsTo: workspaceAgent.reportsTo, archivedAt: workspaceAgent.archivedAt, kind: workspaceAgent.kind })
     .from(workspaceAgent)
     .where(eq(workspaceAgent.workspaceId, workspaceId));
   const manager = agents.find((a) => a.id === value);
-  if (!manager || manager.archivedAt) return invalid("An agent reports to another agent of its workspace that isn't archived");
+  if (!manager || manager.archivedAt || manager.kind === "external") return invalid("An agent reports to another agent of its workspace that isn't archived");
   if (value !== kept) {
     const levels = await agentLevels(userId, workspaceId, [value]);
     if (levels.get(value) === "none") return invalid("An agent may report only to an agent shared with you");

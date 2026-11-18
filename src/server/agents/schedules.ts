@@ -134,6 +134,7 @@ export async function setAgentSchedule(
 ): Promise<AgentScheduleView> {
   const agent = await agentFor(userId, agentId, "edit");
   if (agent.archivedAt) throw new AgentError("archived", "Restore the agent to change its schedules");
+  if (agent.kind === "external") throw new AgentError("external", "An outside agent doesn't run in Leafdesk");
   let existing: ScheduleRow | undefined;
   if (scheduleId) {
     [existing] = await db

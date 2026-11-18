@@ -38,6 +38,7 @@ import {
   MAX_AGENTS,
   type AgentAccessLevel,
   type AgentAccessView,
+  type AgentKind,
   type AgentModel,
   type AgentRowChanges,
   type AgentRunView,
@@ -55,6 +56,7 @@ import { channelVisibleTo } from "@/server/messages/core";
 import { removePagePermission, setPagePermission } from "@/server/permissions";
 import { addAgentMembership } from "@/server/workspaces";
 import { recordAgentVersion, withoutVersions } from "./version-record";
+import { dropExternalBinding } from "./external-binding";
 import { checkHelperIds, dropHelper, helperIdsOf, saveHelpers } from "./helpers";
 import { checkManager, leaveManager } from "./team";
 import { agentLevels, agentWithLevel, requireAgentCreator, shareNewAgent } from "./sharing";
@@ -70,6 +72,8 @@ export { agentUserIds, isAgentUser } from "@/server/agents/users";
 type Agent = typeof workspaceAgent.$inferSelect;
 
 export type AgentInput = {
+  /** Set only when making an agent (external.ts makes the outside ones): it never changes after. */
+  kind?: AgentKind;
   name?: string;
   icon?: string | null;
   description?: string;
@@ -197,6 +201,7 @@ export function viewAgent(a: Agent, access: AgentShareLevel): AgentView {
     name: a.name,
     icon: a.icon,
     description: a.description,
+    kind: a.kind,
     instructions: a.instructions,
     enabled: a.enabled,
     archived: a.archivedAt !== null,
@@ -219,6 +224,7 @@ export function viewAgent(a: Agent, access: AgentShareLevel): AgentView {
 
 export const auditDetails = (a: Agent) => ({
   name: a.name,
+  ...(a.kind === "external" ? { kind: a.kind } : {}),
   enabled: a.enabled,
   archived: a.archivedAt !== null,
   webAccess: a.webAccess,
@@ -414,6 +420,7 @@ export async function createAgent(userId: string, workspaceId: string, input: Ag
         name,
         icon,
         description,
+        kind: input.kind === "external" ? "external" : "internal",
         instructions,
         enabled: input.enabled ?? true,
         webAccess: input.webAccess === true,
@@ -564,6 +571,8 @@ export async function archiveAgent(userId: string, agentId: string): Promise<Age
     // Other agents can no longer ask it, and those that reported to it report to no one.
     await dropHelper(tx, agentId);
     await leaveManager(tx, agentId);
+    // An outside agent stops being reachable: its token goes, its binding with it.
+    await dropExternalBinding(tx, agentId);
     return agent;
   });
   await recordAudit({ workspaceId: current.workspaceId, actorId: userId, action: "agent.archived", target: { type: "user", id: current.userId, label: current.name }, details: auditDetails(archived) });

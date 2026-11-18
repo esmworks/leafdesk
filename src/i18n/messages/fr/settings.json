@@ -950,7 +950,9 @@
       "requestNotFound": "Cette demande a déjà reçu une réponse.",
       "noteChanged": "Cette note a changé depuis. Modifiez-la dans l’onglet Mémoire de l’agent.",
       "chainNotFound": "Cette chaîne n’existe plus, ou vous ne pouvez pas l’exécuter.",
-      "chainRunning": "Cette chaîne est encore en cours. Relancez-la quand elle se termine."
+      "chainRunning": "Cette chaîne est encore en cours. Relancez-la quand elle se termine.",
+      "external": "Un agent externe ne s'exécute pas dans Leafdesk.",
+      "bindingInvalid": "Choisissez l'une de vos applications connectées."
     },
     "connections": {
       "description": "Les outils de chaque connexion que cet agent peut utiliser. Les outils qui ne font que lire s’exécutent aussitôt, sauf sur une ligne issue d’une réponse anonyme à un formulaire ; les autres attendent l’approbation d’un propriétaire à chaque appel.",
@@ -1167,6 +1169,51 @@
         "skipped": "Les e-mails que vous envoyez, les brouillons, les réponses automatiques, les listes de diffusion et les envois en masse ne le lancent jamais. Au plus {hour} exécutions par heure et {day} par jour depuis cette boîte.",
         "limited": "Certains e-mails ont été ignorés récemment : la limite horaire ou quotidienne était atteinte."
       }
+    },
+    "external": {
+      "button": "Nouvel agent externe",
+      "badge": "Agent externe",
+      "dialogTitle": "Nouvel agent externe",
+      "dialogHelp": "Un agent extérieur comme Claude Code travaille sur ce que vous lui confiez. Il ne s'exécute jamais dans Leafdesk ; il accède à l'espace de travail via MCP ou l'API REST.",
+      "viaLabel": "Accessible via",
+      "viaApp": "Une de mes applications connectées",
+      "viaToken": "Un jeton dédié",
+      "appLabel": "Application connectée",
+      "noApps": "Vous n'avez pas encore d'application connectée. Connectez-en une via MCP d'abord, ou choisissez un jeton.",
+      "create": "Créer",
+      "tokenTitle": "Jeton de cet agent",
+      "tokenHelp": "Copiez ce jeton maintenant et donnez-le à l'agent. Il n'est affiché qu'une seule fois.",
+      "copy": "Copier",
+      "copied": "Copié",
+      "done": "Terminé",
+      "tab": {
+        "work": "Travail",
+        "connection": "Connexion",
+        "setup": "Configuration",
+        "share": "Partage"
+      },
+      "workTitle": "Travail en cours",
+      "workEmpty": "Rien n'est confié à cet agent pour le moment.",
+      "mentionsTitle": "Mentions en attente",
+      "mentionsEmpty": "Aucune mention en attente.",
+      "activityTitle": "Dernière activité",
+      "activityEmpty": "Il n'a encore rien modifié.",
+      "connectionTitle": "Comment il est joint",
+      "notBound": "Pas encore connecté. Connectez une application ou créez un jeton.",
+      "boundApp": "Application connectée {app}, connectée par {person}",
+      "boundToken": "Jeton {token}",
+      "lastUsed": "Dernière utilisation {when} ({tool})",
+      "neverUsed": "Pas encore utilisé.",
+      "broken": "Cette connexion ne fonctionne plus. Reconnectez-la.",
+      "rebindApp": "Utiliser cette application",
+      "newToken": "Créer un nouveau jeton",
+      "unbind": "Déconnecter",
+      "setupIntro": "Confiez du travail à l'agent en le choisissant dans une propriété de personne ou en le mentionnant. Il lit son travail via deux outils et n'agit que sur ce qui est partagé avec lui.",
+      "setupClaude": "Claude Code",
+      "setupClaudeHelp": "Exécutez ceci dans un terminal, puis connectez-vous en tant que la personne dont l'application relie cet agent. Demandez à Claude Code de lister le travail qui lui est confié.",
+      "setupRest": "API REST",
+      "setupRestHelp": "Un agent avec jeton lit son travail avec cette requête. Définissez LEAFDESK_TOKEN avec le jeton.",
+      "setupLimits": "Seule l'application ou le jeton lié ici peut agir comme cet agent. Le déconnecter, le mettre en pause ou l'archiver met fin à son accès immédiatement."
     }
   },
   "analytics": {

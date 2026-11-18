@@ -48,6 +48,8 @@ export const AGENT_SETTINGS_LEFT_OUT: ReadonlySet<string> = new Set([
   "id",
   "workspace_id",
   "user_id",
+  // An agent never changes kind: a restore must not make an outside agent run here, or the other way round.
+  "kind",
   "created_by",
   "created_at",
   "updated_at",

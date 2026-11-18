@@ -21,6 +21,7 @@ import { agentLevels } from "./sharing";
 import { routeForPerson } from "./team";
 import { requestLocale } from "@/server/mail/locale";
 import { startTriggered } from "@/server/triggers";
+import { recordExternalMentions } from "./external-mentions";
 import { isAgentUser } from "./users";
 
 /** An agent as the comments' @ menu offers it: its user (what a mention names), name and icon. */
@@ -71,11 +72,15 @@ export async function startMentionRuns(input: {
   const membership = await findMembership(input.authorId, input.workspaceId);
   if (!membership || isGuest(membership.role)) return [];
   const agents = await db
-    .select({ id: workspaceAgent.id, name: workspaceAgent.name, reportsTo: workspaceAgent.reportsTo, viaManagerOnly: workspaceAgent.viaManagerOnly })
+    .select({ id: workspaceAgent.id, name: workspaceAgent.name, kind: workspaceAgent.kind, enabled: workspaceAgent.enabled, reportsTo: workspaceAgent.reportsTo, viaManagerOnly: workspaceAgent.viaManagerOnly })
     .from(workspaceAgent)
     .where(and(eq(workspaceAgent.workspaceId, input.workspaceId), inArray(workspaceAgent.userId, mentioned), isNull(workspaceAgent.archivedAt)));
   const levels = await agentLevels(input.authorId, input.workspaceId, agents.map((a) => a.id), membership.role);
-  const shared = agents.filter((a) => levels.get(a.id) !== "none");
+  const allShared = agents.filter((a) => levels.get(a.id) !== "none");
+  // An outside agent never runs here: the mention waits in its work (external-mentions.ts).
+  const outside = allShared.filter((a) => a.kind === "external" && a.enabled);
+  if (outside.length) await recordExternalMentions({ ...input, agentIds: outside.map((a) => a.id) });
+  const shared = allShared.filter((a) => a.kind === "internal");
   if (!shared.length) return [];
   // One working only through its manager hands the mention to the manager (team.ts routeForPerson).
   const routes = await routeForPerson(input.authorId, input.workspaceId, shared, levels);

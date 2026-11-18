@@ -950,7 +950,9 @@
       "requestNotFound": "This request was answered already.",
       "noteChanged": "This note changed since. Change it in the agent’s Memory tab.",
       "chainNotFound": "This chain no longer exists, or you can’t run it.",
-      "chainRunning": "This chain is still running. Run it again once it ends."
+      "chainRunning": "This chain is still running. Run it again once it ends.",
+      "external": "An external agent doesn't run in Leafdesk.",
+      "bindingInvalid": "Choose one of your connected apps."
     },
     "connections": {
       "description": "The tools of each connection this agent may use. Tools that only read run at once, except on a row from an anonymous form answer; any other waits for an owner’s approval every time the agent calls it.",
@@ -1167,6 +1169,51 @@
         "skipped": "Email you send, drafts, auto-replies, mailing lists and bulk mail never start it. At most {hour} runs an hour and {day} a day from this mailbox.",
         "limited": "Some email was left out lately: the hourly or daily limit was reached."
       }
+    },
+    "external": {
+      "button": "New external agent",
+      "badge": "External agent",
+      "dialogTitle": "New external agent",
+      "dialogHelp": "An outside agent such as Claude Code works on what you assign to it. It never runs inside Leafdesk; it reaches the workspace through MCP or the REST API.",
+      "viaLabel": "Reached through",
+      "viaApp": "One of my connected apps",
+      "viaToken": "A token of its own",
+      "appLabel": "Connected app",
+      "noApps": "You have no connected apps yet. Connect one over MCP first, or choose a token.",
+      "create": "Create",
+      "tokenTitle": "Token for this agent",
+      "tokenHelp": "Copy this token now and give it to the agent. It is shown only once.",
+      "copy": "Copy",
+      "copied": "Copied",
+      "done": "Done",
+      "tab": {
+        "work": "Work",
+        "connection": "Connection",
+        "setup": "Set up",
+        "share": "Sharing"
+      },
+      "workTitle": "Work in progress",
+      "workEmpty": "Nothing is assigned to this agent right now.",
+      "mentionsTitle": "Mentions waiting",
+      "mentionsEmpty": "No mentions are waiting.",
+      "activityTitle": "Last activity",
+      "activityEmpty": "It has not changed anything yet.",
+      "connectionTitle": "How it is reached",
+      "notBound": "Not connected yet. Connect an app or create a token.",
+      "boundApp": "Connected app {app}, signed in by {person}",
+      "boundToken": "Token {token}",
+      "lastUsed": "Last used {when} ({tool})",
+      "neverUsed": "Not used yet.",
+      "broken": "This connection no longer works. Connect it again.",
+      "rebindApp": "Use this app",
+      "newToken": "Create a new token",
+      "unbind": "Disconnect",
+      "setupIntro": "Give the agent work by choosing it in a person property or mentioning it. It reads its work through two tools and acts only on what is shared with it.",
+      "setupClaude": "Claude Code",
+      "setupClaudeHelp": "Run this in a terminal, then sign in as the person whose app this agent is reached through. Ask Claude Code to list its assigned work.",
+      "setupRest": "REST API",
+      "setupRestHelp": "An agent with a token reads its work with this request. Set LEAFDESK_TOKEN to the token.",
+      "setupLimits": "Only the app or token bound here can act as this agent. Disconnecting it, or pausing or archiving the agent, ends its access at once."
     }
   },
   "analytics": {

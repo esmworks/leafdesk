@@ -182,6 +182,8 @@ export const LEFT_OUT: Record<string, string> = {
   api_idempotency_key: "answers kept for API retries, which belong to the old server's tokens",
   calendar_feed: "calendar feed links (secret tokens)",
   booking_link: "booking links (public secret tokens): set up again after a restore",
+  external_agent_binding: "which app or token an outside agent is reached through (tokens and connected apps aren't backed up): bind it again after a restore",
+  external_agent_mention: "comments waiting for an outside agent: transient work",
   phone_sign_in: "QR codes signing phones in, valid for two minutes",
   channel_link: "Chat-app accounts (Telegram, Slack) linked to people, linked again on the new server",
   channel_link_code: "Chat-app link codes in progress",

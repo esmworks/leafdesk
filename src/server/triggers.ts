@@ -19,6 +19,7 @@ import { agentRun, connection, connectionTrigger, conversation, databaseAutomati
 import { MAX_AGENT_PROMPT, type AgentRunContext, type RunSource } from "@/lib/agents";
 import { conversationTitle } from "@/lib/ai-chat";
 import { conversationRuleFor, MAX_CONVERSATION_KEY, type ConversationRule, type TriggerTarget, type TriggerView } from "@/lib/triggers";
+import { AgentError } from "@/server/agents/errors";
 import { kickAgents } from "@/server/agents/kick";
 
 type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
@@ -121,6 +122,11 @@ export async function startTriggered(input: TriggerStart): Promise<{ run: Trigge
   if (self !== (input.source.kind === "assistant")) throw new Error("A person's own run has an assistant source, and only it");
   if ("self" in input.target && input.source.kind === "assistant" && input.source.userId !== input.target.self) throw new Error("A person's own run is theirs");
   const ex: Executor = input.tx ?? db;
+  // An outside agent works from outside (agents/external.ts): nothing here starts a run of it.
+  if ("agentId" in input.target) {
+    const [agent] = await ex.select({ kind: workspaceAgent.kind }).from(workspaceAgent).where(eq(workspaceAgent.id, input.target.agentId)).limit(1);
+    if (agent?.kind === "external") throw new AgentError("external", "An outside agent doesn't run in Leafdesk");
+  }
   // An agent's task is cut to MAX_AGENT_PROMPT; a chat's turn (several messages) and a person's own question aren't.
   const prompt = self || input.source.kind === "chat" ? input.prompt : input.prompt.slice(0, MAX_AGENT_PROMPT);
   const same = sameSource(input.source, input.context);

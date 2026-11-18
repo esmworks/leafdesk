@@ -211,13 +211,25 @@ export async function changeComments(userId: string, pageId: string, op: Comment
     await withdrawComments(target.workspaceId, pageId, clean.threadId);
     await forgetThreadMutes(pageId, clean.threadId);
     await forgetThreadStates(pageId, clean.threadId);
+    await withdrawOutsideMentions(pageId, clean.threadId);
   } else if (clean.type === "deleteComment") {
     // Reactions to a deleted comment are about nothing any more.
     await withdrawReactions(target.workspaceId, pageId, clean.threadId, clean.commentId);
+    await withdrawOutsideMentions(pageId, clean.threadId, clean.commentId);
   }
   // A row's comments show in its database's feed views (components/database/feed-view).
   if (target.parentId) getCollab().broadcast(`db:${target.parentId}`, COMMENTS_EVENT);
   return result;
+}
+
+/** Takes back what outside agents were waiting on in comments that are gone (agents/external-mentions.ts); never throws. */
+async function withdrawOutsideMentions(pageId: string, threadId: string, commentId?: string) {
+  try {
+    const { withdrawExternalMentions } = await import("@/server/agents/external-mentions");
+    await withdrawExternalMentions(pageId, threadId, commentId);
+  } catch (error) {
+    console.error("[comments] could not withdraw mentions of outside agents", redactError(error));
+  }
 }
 
 /**

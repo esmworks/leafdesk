@@ -950,7 +950,9 @@
       "requestNotFound": "Yêu cầu này đã được trả lời.",
       "noteChanged": "Ghi chú này đã thay đổi kể từ đó. Hãy đổi nó trong thẻ Bộ nhớ của tác tử.",
       "chainNotFound": "Chuỗi này không còn nữa, hoặc bạn không thể chạy nó.",
-      "chainRunning": "Chuỗi này vẫn đang chạy. Hãy chạy lại khi nó kết thúc."
+      "chainRunning": "Chuỗi này vẫn đang chạy. Hãy chạy lại khi nó kết thúc.",
+      "external": "Tác nhân bên ngoài không chạy trong Leafdesk.",
+      "bindingInvalid": "Hãy chọn một trong các ứng dụng đã kết nối của bạn."
     },
     "connections": {
       "description": "Các công cụ của mỗi kết nối mà tác tử này được dùng. Các công cụ chỉ đọc chạy ngay, trừ trên một hàng từ câu trả lời biểu mẫu ẩn danh; công cụ nào khác đều chờ một chủ sở hữu chấp thuận mỗi lần tác tử gọi.",
@@ -1167,6 +1169,51 @@
         "skipped": "Email bạn gửi, bản nháp, thư trả lời tự động, danh sách thư và thư hàng loạt không bao giờ kích hoạt nó. Tối đa {hour} lượt mỗi giờ và {day} lượt mỗi ngày từ hộp thư này.",
         "limited": "Gần đây một số email đã bị bỏ qua: đã đạt giới hạn theo giờ hoặc theo ngày."
       }
+    },
+    "external": {
+      "button": "Tác nhân bên ngoài mới",
+      "badge": "Tác nhân bên ngoài",
+      "dialogTitle": "Tác nhân bên ngoài mới",
+      "dialogHelp": "Một tác nhân bên ngoài như Claude Code làm những việc bạn giao. Nó không bao giờ chạy bên trong Leafdesk; nó truy cập không gian làm việc qua MCP hoặc REST API.",
+      "viaLabel": "Truy cập qua",
+      "viaApp": "Một trong các ứng dụng đã kết nối của tôi",
+      "viaToken": "Mã token riêng",
+      "appLabel": "Ứng dụng đã kết nối",
+      "noApps": "Bạn chưa có ứng dụng nào được kết nối. Hãy kết nối một ứng dụng qua MCP trước, hoặc chọn mã token.",
+      "create": "Tạo",
+      "tokenTitle": "Mã token cho tác nhân này",
+      "tokenHelp": "Hãy sao chép mã token này ngay và đưa cho tác nhân. Nó chỉ hiển thị một lần.",
+      "copy": "Sao chép",
+      "copied": "Đã sao chép",
+      "done": "Xong",
+      "tab": {
+        "work": "Công việc",
+        "connection": "Kết nối",
+        "setup": "Thiết lập",
+        "share": "Chia sẻ"
+      },
+      "workTitle": "Công việc đang làm",
+      "workEmpty": "Hiện chưa có gì được giao cho tác nhân này.",
+      "mentionsTitle": "Lượt nhắc đang chờ",
+      "mentionsEmpty": "Không có lượt nhắc nào đang chờ.",
+      "activityTitle": "Hoạt động gần nhất",
+      "activityEmpty": "Nó chưa thay đổi gì.",
+      "connectionTitle": "Cách truy cập",
+      "notBound": "Chưa kết nối. Hãy kết nối ứng dụng hoặc tạo mã token.",
+      "boundApp": "Ứng dụng đã kết nối {app}, đăng nhập bởi {person}",
+      "boundToken": "Mã token {token}",
+      "lastUsed": "Dùng lần cuối {when} ({tool})",
+      "neverUsed": "Chưa được dùng.",
+      "broken": "Kết nối này không còn hoạt động. Hãy kết nối lại.",
+      "rebindApp": "Dùng ứng dụng này",
+      "newToken": "Tạo mã token mới",
+      "unbind": "Ngắt kết nối",
+      "setupIntro": "Giao việc cho tác nhân bằng cách chọn nó trong thuộc tính người hoặc nhắc đến nó. Nó đọc công việc qua hai công cụ và chỉ thao tác trên những gì được chia sẻ với nó.",
+      "setupClaude": "Claude Code",
+      "setupClaudeHelp": "Chạy lệnh này trong terminal, rồi đăng nhập bằng tài khoản của người có ứng dụng dùng để truy cập tác nhân này. Hãy yêu cầu Claude Code liệt kê công việc được giao.",
+      "setupRest": "REST API",
+      "setupRestHelp": "Tác nhân có mã token đọc công việc bằng yêu cầu này. Đặt LEAFDESK_TOKEN thành mã token.",
+      "setupLimits": "Chỉ ứng dụng hoặc mã token được gắn ở đây mới có thể hành động như tác nhân này. Ngắt kết nối, tạm dừng hoặc lưu trữ tác nhân sẽ chấm dứt quyền truy cập ngay."
     }
   },
   "analytics": {

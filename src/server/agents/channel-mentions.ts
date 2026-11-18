@@ -41,7 +41,7 @@ export async function agentsToBringIn(authorId: string, workspaceId: string, rol
   const agents = await db
     .select({ id: workspaceAgent.id, userId: workspaceAgent.userId, reportsTo: workspaceAgent.reportsTo, viaManagerOnly: workspaceAgent.viaManagerOnly })
     .from(workspaceAgent)
-    .where(and(eq(workspaceAgent.workspaceId, workspaceId), inArray(workspaceAgent.userId, userIds), isNull(workspaceAgent.archivedAt)));
+    .where(and(eq(workspaceAgent.workspaceId, workspaceId), inArray(workspaceAgent.userId, userIds), isNull(workspaceAgent.archivedAt), eq(workspaceAgent.kind, "internal")));
   if (!agents.length) return [];
   const levels = await agentLevels(authorId, workspaceId, agents.map((a) => a.id), role);
   const shared = agents.filter((a) => levels.get(a.id) !== "none");
@@ -87,6 +87,8 @@ export async function startChannelMentionRuns(messageId: string): Promise<string
           named.map((n) => n.userId),
         ),
         isNull(workspaceAgent.archivedAt),
+        // Outside agents never run here: a message naming one starts nothing.
+        eq(workspaceAgent.kind, "internal"),
       ),
     );
   if (!agents.length) return [];

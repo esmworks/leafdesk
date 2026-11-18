@@ -950,7 +950,9 @@
       "requestNotFound": "Dit verzoek is al beantwoord.",
       "noteChanged": "Deze notitie is sindsdien gewijzigd. Wijzig haar op het tabblad Geheugen van de agent.",
       "chainNotFound": "Deze keten bestaat niet meer, of je kunt hem niet uitvoeren.",
-      "chainRunning": "Deze keten loopt nog. Voer hem opnieuw uit als hij klaar is."
+      "chainRunning": "Deze keten loopt nog. Voer hem opnieuw uit als hij klaar is.",
+      "external": "Een externe agent draait niet in Leafdesk.",
+      "bindingInvalid": "Kies een van je gekoppelde apps."
     },
     "connections": {
       "description": "De tools van elke koppeling die deze agent mag gebruiken. Tools die alleen lezen, draaien direct, behalve op een rij uit een anoniem formulierantwoord; elke andere wacht op goedkeuring van een eigenaar telkens als de agent haar aanroept.",
@@ -1167,6 +1169,51 @@
         "skipped": "E-mail die je verstuurt, concepten, automatische antwoorden, mailinglijsten en bulkmail starten hem nooit. Hoogstens {hour} runs per uur en {day} per dag uit deze mailbox.",
         "limited": "Er is onlangs e-mail overgeslagen: de limiet per uur of per dag was bereikt."
       }
+    },
+    "external": {
+      "button": "Nieuwe externe agent",
+      "badge": "Externe agent",
+      "dialogTitle": "Nieuwe externe agent",
+      "dialogHelp": "Een externe agent zoals Claude Code werkt aan wat je hem toewijst. Hij draait nooit binnen Leafdesk; hij bereikt de werkruimte via MCP of de REST API.",
+      "viaLabel": "Bereikt via",
+      "viaApp": "Een van mijn gekoppelde apps",
+      "viaToken": "Een eigen token",
+      "appLabel": "Gekoppelde app",
+      "noApps": "Je hebt nog geen gekoppelde apps. Koppel er eerst een via MCP of kies een token.",
+      "create": "Aanmaken",
+      "tokenTitle": "Token voor deze agent",
+      "tokenHelp": "Kopieer dit token nu en geef het aan de agent. Het wordt maar één keer getoond.",
+      "copy": "Kopiëren",
+      "copied": "Gekopieerd",
+      "done": "Klaar",
+      "tab": {
+        "work": "Werk",
+        "connection": "Koppeling",
+        "setup": "Instellen",
+        "share": "Delen"
+      },
+      "workTitle": "Werk in uitvoering",
+      "workEmpty": "Er is nu niets aan deze agent toegewezen.",
+      "mentionsTitle": "Wachtende vermeldingen",
+      "mentionsEmpty": "Geen vermeldingen in afwachting.",
+      "activityTitle": "Laatste activiteit",
+      "activityEmpty": "Hij heeft nog niets gewijzigd.",
+      "connectionTitle": "Hoe hij bereikt wordt",
+      "notBound": "Nog niet gekoppeld. Koppel een app of maak een token.",
+      "boundApp": "Gekoppelde app {app}, aangemeld door {person}",
+      "boundToken": "Token {token}",
+      "lastUsed": "Laatst gebruikt {when} ({tool})",
+      "neverUsed": "Nog niet gebruikt.",
+      "broken": "Deze koppeling werkt niet meer. Koppel opnieuw.",
+      "rebindApp": "Deze app gebruiken",
+      "newToken": "Nieuw token maken",
+      "unbind": "Ontkoppelen",
+      "setupIntro": "Geef de agent werk door hem te kiezen in een personeneigenschap of hem te vermelden. Hij leest zijn werk met twee hulpmiddelen en handelt alleen op wat met hem gedeeld is.",
+      "setupClaude": "Claude Code",
+      "setupClaudeHelp": "Voer dit uit in een terminal en meld je dan aan als de persoon via wiens app deze agent bereikt wordt. Vraag Claude Code om het toegewezen werk op te sommen.",
+      "setupRest": "REST API",
+      "setupRestHelp": "Een agent met een token leest zijn werk met dit verzoek. Zet LEAFDESK_TOKEN op het token.",
+      "setupLimits": "Alleen de hier gekoppelde app of het token kan als deze agent handelen. Ontkoppelen, pauzeren of archiveren van de agent beëindigt de toegang meteen."
     }
   },
   "analytics": {
