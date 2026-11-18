@@ -101,7 +101,8 @@
       "openOnStart": "avvio apertura prima pagina ultima visitata recente",
       "pageReports": "segnala segnalazione abuso reclamo rimozione pubblicata pubblica web pagine",
       "dashboardEmails": "iscrizione report programmazione settimanale riepilogo email dashboard",
-      "phoneSignIn": "codice qr telefono cellulare scansiona dispositivo accedi"
+      "phoneSignIn": "codice qr telefono cellulare scansiona dispositivo accedi",
+      "aiAutoModel": "auto automatico modello veloce economico predefinito"
     }
   },
   "workspace": {
@@ -549,7 +550,9 @@
       "viaManagerOnly": "Lavorare solo tramite il responsabile",
       "viaManagerOnlyHelp": "I risultati vanno al responsabile, e chi non può modificarlo viene indirizzato al responsabile.",
       "team": "Riferiscono a questo agente",
-      "teamHelp": "Questo agente può sempre chiedere a loro e vedere il loro lavoro finito."
+      "teamHelp": "Questo agente può sempre chiedere a loro e vedere il loro lavoro finito.",
+      "modelAuto": "Auto",
+      "modelAutoHelp": "Ogni turno usa il modello veloce ({fast}) finché l'attività è breve e semplice, e quello principale ({main}) per attività lunghe, molte chiamate a strumenti o se il modello veloce non è riuscito."
     },
     "describe": {
       "button": "Descrivi un agente",
@@ -1084,7 +1087,8 @@
         "notASkill": "non è più una competenza",
         "skillEditable": "qualcuno oltre ai proprietari può modificarla",
         "tooMany": "non c’è più spazio"
-      }
+      },
+      "modelAuto": "Auto"
     },
     "share": {
       "levels": {

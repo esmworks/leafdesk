@@ -101,7 +101,8 @@
       "openOnStart": "démarrage lancement première page dernière visitée récente",
       "pageReports": "signaler signalement abus plainte retrait publié public web pages",
       "dashboardEmails": "abonnement rapport calendrier hebdomadaire résumé e-mail planification",
-      "phoneSignIn": "code qr téléphone mobile scanner appareil connexion"
+      "phoneSignIn": "code qr téléphone mobile scanner appareil connexion",
+      "aiAutoModel": "auto automatique modèle rapide économique défaut"
     }
   },
   "workspace": {
@@ -549,7 +550,9 @@
       "viaManagerOnly": "Travailler uniquement via son responsable",
       "viaManagerOnlyHelp": "Ses résultats vont au responsable, et les personnes qui ne peuvent pas le modifier sont renvoyées vers le responsable.",
       "team": "Rendent compte à cet agent",
-      "teamHelp": "Cet agent peut toujours les solliciter et voir leur travail terminé."
+      "teamHelp": "Cet agent peut toujours les solliciter et voir leur travail terminé.",
+      "modelAuto": "Auto",
+      "modelAutoHelp": "Chaque tour s'exécute sur le modèle rapide ({fast}) tant que la tâche est courte et simple, et sur le modèle principal ({main}) pour les tâches longues, de nombreux appels d'outils ou si le modèle rapide a échoué."
     },
     "describe": {
       "button": "Décrire un agent",
@@ -1084,7 +1087,8 @@
         "notASkill": "ce n’est plus une compétence",
         "skillEditable": "quelqu’un d’autre que les propriétaires peut la modifier",
         "tooMany": "il n’y a plus de place"
-      }
+      },
+      "modelAuto": "Auto"
     },
     "share": {
       "levels": {

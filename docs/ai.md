@@ -97,6 +97,7 @@ as it can (Claude Sonnet and Opus 5.5 can't stop thinking, so "off" is low effor
 | Building databases from a description | `AI_MODEL` | medium |
 | Agents | `AI_MODEL` | the model's default (Claude 5.5: high) |
 | Agents set to the fast model | `AI_FAST_MODEL` | low |
+| Agents set to Auto, turn by turn | `AI_FAST_MODEL` for short, simple tasks, else `AI_MODEL` | low, else the model's default |
 
 The writing assistant stays on `AI_MODEL`: it makes one request per click and its text goes straight
 into a page. Agents run on `AI_MODEL` unless an owner puts one on the fast model, for routine,
@@ -357,6 +358,19 @@ name (with its id under it in the menu): a conversation keeps the model it was l
 a new one starts with the model of your latest. Usage and cost are counted
 per model (see *Usage and cost limits*). A workspace on its own AI account answers with that
 account's model, without a picker.
+
+**Auto.** Where the server has `AI_FAST_MODEL` as well as `AI_MODEL`, the picker's first entry is
+*Auto*, which picks the model for each turn of an answer. The fast model takes a short, simple
+question; the main model takes a question with attached files, one over 700 characters, one that
+reads like code or a list of four or more tasks, a conversation of more than 12,000 characters,
+research, *Plan first*, and *Thinking: Deep*. An answer that goes on past three turns of tool
+calls moves to the main model for the rest, and so does one where the fast model failed, ran out
+of room or gave no answer (the turn is asked again there). The rule is fixed and has no model call of its own
+(`src/lib/model-route.ts`). The answer's steps start with a line such as *Auto → claude-haiku-5-5*,
+naming the model and, for the main one, the reason; usage and cost are counted under the model
+that answered each turn. Owners can make Auto the model new conversations start with in Settings >
+General > AI (*New chats start on Auto*); a conversation keeps the model it was last asked with, and
+a person's own pick always wins. Agents can use Auto too, see [Agents](agents.md#agents).
 
 ```bash
 AI_MODEL=claude-sonnet-5-5

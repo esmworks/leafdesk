@@ -169,7 +169,9 @@
     "noProvider": "Yok: yazma asistanı, yapay zekâ özellikleri ve yapay zekâ sohbeti için AI_PROVIDER ve AI_MODEL gerekiyor.",
     "semanticSearch": "Anlamsal arama",
     "semanticValue": "Arama, {model} embedding modeliyle sayfaları anlamına göre de bulur.",
-    "semanticOff": "Kapalı: arama yalnızca kelimeleri bulur. Bir yönetici AI_EMBEDDINGS_MODEL ile açabilir."
+    "semanticOff": "Kapalı: arama yalnızca kelimeleri bulur. Bir yönetici AI_EMBEDDINGS_MODEL ile açabilir.",
+    "autoModel": "Yeni sohbetler Otomatik ile başlasın",
+    "autoModelHint": "Açıkken yeni bir yapay zeka sohbeti her soru için modeli seçer: kısa ve basit sorularda hızlı modeli, uzun veya karmaşık olanlarda ana modeli kullanır. Kişiler yine de modeli kendileri seçebilir."
   },
   "chat": {
     "open": "Yapay zekâya sor",
@@ -372,6 +374,20 @@
           "unstar": "Yıldızı kaldırıldı:",
           "archive": "Arşivlendi:"
         }
+      },
+      "route": "Otomatik → {model}",
+      "routeWhy": "Otomatik → {model} ({why})",
+      "routeReasons": {
+        "failed": "hızlı model başarısız oldu",
+        "research": "araştırma",
+        "plan": "önce plan",
+        "deep": "derin düşünme",
+        "files": "ekli dosyalar",
+        "long": "uzun soru",
+        "history": "uzun konuşma",
+        "code": "kod",
+        "steps": "çok adım",
+        "list": "görev listesi"
       }
     },
     "stopped": "Durduruldu.",
@@ -476,7 +492,9 @@
     "model": {
       "label": "Model",
       "hint": "Bu sohbette yanıt veren model",
-      "images": "Görselleri okur"
+      "images": "Görselleri okur",
+      "auto": "Otomatik",
+      "autoHint": "Her soru için modeli seçer"
     },
     "thinkingLevel": {
       "label": "Düşünme",

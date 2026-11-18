@@ -101,7 +101,8 @@
       "openOnStart": "käynnistys aloitus ensimmäinen sivu viimeksi avattu viimeisin",
       "pageReports": "ilmoita ilmoitus väärinkäyttö valitus poisto julkaistu julkinen verkko sivut",
       "dashboardEmails": "tilaus raportti aikataulu viikoittain yhteenveto sähköposti",
-      "phoneSignIn": "qr koodi puhelin mobiili skannaa laite kirjaudu"
+      "phoneSignIn": "qr koodi puhelin mobiili skannaa laite kirjaudu",
+      "aiAutoModel": "auto automaattinen malli nopea halpa oletus"
     }
   },
   "workspace": {
@@ -549,7 +550,9 @@
       "viaManagerOnly": "Toimi vain esihenkilön kautta",
       "viaManagerOnlyHelp": "Tulokset menevät esihenkilölle, ja ne, jotka eivät voi muokata sitä, ohjataan esihenkilölle.",
       "team": "Raportoivat tälle agentille",
-      "teamHelp": "Tämä agentti voi aina kysyä niiltä ja nähdä niiden valmiit työt."
+      "teamHelp": "Tämä agentti voi aina kysyä niiltä ja nähdä niiden valmiit työt.",
+      "modelAuto": "Auto",
+      "modelAutoHelp": "Jokainen kierros ajetaan nopealla mallilla ({fast}), kun tehtävä on lyhyt ja yksinkertainen, ja päämallilla ({main}) pitkissä tehtävissä, monissa työkalukutsuissa tai jos nopea malli epäonnistui."
     },
     "describe": {
       "button": "Kuvaile agentti",
@@ -1084,7 +1087,8 @@
         "notASkill": "se ei ole enää taito",
         "skillEditable": "joku muukin kuin omistajat voi muokata sitä",
         "tooMany": "sille ei ole tilaa"
-      }
+      },
+      "modelAuto": "Auto"
     },
     "share": {
       "levels": {

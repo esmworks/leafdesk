@@ -66,6 +66,7 @@ import {
 } from "@/lib/ai-chat";
 import { CHAT_FILE_ACCEPT, chatFileKind } from "@/lib/chat-attachments";
 import { isPlanCard } from "@/lib/chat-plan";
+import { isAutoModel } from "@/lib/model-route";
 import { PROPERTY_TYPES, type PropertyType } from "@/lib/property-types";
 import { caretOutsideLabels, deleteLabel, insertDictation, normalizePaste, shouldCollapsePaste, type PastePart } from "@/lib/chat-paste";
 import type { VoiceNoteLimits } from "@/lib/voice-notes";
@@ -1254,7 +1255,8 @@ function ModePicker({
 /** The model questions go to, where the workspace's AI offers more than one. */
 function ModelPicker({ models, model, onChange }: { models: ChatOptions["models"]; model: string; onChange: (model: string) => void }) {
   const t = useTranslations("ai.chat.model");
-  const name = models.find((m) => m.id === model)?.name ?? model;
+  const nameOf = (m: { id: string; name: string }) => (isAutoModel(m.id) ? t("auto") : m.name);
+  const name = nameOf(models.find((m) => m.id === model) ?? { id: model, name: model });
   return (
     <Popover
       side="top"
@@ -1291,12 +1293,12 @@ function ModelPicker({ models, model, onChange }: { models: ChatOptions["models"
             >
               <span className="flex min-w-0 flex-1 flex-col">
                 <span className="flex items-center justify-between gap-2">
-                  <span className="min-w-0 truncate">{m.name}</span>
+                  <span className="min-w-0 truncate">{nameOf(m)}</span>
                   {m.id === model && <Check className="h-3.5 w-3.5 shrink-0 text-fg-muted" />}
                 </span>
                 {/* The id is what AI_CHAT_MODELS and the provider's console call it. */}
-                {m.name !== m.id && <span className="truncate text-xs text-fg-faint">{m.id}</span>}
-                {m.images && <span className="text-xs text-fg-muted">{t("images")}</span>}
+                {isAutoModel(m.id) ? <span className="text-xs text-fg-muted">{t("autoHint")}</span> : m.name !== m.id && <span className="truncate text-xs text-fg-faint">{m.id}</span>}
+                {!isAutoModel(m.id) && m.images && <span className="text-xs text-fg-muted">{t("images")}</span>}
               </span>
             </MenuItem>
           ))}

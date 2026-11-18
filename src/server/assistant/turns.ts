@@ -38,6 +38,11 @@ export type TurnHooks<Y, E> = {
   beforeTurn?: (round: number, first: boolean) => AsyncGenerator<Y, E | null>;
   /** A turn's result came back: counted where it counts. An ending stops the run there. */
   afterTurn: (result: AiResult) => Promise<E | null>;
+  /**
+   * A turn failed (after the room hook had no more to drop): true asks the same turn again, with
+   * whatever the hook changed (Auto moves it to the main model). Text already shown is taken back.
+   */
+  retryTurn?: (error: unknown) => boolean;
   /** The model found the prompt too long: drops what it can and says whether it did (`streamed`: text already shown this turn). */
   makeRoom: (streamed: boolean) => boolean;
   /** What the model wrote before calling tools: thinking aloud, kept as a step where the hook keeps it. */
@@ -106,6 +111,10 @@ export async function* runTurns<Y, E>(
       } catch (error) {
         // Too long for the model: the same turn is asked again with room made.
         if (isAiError(error) && error.code === "tooLarge" && hooks.makeRoom(Boolean(streamed))) continue;
+        if (hooks.retryTurn?.(error)) {
+          if (shown) yield { type: "reset" };
+          continue;
+        }
         throw error;
       }
       const ended = await hooks.afterTurn(result);

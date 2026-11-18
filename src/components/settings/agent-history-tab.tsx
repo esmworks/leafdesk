@@ -323,7 +323,7 @@ function VersionChanges({ workspaceId, detail }: { workspaceId: string; detail: 
     if (v === null || v === undefined || v === "") return t("none");
     if (name === "enabled" && typeof v === "boolean") return v ? t("on") : t("paused");
     if (name === "monthly_token_limit" && typeof v === "number") return t("tokens", { count: v });
-    if (name === "model" && (v === "main" || v === "fast")) return t(v === "fast" ? "modelFast" : "modelMain");
+    if (name === "model" && (v === "main" || v === "fast" || v === "auto")) return t(v === "fast" ? "modelFast" : v === "auto" ? "modelAuto" : "modelMain");
     if (name === "thinking" && isChatThinking(v)) return tf(`thinkingLevels.${v}`);
     if (typeof v === "boolean") return v ? t("yes") : t("no");
     if (typeof v === "number") return format.number(v);

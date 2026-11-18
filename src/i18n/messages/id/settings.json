@@ -101,7 +101,8 @@
       "openOnStart": "mulai buka halaman pertama terakhir dikunjungi terbaru",
       "pageReports": "laporkan laporan penyalahgunaan keluhan turunkan diterbitkan publik web halaman",
       "dashboardEmails": "langganan laporan jadwal mingguan ringkasan email dasbor",
-      "phoneSignIn": "kode qr ponsel hp seluler pindai perangkat masuk"
+      "phoneSignIn": "kode qr ponsel hp seluler pindai perangkat masuk",
+      "aiAutoModel": "otomatis model cepat murah default"
     }
   },
   "workspace": {
@@ -549,7 +550,9 @@
       "viaManagerOnly": "Hanya bekerja melalui manajernya",
       "viaManagerOnlyHelp": "Hasilnya dikirim ke manajer, dan orang yang tidak dapat mengeditnya diarahkan ke manajer.",
       "team": "Melapor kepada agen ini",
-      "teamHelp": "Agen ini selalu dapat bertanya kepada mereka dan melihat pekerjaan mereka yang selesai."
+      "teamHelp": "Agen ini selalu dapat bertanya kepada mereka dan melihat pekerjaan mereka yang selesai.",
+      "modelAuto": "Otomatis",
+      "modelAutoHelp": "Setiap giliran berjalan pada model cepat ({fast}) selama tugas singkat dan sederhana, dan pada model utama ({main}) untuk tugas panjang, banyak panggilan alat, atau jika model cepat gagal."
     },
     "describe": {
       "button": "Deskripsikan agen",
@@ -1084,7 +1087,8 @@
         "notASkill": "bukan lagi keterampilan",
         "skillEditable": "selain pemilik ada yang dapat mengeditnya",
         "tooMany": "tidak ada ruang untuknya"
-      }
+      },
+      "modelAuto": "Otomatis"
     },
     "share": {
       "levels": {

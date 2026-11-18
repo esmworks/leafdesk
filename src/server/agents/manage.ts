@@ -140,7 +140,7 @@ function checkMailRecipients(value: unknown): string[] {
 }
 
 function checkModel(value: unknown): AgentModel {
-  if (!isAgentModel(value)) throw new AgentError("invalid", 'An agent runs on the "main" or the "fast" model', { reason: "model" });
+  if (!isAgentModel(value)) throw new AgentError("invalid", 'An agent runs on the "main", the "fast" or the "auto" model', { reason: "model" });
   return value;
 }
 

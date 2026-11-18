@@ -6,7 +6,7 @@
  * plan, a web search or a web page read, a reminder set, a thought), as a line: an icon and what happened, the
  * pages it names as links (web pages open in a new tab).
  */
-import { AlarmClock, Ban, BookOpen, Brain, BrainCog, CircleAlert, ClipboardList, FileDown, FilePen, FilePlus, Filter, Globe, Lightbulb, ListPlus, ListTree, Mail, Merge, MessageSquarePlus, Paperclip, PencilLine, Plug, Search, Table2, Wrench } from "lucide-react";
+import { AlarmClock, Ban, BookOpen, Brain, BrainCog, CircleAlert, ClipboardList, FileDown, FilePen, FilePlus, Filter, Globe, Lightbulb, ListPlus, ListTree, Mail, Merge, MessageSquarePlus, Paperclip, PencilLine, Plug, Search, Shuffle, Table2, Wrench } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { Fragment, useState } from "react";
 import { Button, cn, PageIcon, pageLabel } from "@/components/ui";
@@ -233,6 +233,16 @@ export function StepLine({ step, onSource }: { step: ChatStepView; onSource: (so
             <span className="min-w-0 truncate text-fg">{subject}</span>
           )}
           {step.action === "draft" && step.to.length > 0 && <span className="min-w-0 shrink truncate">{t("steps.mail.to", { to: step.to.join(", ") })}</span>}
+        </span>
+      </>
+    );
+  }
+  if (step.kind === "route") {
+    return (
+      <>
+        <Shuffle className={icon} />
+        <span className="min-w-0 break-words">
+          {step.reason ? t("steps.routeWhy", { model: step.model, why: t(`steps.routeReasons.${step.reason}`) }) : t("steps.route", { model: step.model })}
         </span>
       </>
     );

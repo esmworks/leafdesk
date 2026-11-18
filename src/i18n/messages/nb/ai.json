@@ -169,7 +169,9 @@
     "noProvider": "Ingen: skriveassistenten, KI-egenskaper og KI-chatten krever AI_PROVIDER og AI_MODEL.",
     "semanticSearch": "Semantisk søk",
     "semanticValue": "Søket finner også sider etter betydning, med embedding-modellen {model}.",
-    "semanticOff": "Av: søket finner bare ord. En administrator kan slå det på med AI_EMBEDDINGS_MODEL."
+    "semanticOff": "Av: søket finner bare ord. En administrator kan slå det på med AI_EMBEDDINGS_MODEL.",
+    "autoModel": "Nye chatter starter i Auto",
+    "autoModelHint": "Når dette er på, velger en ny AI-samtale modell for hvert spørsmål: den raske modellen for korte, enkle spørsmål og hovedmodellen for lange eller komplekse. Folk kan fortsatt velge modell selv."
   },
   "chat": {
     "open": "Spør KI",
@@ -372,6 +374,20 @@
           "unstar": "Stjerne fjernet:",
           "archive": "Arkivert:"
         }
+      },
+      "route": "Auto → {model}",
+      "routeWhy": "Auto → {model} ({why})",
+      "routeReasons": {
+        "failed": "den raske modellen feilet",
+        "research": "research",
+        "plan": "plan først",
+        "deep": "dyp tenkning",
+        "files": "vedlagte filer",
+        "long": "langt spørsmål",
+        "history": "lang samtale",
+        "code": "kode",
+        "steps": "mange trinn",
+        "list": "en liste med oppgaver"
       }
     },
     "stopped": "Stoppet.",
@@ -476,7 +492,9 @@
     "model": {
       "label": "Modell",
       "hint": "Modellen som svarer i denne samtalen",
-      "images": "Leser bilder"
+      "images": "Leser bilder",
+      "auto": "Auto",
+      "autoHint": "Velger modell for hvert spørsmål"
     },
     "thinkingLevel": {
       "label": "Tenking",

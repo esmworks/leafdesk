@@ -101,7 +101,8 @@
       "openOnStart": "başlangıç açılış ilk sayfa son ziyaret edilen son",
       "pageReports": "bildir bildirim şikayet kötüye kullanım yayından kaldır yayımlanan herkese açık web sayfaları",
       "dashboardEmails": "abonelik rapor zamanlama haftalık özet e-posta gösterge paneli",
-      "phoneSignIn": "qr kod telefon mobil tara cihaz giriş oturum"
+      "phoneSignIn": "qr kod telefon mobil tara cihaz giriş oturum",
+      "aiAutoModel": "otomatik model hızlı ucuz varsayılan"
     }
   },
   "workspace": {
@@ -549,7 +550,9 @@
       "viaManagerOnly": "Yalnızca yöneticisi üzerinden çalışsın",
       "viaManagerOnlyHelp": "Sonuçları yöneticiye gider; onu düzenleyemeyen kişiler yöneticiye yönlendirilir.",
       "team": "Bu ajana rapor verenler",
-      "teamHelp": "Bu ajan onlara her zaman sorabilir ve bitirdikleri işleri görebilir."
+      "teamHelp": "Bu ajan onlara her zaman sorabilir ve bitirdikleri işleri görebilir.",
+      "modelAuto": "Otomatik",
+      "modelAutoHelp": "Görev kısa ve basit olduğu sürece her tur hızlı modelde ({fast}), uzun görevlerde, çok sayıda araç çağrısında ya da hızlı model başarısız olduğunda ana modelde ({main}) çalışır."
     },
     "describe": {
       "button": "Ajanı anlat",
@@ -1084,7 +1087,8 @@
         "notASkill": "artık bir beceri değil",
         "skillEditable": "sahipler dışında biri de düzenleyebiliyor",
         "tooMany": "yeri kalmadı"
-      }
+      },
+      "modelAuto": "Otomatik"
     },
     "share": {
       "levels": {

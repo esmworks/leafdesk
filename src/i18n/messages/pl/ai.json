@@ -169,7 +169,9 @@
     "noProvider": "Brak: asystent pisania, właściwości AI i czat AI wymagają AI_PROVIDER i AI_MODEL.",
     "semanticSearch": "Wyszukiwanie semantyczne",
     "semanticValue": "Wyszukiwanie znajduje strony także według znaczenia, za pomocą modelu embeddingów {model}.",
-    "semanticOff": "Wyłączone: wyszukiwanie znajduje tylko słowa. Administrator może je włączyć za pomocą AI_EMBEDDINGS_MODEL."
+    "semanticOff": "Wyłączone: wyszukiwanie znajduje tylko słowa. Administrator może je włączyć za pomocą AI_EMBEDDINGS_MODEL.",
+    "autoModel": "Nowe czaty zaczynają się w trybie Auto",
+    "autoModelHint": "Gdy włączone, nowa rozmowa z AI wybiera model dla każdego pytania: szybki dla krótkich i prostych, główny dla długich lub złożonych. Osoby nadal mogą same wybrać model."
   },
   "chat": {
     "open": "Zapytaj AI",
@@ -372,6 +374,20 @@
           "unstar": "Usunięto gwiazdkę:",
           "archive": "Zarchiwizowano:"
         }
+      },
+      "route": "Auto → {model}",
+      "routeWhy": "Auto → {model} ({why})",
+      "routeReasons": {
+        "failed": "szybki model zawiódł",
+        "research": "badanie",
+        "plan": "najpierw plan",
+        "deep": "głębokie myślenie",
+        "files": "załączone pliki",
+        "long": "długie pytanie",
+        "history": "długa rozmowa",
+        "code": "kod",
+        "steps": "wiele kroków",
+        "list": "lista zadań"
       }
     },
     "stopped": "Zatrzymano.",
@@ -476,7 +492,9 @@
     "model": {
       "label": "Model",
       "hint": "Model, który odpowiada w tej rozmowie",
-      "images": "Czyta obrazy"
+      "images": "Czyta obrazy",
+      "auto": "Auto",
+      "autoHint": "Wybiera model dla każdego pytania"
     },
     "thinkingLevel": {
       "label": "Myślenie",

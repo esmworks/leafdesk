@@ -117,7 +117,7 @@ import { listConnections } from "@/server/connections/manage";
 import { listPageWebhookDeliveries, listPageWebhooks } from "@/server/page-webhooks/manage";
 import { oauthRedirectUrl } from "@/server/connections/client";
 import { env } from "@/lib/env";
-import { aiInfoFor, chatModelsFor } from "@/server/ai";
+import { aiInfoFor, autoModelsFor, chatModelsFor } from "@/server/ai";
 import { aiAvailable } from "@/server/ai-writing";
 import { workspaceAiUsage } from "@/server/ai-usage";
 import { workspaceAiView } from "@/server/ai-accounts";
@@ -414,12 +414,13 @@ async function StorageTab({ workspaceId, userId, isAdmin, notice }: { workspaceI
  * server/ai-accounts.ts) and its provider (see server/ai).
  */
 async function AiGroup({ workspaceId, userId, isOwner }: { workspaceId: string; userId: string; isOwner: boolean }) {
-  const [settings, t, info, account, chatModels] = await Promise.all([
+  const [settings, t, info, account, chatModels, auto] = await Promise.all([
     getWorkspaceSettings(userId, workspaceId),
     getTranslations("ai.settings"),
     aiInfoFor(workspaceId),
     workspaceAiView(userId, workspaceId),
     chatModelsFor(workspaceId),
+    autoModelsFor(workspaceId),
   ]);
   return (
     <SettingsGroup anchor="ai" title={t("heading")} description={t("description")} className="mt-10">
@@ -431,6 +432,7 @@ async function AiGroup({ workspaceId, userId, isOwner }: { workspaceId: string; 
         memory={settings.aiMemory !== false}
         webSearch={webSearchService() ? settings.aiWebSearch === true : null}
         autoChanges={settings.aiAutoChanges !== false}
+        autoModel={auto ? settings.aiAutoModel === true : null}
         canEdit={isOwner}
         provider={info && { provider: info.provider, model: info.model }}
         chatModels={chatModels.map((m) => m.name)}

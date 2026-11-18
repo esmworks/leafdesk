@@ -101,7 +101,8 @@
       "openOnStart": "start opstart første side sidst besøgt seneste",
       "pageReports": "anmeld anmeldelse misbrug klage fjern publiceret offentlig web sider",
       "dashboardEmails": "abonnement rapport tidsplan ugentlig oversigt e-mail dashboard",
-      "phoneSignIn": "qr kode telefon mobil scan enhed log ind"
+      "phoneSignIn": "qr kode telefon mobil scan enhed log ind",
+      "aiAutoModel": "auto automatisk model hurtig billig standard"
     }
   },
   "workspace": {
@@ -549,7 +550,9 @@
       "viaManagerOnly": "Arbejd kun gennem dens leder",
       "viaManagerOnlyHelp": "Resultaterne går til lederen, og personer, der ikke kan redigere den, sendes til lederen.",
       "team": "Rapporterer til denne agent",
-      "teamHelp": "Denne agent kan altid spørge dem og se deres færdige arbejde."
+      "teamHelp": "Denne agent kan altid spørge dem og se deres færdige arbejde.",
+      "modelAuto": "Auto",
+      "modelAutoHelp": "Hver tur kører på den hurtige model ({fast}), så længe opgaven er kort og enkel, og på hovedmodellen ({main}) ved lange opgaver, mange værktøjskald, eller hvis den hurtige model fejlede."
     },
     "describe": {
       "button": "Beskriv en agent",
@@ -1084,7 +1087,8 @@
         "notASkill": "den er ikke længere en færdighed",
         "skillEditable": "andre end ejerne kan redigere den",
         "tooMany": "der er ikke plads til den"
-      }
+      },
+      "modelAuto": "Auto"
     },
     "share": {
       "levels": {

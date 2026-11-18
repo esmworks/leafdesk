@@ -57,6 +57,7 @@ import {
   type ChatMessageRecord,
   type ChatPlanMode,
   type ChatSourceRef,
+  type ChatRouteRecord,
   type ChatStepRecord,
 } from "@/db/schema";
 import { readEmail, type AssistantRunSource } from "@/lib/agents";
@@ -93,6 +94,7 @@ import { asWrite, connectedAppCall, runAsConnectedApp } from "@/server/connected
 import {
   AiError,
   aiConfig,
+  autoModelsFor,
   chatModelsFor,
   IMAGE_CHARS,
   isAiError,
@@ -113,6 +115,7 @@ import { runTurns } from "@/server/assistant/turns";
 import { attachmentRecords, deleteConversationFiles, keepQuestionFiles, questionFiles, readConversationFiles, type ChatFileContent } from "@/server/ai-chat-files";
 import { chatMailToolset } from "@/server/ai-chat-mail";
 import { chatWebOn, chatWebToolset, PLAN_TOOL } from "@/server/ai-chat-web";
+import { AUTO_MODEL, isAutoModel, routeModel, type RouteChoice } from "@/lib/model-route";
 import { approvedPlanPrompt, endPlanTurn, planningTools } from "@/server/ai-chat-plan";
 import { isPlanCall, lastProposal, planText, type PlanCard } from "@/lib/chat-plan";
 import type { FileRow } from "@/server/files";
@@ -347,9 +350,23 @@ export async function startChat(userId: string, input: ChatInput, signal?: Abort
   return converseChat({ ...run, source }, setup, signal);
 }
 
-/** The model a question asks for, when the workspace's AI offers it; else its main model (null without AI). */
+/**
+ * What Auto is offered as in the model picker, where the workspace's AI has a main and a fast
+ * model: it takes images and thinks as the main model does (a question with files goes there).
+ */
+function autoOption(offered: ChatModelOption[]): ChatModelOption {
+  const main = offered[0];
+  return { id: AUTO_MODEL, name: "Auto", images: main.images, thinks: main.thinks };
+}
+
+/**
+ * The model a question asks for, when the workspace's AI offers it (Auto where it has a fast model
+ * too: the turns pick their own); else its main model (null without AI).
+ */
 async function pickModel(userId: string, workspaceId: string, wanted: string | null): Promise<ChatModelOption | null> {
   const offered = await chatModelsFor(workspaceId);
+  if (!offered.length) return null;
+  if (isAutoModel(wanted) && (await autoModelsFor(workspaceId))) return autoOption(offered);
   return offered.find((m) => m.id === wanted) ?? offered[0] ?? null;
 }
 
@@ -381,14 +398,20 @@ async function latestThinking(userId: string, workspaceId: string): Promise<Chat
  * it may change things without asking.
  */
 export async function chatOptionsFor(userId: string, workspaceId: string): Promise<ChatOptions> {
-  const [models, latest, defaultThinking, webSearch, autoChanges] = await Promise.all([
+  const [offered, auto, latest, defaultThinking, webSearch, autoChanges, autoDefault] = await Promise.all([
     chatModelsFor(workspaceId),
+    autoModelsFor(workspaceId),
     latestModel(userId, workspaceId),
     latestThinking(userId, workspaceId),
     chatWebOn(workspaceId),
     chatAutoOn(workspaceId),
+    autoModelDefault(workspaceId),
   ]);
-  return { models, defaultModel: models.find((m) => m.id === latest)?.id ?? models[0]?.id ?? null, defaultThinking, webSearch, autoChanges };
+  // Auto leads the list where there is a fast model to choose it for.
+  const models = auto && offered.length ? [autoOption(offered), ...offered] : offered;
+  // A new conversation starts with the person's latest model, else the owners' default (Auto, when set), else the main one.
+  const start = models.find((m) => m.id === latest)?.id ?? (auto && autoDefault ? AUTO_MODEL : (offered[0]?.id ?? null));
+  return { models, defaultModel: start, defaultThinking, webSearch, autoChanges };
 }
 
 /**
@@ -477,6 +500,11 @@ type ChatSetup = {
   autoChanges: boolean;
 };
 
+/** Whether the workspace's owners made Auto the model new conversations start with (`aiAutoModel`). */
+async function autoModelDefault(workspaceId: string): Promise<boolean> {
+  return (await workspaceSettings(workspaceId)).aiAutoModel === true;
+}
+
 /** Whether the workspace lets its AI chat change things without asking (`aiAutoChanges`, on unless an owner turned it off). */
 export async function chatAutoOn(workspaceId: string): Promise<boolean> {
   return (await workspaceSettings(workspaceId)).aiAutoChanges !== false;
@@ -498,7 +526,10 @@ async function* converseChat(run: AssistantRun, setup: ChatSetup, signal: AbortS
   const tells = tellsPerson(source);
   // An owner may have turned changing without asking off since the question was asked.
   const initialMode = source.mode === "auto" && !setup.autoChanges ? "ask" : source.mode;
-  const model = source.model;
+  // Auto picks the model turn by turn between the workspace's main and fast ones (lib/model-route.ts);
+  // without a fast model any more it answers on the main one.
+  const pair = isAutoModel(source.model) ? await autoModelsFor(workspaceId) : null;
+  const model = isAutoModel(source.model) ? null : source.model;
   const { scope, skill, conversation, files } = setup;
   const message = run.prompt;
   const saved = run.state?.chat ? run.state : null;
@@ -617,7 +648,8 @@ async function* converseChat(run: AssistantRun, setup: ChatSetup, signal: AbortS
     const feature = research ? "chat.research" : "chat";
     // What the model takes, less what every turn sends: the history, the map, memory and tool results
     // share the rest.
-    const budget = await promptRoomFor(workspaceId, feature, model);
+    // Under Auto the smaller of the two models' rooms, as either may answer.
+    const budget = pair ? Math.min(await promptRoomFor(workspaceId, feature, pair.main), await promptRoomFor(workspaceId, feature, pair.fast)) : await promptRoomFor(workspaceId, feature, model);
     const room = () => Math.max(0, budget - system.length - toolsSize - 200);
     // What the person wrote in the conversation: a web page whose address they gave is read without asking.
     const typed = [message, ...earlier.filter((m) => m.role === "user").map((m) => m.content)];
@@ -791,6 +823,12 @@ async function* converseChat(run: AssistantRun, setup: ChatSetup, signal: AbortS
     // Turns go on until the model answers; the last (turns.ts) answers with what it has (research
     // writes its report). Each turn also counts against the workspace's rate and cost limits, and
     // the person can stop the answer (the request's signal).
+    // Auto: where the next turn goes, the model last shown as a step, and whether the fast model
+    // failed (the rest of the answer goes to the main one).
+    let routed: RouteChoice | null = null;
+    let shownRoute = steps.findLast((s): s is ChatRouteRecord => s.kind === "route")?.model ?? null;
+    let escalated = false;
+    const earlierChars = earlier.reduce((n, m) => n + m.content.length, 0);
     // What ended a planning turn: its card and text.
     type PlanEnding = { card: PlanCard; text: string };
     const turns = runTurns<ChatEvent, PlanEnding>(
@@ -799,7 +837,7 @@ async function* converseChat(run: AssistantRun, setup: ChatSetup, signal: AbortS
       {
         request: () => ({
           feature,
-          model,
+          model: pair ? (routed?.tier === "fast" ? pair.fast : pair.main) : model,
           userId,
           workspaceId,
           skipRateLimit: true,
@@ -817,6 +855,24 @@ async function* converseChat(run: AssistantRun, setup: ChatSetup, signal: AbortS
         spentUsd: () => spentUsd,
         limitUsd,
         async *beforeTurn(at) {
+          if (pair) {
+            routed = routeModel({
+              question: message.length,
+              text: message,
+              history: earlierChars,
+              files: earlierFiles.length + files.records.length,
+              research,
+              planning,
+              deep: thinking === "deep",
+              round: at,
+              failed: escalated,
+            });
+            const id = routed.tier === "fast" ? pair.fast : pair.main;
+            if (id !== shownRoute) {
+              shownRoute = id;
+              yield await step({ kind: "route", model: id, reason: routed.reason });
+            }
+          }
           // A long answer waits for the workspace's AI allowance rather than failing.
           for (let wait = at > 0 ? takeWorkspaceCapacity(workspaceId) : 0; wait > 0; wait = takeWorkspaceCapacity(workspaceId)) {
             yield { type: "ping" };
@@ -832,6 +888,12 @@ async function* converseChat(run: AssistantRun, setup: ChatSetup, signal: AbortS
           answeredBy = result.model;
           spentUsd += result.usage.costUsd;
           return null;
+        },
+        // The fast model failed or found the prompt too long: this turn goes again on the main one.
+        retryTurn: (error) => {
+          if (!pair || routed?.tier !== "fast" || escalated || !isAiError(error) || !["provider", "timeout", "tooLarge", "empty"].includes(error.code)) return false;
+          escalated = true;
+          return true;
         },
         // Twice at most, and not once text was shown.
         makeRoom: (streamed) => {

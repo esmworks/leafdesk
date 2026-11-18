@@ -80,7 +80,7 @@ const instructionsInput = z
 const modelInput = z
   .enum(AGENT_MODELS)
   .describe(
-    'Which of the server\'s models its runs use: "main" (its main model, for work that needs judgment) or "fast" (its cheaper fast model, for routine, well-defined jobs such as summaries or sorting rows). "fast" runs on the main model where the server has no fast model or the workspace\'s AI is an own AI account.',
+    'Which of the server\'s models its runs use: "main" (its main model, for work that needs judgment) "fast" (its cheaper fast model, for routine, well-defined jobs such as summaries or sorting rows) or "auto" (each turn picks: the fast model for a short, simple task, the main one for a long task, many tool calls or after the fast one failed). "fast" and "auto" run on the main model where the server has no fast model or the workspace\'s AI is an own AI account.',
   );
 const helpersInput = z
   .array(id("agent"))
@@ -400,7 +400,7 @@ const INVALID: Record<string, string> = {
   icon: `An agent's icon is ${ICON_RULE}; pass null to remove it.`,
   level: 'An agent can view, comment on or edit a page ("view", "comment" or "edit"), never get full access.',
   limit: `A monthly token limit is a whole number from 1 to ${MAX_AGENT_TOKEN_LIMIT}; pass null to remove it.`,
-  model: 'An agent runs on the "main" or the "fast" model.',
+  model: 'An agent runs on the "main", the "fast" or the "auto" model.',
   task: "A run needs a task: say what the agent should do.",
   taskLength: `A task has at most ${MAX_AGENT_PROMPT} characters. Make it shorter.`,
   helpers: `helper_agent_ids lists other agents of the same workspace that aren't archived, each once, at most ${MAX_AGENT_HELPERS} (an agent can't ask itself); an agent the user adds must be shared with them. Call list_agents to find them.`,

@@ -169,7 +169,9 @@
     "noProvider": "无：写作助手、AI 属性和 AI 聊天需要 AI_PROVIDER 和 AI_MODEL。",
     "semanticSearch": "语义搜索",
     "semanticValue": "搜索还会使用嵌入模型 {model} 按含义查找页面。",
-    "semanticOff": "已关闭：搜索仅匹配字词。管理员可以通过 AI_EMBEDDINGS_MODEL 开启。"
+    "semanticOff": "已关闭：搜索仅匹配字词。管理员可以通过 AI_EMBEDDINGS_MODEL 开启。",
+    "autoModel": "新对话默认使用自动",
+    "autoModelHint": "开启后，新的 AI 对话会为每个问题选择模型：简短简单的问题用快速模型，较长或复杂的问题用主模型。成员仍可自行选择模型。"
   },
   "chat": {
     "open": "询问 AI",
@@ -372,6 +374,20 @@
           "unstar": "已取消星标:",
           "archive": "已归档:"
         }
+      },
+      "route": "自动 → {model}",
+      "routeWhy": "自动 → {model} ({why})",
+      "routeReasons": {
+        "failed": "快速模型失败",
+        "research": "研究",
+        "plan": "先制定计划",
+        "deep": "深度思考",
+        "files": "附加的文件",
+        "long": "问题较长",
+        "history": "对话较长",
+        "code": "代码",
+        "steps": "步骤较多",
+        "list": "任务清单"
       }
     },
     "stopped": "已停止。",
@@ -476,7 +492,9 @@
     "model": {
       "label": "模型",
       "hint": "在此对话中回答的模型",
-      "images": "可读取图片"
+      "images": "可读取图片",
+      "auto": "自动",
+      "autoHint": "为每个问题选择模型"
     },
     "thinkingLevel": {
       "label": "思考",

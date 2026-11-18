@@ -169,7 +169,9 @@
     "noProvider": "Ingen: skrivassistenten, AI-egenskaperna och AI-chatten kräver AI_PROVIDER och AI_MODEL.",
     "semanticSearch": "Semantisk sökning",
     "semanticValue": "Sökningen hittar även sidor utifrån betydelse, med embeddingsmodellen {model}.",
-    "semanticOff": "Av: sökningen hittar bara ord. En administratör kan aktivera den med AI_EMBEDDINGS_MODEL."
+    "semanticOff": "Av: sökningen hittar bara ord. En administratör kan aktivera den med AI_EMBEDDINGS_MODEL.",
+    "autoModel": "Nya chattar startar i Auto",
+    "autoModelHint": "När det är på väljer en ny AI-konversation modell för varje fråga: den snabba modellen för korta, enkla frågor och huvudmodellen för långa eller komplexa. Personer kan fortfarande välja modell själva."
   },
   "chat": {
     "open": "Fråga AI",
@@ -372,6 +374,20 @@
           "unstar": "Stjärna borttagen:",
           "archive": "Arkiverat:"
         }
+      },
+      "route": "Auto → {model}",
+      "routeWhy": "Auto → {model} ({why})",
+      "routeReasons": {
+        "failed": "den snabba modellen misslyckades",
+        "research": "research",
+        "plan": "plan först",
+        "deep": "djup tänkande",
+        "files": "bifogade filer",
+        "long": "lång fråga",
+        "history": "långt samtal",
+        "code": "kod",
+        "steps": "många steg",
+        "list": "en lista med uppgifter"
       }
     },
     "stopped": "Stoppat.",
@@ -476,7 +492,9 @@
     "model": {
       "label": "Modell",
       "hint": "Modellen som svarar i den här konversationen",
-      "images": "Läser bilder"
+      "images": "Läser bilder",
+      "auto": "Auto",
+      "autoHint": "Väljer modell för varje fråga"
     },
     "thinkingLevel": {
       "label": "Tänkande",

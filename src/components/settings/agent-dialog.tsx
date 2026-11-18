@@ -105,7 +105,7 @@ export function AgentForm({
   /**
    * The server's main and fast models, when the agent may choose between them. Null (no fast
    * model, or an own AI account) hides the choice and leaves the stored one as it is: a "fast"
-   * agent then runs on the main model.
+   * or "auto" agent then runs on the main model.
    */
   models?: AgentModelNames | null;
   /** The server has a search service: the web access switch says the agent can search too. */
@@ -255,8 +255,9 @@ export function AgentForm({
             <select value={model} onChange={(e) => setModel(e.target.value as AgentModel)} className={cn(selectClass, "w-full sm:w-auto")}>
               <option value="main">{t("modelMain", { name: models.main })}</option>
               <option value="fast">{t("modelFast", { name: models.fast })}</option>
+              <option value="auto">{t("modelAuto")}</option>
             </select>
-            <span className="mt-1 block text-xs text-fg-muted">{t("modelHelp")}</span>
+            <span className="mt-1 block text-xs text-fg-muted">{model === "auto" ? t("modelAutoHelp", { main: models.main, fast: models.fast }) : t("modelHelp")}</span>
           </label>
         )}
         {shows("advanced") && (

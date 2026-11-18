@@ -101,7 +101,8 @@
       "openOnStart": "startup launch first page last visited recent",
       "pageReports": "report abuse flag complaint takedown published public web pages",
       "dashboardEmails": "subscription report schedule weekly summary",
-      "phoneSignIn": "qr code phone mobile scan device sign in"
+      "phoneSignIn": "qr code phone mobile scan device sign in",
+      "aiAutoModel": "auto automatic model fast cheap default"
     }
   },
   "workspace": {
@@ -549,7 +550,9 @@
       "viaManagerOnly": "Work only through its manager",
       "viaManagerOnlyHelp": "Its results go to the manager, and people who can't edit it are sent to the manager.",
       "team": "Report to this agent",
-      "teamHelp": "This agent can always ask them and see their finished work."
+      "teamHelp": "This agent can always ask them and see their finished work.",
+      "modelAuto": "Auto",
+      "modelAutoHelp": "Each turn runs on the fast model ({fast}) while the task is short and simple, and on the main model ({main}) for long tasks, many tool calls or when the fast model failed."
     },
     "describe": {
       "button": "Describe an agent",
@@ -1084,7 +1087,8 @@
         "notASkill": "it’s no longer a skill",
         "skillEditable": "someone besides the owners can edit it",
         "tooMany": "there’s no room for it"
-      }
+      },
+      "modelAuto": "Auto"
     },
     "share": {
       "levels": {

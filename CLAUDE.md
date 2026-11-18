@@ -295,7 +295,7 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   asks about before a call is `assistant/chat-dispatch.ts`. An answer that parks or ends while no page follows it
   (`ai-chat-runs.ts` `followedIn`) tells the person (`ai-chat-notices.ts`: inbox kind `ai_chat_waiting`,
   push); the list's answering, waiting and unread marks are `listConversations` (`conversation.seen_at`,
-  written by `markConversationSeen`) and `lib/chat-status.ts`. Chat: `ai-chat.ts`; its tools:
+  written by `markConversationSeen`) and `lib/chat-status.ts`. Auto (model id `auto`, `lib/model-route.ts`, pure): where the workspace has a fast model, `chatOptionsFor` puts it before the models (`autoModelsFor`), `pickModel` accepts it and `converseChat` routes each turn in `beforeTurn` (a `route` step; `turns.ts` `retryTurn` asks a failed fast turn again on the main model); an agent's model `auto` routes the same way in `agents/run.ts`; owners' `aiAutoModel` makes it the new-conversation default. Chat: `ai-chat.ts`; its tools:
   `ai-tools.ts` (reads refuse arguments their schema doesn't name, `unknownArguments`; writes
   reuse MCP's checks: form settings in `mcp/form-settings.ts`), and every
   other MCP tool through `ai-more-tools.ts` (`find_tools`, `use_tool`: the MCP server in this

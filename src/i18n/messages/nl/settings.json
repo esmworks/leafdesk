@@ -101,7 +101,8 @@
       "openOnStart": "start opstarten eerste pagina laatst bezocht recent",
       "pageReports": "melden melding misbruik klacht verwijderen gepubliceerd openbaar web pagina's",
       "dashboardEmails": "abonnement rapport schema planning wekelijks samenvatting e-mail dashboard",
-      "phoneSignIn": "qr code telefoon mobiel scannen apparaat inloggen"
+      "phoneSignIn": "qr code telefoon mobiel scannen apparaat inloggen",
+      "aiAutoModel": "auto automatisch model snel goedkoop standaard"
     }
   },
   "workspace": {
@@ -549,7 +550,9 @@
       "viaManagerOnly": "Alleen via zijn manager werken",
       "viaManagerOnlyHelp": "Resultaten gaan naar de manager, en wie hem niet kan bewerken, wordt naar de manager gestuurd.",
       "team": "Rapporteren aan deze agent",
-      "teamHelp": "Deze agent kan ze altijd vragen en hun afgeronde werk zien."
+      "teamHelp": "Deze agent kan ze altijd vragen en hun afgeronde werk zien.",
+      "modelAuto": "Auto",
+      "modelAutoHelp": "Elke beurt draait op het snelle model ({fast}) zolang de taak kort en simpel is, en op het hoofdmodel ({main}) bij lange taken, veel toolaanroepen of als het snelle model faalde."
     },
     "describe": {
       "button": "Een agent beschrijven",
@@ -1084,7 +1087,8 @@
         "notASkill": "het is geen vaardigheid meer",
         "skillEditable": "iemand anders dan de eigenaren kan haar bewerken",
         "tooMany": "er is geen ruimte voor"
-      }
+      },
+      "modelAuto": "Auto"
     },
     "share": {
       "levels": {

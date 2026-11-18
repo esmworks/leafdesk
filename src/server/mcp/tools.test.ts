@@ -3278,13 +3278,17 @@ describe("agents", () => {
     expect(agents.updateAgent).toHaveBeenLastCalledWith("user-1", "agent-1", { model: "main" });
     expect(back.data.model).toBe("main");
 
-    // Only the two choices: anything else is refused before it reaches the agent.
+    agents.updateAgent.mockResolvedValueOnce({ ...agent, model: "auto" });
+    await callTool(writer, "update_agent", { agent_id: "agent-1", model: "auto" });
+    expect(agents.updateAgent).toHaveBeenLastCalledWith("user-1", "agent-1", { model: "auto" });
+
+    // Only the three choices: anything else is refused before it reaches the agent.
     const calls = agents.updateAgent.mock.calls.length;
     const odd = await callTool(writer, "update_agent", { agent_id: "agent-1", model: "claude-haiku-5-5" });
     expect(odd.isError).toBe(true);
     expect(agents.updateAgent.mock.calls.length).toBe(calls);
     const tools = new Map((await listTools(writer)).map((t) => [t.name, t]));
-    expect(tools.get("update_agent")!.inputSchema.properties.model).toMatchObject({ enum: ["main", "fast"] });
+    expect(tools.get("update_agent")!.inputSchema.properties.model).toMatchObject({ enum: ["main", "fast", "auto"] });
   });
 
   it("lists an agent's versions and restores one, listing what it skipped", async () => {

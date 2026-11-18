@@ -90,6 +90,7 @@ import { MESSAGE_LIMITS } from "@/lib/messages";
 import { findMembership, hasLevel, inWorkspace, isGuest, pageAccessOf } from "@/server/access";
 import { runActingFor } from "@/server/acting-for";
 import { endRun, openRun, publish, type ChatRun } from "@/server/ai-chat-runs";
+import { routeModel, type RouteChoice } from "@/lib/model-route";
 import { aiConfig, AiError, isAiError, promptRoomFor, takeWorkspaceCapacity, type AiMessage, type AiToolCall } from "@/server/ai";
 import { agentChannelPrompt, agentChatPrompt, agentEventPrompt, agentMailPrompt, agentMentionPrompt, agentRequestPrompt, agentSchedulePrompt, agentSharedNotes, agentSystemPrompt, agentTaskPrompt } from "@/server/ai/prompts";
 import { aiAvailable } from "@/server/ai-writing";
@@ -723,8 +724,11 @@ async function converse(
   const toolsSize = tools.reduce((n, t) => n + t.description.length + JSON.stringify(t.parameters).length, 0);
   // The model its owners chose: every turn of every run of the agent's goes to it (features.ts). Its
   // thinking too: "balanced" leaves the feature's own.
+  // "auto" chooses between the two turn by turn (lib/model-route.ts), as the AI chat's Auto does.
   const feature = agent.model === "fast" ? "agent.fast" : "agent";
   const budget = await promptRoomFor(run.workspaceId, feature);
+  let routed: RouteChoice | null = null;
+  let escalated = false;
   const room = (messages: AiMessage[]) => roomToRead(messages, () => budget - system.length - toolsSize - messages.reduce((n, m) => n + m.content.length, 0) - 300);
 
   const registry: Registry = { sources: [], byKey: new Map() };
@@ -900,12 +904,21 @@ async function converse(
     messages,
     { round: Math.max(firstRound, usage.rounds), pending: Boolean(saved) },
     {
-      request: () => ({ feature, userId: agent.userId, workspaceId: run.workspaceId, skipRateLimit: true, system, tools: runTools, sessionId: run.id, signal, thinking: THINKING_LEVELS[agent.thinking] }),
+      request: () => ({ feature: agent.model === "auto" && routed?.tier === "fast" ? "agent.fast" : feature, userId: agent.userId, workspaceId: run.workspaceId, skipRateLimit: true, system, tools: runTools, sessionId: run.id, signal, thinking: THINKING_LEVELS[agent.thinking] }),
       // A chat's turn is streamed: its text so far goes to the person as it comes.
       streaming: Boolean(shown),
       spentUsd: () => usage.costUsd,
       limitUsd,
+      // The fast model failed or found the prompt too long: this turn goes again on the main one.
+      retryTurn: (error) => {
+        if (agent.model !== "auto" || routed?.tier !== "fast" || escalated || !isAiError(error) || !["provider", "timeout", "tooLarge", "empty"].includes(error.code)) return false;
+        escalated = true;
+        return true;
+      },
       async *beforeTurn(round) {
+        if (agent.model === "auto") {
+          routed = routeModel({ question: run.prompt.length, text: run.prompt, history: 0, files: 0, deep: agent.thinking === "deep", round, failed: escalated });
+        }
         // Stopped while a tool answered: no further turn.
         if (signal?.aborted) return stopped();
         if (round > firstRound) {

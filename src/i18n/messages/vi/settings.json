@@ -101,7 +101,8 @@
       "openOnStart": "khởi động mở đầu trang đầu tiên truy cập gần nhất gần đây",
       "pageReports": "báo cáo lạm dụng khiếu nại gỡ xuất bản công khai web trang",
       "dashboardEmails": "đăng ký báo cáo lịch hàng tuần tóm tắt email bảng điều khiển",
-      "phoneSignIn": "mã qr điện thoại di động quét thiết bị đăng nhập"
+      "phoneSignIn": "mã qr điện thoại di động quét thiết bị đăng nhập",
+      "aiAutoModel": "tự động mô hình nhanh rẻ mặc định"
     }
   },
   "workspace": {
@@ -549,7 +550,9 @@
       "viaManagerOnly": "Chỉ làm việc qua người quản lý",
       "viaManagerOnlyHelp": "Kết quả được gửi cho người quản lý, và ai không thể chỉnh sửa nó sẽ được chuyển đến người quản lý.",
       "team": "Báo cáo cho tác tử này",
-      "teamHelp": "Tác tử này luôn có thể hỏi họ và xem công việc họ đã xong."
+      "teamHelp": "Tác tử này luôn có thể hỏi họ và xem công việc họ đã xong.",
+      "modelAuto": "Tự động",
+      "modelAutoHelp": "Mỗi lượt chạy trên mô hình nhanh ({fast}) khi tác vụ ngắn và đơn giản, và trên mô hình chính ({main}) với tác vụ dài, nhiều lệnh gọi công cụ hoặc khi mô hình nhanh thất bại."
     },
     "describe": {
       "button": "Mô tả một tác tử",
@@ -1084,7 +1087,8 @@
         "notASkill": "nó không còn là kỹ năng",
         "skillEditable": "ngoài chủ sở hữu còn có người khác chỉnh sửa được",
         "tooMany": "không còn chỗ cho nó"
-      }
+      },
+      "modelAuto": "Tự động"
     },
     "share": {
       "levels": {

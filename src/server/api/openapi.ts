@@ -756,7 +756,7 @@ const SCHEMAS: Record<string, JsonSchema> = {
       archived: { type: "boolean" },
       model: {
         type: "string",
-        enum: ["main", "fast"],
+        enum: ["main", "fast", "auto"],
         description: "Which of the server's models its runs use: its main model, or its cheaper fast one (the main model where the server has none, or on an own AI account).",
       },
       thinking: {

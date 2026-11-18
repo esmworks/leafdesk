@@ -169,7 +169,9 @@
     "noProvider": "Không có: trợ lý viết, thuộc tính AI và trò chuyện AI cần AI_PROVIDER và AI_MODEL.",
     "semanticSearch": "Tìm kiếm ngữ nghĩa",
     "semanticValue": "Tìm kiếm còn tìm ra các trang theo ý nghĩa, với mô hình embedding {model}.",
-    "semanticOff": "Tắt: tìm kiếm chỉ tìm theo từ. Quản trị viên có thể bật bằng AI_EMBEDDINGS_MODEL."
+    "semanticOff": "Tắt: tìm kiếm chỉ tìm theo từ. Quản trị viên có thể bật bằng AI_EMBEDDINGS_MODEL.",
+    "autoModel": "Cuộc trò chuyện mới bắt đầu ở chế độ Tự động",
+    "autoModelHint": "Khi bật, cuộc trò chuyện AI mới chọn mô hình cho từng câu hỏi: mô hình nhanh cho câu ngắn, đơn giản và mô hình chính cho câu dài hoặc phức tạp. Mọi người vẫn có thể tự chọn mô hình."
   },
   "chat": {
     "open": "Hỏi AI",
@@ -372,6 +374,20 @@
           "unstar": "Đã bỏ sao:",
           "archive": "Đã lưu trữ:"
         }
+      },
+      "route": "Tự động → {model}",
+      "routeWhy": "Tự động → {model} ({why})",
+      "routeReasons": {
+        "failed": "mô hình nhanh đã thất bại",
+        "research": "nghiên cứu",
+        "plan": "lập kế hoạch trước",
+        "deep": "suy nghĩ sâu",
+        "files": "tệp đính kèm",
+        "long": "câu hỏi dài",
+        "history": "cuộc trò chuyện dài",
+        "code": "mã",
+        "steps": "nhiều bước",
+        "list": "danh sách việc"
       }
     },
     "stopped": "Đã dừng.",
@@ -476,7 +492,9 @@
     "model": {
       "label": "Mô hình",
       "hint": "Mô hình trả lời trong cuộc trò chuyện này",
-      "images": "Đọc được hình ảnh"
+      "images": "Đọc được hình ảnh",
+      "auto": "Tự động",
+      "autoHint": "Chọn mô hình cho từng câu hỏi"
     },
     "thinkingLevel": {
       "label": "Suy nghĩ",

@@ -169,7 +169,9 @@
     "noProvider": "없음: 글쓰기 어시스턴트, AI 속성, AI 채팅에는 AI_PROVIDER와 AI_MODEL이 필요합니다.",
     "semanticSearch": "의미 검색",
     "semanticValue": "임베딩 모델 {model}을(를) 사용해 검색에서 의미로도 페이지를 찾습니다.",
-    "semanticOff": "꺼짐: 검색에서 단어만 찾습니다. 관리자가 AI_EMBEDDINGS_MODEL로 켤 수 있습니다."
+    "semanticOff": "꺼짐: 검색에서 단어만 찾습니다. 관리자가 AI_EMBEDDINGS_MODEL로 켤 수 있습니다.",
+    "autoModel": "새 채팅을 자동으로 시작",
+    "autoModelHint": "켜면 새 AI 대화가 질문마다 모델을 고릅니다. 짧고 간단한 질문은 빠른 모델, 길거나 복잡한 질문은 기본 모델을 사용합니다. 사용자는 직접 모델을 선택할 수도 있습니다."
   },
   "chat": {
     "open": "AI에게 질문",
@@ -372,6 +374,20 @@
           "unstar": "별표 해제함:",
           "archive": "보관함:"
         }
+      },
+      "route": "자동 → {model}",
+      "routeWhy": "자동 → {model} ({why})",
+      "routeReasons": {
+        "failed": "빠른 모델이 실패함",
+        "research": "리서치",
+        "plan": "계획 먼저",
+        "deep": "깊은 사고",
+        "files": "첨부 파일",
+        "long": "긴 질문",
+        "history": "긴 대화",
+        "code": "코드",
+        "steps": "많은 단계",
+        "list": "작업 목록"
       }
     },
     "stopped": "중지되었습니다.",
@@ -476,7 +492,9 @@
     "model": {
       "label": "모델",
       "hint": "이 대화에서 답하는 모델",
-      "images": "이미지를 읽습니다"
+      "images": "이미지를 읽습니다",
+      "auto": "자동",
+      "autoHint": "질문마다 모델을 선택합니다"
     },
     "thinkingLevel": {
       "label": "생각",

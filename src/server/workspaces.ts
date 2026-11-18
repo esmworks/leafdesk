@@ -1681,6 +1681,7 @@ const SETTING_VALUES: {
   aiMemory: [true, false],
   aiWebSearch: [false, true],
   aiAutoChanges: [true, false],
+  aiAutoModel: [false, true],
   trashRetentionDays: TRASH_RETENTION_CHOICES,
   deleteForever: ["full_access", "owners"],
   memberInvites: ["owners", "members_with_approval", "any_member"],

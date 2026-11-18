@@ -169,7 +169,9 @@
     "noProvider": "Tidak ada: asisten penulisan, properti AI, dan obrolan AI memerlukan AI_PROVIDER dan AI_MODEL.",
     "semanticSearch": "Pencarian semantik",
     "semanticValue": "Pencarian juga menemukan halaman berdasarkan makna, dengan model embedding {model}.",
-    "semanticOff": "Nonaktif: pencarian hanya menemukan kata. Admin dapat mengaktifkannya dengan AI_EMBEDDINGS_MODEL."
+    "semanticOff": "Nonaktif: pencarian hanya menemukan kata. Admin dapat mengaktifkannya dengan AI_EMBEDDINGS_MODEL.",
+    "autoModel": "Obrolan baru dimulai dengan Otomatis",
+    "autoModelHint": "Jika aktif, percakapan AI baru memilih model untuk setiap pertanyaan: model cepat untuk yang singkat dan sederhana, model utama untuk yang panjang atau kompleks. Orang tetap bisa memilih model sendiri."
   },
   "chat": {
     "open": "Tanya AI",
@@ -372,6 +374,20 @@
           "unstar": "Bintang dihapus:",
           "archive": "Diarsipkan:"
         }
+      },
+      "route": "Otomatis → {model}",
+      "routeWhy": "Otomatis → {model} ({why})",
+      "routeReasons": {
+        "failed": "model cepat gagal",
+        "research": "riset",
+        "plan": "rencana dulu",
+        "deep": "berpikir mendalam",
+        "files": "file terlampir",
+        "long": "pertanyaan panjang",
+        "history": "percakapan panjang",
+        "code": "kode",
+        "steps": "banyak langkah",
+        "list": "daftar tugas"
       }
     },
     "stopped": "Dihentikan.",
@@ -476,7 +492,9 @@
     "model": {
       "label": "Model",
       "hint": "Model yang menjawab dalam percakapan ini",
-      "images": "Membaca gambar"
+      "images": "Membaca gambar",
+      "auto": "Otomatis",
+      "autoHint": "Memilih model untuk setiap pertanyaan"
     },
     "thinkingLevel": {
       "label": "Penalaran",

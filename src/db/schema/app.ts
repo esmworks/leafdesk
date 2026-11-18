@@ -110,6 +110,12 @@ export type WorkspaceSettings = {
    */
   aiAutoChanges: boolean;
   /**
+   * Whether new AI chat conversations start on Auto (the model picked turn by turn between the
+   * main and the fast model, lib/model-route.ts), where the server has a fast model. Only owners
+   * change it; people's own pick in the picker stays theirs.
+   */
+  aiAutoModel: boolean;
+  /**
    * The most the workspace's AI requests may cost in a calendar month (UTC), in US dollars, as an
    * owner set it; null: no limit of its own. Counts what every AI account paid, the workspace's own
    * included. The server's AI_MONTHLY_LIMIT_USD caps what its own AI_* key pays besides (see
@@ -242,6 +248,7 @@ export const DEFAULT_WORKSPACE_SETTINGS: WorkspaceSettings = {
   aiMemory: true,
   aiWebSearch: false,
   aiAutoChanges: true,
+  aiAutoModel: false,
   aiMonthlyLimitUsd: null,
   trashRetentionDays: 30,
   deleteForever: "full_access",

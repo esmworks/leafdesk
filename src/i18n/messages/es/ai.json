@@ -169,7 +169,9 @@
     "noProvider": "Ninguno: el asistente de escritura, las propiedades de IA y el chat con IA necesitan AI_PROVIDER y AI_MODEL.",
     "semanticSearch": "Búsqueda semántica",
     "semanticValue": "La búsqueda también encuentra páginas por su significado, con el modelo de embeddings {model}.",
-    "semanticOff": "Desactivada: la búsqueda solo encuentra palabras. Un administrador puede activarla con AI_EMBEDDINGS_MODEL."
+    "semanticOff": "Desactivada: la búsqueda solo encuentra palabras. Un administrador puede activarla con AI_EMBEDDINGS_MODEL.",
+    "autoModel": "Los chats nuevos empiezan en Auto",
+    "autoModelHint": "Si está activado, una conversación nueva con la IA elige el modelo para cada pregunta: el modelo rápido para las cortas y sencillas y el principal para las largas o complejas. Cada persona puede seguir eligiendo un modelo."
   },
   "chat": {
     "open": "Preguntar a la IA",
@@ -372,6 +374,20 @@
           "unstar": "Ya no destacado:",
           "archive": "Archivado:"
         }
+      },
+      "route": "Auto → {model}",
+      "routeWhy": "Auto → {model} ({why})",
+      "routeReasons": {
+        "failed": "el modelo rápido falló",
+        "research": "investigación",
+        "plan": "plan primero",
+        "deep": "razonamiento profundo",
+        "files": "archivos adjuntos",
+        "long": "pregunta larga",
+        "history": "conversación larga",
+        "code": "código",
+        "steps": "muchos pasos",
+        "list": "una lista de tareas"
       }
     },
     "stopped": "Detenido.",
@@ -476,7 +492,9 @@
     "model": {
       "label": "Modelo",
       "hint": "El modelo que responde en esta conversación",
-      "images": "Lee imágenes"
+      "images": "Lee imágenes",
+      "auto": "Auto",
+      "autoHint": "Elige el modelo para cada pregunta"
     },
     "thinkingLevel": {
       "label": "Razonamiento",

@@ -101,7 +101,8 @@
       "openOnStart": "启动 开始 首页 上次访问 最近",
       "pageReports": "举报 滥用 投诉 撤下 已发布 公开 网络 页面",
       "dashboardEmails": "订阅 报告 计划 每周 摘要 邮件 仪表板 定时",
-      "phoneSignIn": "二维码 qr 手机 移动 扫描 设备 登录"
+      "phoneSignIn": "二维码 qr 手机 移动 扫描 设备 登录",
+      "aiAutoModel": "自动 模型 快速 便宜 默认"
     }
   },
   "workspace": {
@@ -549,7 +550,9 @@
       "viaManagerOnly": "仅通过管理者工作",
       "viaManagerOnlyHelp": "结果交给管理者，无法编辑它的人会被引导到管理者。",
       "team": "向此智能体汇报",
-      "teamHelp": "此智能体随时可以求助它们，并查看它们完成的工作。"
+      "teamHelp": "此智能体随时可以求助它们，并查看它们完成的工作。",
+      "modelAuto": "自动",
+      "modelAutoHelp": "任务简短简单时，每一轮在快速模型（{fast}）上运行；任务较长、工具调用较多或快速模型失败时，在主模型（{main}）上运行。"
     },
     "describe": {
       "button": "描述一个智能体",
@@ -1084,7 +1087,8 @@
         "notASkill": "已不再是技能",
         "skillEditable": "所有者以外的人可以编辑它",
         "tooMany": "没有空间"
-      }
+      },
+      "modelAuto": "自动"
     },
     "share": {
       "levels": {

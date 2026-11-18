@@ -4,6 +4,14 @@
 
 ### Added
 
+- **Auto, a model that picks itself.** Where the server has a fast model next to the main one, the
+  AI chat's model picker offers *Auto*: each turn of an answer goes to the fast model for a short,
+  simple question and to the main model for a long one, one with files, code or a task list, research,
+  *Plan first*, deep thinking, an answer past three turns of tool calls, or after the fast model
+  failed. The answer's steps show *Auto → model*, and usage stays per model. Owners can make Auto
+  the default for new conversations (*New chats start on Auto*, Settings > General > AI), and an
+  agent's model setting (and MCP's and the REST API's `model`) takes `auto` too. No migration, no new
+  environment variables.
 - **Catch up on the inbox with AI.** *Catch up* in the inbox's head (where AI is on) sorts your
   unread notifications, the newest 100, into *Needs you*, *Updates* and *Can be cleared*, each item
   with a one-line summary and a link to its notification, and *Mark these as read* for a group. It

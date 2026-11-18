@@ -19,6 +19,7 @@ export function AiSettings({
   memory,
   webSearch,
   autoChanges,
+  autoModel,
   canEdit,
   provider,
   chatModels,
@@ -32,6 +33,8 @@ export function AiSettings({
   webSearch: boolean | null;
   /** The AI chat may change things without asking (its mode Auto, "don't ask again"). */
   autoChanges: boolean;
+  /** New AI chat conversations start on Auto (the model picked per turn); null when the server has no fast model to choose it for. */
+  autoModel: boolean | null;
   canEdit: boolean;
   /** The server's AI provider and model; null when none is set up. */
   provider: { provider: string; model: string } | null;
@@ -79,6 +82,7 @@ export function AiSettings({
       />
       {provider && <ChatSetting workspaceId={workspaceId} setting="aiMemory" enabled={memory} canEdit={canEdit && value} />}
       {provider && webSearch !== null && <ChatSetting workspaceId={workspaceId} setting="aiWebSearch" enabled={webSearch} canEdit={canEdit && value} />}
+      {provider && autoModel !== null && <ChatSetting anchor="aiAutoModel" workspaceId={workspaceId} setting="aiAutoModel" enabled={autoModel} canEdit={canEdit && value} />}
       {provider && <ChatSetting anchor="aiAutoChanges" workspaceId={workspaceId} setting="aiAutoChanges" enabled={autoChanges} canEdit={canEdit && value} />}
       <SettingsRow
         title={t("provider")}
@@ -99,6 +103,7 @@ const CHAT_SETTINGS = {
   aiMemory: { title: "memory", hint: "memoryHint" },
   aiWebSearch: { title: "webSearch", hint: "webSearchHint" },
   aiAutoChanges: { title: "autoChanges", hint: "autoChangesHint" },
+  aiAutoModel: { title: "autoModel", hint: "autoModelHint" },
 } as const;
 
 function ChatSetting({

@@ -169,7 +169,9 @@
     "noProvider": "Keiner: Schreibassistent, KI-Eigenschaften und KI-Chat brauchen AI_PROVIDER und AI_MODEL.",
     "semanticSearch": "Semantische Suche",
     "semanticValue": "Die Suche findet Seiten auch nach ihrer Bedeutung, mit dem Embedding-Modell {model}.",
-    "semanticOff": "Aus: Die Suche findet nur Wörter. Eine Administratorin oder ein Administrator kann sie mit AI_EMBEDDINGS_MODEL einschalten."
+    "semanticOff": "Aus: Die Suche findet nur Wörter. Eine Administratorin oder ein Administrator kann sie mit AI_EMBEDDINGS_MODEL einschalten.",
+    "autoModel": "Neue Chats starten mit Automatisch",
+    "autoModelHint": "Wenn aktiviert, wählt eine neue KI-Unterhaltung das Modell für jede Frage: das schnelle Modell für kurze, einfache Fragen und das Hauptmodell für lange oder komplexe. Personen können weiterhin selbst ein Modell wählen."
   },
   "chat": {
     "open": "KI fragen",
@@ -372,6 +374,20 @@
           "unstar": "Markierung entfernt:",
           "archive": "Archiviert:"
         }
+      },
+      "route": "Automatisch → {model}",
+      "routeWhy": "Automatisch → {model} ({why})",
+      "routeReasons": {
+        "failed": "das schnellere Modell ist fehlgeschlagen",
+        "research": "Recherche",
+        "plan": "zuerst planen",
+        "deep": "tiefes Nachdenken",
+        "files": "angehängte Dateien",
+        "long": "lange Frage",
+        "history": "langes Gespräch",
+        "code": "Code",
+        "steps": "viele Schritte",
+        "list": "eine Aufgabenliste"
       }
     },
     "stopped": "Gestoppt.",
@@ -476,7 +492,9 @@
     "model": {
       "label": "Modell",
       "hint": "Das Modell, das in dieser Unterhaltung antwortet",
-      "images": "Liest Bilder"
+      "images": "Liest Bilder",
+      "auto": "Automatisch",
+      "autoHint": "Wählt das Modell für jede Frage"
     },
     "thinkingLevel": {
       "label": "Denken",

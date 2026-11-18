@@ -1,7 +1,7 @@
 // Client-safe: shared by the AI chat's server side (src/server/ai-chat.ts, /api/ai/chat) and its
 // panel (src/components/ai-chat).
 
-import type { ChatAttachmentRecord, ChatChange, ChatConnectionRecord, ChatMailRecord, ChatMemoryRecord, ChatPlanMode, ChatProposalRecord, ChatQuestionsRecord, ChatReminderRecord, ChatStepRecord, ChatToolRecord, ChatWebRecord, ChatWriteAction, ChatWriteStepAction } from "@/db/schema/ai";
+import type { ChatAttachmentRecord, ChatRouteRecord, ChatChange, ChatConnectionRecord, ChatMailRecord, ChatMemoryRecord, ChatPlanMode, ChatProposalRecord, ChatQuestionsRecord, ChatReminderRecord, ChatStepRecord, ChatToolRecord, ChatWebRecord, ChatWriteAction, ChatWriteStepAction } from "@/db/schema/ai";
 import type { PageKind } from "@/db/schema/app";
 import type { BlockChange } from "./page-diff";
 import type { AiErrorCode } from "./ai";
@@ -143,6 +143,7 @@ export type ChatStepView =
   | ChatToolRecord
   | ChatReminderRecord
   | { kind: "thought"; text: string }
+  | ChatRouteRecord
   | { kind: "plan"; questions: string[] }
   | ChatQuestionsRecord
   | ChatProposalRecord

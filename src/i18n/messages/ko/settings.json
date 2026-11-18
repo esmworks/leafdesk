@@ -101,7 +101,8 @@
       "openOnStart": "시작 실행 첫 페이지 마지막 방문 최근",
       "pageReports": "신고 악용 불만 게시 중단 게시된 공개 웹 페이지",
       "dashboardEmails": "구독 보고서 일정 매주 요약 이메일 대시보드",
-      "phoneSignIn": "qr 코드 휴대폰 모바일 스캔 기기 로그인"
+      "phoneSignIn": "qr 코드 휴대폰 모바일 스캔 기기 로그인",
+      "aiAutoModel": "자동 오토 모델 빠른 저렴 기본값"
     }
   },
   "workspace": {
@@ -549,7 +550,9 @@
       "viaManagerOnly": "관리자를 통해서만 작업",
       "viaManagerOnlyHelp": "결과는 관리자에게 가고, 이 에이전트를 편집할 수 없는 사람은 관리자에게 안내됩니다.",
       "team": "이 에이전트에게 보고하는 에이전트",
-      "teamHelp": "이 에이전트는 언제든 이들에게 요청하고 완료한 작업을 볼 수 있습니다."
+      "teamHelp": "이 에이전트는 언제든 이들에게 요청하고 완료한 작업을 볼 수 있습니다.",
+      "modelAuto": "자동",
+      "modelAutoHelp": "작업이 짧고 간단한 동안에는 각 턴을 빠른 모델({fast})로 실행하고, 긴 작업이나 많은 도구 호출, 빠른 모델 실패 시에는 기본 모델({main})로 실행합니다."
     },
     "describe": {
       "button": "설명으로 에이전트 만들기",
@@ -1084,7 +1087,8 @@
         "notASkill": "더 이상 스킬이 아닙니다",
         "skillEditable": "소유자 외의 사람이 편집할 수 있습니다",
         "tooMany": "자리가 없습니다"
-      }
+      },
+      "modelAuto": "자동"
     },
     "share": {
       "levels": {

@@ -469,6 +469,18 @@ export async function chatModelsFor(workspaceId: string): Promise<ChatModelOptio
 }
 
 /**
+ * The two models Auto chooses between: the main model and the cheaper fast one (AI_FAST_MODEL),
+ * both offered to the chat. Null where there is no fast model, or the workspace's AI is an own AI
+ * account (one model): Auto isn't offered there.
+ */
+export async function autoModelsFor(workspaceId: string): Promise<{ main: string; fast: string } | null> {
+  const target = await aiTargetFor(workspaceId);
+  const backend = target && chatOn(target) ? await backendFor(target).catch(() => null) : null;
+  if (!backend?.fast || backend.fast.id === backend.model.id) return null;
+  return { main: backend.model.id, fast: backend.fast.id };
+}
+
+/**
  * Characters an image is counted as when sizing a prompt: providers take a little over a thousand
  * tokens for a picture of the size they scale it to.
  */

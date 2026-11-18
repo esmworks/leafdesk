@@ -169,7 +169,9 @@
     "noProvider": "なし：ライティングアシスタント、AIプロパティ、AIチャットにはAI_PROVIDERとAI_MODELが必要です。",
     "semanticSearch": "セマンティック検索",
     "semanticValue": "埋め込みモデル{model}を使って、意味でもページを検索します。",
-    "semanticOff": "オフ：検索は語句のみで行われます。管理者はAI_EMBEDDINGS_MODELでオンにできます。"
+    "semanticOff": "オフ：検索は語句のみで行われます。管理者はAI_EMBEDDINGS_MODELでオンにできます。",
+    "autoModel": "新しいチャットは自動で開始",
+    "autoModelHint": "オンにすると、新しいAIチャットは質問ごとにモデルを選びます。短く簡単な質問には高速モデル、長い質問や複雑な質問にはメインモデルを使います。モデルは各自で選ぶこともできます。"
   },
   "chat": {
     "open": "AIに質問",
@@ -372,6 +374,20 @@
           "unstar": "スターを外しました:",
           "archive": "アーカイブしました:"
         }
+      },
+      "route": "自動 → {model}",
+      "routeWhy": "自動 → {model} ({why})",
+      "routeReasons": {
+        "failed": "高速モデルが失敗した",
+        "research": "リサーチ",
+        "plan": "先に計画",
+        "deep": "深い思考",
+        "files": "添付ファイル",
+        "long": "長い質問",
+        "history": "長い会話",
+        "code": "コード",
+        "steps": "多くのステップ",
+        "list": "タスクのリスト"
       }
     },
     "stopped": "停止しました。",
@@ -476,7 +492,9 @@
     "model": {
       "label": "モデル",
       "hint": "この会話で回答するモデル",
-      "images": "画像を読めます"
+      "images": "画像を読めます",
+      "auto": "自動",
+      "autoHint": "質問ごとにモデルを選びます"
     },
     "thinkingLevel": {
       "label": "思考",

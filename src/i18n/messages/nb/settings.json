@@ -101,7 +101,8 @@
       "openOnStart": "start oppstart første side sist besøkt nylig",
       "pageReports": "rapporter rapport misbruk klage fjern publisert offentlig nett sider",
       "dashboardEmails": "abonnement rapport tidsplan ukentlig oppsummering e-post",
-      "phoneSignIn": "qr kode telefon mobil skann enhet logg på"
+      "phoneSignIn": "qr kode telefon mobil skann enhet logg på",
+      "aiAutoModel": "auto automatisk modell rask billig standard"
     }
   },
   "workspace": {
@@ -549,7 +550,9 @@
       "viaManagerOnly": "Jobb bare gjennom lederen",
       "viaManagerOnlyHelp": "Resultatene går til lederen, og personer som ikke kan redigere den, sendes til lederen.",
       "team": "Rapporterer til denne agenten",
-      "teamHelp": "Denne agenten kan alltid spørre dem og se det ferdige arbeidet deres."
+      "teamHelp": "Denne agenten kan alltid spørre dem og se det ferdige arbeidet deres.",
+      "modelAuto": "Auto",
+      "modelAutoHelp": "Hver runde kjører på den raske modellen ({fast}) så lenge oppgaven er kort og enkel, og på hovedmodellen ({main}) ved lange oppgaver, mange verktøykall eller hvis den raske modellen feilet."
     },
     "describe": {
       "button": "Beskriv en agent",
@@ -1084,7 +1087,8 @@
         "notASkill": "den er ikke lenger en ferdighet",
         "skillEditable": "noen andre enn eierne kan redigere den",
         "tooMany": "det er ikke plass til den"
-      }
+      },
+      "modelAuto": "Auto"
     },
     "share": {
       "levels": {

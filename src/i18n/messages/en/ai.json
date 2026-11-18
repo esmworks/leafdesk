@@ -169,7 +169,9 @@
     "noProvider": "None: the writing assistant, AI properties and the AI chat need AI_PROVIDER and AI_MODEL.",
     "semanticSearch": "Semantic search",
     "semanticValue": "Search also finds pages by meaning, with the embeddings model {model}.",
-    "semanticOff": "Off: search finds words only. An admin can turn it on with AI_EMBEDDINGS_MODEL."
+    "semanticOff": "Off: search finds words only. An admin can turn it on with AI_EMBEDDINGS_MODEL.",
+    "autoModel": "New chats start on Auto",
+    "autoModelHint": "When on, a new AI chat conversation picks the model for each question: the fast model for short, simple ones and the main model for long or complex ones. People can still pick a model themselves."
   },
   "chat": {
     "open": "Ask AI",
@@ -372,6 +374,20 @@
           "unstar": "Unstarred:",
           "archive": "Archived:"
         }
+      },
+      "route": "Auto → {model}",
+      "routeWhy": "Auto → {model} ({why})",
+      "routeReasons": {
+        "failed": "the faster model failed",
+        "research": "research",
+        "plan": "plan first",
+        "deep": "deep thinking",
+        "files": "attached files",
+        "long": "long question",
+        "history": "long conversation",
+        "code": "code",
+        "steps": "many steps",
+        "list": "a list of tasks"
       }
     },
     "stopped": "Stopped.",
@@ -476,7 +492,9 @@
     "model": {
       "label": "Model",
       "hint": "The model that answers in this conversation",
-      "images": "Reads images"
+      "images": "Reads images",
+      "auto": "Auto",
+      "autoHint": "Picks the model for each question"
     },
     "thinkingLevel": {
       "label": "Thinking",

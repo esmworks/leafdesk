@@ -133,7 +133,13 @@ little (low effort). The choice isn't shown, and a fast agent runs on the main m
 server has no fast model or the workspace's AI is an own AI account (which has one model). Each
 run records the model that answered it, shown in its *Runs* section, and the workspace's AI usage
 counts its turns under that model. MCP's `create_agent` and `update_agent` and the REST API's
-`PATCH /api/v1/agents/{id}` take `model` (`main` or `fast`).
+`PATCH /api/v1/agents/{id}` take `model` (`main`, `fast` or `auto`).
+
+A third choice, *Auto*, picks the model turn by turn, as [the AI chat's Auto](ai.md#ai-features) does:
+the fast model while the task is short (up to 700 characters) and a run has made fewer than three
+turns of tool calls, the main model for a longer task, more tool calls, an agent set to deep
+thinking, or after the fast model failed on a turn (that turn is asked again on the main one). Where
+the server has no fast model, an Auto agent runs on the main model.
 
 **Its thinking.** Beside the model, *Advanced* sets how much the agent's model thinks before each
 step, with the AI chat's three levels: *Fast* (as little as the model allows, for routine jobs),

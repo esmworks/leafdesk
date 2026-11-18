@@ -169,7 +169,9 @@
     "noProvider": "Geen: de schrijfassistent, AI-eigenschappen en de AI-chat hebben AI_PROVIDER en AI_MODEL nodig.",
     "semanticSearch": "Semantisch zoeken",
     "semanticValue": "Zoeken vindt pagina’s ook op betekenis, met het embeddingsmodel {model}.",
-    "semanticOff": "Uit: zoeken vindt alleen woorden. Een beheerder kan het inschakelen met AI_EMBEDDINGS_MODEL."
+    "semanticOff": "Uit: zoeken vindt alleen woorden. Een beheerder kan het inschakelen met AI_EMBEDDINGS_MODEL.",
+    "autoModel": "Nieuwe chats starten met Auto",
+    "autoModelHint": "Als dit aan staat, kiest een nieuw AI-gesprek het model per vraag: het snelle model voor korte, simpele vragen en het hoofdmodel voor lange of complexe. Mensen kunnen nog steeds zelf een model kiezen."
   },
   "chat": {
     "open": "AI vragen",
@@ -372,6 +374,20 @@
           "unstar": "Ster verwijderd:",
           "archive": "Gearchiveerd:"
         }
+      },
+      "route": "Auto → {model}",
+      "routeWhy": "Auto → {model} ({why})",
+      "routeReasons": {
+        "failed": "het snelle model faalde",
+        "research": "onderzoek",
+        "plan": "eerst plannen",
+        "deep": "diep nadenken",
+        "files": "bijgevoegde bestanden",
+        "long": "lange vraag",
+        "history": "lang gesprek",
+        "code": "code",
+        "steps": "veel stappen",
+        "list": "een takenlijst"
       }
     },
     "stopped": "Gestopt.",
@@ -476,7 +492,9 @@
     "model": {
       "label": "Model",
       "hint": "Het model dat in dit gesprek antwoordt",
-      "images": "Leest afbeeldingen"
+      "images": "Leest afbeeldingen",
+      "auto": "Auto",
+      "autoHint": "Kiest het model voor elke vraag"
     },
     "thinkingLevel": {
       "label": "Nadenken",

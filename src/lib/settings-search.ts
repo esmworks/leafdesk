@@ -76,6 +76,7 @@ export const SETTINGS_SEARCH_ENTRIES: readonly SettingsSearchEntry[] = [
   { id: "workspaceName", tab: "general", label: "settings:workspace.heading", keywords: true },
   { id: "calloutStyles", tab: "general", label: "settings:calloutStyles.heading", when: member },
   { id: "ai", tab: "general", label: "ai:settings.heading", keywords: true, when: member },
+  { id: "aiAutoModel", tab: "general", label: "ai:settings.autoModel", keywords: true, when: member },
   { id: "aiAutoChanges", tab: "general", label: "ai:settings.autoChanges", keywords: true, when: member },
   { id: "workspaceMail", tab: "general", label: "settings:email.heading", keywords: true, when: member },
   { id: "ownPageViews", tab: "general", label: "settings:pageViews.title", keywords: true, when: member },

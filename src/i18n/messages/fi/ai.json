@@ -169,7 +169,9 @@
     "noProvider": "Ei mitään: kirjoitusavustaja, tekoälyominaisuudet ja tekoälychat tarvitsevat muuttujat AI_PROVIDER ja AI_MODEL.",
     "semanticSearch": "Semanttinen haku",
     "semanticValue": "Haku löytää sivuja myös merkityksen perusteella upotusmallilla {model}.",
-    "semanticOff": "Pois käytöstä: haku löytää vain sanoja. Ylläpitäjä voi ottaa sen käyttöön muuttujalla AI_EMBEDDINGS_MODEL."
+    "semanticOff": "Pois käytöstä: haku löytää vain sanoja. Ylläpitäjä voi ottaa sen käyttöön muuttujalla AI_EMBEDDINGS_MODEL.",
+    "autoModel": "Uudet keskustelut alkavat Auto-tilassa",
+    "autoModelHint": "Kun päällä, uusi tekoälykeskustelu valitsee mallin jokaiselle kysymykselle: nopean mallin lyhyille ja yksinkertaisille, päämallin pitkille tai monimutkaisille. Käyttäjät voivat edelleen valita mallin itse."
   },
   "chat": {
     "open": "Kysy tekoälyltä",
@@ -372,6 +374,20 @@
           "unstar": "Tähti poistettu:",
           "archive": "Arkistoitu:"
         }
+      },
+      "route": "Auto → {model}",
+      "routeWhy": "Auto → {model} ({why})",
+      "routeReasons": {
+        "failed": "nopea malli epäonnistui",
+        "research": "tutkimus",
+        "plan": "suunnitelma ensin",
+        "deep": "syvä ajattelu",
+        "files": "liitetyt tiedostot",
+        "long": "pitkä kysymys",
+        "history": "pitkä keskustelu",
+        "code": "koodi",
+        "steps": "monta vaihetta",
+        "list": "tehtävälista"
       }
     },
     "stopped": "Pysäytetty.",
@@ -476,7 +492,9 @@
     "model": {
       "label": "Malli",
       "hint": "Malli, joka vastaa tässä keskustelussa",
-      "images": "Lukee kuvia"
+      "images": "Lukee kuvia",
+      "auto": "Auto",
+      "autoHint": "Valitsee mallin jokaiselle kysymykselle"
     },
     "thinkingLevel": {
       "label": "Ajattelu",

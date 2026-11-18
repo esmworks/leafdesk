@@ -6,6 +6,7 @@ import { user } from "./auth";
 import { file } from "./files";
 import type { AgentChatMessageRecord, AgentChatQueuedRecord } from "../../lib/agent-chat";
 import type { ChatThinking, MemoryCategory } from "../../lib/ai-chat";
+import type { RouteReason } from "../../lib/model-route";
 
 /**
  * Where an AI autofill value of a row stands (see server/ai-properties.ts): waiting or being worked
@@ -158,7 +159,14 @@ export type ChatStepRecord =
   | ChatConnectionRecord
   | ChatToolRecord
   | ChatReminderRecord
-  | { kind: "thought"; text: string };
+  | { kind: "thought"; text: string }
+  | ChatRouteRecord;
+
+/**
+ * Under Auto (lib/model-route.ts): the turn went to this model, and why when it is the main one
+ * (null: the fast one answers short, simple questions).
+ */
+export type ChatRouteRecord = { kind: "route"; model: string; reason: RouteReason | null };
 
 /**
  * What a planning turn (plan first, server/ai-chat-plan.ts) ended with: questions for the person

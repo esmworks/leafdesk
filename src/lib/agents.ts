@@ -113,10 +113,12 @@ export const isAgentAccessLevel = (value: unknown): value is AgentAccessLevel =>
 
 /**
  * Which of the server's models an agent's runs use: its main model (AI_MODEL), or its cheaper fast
- * one (AI_FAST_MODEL), for routine, well-defined jobs. Without a fast model, and on a workspace's
- * own AI account, which has one model, "fast" runs on the main model.
+ * one (AI_FAST_MODEL), for routine, well-defined jobs, or "auto": each turn on the fast one while
+ * the task is short and simple, on the main one for long tasks, many tool calls or after the fast
+ * one failed (lib/model-route.ts). Without a fast model, and on a workspace's own AI account,
+ * which has one model, "fast" and "auto" run on the main model.
  */
-export const AGENT_MODELS = ["main", "fast"] as const;
+export const AGENT_MODELS = ["main", "fast", "auto"] as const;
 export type AgentModel = (typeof AGENT_MODELS)[number];
 
 export const isAgentModel = (value: unknown): value is AgentModel => typeof value === "string" && (AGENT_MODELS as readonly string[]).includes(value);
