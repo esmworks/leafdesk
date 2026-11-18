@@ -1,7 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { SettingsGroup } from "@/components/settings/section";
 import { getTeamsStatus } from "@/server/teams/links";
-import { TeamsLink } from "./teams-link";
+import { TeamsLinkPart } from "./teams-link-part";
 
 /** Settings > Apps > Teams, on servers with a Teams bot (TEAMS_APP_ID, TEAMS_APP_PASSWORD and TEAMS_TENANT_ID). */
 export async function TeamsGroup({ userId }: { userId: string }) {
@@ -9,7 +9,7 @@ export async function TeamsGroup({ userId }: { userId: string }) {
   if (!status.enabled) return null;
   return (
     <SettingsGroup anchor="teams" title={t("title")} description={t("description")}>
-      <TeamsLink initial={status} />
+      <TeamsLinkPart initial={status} />
     </SettingsGroup>
   );
 }

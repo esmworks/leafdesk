@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { AgentEditor } from "@/components/settings/agent-editor";
-import { ExternalAgentEditor } from "@/components/settings/external-agent-editor";
+import { ExternalAgentEditorPart } from "@/components/settings/external-agent-part";
 import { agentPagePath } from "@/lib/agent-page";
 import { AccessError } from "@/server/access";
 import { aiInfoFor } from "@/server/ai";
@@ -44,7 +44,7 @@ export default async function AgentSettingsRoute({ params, searchParams }: Props
   const { agent, userId } = found;
   // An outside agent never runs here: its page is its work, how it is reached and who it is shared with.
   if (agent.kind === "external") {
-    return <ExternalAgentEditor workspaceId={workspaceId} agent={agent} overview={await externalAgentOverview(userId, agent.id)} mcpUrl={mcpResource()} apiUrl={`${env.appUrl}/api/v1`} />;
+    return <ExternalAgentEditorPart workspaceId={workspaceId} agent={agent} overview={await externalAgentOverview(userId, agent.id)} mcpUrl={mcpResource()} apiUrl={`${env.appUrl}/api/v1`} />;
   }
   const [workspace, settings, proposals, info] = await Promise.all([
     getWorkspace(userId, workspaceId),
