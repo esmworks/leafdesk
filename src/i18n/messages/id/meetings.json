@@ -74,7 +74,22 @@
     "noTranscript": "Transkrip terisi di sini selagi Anda merekam.",
     "gap": "Bagian ini tidak dapat ditranskripsikan.",
     "listening": "Mendengarkan… {time}",
-    "transcribing": "Mentranskripsikan… {time}"
+    "transcribing": "Mentranskripsikan… {time}",
+    "withOthers": "Rekam bersama yang lain",
+    "withOthersHint": "Rekam juga peserta lain: bagikan tab atau layar rapat beserta suaranya.",
+    "addTodos": "Tambahkan sebagai tugas",
+    "addTodosHint": "Tambahkan butir tindakan yang masih terbuka ke halaman ini sebagai tugas, dengan menyebut orang yang dinamai.",
+    "todosAdded": "Ditambahkan sebagai tugas",
+    "speakers": {
+      "label": "Pembicara",
+      "you": "Anda",
+      "others": "Lainnya",
+      "speaker": "Pembicara {n}",
+      "rename": "Beri nama pembicara ini",
+      "namePlaceholder": "Ketik nama atau cari orang",
+      "use": "Gunakan nama ini",
+      "reset": "Atur ulang"
+    }
   },
   "notices": {
     "summaryFailed": "AI tidak dapat menulis ringkasan. Coba Buat ulang ringkasan.",
@@ -99,6 +114,8 @@
     "fileType": "File ini tidak bisa ditranskripsikan. Pilih file audio atau video.",
     "fileTooLarge": "Ukuran file paling besar {size}.",
     "fileTooLong": "Rekaman lebih dari tiga jam, batas terlama sebuah rapat.",
-    "fileUnreadable": "Suara dalam file ini tidak bisa dibaca. Coba format lain, seperti MP3 atau M4A."
+    "fileUnreadable": "Suara dalam file ini tidak bisa dibaca. Coba format lain, seperti MP3 atau M4A.",
+    "othersDenied": "Berbagi dibatalkan, jadi peserta lain tidak dapat direkam. Coba lagi dan pilih tab atau layar yang bersuara.",
+    "noOthersAudio": "Yang Anda bagikan tidak memiliki suara. Bagikan tab browser dan centang “Bagikan audio tab”."
   }
 }

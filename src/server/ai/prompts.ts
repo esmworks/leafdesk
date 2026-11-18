@@ -503,6 +503,7 @@ const MEETING_RULES = (attendees: string[]) => [
   attendees.length
     ? `- An action item names who takes it on with @ and their name exactly as in this list, when the transcript says who: ${attendees.map(attr).join(", ")}. Leave out "@<Name>: " when nobody is named or the person isn't in the list.`
     : '- Leave out "@<Name>: " in action items: nobody is listed as attending.',
+  "- A transcript line may start with who said it, `[mm:ss] Name: text`. Use that to say who takes a task on, and write summary points in terms of who said what where it matters. Labels such as Others or Speaker 2 are not names: never put them after @.",
 ];
 
 /**

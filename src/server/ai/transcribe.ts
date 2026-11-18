@@ -7,7 +7,36 @@ import { voiceFileName } from "@/lib/voice-notes";
 import type { AiSttConfig } from "./config";
 import { AiError } from "./errors";
 
-type TranscriptionResponse = { text?: unknown; duration?: unknown };
+type TranscriptionResponse = { text?: unknown; duration?: unknown; segments?: unknown };
+
+/** A stretch of speech one speaker said, as a diarizing model reports it (seconds into the audio). */
+export type SpokenSegment = { speaker: string; start: number; end: number; text: string };
+
+/**
+ * Whether the configured model tells speakers apart. Only OpenAI's `-diarize` models do (the
+ * `diarized_json` response: segments with a speaker label, start, end and text); Whisper-style
+ * servers ignore the format, so nothing is asked of a model that doesn't say so in its name.
+ */
+export const diarizes = (config: Pick<AiSttConfig, "model">) => /diarize/i.test(config.model);
+
+/**
+ * The segments of a `diarized_json` response, in order, or null when it holds none. A label is kept
+ * as the provider wrote it ("A", "B", or the name of a known speaker); segments without text drop.
+ */
+export function parseSegments(value: unknown): SpokenSegment[] | null {
+  if (!Array.isArray(value)) return null;
+  const out: SpokenSegment[] = [];
+  for (const item of value) {
+    if (!item || typeof item !== "object") continue;
+    const { speaker, start, end, text } = item as Record<string, unknown>;
+    if (typeof text !== "string" || !text.trim()) continue;
+    const label = typeof speaker === "string" || typeof speaker === "number" ? String(speaker).trim().replace(/[^\w.-]/g, "_").slice(0, 24) : "";
+    const from = typeof start === "number" && Number.isFinite(start) && start >= 0 ? start : 0;
+    const to = typeof end === "number" && Number.isFinite(end) && end >= from ? end : from;
+    out.push({ speaker: label || "0", start: from, end: to, text: text.trim() });
+  }
+  return out.length ? out : null;
+}
 
 /**
  * The ISO 639-1 code a transcription request names for an interface language: Whisper calls
@@ -28,12 +57,17 @@ export async function fetchTranscription(
   audio: { bytes: Blob; type: string },
   signal: AbortSignal,
   language?: string | null,
-): Promise<{ text: string; seconds: number | null }> {
+  { speakers = false }: { speakers?: boolean } = {},
+): Promise<{ text: string; seconds: number | null; segments: SpokenSegment[] | null }> {
   const form = new FormData();
   // Servers decide the format from the file name, so it carries the right extension.
   form.append("file", new File([audio.bytes], voiceFileName(audio.type), { type: audio.type }));
   form.append("model", config.model);
-  form.append("response_format", "json");
+  // Speakers only where the model tells them apart (and the caller wants them); the long-audio
+  // chunking those models require above 30 seconds is the provider's own ("auto").
+  const diarized = speakers && diarizes(config);
+  form.append("response_format", diarized ? "diarized_json" : "json");
+  if (diarized) form.append("chunking_strategy", "auto");
   const spoken = speechLanguage(language);
   if (spoken) form.append("language", spoken);
   // Encoded up front: fetch streaming a FormData body can fail outside the request's promise when
@@ -67,8 +101,10 @@ export async function fetchTranscription(
   try {
     body = JSON.parse(raw) as TranscriptionResponse;
   } catch {
-    return { text: raw.trim(), seconds: null };
+    return { text: raw.trim(), seconds: null, segments: null };
   }
-  if (typeof body?.text !== "string") throw new AiError("provider", "Transcription endpoint gave no text");
-  return { text: body.text.trim(), seconds: typeof body.duration === "number" ? body.duration : null };
+  const segments = diarized ? parseSegments(body?.segments) : null;
+  const text = typeof body?.text === "string" ? body.text.trim() : segments ? segments.map((s) => s.text).join(" ") : null;
+  if (text === null) throw new AiError("provider", "Transcription endpoint gave no text");
+  return { text, seconds: typeof body.duration === "number" ? body.duration : null, segments };
 }

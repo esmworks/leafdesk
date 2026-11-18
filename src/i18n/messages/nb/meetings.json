@@ -74,7 +74,22 @@
     "noTranscript": "Transkripsjonen fylles inn her mens du tar opp.",
     "gap": "Denne delen kunne ikke transkriberes.",
     "listening": "Lytter… {time}",
-    "transcribing": "Transkriberer… {time}"
+    "transcribing": "Transkriberer… {time}",
+    "withOthers": "Ta opp med andre",
+    "withOthersHint": "Ta også opp de andre deltakerne: del møtets fane eller skjerm med lyd.",
+    "addTodos": "Legg til som oppgaver",
+    "addTodosHint": "Legger de åpne handlingspunktene til siden som oppgaver og nevner personene de angir.",
+    "todosAdded": "Lagt til som oppgaver",
+    "speakers": {
+      "label": "Talere",
+      "you": "Du",
+      "others": "Andre",
+      "speaker": "Taler {n}",
+      "rename": "Gi denne taleren et navn",
+      "namePlaceholder": "Skriv et navn eller søk etter personer",
+      "use": "Bruk dette navnet",
+      "reset": "Tilbakestill"
+    }
   },
   "notices": {
     "summaryFailed": "KI kunne ikke skrive sammendraget. Prøv «Lag sammendraget på nytt».",
@@ -99,6 +114,8 @@
     "fileType": "Denne filen kan ikke transkriberes. Velg en lyd- eller videofil.",
     "fileTooLarge": "Filer kan være på høyst {size}.",
     "fileTooLong": "Opptaket er lengre enn tre timer, som er det lengste et møte kan vare.",
-    "fileUnreadable": "Lyden i denne filen kunne ikke leses. Prøv et annet format, for eksempel MP3 eller M4A."
+    "fileUnreadable": "Lyden i denne filen kunne ikke leses. Prøv et annet format, for eksempel MP3 eller M4A.",
+    "othersDenied": "Delingen ble avbrutt, så de andre deltakerne kan ikke tas opp. Prøv igjen og velg en fane eller skjerm med lyd.",
+    "noOthersAudio": "Det du delte har ingen lyd. Del en nettleserfane og huk av for «Del fanelyd»."
   }
 }

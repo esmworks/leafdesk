@@ -44,6 +44,8 @@ export const meetingBlockConfig = {
     lastAt: { default: "" },
     /** JSON: the transcript's chunks (see TranscriptChunk). */
     transcript: { default: "" },
+    /** JSON: names given to speakers, `{ [key]: { name, id? } }` (see SpeakerNames). */
+    speakers: { default: "" },
     /** Lines `- text [mm:ss]`; action items `- [ ] @Name: text [mm:ss]`. */
     summary: { default: "" },
     decisions: { default: "" },
@@ -68,6 +70,7 @@ export type MeetingProps = {
   recorderName: string;
   lastAt: string;
   transcript: string;
+  speakers: string;
   summary: string;
   decisions: string;
   actions: string;
@@ -92,8 +95,20 @@ export const newMeetingId = () => crypto.randomUUID();
 
 export type Attendee = { id: string; name: string };
 
-/** A piece of the transcript: chunk `c`, starting `t` seconds in, lasting `d`; its text, or a gap. */
-export type TranscriptChunk = { c: number; t: number; d?: number; x: string } | { c: number; t: number; d?: number; gap: true };
+/**
+ * A piece of the transcript: chunk `c`, starting `t` seconds in, lasting `d`; its text, or a gap.
+ * `s` says who spoke (a SpeakerKey) when the recording could tell; `r` is "o" for a piece heard
+ * from the other participants' stream (tab or system audio), absent for the microphone. A chunk of
+ * a recording diarized by the provider is several pieces with the same `c`.
+ */
+export type TranscriptChunk = { c: number; t: number; d?: number; s?: string; r?: StreamMark } & ({ x: string } | { gap: true });
+
+/** Where a piece was heard: absent the microphone (or the only stream), "o" the other participants'. */
+export type StreamMark = "o";
+
+/** A speaker's key: "you" (the microphone, when others are recorded too), "others", "o:A" / "d:A" (the provider's ids). */
+export const SPEAKER_KEY = /^[\w:.-]{1,32}$/;
+export const MAX_SPEAKERS = 40;
 
 const isObject = (value: unknown): value is Record<string, unknown> => typeof value === "object" && value !== null && !Array.isArray(value);
 const finite = (value: unknown) => (typeof value === "number" && Number.isFinite(value) && value >= 0 ? value : null);
@@ -123,6 +138,8 @@ export function parseAttendees(value: unknown): Attendee[] {
 
 export const serializeAttendees = (list: Attendee[]) => (list.length ? JSON.stringify(list.slice(0, MAX_ATTENDEES)) : "");
 
+const byTime = (a: TranscriptChunk, b: TranscriptChunk) => a.t - b.t || a.c - b.c || (a.r ?? "").localeCompare(b.r ?? "");
+
 /** The transcript prop read, in time order, anything malformed dropped. */
 export function parseTranscript(value: unknown): TranscriptChunk[] {
   let list: unknown;
@@ -139,26 +156,70 @@ export function parseTranscript(value: unknown): TranscriptChunk[] {
     const t = finite(item.t);
     if (c === null || t === null) continue;
     const d = finite(item.d) ?? undefined;
-    if (item.gap === true) out.push({ c, t, ...(d !== undefined ? { d } : {}), gap: true });
-    else if (typeof item.x === "string") out.push({ c, t, ...(d !== undefined ? { d } : {}), x: item.x });
+    const who = {
+      ...(d !== undefined ? { d } : {}),
+      ...(typeof item.s === "string" && SPEAKER_KEY.test(item.s) ? { s: item.s } : {}),
+      ...(item.r === "o" ? { r: "o" as const } : {}),
+    };
+    if (item.gap === true) out.push({ c, t, ...who, gap: true });
+    else if (typeof item.x === "string") out.push({ c, t, ...who, x: item.x });
   }
-  return out.sort((a, b) => a.t - b.t || a.c - b.c);
+  return out.sort(byTime);
 }
 
 export const serializeTranscript = (chunks: TranscriptChunk[]) => (chunks.length ? JSON.stringify(chunks) : "");
 
 /**
- * The transcript with one chunk added: in its place by time, replacing an earlier report of the
- * same chunk (a gap whose retry came through, or the other way round, though text is never
- * replaced by a gap).
+ * The transcript with one chunk added (or, for a diarized chunk, all its pieces: `chunk` a list):
+ * in its place by time, replacing an earlier report of the same chunk from the same stream (a gap
+ * whose retry came through, or the other way round, though text is never replaced by a gap).
  */
-export function mergeChunk(chunks: TranscriptChunk[], chunk: TranscriptChunk): TranscriptChunk[] {
-  const existing = chunks.find((c) => c.c === chunk.c);
-  if (existing && !("gap" in existing) && "gap" in chunk) return chunks;
-  const next = chunks.filter((c) => c.c !== chunk.c);
-  const value: TranscriptChunk = "gap" in chunk ? chunk : { ...chunk, x: chunk.x.trim().slice(0, MAX_CHUNK_TEXT) };
-  next.push(value);
-  return next.sort((a, b) => a.t - b.t || a.c - b.c);
+export function mergeChunk(chunks: TranscriptChunk[], chunk: TranscriptChunk | TranscriptChunk[]): TranscriptChunk[] {
+  const pieces = Array.isArray(chunk) ? chunk : [chunk];
+  if (!pieces.length) return chunks;
+  const { c, r } = pieces[0];
+  const same = (x: TranscriptChunk) => x.c === c && x.r === r;
+  if (pieces.length === 1 && "gap" in pieces[0] && chunks.some((x) => same(x) && !("gap" in x))) return chunks;
+  const next = chunks.filter((x) => !same(x));
+  for (const piece of pieces) next.push("gap" in piece ? piece : { ...piece, x: piece.x.trim().slice(0, MAX_CHUNK_TEXT) });
+  return next.sort(byTime);
+}
+
+/** What a recording piece was recorded from, when a recording has both: the microphone or the other participants' stream. */
+export type ChunkStream = "mic" | "others";
+export const isChunkStream = (value: unknown): value is ChunkStream => value === "mic" || value === "others";
+
+/**
+ * The transcript entries one recorded piece becomes. `stream` says what it was recorded from when
+ * the recording has two streams: the microphone's pieces are "you", the other participants' are
+ * "others" (or, when the provider told its speakers apart, "o:<id>"); a single stream is labelled
+ * only by the provider's speakers ("d:<id>"), never guessed. `segments` are the diarized stretches
+ * (seconds into the piece); neighbours of one speaker join. Silence is one empty entry.
+ */
+export function chunkPieces(
+  place: { chunk: number; offset: number; duration: number; stream?: ChunkStream },
+  text: string,
+  segments?: { speaker: string; start: number; end: number; text: string }[] | null,
+): TranscriptChunk[] {
+  const r = place.stream === "others" ? ({ r: "o" } as const) : {};
+  const base = { c: place.chunk, d: place.duration, ...r };
+  if (!text.trim()) return [{ ...base, t: place.offset, x: "" }];
+  if (place.stream === "mic") return [{ ...base, t: place.offset, s: "you", x: text }];
+  if (!segments?.length) return [{ ...base, t: place.offset, ...(place.stream === "others" ? { s: "others" } : {}), x: text }];
+  const key = (speaker: string) => (place.stream === "others" ? `o:${speaker}` : `d:${speaker}`);
+  const out: TranscriptChunk[] = [];
+  for (const seg of segments) {
+    const s = key(seg.speaker);
+    const last = out[out.length - 1];
+    if (last && last.s === s && "x" in last) {
+      last.x = `${last.x} ${seg.text}`;
+      last.d = Math.max(0, Math.round((place.offset + Math.min(seg.end, place.duration) - last.t) * 10) / 10);
+      continue;
+    }
+    const start = Math.min(Math.max(0, seg.start), place.duration);
+    out.push({ ...base, t: Math.round((place.offset + start) * 10) / 10, d: Math.max(0, Math.round((Math.min(seg.end, place.duration) - start) * 10) / 10), s, x: seg.text });
+  }
+  return out;
 }
 
 /** Seconds of a `mm:ss` or `h:mm:ss` stamp (without brackets), or null. */
@@ -168,13 +229,93 @@ export function parseStamp(text: string): number | null {
   return Number(match[1] ?? 0) * 3600 + Number(match[2]) * 60 + Number(match[3]);
 }
 
-/** The transcript as the AI and Markdown read it: a line per chunk, `[mm:ss] text`, gaps said. */
-export function transcriptLines(chunks: TranscriptChunk[], gapText = "(not transcribed)"): string[] {
+/**
+ * The transcript as the AI and Markdown read it: a line per chunk, `[mm:ss] text`, gaps said. With
+ * `nameOf` (see speakerNamer), a line of a known speaker reads `[mm:ss] Name: text`.
+ */
+export function transcriptLines(chunks: TranscriptChunk[], gapText = "(not transcribed)", nameOf?: (key: string) => string): string[] {
   return chunks.flatMap((c) => {
     if ("gap" in c) return [`[${formatStamp(c.t)}] ${gapText}`];
     const text = c.x.replace(/\s+/g, " ").trim();
-    return text ? [`[${formatStamp(c.t)}] ${text}`] : [];
+    if (!text) return [];
+    const who = c.s && nameOf ? nameOf(c.s).replace(/\s+/g, " ").trim() : "";
+    return [`[${formatStamp(c.t)}] ${who ? `${who}: ` : ""}${text}`];
   });
+}
+
+// ---------------------------------------------------------------------------------------------
+// Speakers
+
+/** Names a person gave to speakers: by key, with the workspace member's id when they chose one. */
+export type SpeakerNames = Record<string, { name: string; id?: string }>;
+
+/** The speakers prop read, anything malformed dropped. */
+export function parseSpeakers(value: unknown): SpeakerNames {
+  let map: unknown;
+  try {
+    map = typeof value === "string" && value ? JSON.parse(value) : {};
+  } catch {
+    return {};
+  }
+  if (!isObject(map)) return {};
+  const out: SpeakerNames = {};
+  for (const [key, item] of Object.entries(map)) {
+    if (!SPEAKER_KEY.test(key) || !isObject(item) || typeof item.name !== "string" || !item.name.trim()) continue;
+    const id = typeof item.id === "string" && item.id ? item.id.slice(0, 100) : "";
+    out[key] = { name: item.name.trim().slice(0, 100), ...(id ? { id } : {}) };
+    if (Object.keys(out).length >= MAX_SPEAKERS) break;
+  }
+  return out;
+}
+
+export const serializeSpeakers = (names: SpeakerNames) => (Object.keys(names).length ? JSON.stringify(names) : "");
+
+/** The speakers a transcript tells apart, in the order they first speak. */
+export function speakerKeys(chunks: TranscriptChunk[]): string[] {
+  const seen = new Set<string>();
+  for (const c of chunks) if (c.s && !("gap" in c)) seen.add(c.s);
+  return [...seen];
+}
+
+/** The words a speaker is called by until someone names them: "You" is the recorder's own name when known. */
+export type SpeakerLabels = { you: string; others: string; speaker: (n: number) => string };
+
+export const ENGLISH_SPEAKER_LABELS = (recorderName = ""): SpeakerLabels => ({ you: recorderName.trim() || "You", others: "Others", speaker: (n) => `Speaker ${n}` });
+
+/**
+ * A function giving each speaker key its name: the one given in `names`, else "you" / "others" /
+ * "Speaker N" (N counting the provider-identified speakers by first appearance).
+ */
+export function speakerNamer(chunks: TranscriptChunk[], names: SpeakerNames, labels: SpeakerLabels): (key: string) => string {
+  const numbered = speakerKeys(chunks).filter((k) => k !== "you" && k !== "others");
+  return (key) => {
+    const given = names[key]?.name;
+    if (given) return given;
+    if (key === "you") return labels.you;
+    if (key === "others") return labels.others;
+    const n = numbered.indexOf(key);
+    return labels.speaker(n >= 0 ? n + 1 : numbered.length + 1);
+  };
+}
+
+/** The member (or attendee) a name given in a summary points at: the whole name, else a first name, only when exactly one fits. */
+export function matchPerson(name: string, people: { id: string; name: string }[]): { id: string; name: string } | null {
+  const fold = (v: string) => v.normalize("NFKC").toLocaleLowerCase().replace(/\s+/g, " ").trim();
+  const wanted = fold(name);
+  if (!wanted) return null;
+  const withId = people.filter((p) => p.id);
+  const exact = withId.filter((p) => fold(p.name) === wanted);
+  if (exact.length) return exact.every((p) => p.id === exact[0].id) ? exact[0] : null;
+  const part = withId.filter((p) => fold(p.name).split(" ").includes(wanted) || wanted.split(" ").includes(fold(p.name)));
+  const ids = new Set(part.map((p) => p.id));
+  return ids.size === 1 ? part[0] : null;
+}
+
+/** Everyone the block can name by id: the attendees and speakers a member was chosen for. */
+export function knownPeople(props: Pick<MeetingProps, "attendees" | "speakers">): { id: string; name: string }[] {
+  const out = parseAttendees(props.attendees).filter((a) => a.id);
+  for (const s of Object.values(parseSpeakers(props.speakers))) if (s.id && !out.some((p) => p.id === s.id)) out.push({ id: s.id, name: s.name });
+  return out;
 }
 
 /** The chunk a moment of the meeting falls in: the last one starting at or before it. */
@@ -247,6 +388,7 @@ export function meetingProps(props: Record<string, unknown> | undefined): Meetin
     recorderName: s("recorderName"),
     lastAt: s("lastAt"),
     transcript: s("transcript"),
+    speakers: s("speakers"),
     summary: s("summary"),
     decisions: s("decisions"),
     actions: s("actions"),
@@ -275,6 +417,8 @@ export function meetingPlainText(raw: Record<string, unknown> | undefined): stri
     for (const item of parseTakeaways(section)) lines.push(item.assignee ? `${item.assignee}: ${item.text}` : item.text);
   }
   for (const chunk of parseTranscript(props.transcript)) if (!("gap" in chunk) && chunk.x.trim()) lines.push(chunk.x.trim());
+  // Speakers someone named are found by name too.
+  for (const { name } of Object.values(parseSpeakers(props.speakers))) lines.push(name);
   return lines.filter(Boolean).join("\n");
 }
 
@@ -318,7 +462,8 @@ export function meetingMarkdown(raw: Record<string, unknown> | undefined): strin
   section("Summary", props.summary);
   section("Decisions", props.decisions);
   section("Action items", props.actions, true);
-  const transcript = transcriptLines(parseTranscript(props.transcript));
+  const chunks = parseTranscript(props.transcript);
+  const transcript = transcriptLines(chunks, undefined, speakerNamer(chunks, parseSpeakers(props.speakers), ENGLISH_SPEAKER_LABELS(props.recorderName)));
   if (transcript.length) out.push("**Transcript**", "", ...transcript.map((line) => `- ${safe(line)}`), "");
   out.push("<!-- leafdesk:/meeting -->");
   return out.join("\n");

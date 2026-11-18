@@ -74,7 +74,22 @@
     "noTranscript": "The transcript fills in here while you record.",
     "gap": "This part couldn't be transcribed.",
     "listening": "Listening… {time}",
-    "transcribing": "Transcribing… {time}"
+    "transcribing": "Transcribing… {time}",
+    "withOthers": "Record with others",
+    "withOthersHint": "Also record the other participants: share the meeting's tab or screen with its sound.",
+    "addTodos": "Add as to-dos",
+    "addTodosHint": "Add the open action items to this page as to-dos, mentioning the people they name.",
+    "todosAdded": "Added as to-dos",
+    "speakers": {
+      "label": "Speakers",
+      "you": "You",
+      "others": "Others",
+      "speaker": "Speaker {n}",
+      "rename": "Name this speaker",
+      "namePlaceholder": "Name or search people",
+      "use": "Use this name",
+      "reset": "Reset"
+    }
   },
   "notices": {
     "summaryFailed": "AI couldn't write the summary. Try Regenerate summary.",
@@ -99,6 +114,8 @@
     "fileType": "This file can't be transcribed. Choose an audio or video file.",
     "fileTooLarge": "Files can be at most {size}.",
     "fileTooLong": "The recording is longer than three hours, the longest a meeting can be.",
-    "fileUnreadable": "The sound in this file couldn't be read. Try another format, such as MP3 or M4A."
+    "fileUnreadable": "The sound in this file couldn't be read. Try another format, such as MP3 or M4A.",
+    "othersDenied": "Sharing was cancelled, so the other participants can't be recorded. Try again and choose a tab or screen with sound.",
+    "noOthersAudio": "What you shared has no sound. Share a browser tab and tick “Share tab audio”."
   }
 }

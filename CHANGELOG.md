@@ -11,6 +11,15 @@
   outside data, and changes nothing until you click. The AI chat's `list_notifications` (found with
   `find_tools`) now has a hint in its prompt for "what needs my attention?". No migration, no new
   environment variables.
+- **Who said what in meeting notes.** *Record with others* records a shared tab's or screen's
+  sound next to the microphone, so the transcript reads *You* (the recorder) and *Others*; a speech
+  to text model with `diarize` in its name (such as `gpt-4o-transcribe-diarize`) also splits the
+  speakers by itself. The block lists the speakers and an editor names each after a workspace
+  member or any name, which the transcript, the Markdown, search and the AI summary use, so action
+  items name the right person, and *Add as to-dos* puts them on the page mentioning the matched
+  members. Published pages still drop the transcript and the speakers. No migration, no new
+  environment variables.
+
 - **Plan first in the AI chat.** A *Plan first* switch in the chat box (remembered in the browser)
   makes the next questions read only and end with either up to four clarifying questions, each with
   options and a field for your own words, or a plan card with its steps, where each changes

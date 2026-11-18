@@ -74,7 +74,22 @@
     "noTranscript": "Siz kaydettikçe döküm burada dolar.",
     "gap": "Bu bölüm yazıya dökülemedi.",
     "listening": "Dinleniyor… {time}",
-    "transcribing": "Metne dökülüyor… {time}"
+    "transcribing": "Metne dökülüyor… {time}",
+    "withOthers": "Katılımcılarla kaydet",
+    "withOthersHint": "Diğer katılımcıları da kaydedin: toplantının sekmesini veya ekranını sesiyle paylaşın.",
+    "addTodos": "Yapılacak olarak ekle",
+    "addTodosHint": "Açık eylem maddelerini, adı geçen kişileri anarak sayfaya yapılacaklar olarak ekler.",
+    "todosAdded": "Yapılacak olarak eklendi",
+    "speakers": {
+      "label": "Konuşmacılar",
+      "you": "Siz",
+      "others": "Diğerleri",
+      "speaker": "Konuşmacı {n}",
+      "rename": "Bu konuşmacıyı adlandır",
+      "namePlaceholder": "Ad yazın veya kişi arayın",
+      "use": "Bu adı kullan",
+      "reset": "Sıfırla"
+    }
   },
   "notices": {
     "summaryFailed": "AI özeti yazamadı. “Özeti yeniden oluştur” ile tekrar deneyin.",
@@ -99,6 +114,8 @@
     "fileType": "Bu dosya metne dökülemez. Bir ses ya da video dosyası seçin.",
     "fileTooLarge": "Dosyalar en fazla {size} olabilir.",
     "fileTooLong": "Kayıt üç saatten uzun; bir toplantı en fazla bu kadar sürebilir.",
-    "fileUnreadable": "Bu dosyanın sesi okunamadı. MP3 ya da M4A gibi başka bir biçim deneyin."
+    "fileUnreadable": "Bu dosyanın sesi okunamadı. MP3 ya da M4A gibi başka bir biçim deneyin.",
+    "othersDenied": "Paylaşım iptal edildi, bu yüzden diğer katılımcılar kaydedilemiyor. Yeniden deneyin ve sesli bir sekme veya ekran seçin.",
+    "noOthersAudio": "Paylaştığınız içerikte ses yok. Bir tarayıcı sekmesi paylaşın ve “Sekme sesini paylaş” kutusunu işaretleyin."
   }
 }

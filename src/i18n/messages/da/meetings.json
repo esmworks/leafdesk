@@ -74,7 +74,22 @@
     "noTranscript": "Udskriften udfyldes her, mens du optager.",
     "gap": "Denne del kunne ikke transskriberes.",
     "listening": "Lytter… {time}",
-    "transcribing": "Transskriberer… {time}"
+    "transcribing": "Transskriberer… {time}",
+    "withOthers": "Optag med andre",
+    "withOthersHint": "Optag også de andre deltagere: del mødets fane eller skærm med lyd.",
+    "addTodos": "Tilføj som to-dos",
+    "addTodosHint": "Føj de åbne handlingspunkter til siden som to-dos og nævn de personer, de angiver.",
+    "todosAdded": "Tilføjet som to-dos",
+    "speakers": {
+      "label": "Talere",
+      "you": "Dig",
+      "others": "Andre",
+      "speaker": "Taler {n}",
+      "rename": "Navngiv denne taler",
+      "namePlaceholder": "Skriv et navn eller søg efter personer",
+      "use": "Brug dette navn",
+      "reset": "Nulstil"
+    }
   },
   "notices": {
     "summaryFailed": "AI kunne ikke skrive resuméet. Prøv Generér resumé igen.",
@@ -99,6 +114,8 @@
     "fileType": "Denne fil kan ikke transskriberes. Vælg en lyd- eller videofil.",
     "fileTooLarge": "Filer må højst være {size}.",
     "fileTooLong": "Optagelsen er længere end tre timer, som er det længste et møde kan vare.",
-    "fileUnreadable": "Lyden i denne fil kunne ikke læses. Prøv et andet format, fx MP3 eller M4A."
+    "fileUnreadable": "Lyden i denne fil kunne ikke læses. Prøv et andet format, fx MP3 eller M4A.",
+    "othersDenied": "Delingen blev annulleret, så de andre deltagere kan ikke optages. Prøv igen og vælg en fane eller skærm med lyd.",
+    "noOthersAudio": "Det, du delte, har ingen lyd. Del en browserfane, og markér “Del fanelyd”."
   }
 }

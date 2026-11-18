@@ -1,13 +1,15 @@
 /**
  * The recording itself, for meeting-recorder.tsx, which loads this only when a recording starts.
  *
- * The microphone's stream is cut into pieces of MEETING_CHUNK_SECONDS, each by a MediaRecorder of
+ * The microphone's stream (and, when the person shares a tab or screen with its sound, a second
+ * stream with the other participants) is cut into pieces of MEETING_CHUNK_SECONDS, each by a MediaRecorder of
  * its own (a timesliced recorder's pieces aren't playable files on their own), which are sent one
  * at a time to /api/meetings/chunk with their place in the meeting: seconds recorded before them,
  * pauses left out. A piece that fails is tried again, then left as a gap (meeting-pieces.ts). The block (and anyone
  * else with the page open) sees the transcript fill in as the server writes it.
  */
 import { finishMeetingAction, markMeetingGapAction, meetingHeartbeatAction, startMeetingAction } from "@/app/actions/meetings";
+import type { ChunkStream } from "@/lib/meetings";
 import { MAX_MEETING_SECONDS, MEETING_CHUNK_SECONDS, MEETING_HEARTBEAT_MS } from "@/lib/meeting-clock";
 import { RECORDER_BITS_PER_SECOND, RECORDER_TYPES } from "@/lib/voice-notes";
 import { deliverPiece, FINAL_CODES } from "./meeting-pieces";
@@ -18,7 +20,7 @@ import { canRecord } from "./use-voice-recorder";
 export type SessionView = { status: MeetingRecorderStatus; seconds: number; gaps: number; waiting: number };
 
 /** The texts of meetings.errors the session can end with. */
-export type SessionError = "noAccess" | "notFound" | "notRecording" | "tooLong" | "disabled" | "failed" | "insecure" | "unsupported" | "denied" | "noDevice";
+export type SessionError = "noAccess" | "notFound" | "notRecording" | "tooLong" | "disabled" | "failed" | "insecure" | "unsupported" | "denied" | "noDevice" | "othersDenied" | "noOthersAudio";
 
 export type SessionHooks = {
   /** The session's state changed (also every half second while it runs). */
@@ -30,7 +32,8 @@ export type SessionHooks = {
 
 export type SessionControls = { pause: () => void; resume: () => void; stop: () => void; dispose: () => void };
 
-type Piece = { chunk: number; offset: number; duration: number; blob: Blob };
+type Piece = { chunk: number; offset: number; duration: number; blob: Blob; stream?: ChunkStream };
+
 
 function startError(error: unknown): SessionError {
   const name = (error as { name?: string } | null)?.name;
@@ -48,25 +51,47 @@ export async function startMeetingSession(
   meetingId: string,
   maxSeconds: number,
   hooks: SessionHooks,
+  { others = false }: { others?: boolean } = {},
 ): Promise<{ controls: SessionControls } | { problem: string }> {
   const te = hooks.translate;
   if (!window.isSecureContext) return { problem: te("insecure") };
   if (!canRecord()) return { problem: te("unsupported") };
+  // The other participants first: sharing a tab needs the click that started the recording.
+  let display: MediaStream | null = null;
+  let heard: MediaStream | null = null;
+  if (others) {
+    try {
+      display = await navigator.mediaDevices.getDisplayMedia({ audio: true, video: true, systemAudio: "include" } as DisplayMediaStreamOptions);
+    } catch (error) {
+      const name = (error as { name?: string } | null)?.name;
+      return { problem: te(name === "NotAllowedError" || name === "SecurityError" ? "othersDenied" : "failed") };
+    }
+    // The picture is never recorded; its track stays so the browser keeps showing that something is shared.
+    heard = display.getAudioTracks().length ? new MediaStream(display.getAudioTracks()) : null;
+    if (!heard) {
+      display.getTracks().forEach((track) => track.stop());
+      return { problem: te("noOthersAudio") };
+    }
+  }
   let stream: MediaStream;
   try {
     stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } });
   } catch (error) {
+    display?.getTracks().forEach((track) => track.stop());
     return { problem: te(startError(error)) };
   }
   const res = await startMeetingAction(pageId, meetingId).catch(() => null);
   if (!res?.ok) {
     stream.getTracks().forEach((track) => track.stop());
+    display?.getTracks().forEach((track) => track.stop());
     return { problem: res?.error ?? te("failed") };
   }
+  /** The other participants' stream while it is still shared. */
+  let othersStream: MediaStream | null = heard;
 
   const mimeType = RECORDER_TYPES.find((type) => MediaRecorder.isTypeSupported?.(type)) ?? "";
   const pieceMs = Math.min(MEETING_CHUNK_SECONDS, Math.max(5, maxSeconds - 5)) * 1000;
-  let recorder: MediaRecorder | null = null;
+  let recorder: { readonly state: string; stop: () => void } | null = null;
   /** Seconds recorded before the piece being recorded now. */
   let recorded = res.data.seconds;
   /** When the piece being recorded started (ms), while recording. */
@@ -98,6 +123,7 @@ export async function startMeetingSession(
     clearInterval(ticker);
     if (heartbeat) clearInterval(heartbeat);
     stream.getTracks().forEach((track) => track.stop());
+    display?.getTracks().forEach((track) => track.stop());
   };
 
   /** Ends without finishing the meeting (it went away, or access was lost). */
@@ -119,9 +145,9 @@ export async function startMeetingSession(
   };
 
   const send = async (piece: Piece) => {
-    const place = { pageId, meetingId, chunk: piece.chunk, offset: piece.offset, duration: piece.duration };
+    const place = { pageId, meetingId, chunk: piece.chunk, offset: piece.offset, duration: piece.duration, ...(piece.stream ? { stream: piece.stream } : {}) };
     const extension = mimeType.includes("mp4") ? "m4a" : mimeType.includes("ogg") ? "ogg" : "webm";
-    const sent = await deliverPiece(place, new File([piece.blob], `meeting-${piece.chunk}.${extension}`, { type: piece.blob.type }), () => over);
+    const sent = await deliverPiece(place, new File([piece.blob], `meeting-${piece.chunk}${piece.stream === "others" ? "-others" : ""}.${extension}`, { type: piece.blob.type }), () => over);
     if (sent.result === "final") return drop(te(sent.code as SessionError));
     if (sent.result !== "failed") return;
     const gap = await markMeetingGapAction(place).catch(() => null);
@@ -143,23 +169,45 @@ export async function startMeetingSession(
 
   /** Records the next piece, which ends itself after its length (or on pause and stop). */
   const startPiece = () => {
-    const piece = new MediaRecorder(stream, { ...(mimeType ? { mimeType } : {}), audioBitsPerSecond: RECORDER_BITS_PER_SECOND });
-    const parts: Blob[] = [];
+    // The microphone's recorder first (it times the piece), then the other participants' while shared.
+    const sources: { stream: MediaStream; tag: ChunkStream | undefined }[] = [{ stream, tag: others ? "mic" : undefined }];
+    if (othersStream) sources.push({ stream: othersStream, tag: "others" });
+    const parts = sources.map(() => [] as Blob[]);
     const started = Date.now();
     const offset = recorded;
     const chunk = nextChunk++;
-    // Data arrives every second, in background tabs too: the piece ends on the first past its length.
-    piece.ondataavailable = (event) => {
-      if (event.data.size) parts.push(event.data);
-      if (piece.state === "recording" && Date.now() - started >= pieceMs) piece.stop();
+    let live = sources.length;
+    const recorders = sources.map(({ stream: from }, i) => {
+      const piece = new MediaRecorder(from, { ...(mimeType ? { mimeType } : {}), audioBitsPerSecond: RECORDER_BITS_PER_SECOND });
+      // Data arrives every second, in background tabs too: the piece ends on the first past its length.
+      piece.ondataavailable = (event) => {
+        if (event.data.size) parts[i].push(event.data);
+        if (i === 0 && piece.state === "recording" && Date.now() - started >= pieceMs) stopAll();
+      };
+      piece.onstop = () => {
+        if (--live === 0) ended();
+      };
+      return piece;
+    });
+    const stopAll = () => {
+      for (const piece of recorders) if (piece.state !== "inactive") piece.stop();
     };
-    piece.onstop = () => {
+    const ended = () => {
       const duration = Math.max(0, (Date.now() - started) / 1000);
       recorded = offset + duration;
       pieceStarted = null;
       recorder = null;
-      if (parts.length && !over) {
-        queue.push({ chunk, offset: Math.round(offset * 10) / 10, duration: Math.round(duration * 10) / 10, blob: new Blob(parts, { type: piece.mimeType || mimeType || "audio/webm" }) });
+      if (!over) {
+        sources.forEach(({ tag }, i) => {
+          if (!parts[i].length) return;
+          queue.push({
+            chunk,
+            offset: Math.round(offset * 10) / 10,
+            duration: Math.round(duration * 10) / 10,
+            blob: new Blob(parts[i], { type: recorders[i].mimeType || mimeType || "audio/webm" }),
+            ...(tag ? { stream: tag } : {}),
+          });
+        });
         void pump();
       }
       if (over) return;
@@ -169,9 +217,14 @@ export async function startMeetingSession(
         void finish();
       } else if (status !== "paused") startPiece();
     };
-    recorder = piece;
+    recorder = {
+      get state() {
+        return recorders.every((r) => r.state === "inactive") ? "inactive" : "recording";
+      },
+      stop: stopAll,
+    };
     pieceStarted = started;
-    piece.start(1000);
+    for (const piece of recorders) piece.start(1000);
   };
 
   // The microphone went away (unplugged, or taken back in the browser's settings): end there.
@@ -182,6 +235,14 @@ export async function startMeetingSession(
       if (recorder) recorder.stop();
       else void finish();
     };
+  }
+  // Sharing stopped from the browser's own bar: the recording goes on with the microphone alone.
+  if (display) {
+    for (const track of display.getTracks()) {
+      track.onended = () => {
+        othersStream = null;
+      };
+    }
   }
   try {
     startPiece();

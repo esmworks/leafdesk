@@ -15,28 +15,40 @@
  * (CollabService.updateBlockAttributes), so they never undo what people type meanwhile.
  */
 import { and, desc, eq, isNull, sql } from "drizzle-orm";
+import { randomUUID } from "node:crypto";
 import { db } from "@/db";
 import { meetingNote, meetingPage as madeMeetingPage, page } from "@/db/schema";
 import {
+  chunkPieces,
+  isChunkStream,
   isStale,
   MAX_MEETING_SECONDS,
   MAX_MEETING_TITLE,
   MEETING_BLOCK,
+  ENGLISH_SPEAKER_LABELS,
+  knownPeople,
+  matchPerson,
   meetingProps,
   mergeChunk,
   newMeetingId,
   parseAttendees,
+  parseSpeakers,
+  parseTakeaways,
   parseTranscript,
   serializeTranscript,
+  speakerNamer,
   transcriptLines,
+  type ChunkStream,
   type MeetingProps,
   type MeetingSource,
   type TranscriptChunk,
 } from "@/lib/meetings";
 import type { MeetingListItem } from "@/lib/meeting-list";
+import { MENTION } from "@/lib/mentions";
 import { isPageLocked } from "@/lib/page-lock";
+import { TODO_BLOCK } from "@/lib/page-tasks";
 import { AccessError, pageVisibleTo, requireMembership, requirePageAccess } from "@/server/access";
-import { aiConfig, AiError, complete, contentChars, transcribe } from "@/server/ai";
+import { aiConfig, AiError, complete, contentChars, transcribeSpeakers } from "@/server/ai";
 import { meetingMergePrompt, meetingSummaryPrompt, parseMeetingSummary } from "@/server/ai/prompts";
 import { aiAvailable } from "@/server/ai-writing";
 import { getCollab } from "@/server/collab/bridge";
@@ -152,7 +164,8 @@ export async function startMeeting(
   return { seconds: props.seconds, nextChunk: chunks.reduce((max, c) => Math.max(max, c.c + 1), 0) };
 }
 
-export type ChunkPlace = { pageId: string; meetingId: string; chunk: number; offset: number; duration: number };
+/** `stream`: what a piece was recorded from when the recording has both the microphone and the other participants (see lib/meetings chunkPieces). */
+export type ChunkPlace = { pageId: string; meetingId: string; chunk: number; offset: number; duration: number; stream?: ChunkStream };
 
 function checkPlace(place: ChunkPlace) {
   const ok =
@@ -163,13 +176,14 @@ function checkPlace(place: ChunkPlace) {
     place.offset >= 0 &&
     Number.isFinite(place.duration) &&
     place.duration >= 0 &&
-    place.duration <= 600;
+    place.duration <= 600 &&
+    (place.stream === undefined || isChunkStream(place.stream));
   if (!ok) throw new MeetingError("invalid", "The recording's place in the meeting is missing");
   if (place.offset + place.duration > MAX_MEETING_SECONDS + LENGTH_SLACK) throw new MeetingError("tooLong", "Meetings can be at most three hours long");
 }
 
 /** Writes a piece of the transcript (text or a gap) into the block, if its recorder still records it. */
-async function writeChunk(userId: string, place: ChunkPlace, chunk: TranscriptChunk) {
+async function writeChunk(userId: string, place: ChunkPlace, chunk: TranscriptChunk | TranscriptChunk[]) {
   return updateMeeting(userId, place.pageId, place.meetingId, (p) => {
     if (p.status !== "recording" || p.recorder !== userId) throw new MeetingError("notRecording", "This meeting isn't being recorded by you");
     return {
@@ -196,22 +210,23 @@ export async function addMeetingChunk(
   const found = await meetingPage(userId, place.pageId);
   const before = await readMeeting(place.pageId, place.meetingId);
   if (before.status !== "recording" || before.recorder !== userId) throw new MeetingError("notRecording", "This meeting isn't being recorded by you");
-  let text = "";
+  let heard: Awaited<ReturnType<typeof transcribeSpeakers>> = { text: "", segments: null };
   try {
-    text = await transcribe(audio, { feature: "voice.meeting", userId, workspaceId: found.workspaceId, language, signal });
+    // The microphone's pieces are "you" outright; elsewhere the provider's speakers are used if it has them.
+    heard = await transcribeSpeakers(audio, { feature: "voice.meeting", userId, workspaceId: found.workspaceId, language, signal, speakers: place.stream !== "mic" });
   } catch (error) {
     // Nothing said in these seconds: not a failure.
     if (!(error instanceof AiError && error.code === "empty")) throw error;
   }
-  const props = await writeChunk(userId, place, { c: place.chunk, t: place.offset, d: place.duration, x: text });
-  return { text: text.trim(), seconds: props.seconds };
+  const props = await writeChunk(userId, place, chunkPieces(place, heard.text, heard.segments));
+  return { text: heard.text.trim(), seconds: props.seconds };
 }
 
 /** A piece that couldn't be transcribed after its retries: a gap in the transcript at its time. */
 export async function markMeetingGap(userId: string, place: ChunkPlace) {
   checkPlace(place);
   await meetingPage(userId, place.pageId);
-  await writeChunk(userId, place, { c: place.chunk, t: place.offset, d: place.duration, gap: true });
+  await writeChunk(userId, place, { c: place.chunk, t: place.offset, d: place.duration, gap: true, ...(place.stream === "others" ? { r: "o" as const } : {}) });
 }
 
 /** The recorder is still there (while paused, when no pieces come). */
@@ -323,13 +338,25 @@ export async function writeUpMeeting(
 }
 
 /**
+ * The names an action item may give: the attendees, the people speakers were named after, and the
+ * recorder when their voice is in the transcript (the microphone's pieces read as their name).
+ */
+export function namesForSummary(props: MeetingProps): string[] {
+  const names = parseAttendees(props.attendees).map((a) => a.name);
+  names.push(...Object.values(parseSpeakers(props.speakers)).map((s) => s.name));
+  if (props.recorderName && parseTranscript(props.transcript).some((c) => c.s === "you")) names.push(props.recorderName);
+  return [...new Set(names.map((n) => n.trim()).filter(Boolean))];
+}
+
+/**
  * Writes the meeting up into its block. A write-up that went in starts the automations of the
  * row the page is, if it is one (server/meeting-triggers.ts); one that couldn't be written doesn't.
  */
 async function summarizeMeeting(userId: string, pageId: string, meetingId: string, workspaceId: string, regenerated: boolean) {
   const props = await readMeeting(pageId, meetingId);
-  const lines = transcriptLines(parseTranscript(props.transcript), "(not transcribed)");
-  const heard = parseTranscript(props.transcript).some((c) => !("gap" in c) && c.x.trim());
+  const chunks = parseTranscript(props.transcript);
+  const lines = transcriptLines(chunks, "(not transcribed)", speakerNamer(chunks, parseSpeakers(props.speakers), ENGLISH_SPEAKER_LABELS(props.recorderName)));
+  const heard = chunks.some((c) => !("gap" in c) && c.x.trim());
   // Whether this write put it in: one ended meanwhile (written by another process) is left alone.
   let applied = false;
   const done = (values: Partial<Record<keyof MeetingProps, string>>) =>
@@ -342,7 +369,7 @@ async function summarizeMeeting(userId: string, pageId: string, meetingId: strin
   if (!(await aiAvailable(workspaceId))) return done({ notice: "noAi" });
   let written: Awaited<ReturnType<typeof writeUpMeeting>>;
   try {
-    written = await writeUpMeeting(lines, parseAttendees(props.attendees).map((a) => a.name), props.seconds, { userId, workspaceId });
+    written = await writeUpMeeting(lines, namesForSummary(props), props.seconds, { userId, workspaceId });
   } catch (error) {
     if (!(error instanceof AiError)) console.error("[meetings] summary", error);
     return done({ notice: error instanceof AiError && error.code === "limitReached" ? "limit" : "summaryFailed" });
@@ -350,6 +377,31 @@ async function summarizeMeeting(userId: string, pageId: string, meetingId: strin
   if (!written) return done({ notice: "summaryFailed" });
   const after = await done({ ...written, notice: "" });
   if (applied) await meetingSummarized(userId, pageId, meetingTriggerData(after, regenerated));
+}
+
+/**
+ * Adds the meeting's action items to the page as to-dos below its other content, each mentioning
+ * the member it names (the attendees and speakers named after members; a name nobody matches, or
+ * two people share, stays plain text before the task). Returns how many were added. Done items
+ * are left out. Anyone who may edit the page may do it.
+ */
+export async function addMeetingTodos(userId: string, pageId: string, meetingId: string): Promise<{ count: number }> {
+  await meetingPage(userId, pageId);
+  const props = await readMeeting(pageId, meetingId);
+  const people = knownPeople(props);
+  const items = parseTakeaways(props.actions).filter((item) => !item.done);
+  if (!items.length) throw new MeetingError("invalid", "There are no action items to add");
+  const blocks = items.map((item) => {
+    const who = item.assignee ? matchPerson(item.assignee, people) : null;
+    const lead = who
+      ? [{ type: MENTION, props: { kind: "user", id: randomUUID(), userId: who.id, name: who.name } }, { type: "text", text: " ", styles: {} }]
+      : item.assignee
+        ? [{ type: "text", text: `${item.assignee}: `, styles: {} }]
+        : [];
+    return { type: TODO_BLOCK, props: { checked: false }, content: [...lead, { type: "text", text: item.text, styles: {} }] };
+  });
+  await getCollab().appendBlocks(pageId, blocks, { userId }, true);
+  return { count: blocks.length };
 }
 
 /**

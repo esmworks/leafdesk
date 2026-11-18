@@ -10,6 +10,7 @@ import {
   finishMeeting,
   isMeetingError,
   listMeetings,
+  addMeetingTodos,
   markMeetingGap,
   meetingHeartbeat,
   regenerateMeetingSummary,
@@ -47,6 +48,7 @@ const placeOf = (place: ChunkPlace): ChunkPlace => ({
   chunk: num(place?.chunk),
   offset: num(place?.offset),
   duration: num(place?.duration),
+  ...(place?.stream === "mic" || place?.stream === "others" ? { stream: place.stream } : {}),
 });
 
 /** `source` "file": the meeting's pieces come from an uploaded recording. */
@@ -68,6 +70,11 @@ export async function finishMeetingAction(pageId: string, meetingId: string, sec
 
 export async function regenerateMeetingSummaryAction(pageId: string, meetingId: string) {
   return run((user) => regenerateMeetingSummary(user.id, id(pageId), id(meetingId)));
+}
+
+/** The meeting's open action items added to its page as to-dos (mentioning the members they name). */
+export async function addMeetingTodosAction(pageId: string, meetingId: string) {
+  return run((user) => addMeetingTodos(user.id, id(pageId), id(meetingId)));
 }
 
 /**

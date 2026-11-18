@@ -32,7 +32,9 @@ import { fetchEmbeddings } from "./embeddings";
 import { AiError } from "./errors";
 import { featurePlan } from "./features";
 import { guardedAiFetch } from "./fetch";
-import { fetchTranscription } from "./transcribe";
+import { fetchTranscription, type SpokenSegment } from "./transcribe";
+
+export type { SpokenSegment };
 import { holdToLimit, recordUsage, usageLedger, usageNumbers, type AiUsageLedger } from "./usage";
 
 export { AiError, aiErrorStatus, isAiError } from "./errors";
@@ -785,6 +787,18 @@ export async function transcribe(
   audio: { bytes: Blob; type: string },
   request: { feature: string; userId?: string | null; workspaceId: string; language?: string | null; signal?: AbortSignal; skipRateLimit?: boolean },
 ): Promise<string> {
+  return (await transcribeSpeakers(audio, request)).text;
+}
+
+/**
+ * `transcribe` that also says who spoke when the configured model tells speakers apart
+ * (`speakers`: ask for it): `segments` are the speakers' stretches, null otherwise, and then
+ * `text` is all there is. Same limits, errors and usage as `transcribe`.
+ */
+export async function transcribeSpeakers(
+  audio: { bytes: Blob; type: string },
+  request: { feature: string; userId?: string | null; workspaceId: string; language?: string | null; signal?: AbortSignal; skipRateLimit?: boolean; speakers?: boolean },
+): Promise<{ text: string; segments: SpokenSegment[] | null }> {
   if (!request.workspaceId) throw new AiError("disabled", "AI runs only for a workspace");
   const target = await aiTargetFor(request.workspaceId);
   const stt = target?.config.stt;
@@ -800,12 +814,18 @@ export async function transcribe(
   let detail = `bytes=${audio.bytes.size}`;
   try {
     await holdToLimit(ledger, request.workspaceId, target.accountId !== null);
-    const { text: heard, seconds } = testing ? { text: await testing(audio), seconds: null } : await fetchTranscription(stt, audio, signal, request.language);
+    const { text: heard, seconds, segments: spoken } = testing
+      ? await testing(audio).then((r) => (typeof r === "string" ? { text: r, seconds: null, segments: null } : { text: r.text, seconds: null, segments: request.speakers ? r.segments : null }))
+      : await fetchTranscription(stt, audio, signal, request.language, { speakers: request.speakers });
     if (seconds) detail += ` seconds=${Math.round(seconds)}`;
     // A subtitler's credit or a video's sign-off, written over silence (lib/speech-artifacts).
     const { text, dropped } = dropSpeechArtifacts(heard);
     if (dropped.length) detail += ` artifacts=${dropped.length}`;
     if (!text) throw new AiError("empty", "Nothing was heard in the recording");
+    // Each stretch loses the same artifacts the whole text did; a stretch left empty drops.
+    const segments = spoken
+      ?.map((s) => ({ ...s, text: dropSpeechArtifacts(s.text).text }))
+      .filter((s) => s.text) ?? null;
     noted(target, null);
     logUsage({
       feature: request.feature,
@@ -819,7 +839,7 @@ export async function transcribe(
     });
     // Speech to text is priced by the minute, which the provider doesn't say: counted, at no cost.
     await recordUsage(ledger, { workspaceId: request.workspaceId, userId: request.userId ?? null, feature: request.feature, model: stt.model, ownAccount: target.accountId !== null, inputTokens: 0, cacheReadTokens: 0, cacheWriteTokens: 0, outputTokens: 0, costUsd: 0 });
-    return text;
+    return { text, segments: segments?.length ? segments : null };
   } catch (error) {
     const failed = failure(null, error, { timedOut: timeout.aborted, cancelled: request.signal?.aborted === true }, {
       feature: request.feature,

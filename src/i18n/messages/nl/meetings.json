@@ -74,7 +74,22 @@
     "noTranscript": "De transcriptie verschijnt hier terwijl je opneemt.",
     "gap": "Dit deel kon niet worden getranscribeerd.",
     "listening": "Luisteren… {time}",
-    "transcribing": "Uitschrijven… {time}"
+    "transcribing": "Uitschrijven… {time}",
+    "withOthers": "Opnemen met anderen",
+    "withOthersHint": "Neem ook de andere deelnemers op: deel het tabblad of scherm van de vergadering met geluid.",
+    "addTodos": "Toevoegen als taken",
+    "addTodosHint": "Voegt de openstaande actiepunten als taken aan de pagina toe en vermeldt de genoemde personen.",
+    "todosAdded": "Toegevoegd als taken",
+    "speakers": {
+      "label": "Sprekers",
+      "you": "Jij",
+      "others": "Anderen",
+      "speaker": "Spreker {n}",
+      "rename": "Geef deze spreker een naam",
+      "namePlaceholder": "Typ een naam of zoek mensen",
+      "use": "Deze naam gebruiken",
+      "reset": "Herstellen"
+    }
   },
   "notices": {
     "summaryFailed": "AI kon de samenvatting niet schrijven. Probeer Samenvatting opnieuw maken.",
@@ -99,6 +114,8 @@
     "fileType": "Dit bestand kan niet worden uitgeschreven. Kies een audio- of videobestand.",
     "fileTooLarge": "Bestanden mogen hoogstens {size} zijn.",
     "fileTooLong": "De opname duurt langer dan drie uur, de langste duur van een vergadering.",
-    "fileUnreadable": "Het geluid in dit bestand kon niet worden gelezen. Probeer een ander formaat, zoals MP3 of M4A."
+    "fileUnreadable": "Het geluid in dit bestand kon niet worden gelezen. Probeer een ander formaat, zoals MP3 of M4A.",
+    "othersDenied": "Delen is geannuleerd, dus de andere deelnemers kunnen niet worden opgenomen. Probeer het opnieuw en kies een tabblad of scherm met geluid.",
+    "noOthersAudio": "Wat je deelde heeft geen geluid. Deel een browsertabblad en vink “Tabbladaudio delen” aan."
   }
 }

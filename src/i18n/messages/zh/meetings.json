@@ -74,7 +74,22 @@
     "noTranscript": "录音时，转写文本会显示在这里。",
     "gap": "这一段无法转写。",
     "listening": "正在聆听… {time}",
-    "transcribing": "正在转写… {time}"
+    "transcribing": "正在转写… {time}",
+    "withOthers": "与他人一起录音",
+    "withOthersHint": "同时录下其他参会者:共享会议所在的标签页或屏幕,并包含声音。",
+    "addTodos": "添加为待办",
+    "addTodosHint": "将未完成的行动项作为待办添加到此页面,并提及其中点名的人。",
+    "todosAdded": "已添加为待办",
+    "speakers": {
+      "label": "发言人",
+      "you": "你",
+      "others": "其他人",
+      "speaker": "发言人 {n}",
+      "rename": "为此发言人命名",
+      "namePlaceholder": "输入名称或搜索人员",
+      "use": "使用此名称",
+      "reset": "重置"
+    }
   },
   "notices": {
     "summaryFailed": "AI 无法撰写摘要。请尝试“重新生成摘要”。",
@@ -99,6 +114,8 @@
     "fileType": "无法转写此文件。请选择音频或视频文件。",
     "fileTooLarge": "文件最大为 {size}。",
     "fileTooLong": "录音超过三小时，即会议的最长时长。",
-    "fileUnreadable": "无法读取此文件中的声音。请尝试其他格式，如 MP3 或 M4A。"
+    "fileUnreadable": "无法读取此文件中的声音。请尝试其他格式，如 MP3 或 M4A。",
+    "othersDenied": "共享已取消,因此无法录下其他参会者。请重试,并选择带声音的标签页或屏幕。",
+    "noOthersAudio": "你共享的内容没有声音。请共享浏览器标签页并勾选“共享标签页音频”。"
   }
 }

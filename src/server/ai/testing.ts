@@ -32,7 +32,7 @@ export function installFauxAi(
     tokensPerSecond?: number;
     embed?: (texts: string[]) => Promise<number[][]>;
     /** Turns speech to text on, answering every recording with this. */
-    transcribe?: (audio: { bytes: Blob; type: string }) => Promise<string>;
+    transcribe?: (audio: { bytes: Blob; type: string }) => Promise<string | { text: string; segments: { speaker: string; start: number; end: number; text: string }[] | null }>;
     /** Where requests' usage is counted (memoryAiUsageLedger, or the database's); none without. */
     usage?: AiUsageLedger;
   } = {},

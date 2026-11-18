@@ -76,6 +76,8 @@ export type FakeOpenAi = {
   transcribed: { name: string; size: number; model: string; language?: string }[];
   /** What a recording reads as (a function of its size and file name). */
   setTranscript(text: (audio: { name: string; size: number }) => string): void;
+  /** The speakers' stretches a `diarized_json` request is answered with (null: none, as a model that doesn't diarize). */
+  setSegments(segments: ((audio: { name: string; size: number }) => { speaker: string; start: number; end: number; text: string }[]) | null): void;
   /** Milliseconds between streamed pieces (for cancelling mid-answer). */
   delayMs: number;
   /** The bearer key of every request, in order (null without one). */
@@ -98,6 +100,7 @@ export async function startFakeOpenAi(
 ) {
   let answer = reply;
   let transcript = (_audio: { name: string; size: number }) => "This is a test recording.";
+  let segments: Parameters<FakeOpenAi["setSegments"]>[0] = null;
   let accepted: string[] | null = null;
   const state: FakeOpenAi = {
     baseUrl: "",
@@ -111,6 +114,9 @@ export async function startFakeOpenAi(
     },
     setTranscript(next) {
       transcript = next;
+    },
+    setSegments(next) {
+      segments = next;
     },
     setChat(next) {
       answer = next;
@@ -140,7 +146,7 @@ export async function startFakeOpenAi(
         const language = form.get("language");
         state.transcribed.push({ ...audio, model: String(form.get("model")), ...(typeof language === "string" ? { language } : {}) });
         res.writeHead(200, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({ text: transcript(audio) }));
+        res.end(JSON.stringify(form.get("response_format") === "diarized_json" && segments ? { text: transcript(audio), segments: segments(audio) } : { text: transcript(audio) }));
         return;
       }
       const body = await readBody(req);

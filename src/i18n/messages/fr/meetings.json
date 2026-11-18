@@ -74,7 +74,22 @@
     "noTranscript": "La transcription s’affiche ici pendant l’enregistrement.",
     "gap": "Ce passage n’a pas pu être transcrit.",
     "listening": "Écoute… {time}",
-    "transcribing": "Transcription… {time}"
+    "transcribing": "Transcription… {time}",
+    "withOthers": "Enregistrer avec les autres",
+    "withOthersHint": "Enregistrez aussi les autres participants : partagez l'onglet ou l'écran de la réunion avec son son.",
+    "addTodos": "Ajouter comme tâches",
+    "addTodosHint": "Ajoute à la page les actions ouvertes sous forme de tâches, en mentionnant les personnes citées.",
+    "todosAdded": "Ajouté comme tâches",
+    "speakers": {
+      "label": "Intervenants",
+      "you": "Vous",
+      "others": "Les autres",
+      "speaker": "Intervenant {n}",
+      "rename": "Nommer cet intervenant",
+      "namePlaceholder": "Saisissez un nom ou cherchez des personnes",
+      "use": "Utiliser ce nom",
+      "reset": "Réinitialiser"
+    }
   },
   "notices": {
     "summaryFailed": "L’IA n’a pas pu rédiger le résumé. Essayez « Régénérer le résumé ».",
@@ -99,6 +114,8 @@
     "fileType": "Ce fichier ne peut pas être transcrit. Choisissez un fichier audio ou vidéo.",
     "fileTooLarge": "Les fichiers peuvent faire au plus {size}.",
     "fileTooLong": "L’enregistrement dure plus de trois heures, la durée maximale d’une réunion.",
-    "fileUnreadable": "Le son de ce fichier n’a pas pu être lu. Essayez un autre format, comme MP3 ou M4A."
+    "fileUnreadable": "Le son de ce fichier n’a pas pu être lu. Essayez un autre format, comme MP3 ou M4A.",
+    "othersDenied": "Le partage a été annulé : les autres participants ne peuvent pas être enregistrés. Réessayez et choisissez un onglet ou un écran avec du son.",
+    "noOthersAudio": "Ce que vous avez partagé n'a pas de son. Partagez un onglet du navigateur et cochez « Partager l'audio de l'onglet »."
   }
 }

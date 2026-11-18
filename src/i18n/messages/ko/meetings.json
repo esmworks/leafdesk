@@ -74,7 +74,22 @@
     "noTranscript": "녹음하는 동안 여기에 녹취록이 채워집니다.",
     "gap": "이 부분은 받아 적지 못했습니다.",
     "listening": "듣는 중… {time}",
-    "transcribing": "받아쓰는 중… {time}"
+    "transcribing": "받아쓰는 중… {time}",
+    "withOthers": "다른 사람과 함께 녹음",
+    "withOthersHint": "다른 참석자도 녹음합니다. 회의 탭이나 화면을 소리와 함께 공유하세요.",
+    "addTodos": "할 일로 추가",
+    "addTodosHint": "열려 있는 실행 항목을 언급된 사람을 멘션해 이 페이지에 할 일로 추가합니다.",
+    "todosAdded": "할 일로 추가됨",
+    "speakers": {
+      "label": "화자",
+      "you": "나",
+      "others": "다른 사람",
+      "speaker": "화자 {n}",
+      "rename": "이 화자 이름 지정",
+      "namePlaceholder": "이름 입력 또는 사람 검색",
+      "use": "이 이름 사용",
+      "reset": "초기화"
+    }
   },
   "notices": {
     "summaryFailed": "AI가 요약을 작성하지 못했습니다. ‘요약 다시 생성’을 시도해 보세요.",
@@ -99,6 +114,8 @@
     "fileType": "이 파일은 받아쓸 수 없습니다. 오디오 또는 동영상 파일을 선택하세요.",
     "fileTooLarge": "파일은 최대 {size}까지 가능합니다.",
     "fileTooLong": "녹음이 회의 최대 길이인 3시간보다 깁니다.",
-    "fileUnreadable": "이 파일의 소리를 읽을 수 없습니다. MP3나 M4A 같은 다른 형식으로 시도하세요."
+    "fileUnreadable": "이 파일의 소리를 읽을 수 없습니다. MP3나 M4A 같은 다른 형식으로 시도하세요.",
+    "othersDenied": "공유가 취소되어 다른 참석자를 녹음할 수 없습니다. 다시 시도하고 소리가 있는 탭이나 화면을 선택하세요.",
+    "noOthersAudio": "공유한 항목에 소리가 없습니다. 브라우저 탭을 공유하고 “탭 오디오 공유”를 선택하세요."
   }
 }

@@ -74,7 +74,22 @@
     "noTranscript": "La transcripción aparece aquí mientras grabas.",
     "gap": "Este fragmento no se pudo transcribir.",
     "listening": "Escuchando… {time}",
-    "transcribing": "Transcribiendo… {time}"
+    "transcribing": "Transcribiendo… {time}",
+    "withOthers": "Grabar con los demás",
+    "withOthersHint": "Graba también a los demás participantes: comparte la pestaña o la pantalla de la reunión con su sonido.",
+    "addTodos": "Añadir como tareas",
+    "addTodosHint": "Añade a la página los elementos de acción abiertos como tareas, mencionando a las personas indicadas.",
+    "todosAdded": "Añadido como tareas",
+    "speakers": {
+      "label": "Hablantes",
+      "you": "Tú",
+      "others": "Los demás",
+      "speaker": "Hablante {n}",
+      "rename": "Ponle nombre a este hablante",
+      "namePlaceholder": "Escribe un nombre o busca personas",
+      "use": "Usar este nombre",
+      "reset": "Restablecer"
+    }
   },
   "notices": {
     "summaryFailed": "La IA no pudo redactar el resumen. Prueba con «Volver a generar el resumen».",
@@ -99,6 +114,8 @@
     "fileType": "Este archivo no se puede transcribir. Elige un archivo de audio o de vídeo.",
     "fileTooLarge": "Los archivos pueden ocupar como máximo {size}.",
     "fileTooLong": "La grabación dura más de tres horas, lo máximo que puede durar una reunión.",
-    "fileUnreadable": "No se pudo leer el sonido de este archivo. Prueba con otro formato, como MP3 o M4A."
+    "fileUnreadable": "No se pudo leer el sonido de este archivo. Prueba con otro formato, como MP3 o M4A.",
+    "othersDenied": "Se canceló el uso compartido, así que no se puede grabar a los demás participantes. Inténtalo de nuevo y elige una pestaña o pantalla con sonido.",
+    "noOthersAudio": "Lo que compartiste no tiene sonido. Comparte una pestaña del navegador y marca “Compartir audio de la pestaña”."
   }
 }

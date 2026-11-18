@@ -2,6 +2,14 @@ import { describe, expect, it } from "vitest";
 import { blocksToPlainText } from "./blocks";
 import {
   chunkAt,
+  chunkPieces,
+  knownPeople,
+  matchPerson,
+  parseSpeakers,
+  serializeSpeakers,
+  speakerKeys,
+  speakerNamer,
+  ENGLISH_SPEAKER_LABELS,
   formatStamp,
   isStale,
   meetingMarkdown,
@@ -175,5 +183,91 @@ describe("meetings in Markdown", () => {
     expect(text).toContain("Weekly sync");
     expect(text).toContain("Ayşe: Tell the customer");
     expect(text).toContain("The launch moves to May.");
+  });
+});
+
+describe("meeting speakers", () => {
+  const place = { chunk: 2, offset: 60, duration: 30 };
+
+  it("label a piece by its stream, the microphone's as you and the others' as others", () => {
+    expect(chunkPieces({ ...place, stream: "mic" }, "hello")).toEqual([{ c: 2, d: 30, t: 60, s: "you", x: "hello" }]);
+    expect(chunkPieces({ ...place, stream: "others" }, "hi")).toEqual([{ c: 2, d: 30, t: 60, r: "o", s: "others", x: "hi" }]);
+    // A recording of one stream isn't labelled by guesswork; silence is an empty piece without a speaker.
+    expect(chunkPieces(place, "hi")).toEqual([{ c: 2, d: 30, t: 60, x: "hi" }]);
+    expect(chunkPieces({ ...place, stream: "mic" }, " ")).toEqual([{ c: 2, d: 30, t: 60, x: "" }]);
+  });
+
+  it("split a piece by the provider's speakers, joining neighbours and keeping times inside the piece", () => {
+    const segments = [
+      { speaker: "A", start: 0, end: 4, text: "Hello." },
+      { speaker: "A", start: 4, end: 6, text: "Ready?" },
+      { speaker: "B", start: 7, end: 40, text: "Yes." },
+    ];
+    expect(chunkPieces(place, "Hello. Ready? Yes.", segments)).toEqual([
+      { c: 2, d: 6, t: 60, s: "d:A", x: "Hello. Ready?" },
+      { c: 2, d: 23, t: 67, s: "d:B", x: "Yes." },
+    ]);
+    expect(chunkPieces({ ...place, stream: "others" }, "Yes.", [segments[2]])[0]).toMatchObject({ s: "o:B", r: "o" });
+    // The microphone's pieces are the recorder's whatever the provider heard.
+    expect(chunkPieces({ ...place, stream: "mic" }, "x", segments)).toHaveLength(1);
+  });
+
+  it("keep both streams of a chunk, replacing only the stream that came again", () => {
+    let chunks: TranscriptChunk[] = [];
+    chunks = mergeChunk(chunks, chunkPieces({ chunk: 0, offset: 0, duration: 30, stream: "others" }, "them"));
+    chunks = mergeChunk(chunks, chunkPieces({ chunk: 0, offset: 0, duration: 30, stream: "mic" }, "me"));
+    chunks = mergeChunk(chunks, { c: 1, t: 30, r: "o", gap: true });
+    expect(transcriptLines(chunks, "(gap)", (k) => ({ you: "Ann", others: "Others" })[k as "you"] ?? k)).toEqual(["[00:00] Ann: me", "[00:00] Others: them", "[00:30] (gap)"]);
+    // A gap never replaces its own stream's text, a retry fills a gap, and the other stream is left alone.
+    chunks = mergeChunk(chunks, { c: 0, t: 0, r: "o", gap: true });
+    chunks = mergeChunk(chunks, chunkPieces({ chunk: 1, offset: 30, duration: 30, stream: "others" }, "later"));
+    expect(chunks.map((c) => ("x" in c ? c.x : "gap"))).toEqual(["me", "them", "later"]);
+  });
+
+  it("read speakers back from the prop, dropping what is malformed", () => {
+    const chunks: TranscriptChunk[] = [
+      { c: 0, t: 0, s: "o:B", r: "o", x: "a" },
+      { c: 1, t: 5, s: "you", x: "b" },
+      { c: 2, t: 9, s: "o:C", r: "o", x: "c" },
+      { c: 3, t: 12, s: "o:B", r: "o", x: "d" },
+    ];
+    expect(parseTranscript(serializeTranscript(chunks))).toEqual(chunks);
+    expect(parseTranscript('[{"c":0,"t":0,"x":"a","s":"bad key!"}]')).toEqual([{ c: 0, t: 0, x: "a" }]);
+    expect(speakerKeys(chunks)).toEqual(["o:B", "you", "o:C"]);
+    const names = parseSpeakers(serializeSpeakers({ "o:B": { name: " Ayşe ", id: "u1" } }));
+    expect(names).toEqual({ "o:B": { name: "Ayşe", id: "u1" } });
+    expect(parseSpeakers('{"x y":{"name":"No"},"ok":{"name":" "},"fine":{"name":"Z"}}')).toEqual({ fine: { name: "Z" } });
+    expect(parseSpeakers("nope")).toEqual({});
+    const nameOf = speakerNamer(chunks, names, ENGLISH_SPEAKER_LABELS("Erhan"));
+    expect(["o:B", "you", "o:C"].map(nameOf)).toEqual(["Ayşe", "Erhan", "Speaker 2"]);
+    expect(transcriptLines(chunks, undefined, nameOf)[0]).toBe("[00:00] Ayşe: a");
+    // Without a namer a transcript reads as it always did.
+    expect(transcriptLines(chunks)[0]).toBe("[00:00] a");
+  });
+
+  it("write names into the meeting's Markdown, and keep the speakers out of the published feed", () => {
+    const transcript = serializeTranscript([{ c: 0, t: 0, s: "you", x: "We ship in May." }, { c: 1, t: 30, s: "o:A", r: "o", x: "Agreed." }]);
+    const md = meetingMarkdown({ meetingId: "m1", title: "Sync", recorderName: "Erhan", transcript, speakers: serializeSpeakers({ "o:A": { name: "Ayşe" } }) });
+    expect(md).toContain("- [00:00] Erhan: We ship in May.");
+    expect(md).toContain("- [00:30] Ayşe: Agreed.");
+    expect(withoutTranscripts(md)).not.toContain("Ayşe: Agreed");
+  });
+
+  it("find the member a name in a summary points at, only when one fits", () => {
+    const people = [
+      { id: "u1", name: "Ayşe Yılmaz" },
+      { id: "u2", name: "Mehmet Kaya" },
+      { id: "u3", name: "Mehmet Demir" },
+    ];
+    expect(matchPerson("ayşe yılmaz", people)?.id).toBe("u1");
+    expect(matchPerson("Ayşe", people)?.id).toBe("u1");
+    expect(matchPerson("Mehmet", people)).toBeNull();
+    expect(matchPerson("Mehmet Kaya", people)?.id).toBe("u2");
+    expect(matchPerson("Zeynep", people)).toBeNull();
+    expect(matchPerson("Ayşe", [{ id: "", name: "Ayşe" }])).toBeNull();
+    expect(knownPeople({ attendees: JSON.stringify([{ id: "u1", name: "Ayşe" }, { id: "", name: "Guest" }]), speakers: serializeSpeakers({ a: { name: "Ali", id: "u9" }, b: { name: "Free" } }) })).toEqual([
+      { id: "u1", name: "Ayşe" },
+      { id: "u9", name: "Ali" },
+    ]);
   });
 });

@@ -74,7 +74,22 @@
     "noTranscript": "Das Transkript füllt sich hier, während du aufnimmst.",
     "gap": "Dieser Abschnitt konnte nicht transkribiert werden.",
     "listening": "Hört zu… {time}",
-    "transcribing": "Wird transkribiert… {time}"
+    "transcribing": "Wird transkribiert… {time}",
+    "withOthers": "Mit anderen aufnehmen",
+    "withOthersHint": "Nimm auch die anderen Teilnehmenden auf: Teile den Tab oder Bildschirm des Meetings mit Ton.",
+    "addTodos": "Als Aufgaben hinzufügen",
+    "addTodosHint": "Fügt die offenen Aufgaben als To-dos zur Seite hinzu und erwähnt die genannten Personen.",
+    "todosAdded": "Als Aufgaben hinzugefügt",
+    "speakers": {
+      "label": "Sprecher",
+      "you": "Du",
+      "others": "Andere",
+      "speaker": "Sprecher {n}",
+      "rename": "Diesen Sprecher benennen",
+      "namePlaceholder": "Namen eingeben oder Personen suchen",
+      "use": "Diesen Namen verwenden",
+      "reset": "Zurücksetzen"
+    }
   },
   "notices": {
     "summaryFailed": "Die KI konnte die Zusammenfassung nicht schreiben. Versuche es mit „Zusammenfassung neu erstellen“.",
@@ -99,6 +114,8 @@
     "fileType": "Diese Datei kann nicht transkribiert werden. Wähle eine Audio- oder Videodatei.",
     "fileTooLarge": "Dateien dürfen höchstens {size} groß sein.",
     "fileTooLong": "Die Aufnahme ist länger als drei Stunden, die längste Dauer einer Besprechung.",
-    "fileUnreadable": "Der Ton dieser Datei konnte nicht gelesen werden. Versuche ein anderes Format, etwa MP3 oder M4A."
+    "fileUnreadable": "Der Ton dieser Datei konnte nicht gelesen werden. Versuche ein anderes Format, etwa MP3 oder M4A.",
+    "othersDenied": "Die Freigabe wurde abgebrochen, daher können die anderen Teilnehmenden nicht aufgenommen werden. Versuche es erneut und wähle einen Tab oder Bildschirm mit Ton.",
+    "noOthersAudio": "Das Freigegebene hat keinen Ton. Gib einen Browser-Tab frei und setze den Haken bei „Tab-Audio freigeben“."
   }
 }

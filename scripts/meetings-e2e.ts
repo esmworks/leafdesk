@@ -223,6 +223,51 @@ try {
   check(uploaded?.seconds === 43 && uploaded.source === "file" && uploaded.summary.includes("The launch moves to May"), "…lasting as long as the file, with its summary", uploaded);
   await refused(() => meetings.startMeeting(ids.owner, uploadPage, planned.meetingId, "Owner", { source: "file" }), "notEmpty", "a meeting with a recording takes no upload");
 
+  // ------------------------------------------------------------------ two streams: you and others
+  const { id: callPage } = await meetings.createMeetingNote(ids.owner, ws, "Call with a customer");
+  const call = await meetingOn(callPage);
+  await getCollab().updateBlockAttributes(callPage, MEETING_BLOCK, (p) => p.meetingId === call!.meetingId, () => ({ attendees: serializeAttendees([{ id: ids.member, name: "Ayşe Yılmaz" }]) }), { userId: ids.owner });
+  await meetings.startMeeting(ids.owner, callPage, call!.meetingId, "Owner");
+  const stream = (chunk: number, offset: number, as: "mic" | "others") => ({ pageId: callPage, meetingId: call!.meetingId, chunk, offset, duration: 30, stream: as });
+  await meetings.addMeetingChunk(ids.owner, stream(0, 0, "mic"), audio(1000));
+  await meetings.addMeetingChunk(ids.owner, stream(0, 0, "others"), audio(2000));
+  await refused(() => meetings.addMeetingChunk(ids.owner, { ...stream(1, 30, "mic"), stream: "both" as never }, audio(1000)), "invalid", "an unknown stream is refused");
+  const twoStreams = parseTranscript((await meetingOn(callPage))?.transcript);
+  check(
+    JSON.stringify(twoStreams.map((c) => ("x" in c ? [c.s, c.r ?? "", c.x] : []))) === JSON.stringify([["you", "", SAID[1000]], ["others", "o", SAID[2000]]]),
+    "pieces of the microphone and of the others at one time are both kept, labelled by their stream",
+    twoStreams,
+  );
+  // A diarizing model splits the others' stream by the provider's speakers; the microphone stays "you".
+  setAiEnv({ ...AI_ENV, STT_MODEL: "fake-diarize" });
+  fake.setSegments(() => [
+    { speaker: "A", start: 0, end: 5, text: "Ayşe will tell the customer" },
+    { speaker: "B", start: 6, end: 12, text: "by Friday." },
+  ]);
+  await meetings.addMeetingChunk(ids.owner, stream(1, 30, "others"), audio(2000));
+  await meetings.addMeetingChunk(ids.owner, stream(1, 30, "mic"), audio(1000));
+  fake.setSegments(null);
+  setAiEnv(AI_ENV);
+  const diarized = parseTranscript((await meetingOn(callPage))?.transcript);
+  check(
+    JSON.stringify(diarized.filter((c) => c.c === 1).map((c) => ("x" in c ? [c.s, c.t, c.x] : []))) === JSON.stringify([["you", 30, SAID[1000]], ["o:A", 30, "Ayşe will tell the customer"], ["o:B", 36, "by Friday."]]),
+    "a diarizing model's speakers become keyed pieces at their own times (the microphone's piece is still you)",
+    diarized,
+  );
+  // Name a speaker after a member, and the write-up and the to-dos use the name.
+  await getCollab().updateBlockAttributes(callPage, MEETING_BLOCK, (p) => p.meetingId === call!.meetingId, () => ({ speakers: JSON.stringify({ "o:A": { name: "Ayşe Yılmaz", id: ids.member } }) }), { userId: ids.owner });
+  await meetings.finishMeeting(ids.owner, callPage, call!.meetingId, 60);
+  await waitFor(() => meetingOn(callPage), (m) => m?.status === "done", "the call is written up");
+  const callPrompt = textOf(fake.chats.at(-1)?.messages.at(-1)?.content ?? "");
+  check(callPrompt.includes("Owner: Okay everyone") && callPrompt.includes("Others: Ayşe will tell") && callPrompt.includes("Ayşe Yılmaz: Ayşe will tell the customer") && callPrompt.includes("Speaker 2: by Friday."), "the AI read who said what, with the names people gave", callPrompt);
+  const todos = await meetings.addMeetingTodos(ids.owner, callPage, call!.meetingId);
+  check(todos.count === 1, "the open action item is added to the page as a to-do", todos);
+  const [afterTodos] = await db.select({ markdown: page.contentMarkdown }).from(page).where(eq(page.id, callPage));
+  check(afterTodos.markdown.includes("Tell the customer by Friday") && afterTodos.markdown.includes("- [00:00] Owner: Okay everyone"), "…and the Markdown names the speakers", afterTodos.markdown);
+  const { blocks: callBlocks } = await getCollab().readBlocks(callPage);
+  const todo = (callBlocks as { type: string; content?: { type: string; props?: Record<string, unknown> }[] }[]).find((b) => b.type === "checkListItem");
+  check(todo?.content?.some((c) => c.type === "mention" && c.props?.userId === ids.member), "…mentioning the member the item names", todo);
+
   // ------------------------------------------------------------------ a meeting on a row starts automations
   const visits = await createPage({ userId: ids.owner }, { workspaceId: ws, kind: "database", title: "Visits" });
   const notes = await addProperty(ids.owner, visits.id, { name: "Notes", type: "text" });

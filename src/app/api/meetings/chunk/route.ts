@@ -10,7 +10,8 @@ const MEETING_STATUS: Record<string, number> = { noAccess: 403, notFound: 404, d
 /**
  * A piece of a meeting's recording (see server/meetings.ts): `POST /api/meetings/chunk` with
  * multipart form data: `audio` (about 30 seconds), `pageId`, `meetingId`, `chunk` (its number),
- * `offset` and `duration` (seconds into the meeting, pauses left out). Answers `{"text":"…"}`, what
+ * `offset` and `duration` (seconds into the meeting, pauses left out) and, when the recording
+ * has both the microphone and the other participants' sound, `stream` ("mic" or "others"). Answers `{"text":"…"}`, what
  * was heard, once it is in the block's transcript; or a status and `{"error":{"code","message"}}`
  * (lib/ai AI_ERROR_CODES, or server/meetings MEETING_ERRORS), "rateLimited" with `Retry-After`
  * (seconds). Closing the request cancels it.
@@ -36,6 +37,7 @@ export async function POST(request: Request) {
     chunk: Number(field("chunk")),
     offset: Number(field("offset")),
     duration: Number(field("duration")),
+    ...(field("stream") ? { stream: field("stream") as "mic" | "others" } : {}),
   };
   if (!place.pageId || !place.meetingId) return fail("invalid", "Say which meeting: pageId and meetingId", 400);
 

@@ -74,7 +74,22 @@
     "noTranscript": "Litterointi täyttyy tähän tallennuksen aikana.",
     "gap": "Tätä osaa ei voitu litteroida.",
     "listening": "Kuunnellaan… {time}",
-    "transcribing": "Litteroidaan… {time}"
+    "transcribing": "Litteroidaan… {time}",
+    "withOthers": "Nauhoita muiden kanssa",
+    "withOthersHint": "Nauhoita myös muut osallistujat: jaa kokouksen välilehti tai näyttö äänen kanssa.",
+    "addTodos": "Lisää tehtäviksi",
+    "addTodosHint": "Lisää avoimet toimenpiteet sivulle tehtävinä ja mainitse niissä nimetyt henkilöt.",
+    "todosAdded": "Lisätty tehtäviksi",
+    "speakers": {
+      "label": "Puhujat",
+      "you": "Sinä",
+      "others": "Muut",
+      "speaker": "Puhuja {n}",
+      "rename": "Nimeä tämä puhuja",
+      "namePlaceholder": "Kirjoita nimi tai hae henkilöitä",
+      "use": "Käytä tätä nimeä",
+      "reset": "Palauta"
+    }
   },
   "notices": {
     "summaryFailed": "Tekoäly ei pystynyt kirjoittamaan yhteenvetoa. Kokeile Luo yhteenveto uudelleen.",
@@ -99,6 +114,8 @@
     "fileType": "Tätä tiedostoa ei voi litteroida. Valitse ääni- tai videotiedosto.",
     "fileTooLarge": "Tiedosto saa olla enintään {size}.",
     "fileTooLong": "Tallenne on yli kolme tuntia pitkä, mikä on kokouksen enimmäispituus.",
-    "fileUnreadable": "Tiedoston ääntä ei voitu lukea. Kokeile toista muotoa, kuten MP3 tai M4A."
+    "fileUnreadable": "Tiedoston ääntä ei voitu lukea. Kokeile toista muotoa, kuten MP3 tai M4A.",
+    "othersDenied": "Jakaminen peruttiin, joten muita osallistujia ei voi nauhoittaa. Yritä uudelleen ja valitse välilehti tai näyttö, jossa on ääni.",
+    "noOthersAudio": "Jakamassasi sisällössä ei ole ääntä. Jaa selaimen välilehti ja valitse “Jaa välilehden ääni”."
   }
 }

@@ -191,6 +191,7 @@ describe("published page body", () => {
         transcript: JSON.stringify([{ c: 0, t: 0, d: 30, text: "SECRET TRANSCRIPT" }]),
         recorder: "user_rec",
         recorderName: "Rec",
+        speakers: JSON.stringify({ "o:A": { name: "SECRET SPEAKER", id: "user_speaker" } }),
         status: "done",
         summary: "- Budget approved [00:10]",
       },
@@ -200,7 +201,7 @@ describe("published page body", () => {
     expect(html).toContain("Board");
     expect(html).toContain("Ann");
     expect(html).toContain("Budget approved");
-    for (const hidden of ["SECRET", "user_secret", "user_rec", "data-transcript", "data-recorder", "data-meeting-id"]) expect(html).not.toContain(hidden);
+    for (const hidden of ["SECRET", "user_secret", "user_rec", "user_speaker", "data-speakers", "data-transcript", "data-recorder", "data-meeting-id"]) expect(html).not.toContain(hidden);
   });
 
   it("shows uploaded PDFs and workbooks in place and keeps other files as links", async () => {

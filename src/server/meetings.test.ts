@@ -13,7 +13,9 @@ vi.mock("@/server/ai-writing", () => ({ aiAvailable: vi.fn() }));
 vi.mock("@/server/voice-notes", () => ({ voiceNoteLimits: vi.fn() }));
 vi.mock("@/server/access", () => ({ AccessError: class extends Error {}, pageVisibleTo: vi.fn(), requireMembership: vi.fn(), requirePageAccess: vi.fn() }));
 
-const { writeUpMeeting } = await import("./meetings");
+const { writeUpMeeting, namesForSummary, addMeetingTodos } = await import("./meetings");
+const { getCollab } = await import("@/server/collab/bridge");
+const { requirePageAccess } = await import("@/server/access");
 
 afterEach(() => resetAi());
 
@@ -82,3 +84,55 @@ describe("meeting write-ups", () => {
     expect(written).toEqual({ summary: "- Merged [00:00]", decisions: "", actions: "" });
   });
 });
+
+describe("meeting speakers in the write-up", () => {
+  it("tell the AI that lines name who spoke, and that labels aren't names", () => {
+    const { prompt } = meetingSummaryPrompt("[00:00] Ayşe: We ship in May.", ["Ayşe"], 10_000);
+    expect(prompt).toContain("`[mm:ss] Name: text`");
+    expect(prompt).toContain("Speaker 2");
+  });
+
+  it("offer the attendees, the people speakers were named after and the recorder who spoke", () => {
+    const props = {
+      attendees: JSON.stringify([{ id: "u1", name: "Ayşe" }]),
+      speakers: JSON.stringify({ "o:A": { name: "Mehmet", id: "u2" }, "o:B": { name: "Ayşe" } }),
+      recorderName: "Erhan",
+      transcript: JSON.stringify([{ c: 0, t: 0, s: "you", x: "hi" }]),
+    };
+    expect(namesForSummary(meetingPropsOf(props))).toEqual(["Ayşe", "Mehmet", "Erhan"]);
+    // A recorder who never spoke (no microphone piece) isn't offered.
+    expect(namesForSummary(meetingPropsOf({ ...props, transcript: "" }))).toEqual(["Ayşe", "Mehmet"]);
+  });
+});
+
+describe("meeting to-dos", () => {
+  it("mention the member an action item names and keep other names as text", async () => {
+    const appended: unknown[][] = [];
+    vi.mocked(requirePageAccess).mockResolvedValue({ archivedAt: null, kind: "page", workspaceId: "w1" } as never);
+    vi.mocked(getCollab).mockReturnValue({
+      readBlocks: async () => ({
+        blocks: [
+          {
+            type: "meeting",
+            props: {
+              meetingId: "m1",
+              attendees: JSON.stringify([{ id: "u1", name: "Ayşe Yılmaz" }]),
+              actions: ["- [ ] @Ayşe: Tell the customer [01:00]", "- [ ] @Zeynep: Book the room", "- [ ] Send notes", "- [x] @Ayşe: Done already"].join("\n"),
+            },
+          },
+        ],
+      }),
+      appendBlocks: async (_page: string, blocks: unknown[]) => void appended.push(blocks),
+    } as never);
+    expect(await addMeetingTodos("u1", "p1", "m1")).toEqual({ count: 3 });
+    const blocks = appended[0] as { type: string; content: { type: string; text?: string; props?: Record<string, unknown> }[] }[];
+    expect(blocks.map((b) => b.type)).toEqual(["checkListItem", "checkListItem", "checkListItem"]);
+    expect(blocks[0].content[0]).toMatchObject({ props: { kind: "user", userId: "u1", name: "Ayşe Yılmaz" } });
+    expect(blocks[0].content.at(-1)?.text).toBe("Tell the customer");
+    expect(blocks[1].content[0].text).toBe("Zeynep: ");
+    expect(blocks[2].content).toHaveLength(1);
+  });
+});
+
+import { meetingProps } from "@/lib/meetings";
+const meetingPropsOf = (props: Record<string, string>) => meetingProps(props);

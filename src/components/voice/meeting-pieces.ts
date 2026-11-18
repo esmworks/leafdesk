@@ -6,7 +6,7 @@
  */
 
 /** Where a piece goes: as server/meetings ChunkPlace. */
-export type PiecePlace = { pageId: string; meetingId: string; chunk: number; offset: number; duration: number };
+export type PiecePlace = { pageId: string; meetingId: string; chunk: number; offset: number; duration: number; stream?: "mic" | "others" };
 
 const RETRY_MS = [2_000, 5_000, 15_000];
 /** How long to wait when the server is busy and doesn't say for how long. */
@@ -33,6 +33,7 @@ export async function deliverPiece(place: PiecePlace, audio: File, over: () => b
       form.set("chunk", String(place.chunk));
       form.set("offset", String(place.offset));
       form.set("duration", String(place.duration));
+      if (place.stream) form.set("stream", place.stream);
       form.set("audio", audio);
       const sent = await fetch("/api/meetings/chunk", { method: "POST", body: form });
       if (sent.ok) return { result: "sent" };

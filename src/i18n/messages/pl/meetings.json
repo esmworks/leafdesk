@@ -74,7 +74,22 @@
     "noTranscript": "Transkrypcja pojawia się tutaj podczas nagrywania.",
     "gap": "Tego fragmentu nie udało się przepisać.",
     "listening": "Słucham… {time}",
-    "transcribing": "Transkrybuję… {time}"
+    "transcribing": "Transkrybuję… {time}",
+    "withOthers": "Nagrywaj z innymi",
+    "withOthersHint": "Nagrywaj także pozostałych uczestników: udostępnij kartę lub ekran spotkania wraz z dźwiękiem.",
+    "addTodos": "Dodaj jako zadania",
+    "addTodosHint": "Dodaje otwarte punkty do wykonania na stronie jako zadania i wspomina wskazane osoby.",
+    "todosAdded": "Dodano jako zadania",
+    "speakers": {
+      "label": "Mówcy",
+      "you": "Ty",
+      "others": "Pozostali",
+      "speaker": "Mówca {n}",
+      "rename": "Nazwij tego mówcę",
+      "namePlaceholder": "Wpisz nazwę lub wyszukaj osoby",
+      "use": "Użyj tej nazwy",
+      "reset": "Przywróć"
+    }
   },
   "notices": {
     "summaryFailed": "AI nie udało się napisać podsumowania. Spróbuj „Wygeneruj podsumowanie ponownie”.",
@@ -99,6 +114,8 @@
     "fileType": "Tego pliku nie da się przetranskrybować. Wybierz plik audio lub wideo.",
     "fileTooLarge": "Plik może mieć najwyżej {size}.",
     "fileTooLong": "Nagranie trwa dłużej niż trzy godziny, czyli najdłużej, ile może trwać spotkanie.",
-    "fileUnreadable": "Nie udało się odczytać dźwięku z tego pliku. Spróbuj innego formatu, np. MP3 lub M4A."
+    "fileUnreadable": "Nie udało się odczytać dźwięku z tego pliku. Spróbuj innego formatu, np. MP3 lub M4A.",
+    "othersDenied": "Udostępnianie zostało anulowane, więc nie można nagrać pozostałych uczestników. Spróbuj ponownie i wybierz kartę lub ekran z dźwiękiem.",
+    "noOthersAudio": "Udostępniona zawartość nie ma dźwięku. Udostępnij kartę przeglądarki i zaznacz „Udostępnij dźwięk karty”."
   }
 }

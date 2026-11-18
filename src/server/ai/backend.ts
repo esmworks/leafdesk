@@ -30,7 +30,7 @@ export type AiBackend = {
   /** Embeddings without HTTP (tests); the service uses the OpenAI-compatible endpoint otherwise. */
   embed?: (texts: string[]) => Promise<number[][]>;
   /** Speech to text without HTTP (tests); the service uses the OpenAI-compatible endpoint otherwise. */
-  transcribe?: (audio: { bytes: Blob; type: string }) => Promise<string>;
+  transcribe?: (audio: { bytes: Blob; type: string }) => Promise<string | { text: string; segments: { speaker: string; start: number; end: number; text: string }[] | null }>;
   /** The provider wants a session id per conversation (OpenCode's `x-opencode-session`). */
   sessions?: boolean;
   /** Requests go through this fetch (a person's own server, see fetch.ts). */

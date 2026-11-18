@@ -74,7 +74,22 @@
     "noTranscript": "A transcrição aparece aqui enquanto você grava.",
     "gap": "Este trecho não pôde ser transcrito.",
     "listening": "Ouvindo… {time}",
-    "transcribing": "Transcrevendo… {time}"
+    "transcribing": "Transcrevendo… {time}",
+    "withOthers": "Gravar com os outros",
+    "withOthersHint": "Grave também os outros participantes: compartilhe a guia ou a tela da reunião com o som.",
+    "addTodos": "Adicionar como tarefas",
+    "addTodosHint": "Adiciona à página os itens de ação em aberto como tarefas, mencionando as pessoas citadas.",
+    "todosAdded": "Adicionado como tarefas",
+    "speakers": {
+      "label": "Falantes",
+      "you": "Você",
+      "others": "Os outros",
+      "speaker": "Falante {n}",
+      "rename": "Dar um nome a este falante",
+      "namePlaceholder": "Digite um nome ou busque pessoas",
+      "use": "Usar este nome",
+      "reset": "Redefinir"
+    }
   },
   "notices": {
     "summaryFailed": "A IA não conseguiu escrever o resumo. Tente “Gerar resumo novamente”.",
@@ -99,6 +114,8 @@
     "fileType": "Este arquivo não pode ser transcrito. Escolha um arquivo de áudio ou vídeo.",
     "fileTooLarge": "Os arquivos podem ter no máximo {size}.",
     "fileTooLong": "A gravação tem mais de três horas, a duração máxima de uma reunião.",
-    "fileUnreadable": "Não foi possível ler o som deste arquivo. Tente outro formato, como MP3 ou M4A."
+    "fileUnreadable": "Não foi possível ler o som deste arquivo. Tente outro formato, como MP3 ou M4A.",
+    "othersDenied": "O compartilhamento foi cancelado, então os outros participantes não podem ser gravados. Tente de novo e escolha uma guia ou tela com som.",
+    "noOthersAudio": "O que você compartilhou não tem som. Compartilhe uma guia do navegador e marque “Compartilhar áudio da guia”."
   }
 }

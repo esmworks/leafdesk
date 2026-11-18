@@ -1,14 +1,16 @@
 "use client";
 
-import { CalendarClock, ChevronRight, CircleStop, FileAudio, Loader2, Mic, NotebookPen, Pause, Play, Plus, RefreshCw, Search, X } from "lucide-react";
+import { CalendarClock, ChevronRight, CircleStop, FileAudio, ListTodo, Loader2, Mic, NotebookPen, Pause, Play, Plus, RefreshCw, Search, Users, X } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { mentionCandidatesAction } from "@/app/actions/mentions";
-import { regenerateMeetingSummaryAction, finishMeetingAction } from "@/app/actions/meetings";
+import { addMeetingTodosAction, regenerateMeetingSummaryAction, finishMeetingAction } from "@/app/actions/meetings";
 import { Button, cn, Popover, textareaClass } from "@/components/ui";
 import { UserAvatar } from "@/components/user-avatar";
 import { useMeetingRecorder, type MeetingRecording } from "@/components/voice/meeting-recorder";
+import { Speakers, useSpeakerNames } from "./meeting-speakers";
 import { formatBytes } from "@/lib/files";
+import { canRecordOthers } from "@/lib/meeting-others";
 import { isMeetingFile, MAX_MEETING_FILE_BYTES, MEETING_FILE_ACCEPT } from "@/lib/meeting-upload";
 import {
   chunkAt,
@@ -19,6 +21,7 @@ import {
   MAX_MEETING_TITLE,
   MEETING_NOTICES,
   parseAttendees,
+  parseSpeakers,
   parseTakeaways,
   parseTranscript,
   serializeAttendees,
@@ -62,6 +65,8 @@ export function MeetingView({
   const recorder = useMeetingRecorder();
   const chunks = useMemo(() => parseTranscript(props.transcript), [props.transcript]);
   const attendees = useMemo(() => parseAttendees(props.attendees), [props.attendees]);
+  const speakers = useMemo(() => parseSpeakers(props.speakers), [props.speakers]);
+  const nameOf = useSpeakerNames(chunks, speakers, props.recorderName);
   const [transcriptOpen, setTranscriptOpen] = useState(props.status === "recording");
   const [highlight, setHighlight] = useState<number | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
@@ -103,10 +108,13 @@ export function MeetingView({
     if (!res?.ok) setActionError(res?.error ?? tm("errors.failed"));
   };
 
-  const start = () => {
+  const start = (others = false) => {
     if (!recorder || !pageId) return;
-    void recorder.start(pageId, props.meetingId, props.title);
+    void recorder.start(pageId, props.meetingId, props.title, { others });
   };
+  // Sharing a tab's sound needs a browser that offers it (checked on the client only).
+  const [othersPossible, setOthersPossible] = useState(false);
+  useEffect(() => setOthersPossible(canRecordOthers()), []);
 
   const upload = (file: File | undefined) => {
     if (!file || !recorder || !pageId) return;
@@ -182,10 +190,16 @@ export function MeetingView({
           editable && (
             <>
               {stale && props.status !== "" && <span className="text-sm text-fg-muted">{t("interrupted")}</span>}
-              <Button size="sm" variant={props.status === "" ? "primary" : "secondary"} disabled={!canStart} onClick={start} title={sttOff ? t("sttOff") : undefined}>
+              <Button size="sm" variant={props.status === "" ? "primary" : "secondary"} disabled={!canStart} onClick={() => start()} title={sttOff ? t("sttOff") : undefined}>
                 {starting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Mic className="h-3.5 w-3.5" />}
                 {props.status === "" ? t("start") : t("continue")}
               </Button>
+              {othersPossible && (
+                <Button size="sm" disabled={!canStart} onClick={() => start(true)} title={sttOff ? t("sttOff") : t("withOthersHint")}>
+                  <Users className="h-3.5 w-3.5" />
+                  {t("withOthers")}
+                </Button>
+              )}
               {props.status === "" && (
                 <>
                   <Button size="sm" disabled={!canStart} onClick={() => fileInput.current?.click()} title={sttOff ? t("sttOff") : undefined}>
@@ -235,11 +249,15 @@ export function MeetingView({
           onJump={jump}
           onChange={onChange}
           onRegenerate={pageId && chunks.length ? () => void run(() => regenerateMeetingSummaryAction(pageId, props.meetingId)) : undefined}
+          onTodos={pageId && parseTakeaways(props.actions).some((a) => !a.done) ? () => run(() => addMeetingTodosAction(pageId, props.meetingId)) : undefined}
         />
       )}
 
+      {chunks.length > 0 && <Speakers chunks={chunks} names={speakers} nameOf={nameOf} editable={editable && status !== "recording"} pageId={pageId} onChange={(value) => onChange({ speakers: value })} />}
+
       <Transcript
         chunks={chunks}
+        nameOf={nameOf}
         open={transcriptOpen}
         onToggle={() => setTranscriptOpen((v) => !v)}
         highlight={highlight}
@@ -478,6 +496,7 @@ function Takeaways({
   onJump,
   onChange,
   onRegenerate,
+  onTodos,
 }: {
   props: MeetingProps;
   editable: boolean;
@@ -485,8 +504,10 @@ function Takeaways({
   onJump: (seconds: number) => void;
   onChange: (change: Change) => void;
   onRegenerate?: () => void;
+  onTodos?: () => Promise<void>;
 }) {
   const t = useTranslations("meetings.block");
+  const [todosAdded, setTodosAdded] = useState(false);
   const [editing, setEditing] = useState<Record<(typeof SECTIONS)[number], string> | null>(null);
   const toggle = (index: number, item: Takeaway) => {
     const items = parseTakeaways(props.actions);
@@ -588,6 +609,12 @@ function Takeaways({
               {t("regenerate")}
             </Button>
           )}
+          {onTodos && (
+            <Button size="sm" variant="ghost" disabled={busy || todosAdded} onClick={() => void onTodos().then(() => setTodosAdded(true))} title={t("addTodosHint")}>
+              <ListTodo className="h-3.5 w-3.5" />
+              {todosAdded ? t("todosAdded") : t("addTodos")}
+            </Button>
+          )}
         </div>
       )}
     </div>
@@ -597,6 +624,7 @@ function Takeaways({
 /** The transcript, folded by default: a line per piece, `[mm:ss]` and what was said, gaps said so. */
 function Transcript({
   chunks,
+  nameOf,
   open,
   onToggle,
   highlight,
@@ -606,6 +634,7 @@ function Transcript({
   seconds,
 }: {
   chunks: TranscriptChunk[];
+  nameOf: (key: string) => string;
   open: boolean;
   onToggle: () => void;
   highlight: number | null;
@@ -626,19 +655,31 @@ function Transcript({
       {open && (
         <ol className="mt-1 max-h-96 space-y-1 overflow-y-auto pe-1 text-sm" aria-live={live ? "polite" : undefined}>
           {shown.length === 0 && <li className="px-1 py-1 text-fg-faint">{t("noTranscript")}</li>}
-          {shown.map((c) => (
+          {shown.map((c, i) => {
+            // A chunk can be several lines (speakers, streams): its first one is where a jump lands.
+            const first = shown.findIndex((x) => x.c === c.c) === i;
+            return (
             <li
-              key={c.c}
+              key={`${c.c}-${c.r ?? ""}-${i}`}
               ref={(el) => {
+                if (!first) return;
                 if (el) lines.set(c.c, el);
                 else lines.delete(c.c);
               }}
               className={cn("flex gap-3 rounded px-1 py-0.5 transition-colors", highlight === c.c && "bg-accent/15 ring-1 ring-accent/40")}
             >
               <span className="shrink-0 tabular-nums text-xs leading-5 text-fg-faint">[{formatStamp(c.t)}]</span>
-              {"gap" in c ? <span className="text-fg-faint">{t("gap")}</span> : <span className="min-w-0 flex-1 whitespace-pre-wrap">{c.x}</span>}
+              {"gap" in c ? (
+                <span className="text-fg-faint">{t("gap")}</span>
+              ) : (
+                <span className="min-w-0 flex-1 whitespace-pre-wrap">
+                  {c.s && <span className="me-1.5 font-medium">{nameOf(c.s)}</span>}
+                  {c.x}
+                </span>
+              )}
             </li>
-          ))}
+            );
+          })}
           {live && (
             <li className="flex items-center gap-2 px-1 py-0.5 text-xs text-fg-faint">
               <Loader2 className="h-3 w-3 animate-spin" aria-hidden />

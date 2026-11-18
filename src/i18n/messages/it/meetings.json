@@ -74,7 +74,22 @@
     "noTranscript": "La trascrizione compare qui mentre registri.",
     "gap": "Questa parte non è stata trascritta.",
     "listening": "In ascolto… {time}",
-    "transcribing": "Trascrizione… {time}"
+    "transcribing": "Trascrizione… {time}",
+    "withOthers": "Registra con gli altri",
+    "withOthersHint": "Registra anche gli altri partecipanti: condividi la scheda o lo schermo della riunione con il suo audio.",
+    "addTodos": "Aggiungi come attività",
+    "addTodosHint": "Aggiunge alla pagina le azioni aperte come attività, menzionando le persone indicate.",
+    "todosAdded": "Aggiunto come attività",
+    "speakers": {
+      "label": "Interlocutori",
+      "you": "Tu",
+      "others": "Gli altri",
+      "speaker": "Interlocutore {n}",
+      "rename": "Dai un nome a questo interlocutore",
+      "namePlaceholder": "Scrivi un nome o cerca persone",
+      "use": "Usa questo nome",
+      "reset": "Reimposta"
+    }
   },
   "notices": {
     "summaryFailed": "L’IA non è riuscita a scrivere il riepilogo. Prova con «Rigenera riepilogo».",
@@ -99,6 +114,8 @@
     "fileType": "Questo file non può essere trascritto. Scegli un file audio o video.",
     "fileTooLarge": "I file possono essere al massimo di {size}.",
     "fileTooLong": "La registrazione dura più di tre ore, il massimo per una riunione.",
-    "fileUnreadable": "Non è stato possibile leggere l’audio di questo file. Prova un altro formato, come MP3 o M4A."
+    "fileUnreadable": "Non è stato possibile leggere l’audio di questo file. Prova un altro formato, come MP3 o M4A.",
+    "othersDenied": "La condivisione è stata annullata, quindi gli altri partecipanti non possono essere registrati. Riprova e scegli una scheda o uno schermo con audio.",
+    "noOthersAudio": "Ciò che hai condiviso non ha audio. Condividi una scheda del browser e spunta “Condividi audio della scheda”."
   }
 }

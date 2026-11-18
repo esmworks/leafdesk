@@ -43,7 +43,8 @@ export type MeetingRecorder = {
   current: MeetingRecording | null;
   /** Why the last recording couldn't start or ended early (translated), until the next start. */
   problem: { meetingId: string; message: string } | null;
-  start: (pageId: string, meetingId: string, title: string) => Promise<void>;
+  /** `others`: record the other participants too, from a tab or screen shared with its sound. */
+  start: (pageId: string, meetingId: string, title: string, options?: { others?: boolean }) => Promise<void>;
   /** Transcribes a recording made elsewhere into a meeting not recorded yet. */
   upload: (pageId: string, meetingId: string, title: string, file: File) => Promise<void>;
   pause: () => void;
@@ -101,10 +102,10 @@ export function MeetingRecorderProvider({ workspaceId, limits, children }: { wor
   );
 
   const start = useCallback(
-    (pageId: string, meetingId: string, title: string) =>
+    (pageId: string, meetingId: string, title: string, options?: { others?: boolean }) =>
       open(pageId, meetingId, title, "", async (hooks) => {
         const { startMeetingSession } = await import("./meeting-session");
-        return startMeetingSession(pageId, meetingId, limits?.maxSeconds ?? 0, { ...hooks, translate: (key) => te(key) });
+        return startMeetingSession(pageId, meetingId, limits?.maxSeconds ?? 0, { ...hooks, translate: (key) => te(key) }, { others: options?.others });
       }),
     [open, limits, te],
   );

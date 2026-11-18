@@ -796,8 +796,37 @@ says the limit is reached, and a file needs the tab open until its last piece is
 the bottom shows its progress on other pages). The meeting starts at its planned time, or when the
 upload starts.
 
+**Who said what.** The transcript can carry a speaker per line, from two sources:
+
+- *Record with others* (next to *Start recording*, in browsers that can share a tab's sound:
+  Chrome, Edge and their relatives; not in the desktop app, nor in Firefox and Safari) first asks
+  you to share the meeting's tab or screen *with its sound*, then records that stream and the
+  microphone side by side, each piece sent on its own. The microphone's lines read as you (the
+  recorder's name), the shared sound's as *Others*. Nothing from the shared picture is recorded; if
+  sharing stops, the recording goes on with the microphone alone.
+- A speech to text model that tells speakers apart. Leafdesk asks for it when `STT_MODEL` has
+  `diarize` in its name (OpenAI's `gpt-4o-transcribe-diarize`; the request is `diarized_json` with
+  `chunking_strategy` `auto`). Other models, Whisper servers included, are asked for plain text and
+  never labelled by guesswork: a recording of one microphone without such a model has no speakers.
+  The provider numbers speakers within one piece of about 30 seconds, so across pieces its *A* and
+  *B* are not guaranteed to be the same people; naming two speakers alike in the block reads them
+  as one. With *Record with others*, the shared stream's speakers are told apart this way and the
+  microphone stays *you*.
+
+Above the transcript the block lists the speakers (*You*, *Others*, *Speaker 2* …). Anyone who can
+edit the page names one: pick a workspace member (the name is theirs, and an action item for them
+mentions them) or type any name. The names are kept in the block's `speakers` property, shown in
+the transcript, the page's Markdown (`[mm:ss] Name: text`), search and what AI reads, and are never
+published: a published page drops the transcript and the speakers with it. The transcript's lines
+are stored with a speaker key (`s`: `you`, `others`, `o:<id>`, `d:<id>`) and, for the shared
+stream, `r: "o"`.
+
 **Summary.** *Stop and summarize* has AI write a summary, the decisions and the action items, the
-latter assigned (`@Name:`) when they name an attendee. Each point ends with the moment it comes from;
+latter assigned (`@Name:`) when they name an attendee or a named speaker; AI reads the transcript
+with the speakers' names, so a task is given to whoever took it on (name the speakers, then
+*Regenerate summary*). *Add as to-dos* puts the open action items on the page as to-dos, each
+mentioning the member it names (attendees, and speakers named after members; a name that matches no
+one, or two people, stays plain text before the task). Each point ends with the moment it comes from;
 clicking it opens the transcript there. The points can be edited, action items ticked, and
 *Regenerate summary* writes them again from the transcript. A long transcript is summarized in
 parts and the parts merged; each part is one AI request, and the transcription of each piece is one

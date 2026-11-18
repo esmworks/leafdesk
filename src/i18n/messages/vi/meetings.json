@@ -74,7 +74,22 @@
     "noTranscript": "Bản ghi lời sẽ được điền vào đây khi bạn ghi âm.",
     "gap": "Đoạn này không thể chuyển thành văn bản.",
     "listening": "Đang nghe… {time}",
-    "transcribing": "Đang chép lời… {time}"
+    "transcribing": "Đang chép lời… {time}",
+    "withOthers": "Ghi âm cùng những người khác",
+    "withOthersHint": "Ghi âm cả những người tham gia khác: chia sẻ tab hoặc màn hình của cuộc họp kèm âm thanh.",
+    "addTodos": "Thêm làm việc cần làm",
+    "addTodosHint": "Thêm các mục hành động đang mở vào trang này dưới dạng việc cần làm, nhắc đến những người được nêu tên.",
+    "todosAdded": "Đã thêm làm việc cần làm",
+    "speakers": {
+      "label": "Người nói",
+      "you": "Bạn",
+      "others": "Những người khác",
+      "speaker": "Người nói {n}",
+      "rename": "Đặt tên cho người nói này",
+      "namePlaceholder": "Nhập tên hoặc tìm người",
+      "use": "Dùng tên này",
+      "reset": "Đặt lại"
+    }
   },
   "notices": {
     "summaryFailed": "AI không thể viết bản tóm tắt. Hãy thử Tạo lại bản tóm tắt.",
@@ -99,6 +114,8 @@
     "fileType": "Không thể chép lời tệp này. Hãy chọn tệp âm thanh hoặc video.",
     "fileTooLarge": "Tệp có thể lớn tối đa {size}.",
     "fileTooLong": "Bản ghi âm dài hơn ba giờ, độ dài tối đa của một cuộc họp.",
-    "fileUnreadable": "Không đọc được âm thanh trong tệp này. Hãy thử định dạng khác, như MP3 hoặc M4A."
+    "fileUnreadable": "Không đọc được âm thanh trong tệp này. Hãy thử định dạng khác, như MP3 hoặc M4A.",
+    "othersDenied": "Việc chia sẻ đã bị hủy nên không thể ghi âm những người tham gia khác. Hãy thử lại và chọn một tab hoặc màn hình có âm thanh.",
+    "noOthersAudio": "Nội dung bạn chia sẻ không có âm thanh. Hãy chia sẻ một tab trình duyệt và chọn “Chia sẻ âm thanh của tab”."
   }
 }

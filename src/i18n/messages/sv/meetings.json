@@ -74,7 +74,22 @@
     "noTranscript": "Transkriptionen fylls i här medan du spelar in.",
     "gap": "Den här delen kunde inte transkriberas.",
     "listening": "Lyssnar… {time}",
-    "transcribing": "Transkriberar… {time}"
+    "transcribing": "Transkriberar… {time}",
+    "withOthers": "Spela in med andra",
+    "withOthersHint": "Spela även in de andra deltagarna: dela mötets flik eller skärm med ljud.",
+    "addTodos": "Lägg till som uppgifter",
+    "addTodosHint": "Lägger till de öppna åtgärdspunkterna på sidan som uppgifter och nämner personerna de pekar ut.",
+    "todosAdded": "Tillagda som uppgifter",
+    "speakers": {
+      "label": "Talare",
+      "you": "Du",
+      "others": "Andra",
+      "speaker": "Talare {n}",
+      "rename": "Namnge den här talaren",
+      "namePlaceholder": "Skriv ett namn eller sök personer",
+      "use": "Använd det här namnet",
+      "reset": "Återställ"
+    }
   },
   "notices": {
     "summaryFailed": "AI kunde inte skriva sammanfattningen. Prova Skapa sammanfattningen igen.",
@@ -99,6 +114,8 @@
     "fileType": "Den här filen kan inte transkriberas. Välj en ljud- eller videofil.",
     "fileTooLarge": "Filer får vara högst {size}.",
     "fileTooLong": "Inspelningen är längre än tre timmar, det längsta ett möte kan vara.",
-    "fileUnreadable": "Ljudet i filen kunde inte läsas. Prova ett annat format, till exempel MP3 eller M4A."
+    "fileUnreadable": "Ljudet i filen kunde inte läsas. Prova ett annat format, till exempel MP3 eller M4A.",
+    "othersDenied": "Delningen avbröts, så de andra deltagarna kan inte spelas in. Försök igen och välj en flik eller skärm med ljud.",
+    "noOthersAudio": "Det du delade har inget ljud. Dela en webbläsarflik och markera “Dela flikens ljud”."
   }
 }
