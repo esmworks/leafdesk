@@ -28,6 +28,7 @@ import { parseTabMarker, TAB_BLOCK, TAB_LIST_BLOCK, tabMarkerBlock, tabMarkerLin
 import { DASHBOARD_BLOCK, dashboardLine, parseDashboardLine } from "./dashboard";
 import { AGENT_CHAT_BLOCK, agentChatLine, newChatId, parseAgentChatLine } from "./agent-chat";
 import { parseQuizLine, QUIZ_BLOCK, quizLine } from "./quiz-block";
+import { cleanHtmlHeight, cleanHtmlSource, cleanHtmlTitle, HTML_BLOCK, htmlBlockMarkdown, parseHtmlBlockMarker } from "./html-block";
 import { BUTTON_BLOCK, buttonLine, cleanButtonLabel, parseButtonLine } from "./buttons";
 import { isMeetingEnd, MEETING_BLOCK, meetingMarkdown, parseMeetingBegin } from "./meetings";
 import { BLOCK_COLORS } from "./block-colors";
@@ -114,6 +115,11 @@ import { parseSyncedBegin, SYNCED_BLOCK, SYNCED_END_LINE, syncedBeginLine, synce
  *
  *   ```mermaid             a Mermaid diagram
  *   graph TD; A-->B
+ *   ```
+ *
+ *   <!-- leafdesk:html {"title":"Loan calculator","height":320} -->
+ *   ```html                an interactive HTML block (lib/html-block): the marker, which may
+ *   <input id="a"> …       carry a title and a fixed height, then the source in a fence
  *   ```
  *
  *   <!-- leafdesk:toc -->         a table of contents
@@ -326,6 +332,9 @@ export function prepareMarkdownExport<B extends MdBlock>(
           const markdown = meetingMarkdown(block.props);
           return paragraph(markdown ? blockToken(markdown) : "");
         }
+        case HTML_BLOCK:
+          // The marker and the source in a fence (lib/html-block); a block without source writes nothing.
+          return paragraph(cleanHtmlSource(block.props?.source).trim() ? blockToken(htmlBlockMarkdown(block.props ?? {})) : "");
         case QUIZ_BLOCK:
           // Only its id: the questions and answers stay in the quiz table (server/quizzes.ts).
           return paragraph(blockToken(quizLine(String(block.props?.quizId ?? ""))));
@@ -525,6 +534,7 @@ type Pending =
   | { type: typeof BUTTON_BLOCK; id: string; label: string }
   | { type: typeof AGENT_CHAT_BLOCK; agentId: string; chatId: string }
   | { type: typeof QUIZ_BLOCK; quizId: string }
+  | { type: typeof HTML_BLOCK; source: string; title: string; height: number }
   | { type: typeof IMAGE_BLOCK; url: string; name: string; caption: string; link: string }
   | { type: typeof MEETING_BLOCK; meetingId: string; markdown: string }
   | { type: typeof SYNCED_BLOCK; pageId: string; syncId: string }
@@ -629,6 +639,25 @@ export function prepareMarkdownImport(markdown: string, nonce: string, { appUrl 
     if (agentChat) {
       blockLine({ type: AGENT_CHAT_BLOCK, ...agentChat });
       continue;
+    }
+    // An HTML block: its marker line, then (blank lines between allowed) the fence holding the source.
+    const htmlMarker = parseHtmlBlockMarker(line);
+    if (htmlMarker) {
+      let next = i + 1;
+      while (next < lines.length && !lines[next].trim()) next++;
+      const opens = FENCE_OPEN.exec(lines[next] ?? "");
+      if (opens) {
+        const source: string[] = [];
+        let end = next + 1;
+        for (; end < lines.length; end++) {
+          const closing = FENCE_CLOSE.exec(lines[end]);
+          if (closing && closing[1][0] === opens[1][0] && closing[1].length >= opens[1].length) break;
+          source.push(lines[end]);
+        }
+        blockLine({ type: HTML_BLOCK, source: source.join("\n"), title: htmlMarker.title, height: htmlMarker.height });
+        i = Math.min(end, lines.length - 1);
+        continue;
+      }
     }
     const quizId = parseQuizLine(line);
     if (quizId !== null) {
@@ -968,6 +997,12 @@ export async function finishMarkdownImport<B extends MdBlock>(
         return { type: SYNCED_BLOCK, props: { pageId: pending.pageId, syncId: pending.syncId }, children: [] } as unknown as B;
       case QUIZ_BLOCK:
         return { type: QUIZ_BLOCK, props: { quizId: pending.quizId }, children: [] } as unknown as B;
+      case HTML_BLOCK:
+        return {
+          type: HTML_BLOCK,
+          props: { source: cleanHtmlSource(pending.source), title: cleanHtmlTitle(pending.title), height: cleanHtmlHeight(pending.height) },
+          children: [],
+        } as unknown as B;
       case AGENT_CHAT_BLOCK:
         // A line without a chat id (written by hand, or by MCP) starts the block's conversations afresh.
         return { type: AGENT_CHAT_BLOCK, props: { agentId: pending.agentId, chatId: pending.chatId || newChatId() }, children: [] } as unknown as B;

@@ -463,6 +463,7 @@ export type PublishedBlock =
   | { kind: "breadcrumb" }
   | { kind: "subpages" }
   | { kind: "mermaid"; source: string }
+  | { kind: "htmlApp"; source: string; title: string; height: number }
   | { kind: "agentChat" }
   | { kind: "bookmark"; bookmark: PublishedBookmark; align: MediaAlignment }
   | ({ kind: "webEmbed"; url: string; embed: EmbedTarget } & MediaPlacement)

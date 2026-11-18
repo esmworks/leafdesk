@@ -1683,6 +1683,36 @@
       }
     }
   },
+  "htmlBlock": {
+    "label": "인터랙티브 블록",
+    "emptyHint": "이 HTML 블록이 비어 있습니다. 여기서 실행할 작은 앱의 소스를 추가하세요.",
+    "emptyReadOnly": "이 HTML 블록이 비어 있습니다.",
+    "edit": "소스 편집",
+    "makeWithAi": "AI로 만들기",
+    "slash": {
+      "title": "HTML",
+      "subtext": "HTML로 작성한 작은 인터랙티브 앱",
+      "aliases": "html 앱 위젯 계산기 인터랙티브 코드 삽입"
+    },
+    "editor": {
+      "title": "HTML 블록",
+      "titleField": "제목",
+      "heightField": "높이",
+      "heightAuto": "내용에 맞춤",
+      "heightFixed": "고정",
+      "heightPixels": "높이(픽셀)",
+      "sourceField": "소스",
+      "sourceHelp": "스크립트와 스타일이 포함된 HTML입니다. 샌드박스에서 실행되므로 네트워크에서 아무것도 불러올 수 없고 워크스페이스에 접근할 수 없습니다.",
+      "previewField": "미리보기",
+      "previewEmpty": "아직 표시할 내용이 없습니다.",
+      "aiPlaceholder": "앱을 설명하거나 바꾸고 싶은 점을 적어 주세요",
+      "aiWrite": "작성",
+      "aiChange": "변경",
+      "aiWorking": "작성 중…",
+      "aiFailed": "AI가 작성하지 못했습니다. 다시 시도해 주세요.",
+      "apply": "적용"
+    }
+  },
   "approval": {
     "menu": "승인 요청…",
     "menuHint": "이 페이지의 바로 이 버전을 승인해 달라고 요청합니다",

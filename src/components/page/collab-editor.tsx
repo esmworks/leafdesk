@@ -67,6 +67,7 @@ import { SyncedFrameProvider, useSyncedFrame, useSyncedPageSlashItem } from "./s
 import { pasteSyncedBlock, useSyncedBlockSlashItem } from "./synced-block";
 import { pasteAgentChat, useAgentChatSlashItem } from "./agent-chat-block";
 import { useQuizSlashItem } from "./quiz-block";
+import { useHtmlSlashItem } from "./html-block";
 import { useButtonSlashItem } from "./button-block";
 import { useMeetingSlashItem } from "./meeting-block";
 import { PasteLinkMenu, useWebSlashItems } from "./web-blocks";
@@ -203,8 +204,8 @@ export default function CollabEditor({
   const suggestMode = suggestOnly || suggesting;
   const embedsEditable = editable && !suggestMode;
   const host = useMemo<EmbedHost>(
-    () => ({ workspaceId, pageId, editable: embedsEditable, doc: pageDoc.doc }),
-    [workspaceId, pageId, embedsEditable, pageDoc],
+    () => ({ workspaceId, pageId, editable: embedsEditable, doc: pageDoc.doc, ai: aiWanted && !nested && embedsEditable && !offline }),
+    [workspaceId, pageId, embedsEditable, pageDoc, aiWanted, nested, offline],
   );
   const trail = useMemo(() => ({ workspaceId, crumbs }), [workspaceId, crumbs]);
   // Block id where "Linked view of database" was chosen, while its database picker is open.
@@ -622,6 +623,7 @@ function SlashMenu({
   const agentChatItems = useAgentChatSlashItem(editor, placeSynced);
   const buttonItems = useButtonSlashItem(editor, placeSynced);
   const quizItems = useQuizSlashItem(editor, placeSynced);
+  const htmlItems = useHtmlSlashItem(editor, placeSynced);
   const meetingItems = useMeetingSlashItem(editor);
   const columnItems = useColumnSlashItems(editor);
   const tabItems = useTabSlashItems(editor);
@@ -656,6 +658,7 @@ function SlashMenu({
             ...agentChatItems,
             ...buttonItems,
             ...quizItems,
+            ...htmlItems,
             ...meetingItems,
             ...colorItems(),
             ...snippetItems,

@@ -1683,6 +1683,36 @@
       }
     }
   },
+  "htmlBlock": {
+    "label": "Interactief blok",
+    "emptyHint": "Dit HTML-blok is leeg. Voeg de broncode van een kleine app toe die hier draait.",
+    "emptyReadOnly": "Dit HTML-blok is leeg.",
+    "edit": "Bron bewerken",
+    "makeWithAi": "Maken met AI",
+    "slash": {
+      "title": "HTML",
+      "subtext": "Een kleine interactieve app in HTML",
+      "aliases": "html app widget rekenmachine interactief code insluiten"
+    },
+    "editor": {
+      "title": "HTML-blok",
+      "titleField": "Titel",
+      "heightField": "Hoogte",
+      "heightAuto": "Volgt de inhoud",
+      "heightFixed": "Vast",
+      "heightPixels": "Hoogte in pixels",
+      "sourceField": "Bron",
+      "sourceHelp": "HTML met scripts en stijlen erin. Het draait in een zandbak: het kan niets van het netwerk laden en komt niet bij de werkruimte.",
+      "previewField": "Voorbeeld",
+      "previewEmpty": "Er is nog niets te tonen.",
+      "aiPlaceholder": "Beschrijf de app, of hoe die moet veranderen",
+      "aiWrite": "Schrijven",
+      "aiChange": "Wijzigen",
+      "aiWorking": "Schrijven…",
+      "aiFailed": "De AI kon het niet schrijven. Probeer het opnieuw.",
+      "apply": "Toepassen"
+    }
+  },
   "approval": {
     "menu": "Om goedkeuring vragen…",
     "menuHint": "Mensen vragen precies deze versie van de pagina goed te keuren",

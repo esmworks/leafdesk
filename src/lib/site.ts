@@ -187,6 +187,8 @@ export type SiteHostRoute =
 const ROOT_SEGMENT = /^\/([A-Za-z0-9_-]{1,200}|favicon\.svg)$/;
 const FILE_PATH = /^\/api\/files\/[A-Za-z0-9_-]{1,64}(\/preview)?$/;
 const APP_ICONS = new Set(["/icon.svg", "/favicon.ico", "/apple-icon.png"]);
+/** The document HTML blocks run in (lib/html-frame.ts): it holds nothing and reads no session. */
+const HTML_FRAME = "/api/html-block/frame";
 
 /**
  * Where a request on a site's own domain goes. Only the published site is served there: its pages
@@ -200,7 +202,7 @@ export function routeOnSiteHost(method: string, path: string, slug: string, appU
   const queryAt = path.indexOf("?");
   const pathname = queryAt < 0 ? path : path.slice(0, queryAt);
   const search = queryAt < 0 ? "" : path.slice(queryAt);
-  if (pathname.startsWith("/_next/") || FILE_PATH.test(pathname) || APP_ICONS.has(pathname)) return { kind: "pass" };
+  if (pathname.startsWith("/_next/") || FILE_PATH.test(pathname) || pathname === HTML_FRAME || APP_ICONS.has(pathname)) return { kind: "pass" };
   // The MCP endpoint is a route of its own, outside the proxy that would serve the site there.
   if (pathname === "/mcp") return { kind: "notFound" };
   if (pathname === "/duplicate" || pathname === "/report") return { kind: "redirect", location: `${appUrl}/s/${slug}${pathname}${search}` };

@@ -1683,6 +1683,36 @@
       }
     }
   },
+  "htmlBlock": {
+    "label": "Interaktiivinen lohko",
+    "emptyHint": "Tämä HTML-lohko on tyhjä. Lisää tähän ajettavan pienen sovelluksen lähdekoodi.",
+    "emptyReadOnly": "Tämä HTML-lohko on tyhjä.",
+    "edit": "Muokkaa lähdekoodia",
+    "makeWithAi": "Tee tekoälyllä",
+    "slash": {
+      "title": "HTML",
+      "subtext": "Pieni HTML:llä kirjoitettu interaktiivinen sovellus",
+      "aliases": "html sovellus widget laskin interaktiivinen koodi upota"
+    },
+    "editor": {
+      "title": "HTML-lohko",
+      "titleField": "Otsikko",
+      "heightField": "Korkeus",
+      "heightAuto": "Seuraa sisältöä",
+      "heightFixed": "Kiinteä",
+      "heightPixels": "Korkeus pikseleinä",
+      "sourceField": "Lähdekoodi",
+      "sourceHelp": "HTML, jonka skriptit ja tyylit ovat mukana. Se toimii hiekkalaatikossa: se ei voi ladata mitään verkosta eikä päästä työtilaan.",
+      "previewField": "Esikatselu",
+      "previewEmpty": "Ei vielä mitään näytettävää.",
+      "aiPlaceholder": "Kuvaile sovellus tai miten sitä muutetaan",
+      "aiWrite": "Kirjoita",
+      "aiChange": "Muuta",
+      "aiWorking": "Kirjoitetaan…",
+      "aiFailed": "Tekoäly ei onnistunut kirjoittamaan sitä. Yritä uudelleen.",
+      "apply": "Käytä"
+    }
+  },
   "approval": {
     "menu": "Pyydä hyväksyntää…",
     "menuHint": "Pyydä ihmisiä hyväksymään juuri tämä sivun versio",

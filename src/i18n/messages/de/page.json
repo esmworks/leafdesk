@@ -1683,6 +1683,36 @@
       }
     }
   },
+  "htmlBlock": {
+    "label": "Interaktiver Block",
+    "emptyHint": "Dieser HTML-Block ist leer. Füge den Quelltext einer kleinen App hinzu, die hier laufen soll.",
+    "emptyReadOnly": "Dieser HTML-Block ist leer.",
+    "edit": "Quelltext bearbeiten",
+    "makeWithAi": "Mit KI erstellen",
+    "slash": {
+      "title": "HTML",
+      "subtext": "Eine kleine interaktive App in HTML",
+      "aliases": "html app widget rechner taschenrechner interaktiv code einbetten"
+    },
+    "editor": {
+      "title": "HTML-Block",
+      "titleField": "Titel",
+      "heightField": "Höhe",
+      "heightAuto": "Folgt dem Inhalt",
+      "heightFixed": "Fest",
+      "heightPixels": "Höhe in Pixeln",
+      "sourceField": "Quelltext",
+      "sourceHelp": "HTML mit eingebetteten Skripten und Stilen. Es läuft in einer Sandbox: Es kann nichts aus dem Netzwerk laden und nicht auf den Arbeitsbereich zugreifen.",
+      "previewField": "Vorschau",
+      "previewEmpty": "Noch nichts anzuzeigen.",
+      "aiPlaceholder": "Beschreibe die App oder wie sie geändert werden soll",
+      "aiWrite": "Schreiben",
+      "aiChange": "Ändern",
+      "aiWorking": "Schreibt …",
+      "aiFailed": "Die KI konnte es nicht schreiben. Versuche es erneut.",
+      "apply": "Übernehmen"
+    }
+  },
   "approval": {
     "menu": "Freigabe anfragen…",
     "menuHint": "Personen bitten, genau diese Version der Seite freizugeben",

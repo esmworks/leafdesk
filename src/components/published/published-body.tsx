@@ -1,4 +1,4 @@
-import { Bot, FileSpreadsheet, FileText } from "lucide-react";
+import { Bot, CodeXml, FileSpreadsheet, FileText } from "lucide-react";
 import Link from "next/link";
 import { getFormatter, getTranslations } from "next-intl/server";
 import { PropertyDisplay } from "@/components/database/property-cell";
@@ -9,6 +9,7 @@ import { HeadingList, SubpageList, Trail } from "@/components/page/page-outline"
 import { PdfViewer } from "@/components/page/pdf-viewer";
 import { SpreadsheetViewer } from "@/components/page/spreadsheet-viewer";
 import { BookmarkCard, EmbedFrame, MediaBox } from "@/components/page/web-card";
+import { HtmlFrame } from "@/components/page/html-frame";
 import { PageIcon } from "@/components/ui";
 import { DASHBOARD_CLASS, DASHBOARD_GRID_CLASS, WIDGET_SPAN_CLASS, widgetBoxClass } from "@/lib/dashboard";
 import { nameRange, PERIOD_LABELS } from "@/lib/dashboard-period";
@@ -89,7 +90,7 @@ export async function PublishedBody({
   unavailable: string;
   print?: boolean;
 }) {
-  const [format, tc, tb, tw, tp, ts, td, ta, tt] = await Promise.all([
+  const [format, tc, tb, tw, tp, ts, td, ta, tt, th] = await Promise.all([
     getFormatter(),
     getTranslations("common"),
     getTranslations("page.blocks"),
@@ -99,6 +100,7 @@ export async function PublishedBody({
     getTranslations("page.dashboard"),
     getTranslations("page.agentChat"),
     getTranslations("page.databaseTabs"),
+    getTranslations("page.htmlBlock"),
   ]);
   const untitled = tc("untitled");
   const titles = new Map(crumbs.map((c) => [c.id, c.title]));
@@ -255,6 +257,20 @@ export async function PublishedBody({
               <Bot className="h-4 w-4 shrink-0" aria-hidden />
               {ta("elsewhere")}
             </p>
+          </div>
+        );
+      case "htmlApp":
+        // The app runs in its sandboxed frame; on paper it is named, as nothing runs there.
+        return (
+          <div key={i} className={cn("my-2", pad, print && styles.keep)}>
+            {print ? (
+              <p className="flex items-center gap-2 rounded-lg border border-dashed border-border px-3 py-2.5 text-sm text-fg-muted">
+                <CodeXml className="h-4 w-4 shrink-0" aria-hidden />
+                <span className="min-w-0">{block.title ? `${block.title}: ${th("label")}` : th("label")}</span>
+              </p>
+            ) : (
+              <HtmlFrame source={block.source} title={block.title} height={block.height} label={th("label")} />
+            )}
           </div>
         );
       case "footnotes":

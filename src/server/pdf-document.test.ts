@@ -30,7 +30,7 @@ function input(blocks: MdBlock[], extra: Partial<PdfSection> = {}, images = new 
     sections: [{ title: "Offer", blocks, properties: [], database: null, embeds: new Map(), crumbs: [], children: [], ...extra }],
     images,
     link: (url) => (url.startsWith("/") ? `https://app.example${url}` : url),
-    labels: { untitled: "Untitled", unavailable: "Not available" },
+    labels: { untitled: "Untitled", unavailable: "Not available", interactive: "Interactive block" },
   };
 }
 
@@ -42,6 +42,12 @@ describe("pdfDocument", () => {
     expect((content[0] as ContentText).text).toBe("Offer");
     expect(JSON.stringify(content)).not.toContain('"offer"');
     expect(JSON.stringify(content)).toContain("Body");
+  });
+
+  it("names an HTML block with its title and a note, never its source", () => {
+    const json = JSON.stringify(contentOf(input([block("html", undefined, { source: "<script>secret()</script>", title: "Loan calculator" })])));
+    expect(json).toContain("Loan calculator: Interactive block");
+    expect(json).not.toContain("secret");
   });
 
   it("draws inline styles, links and footnotes, the notes at the end", () => {

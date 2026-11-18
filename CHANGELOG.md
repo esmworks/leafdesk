@@ -9,6 +9,15 @@
   options and a field for your own words, or a plan card with its steps, where each changes
   something and the risks. *Run this plan* then runs it in your own mode, with the usual approvals;
   *Change* takes you back to the box. No migration.
+- **Interactive HTML blocks.** `/html` adds a block holding a small app (a calculator, a quiz, a
+  chart, an org chart) written as one HTML document, which runs in the page for everyone who can
+  read it, published pages included. Editors open *Edit source* (live preview, title, fixed or
+  content-following height) or *Make with AI*, which has the model write or change the HTML. The app
+  runs in a sandboxed frame served from `/api/html-block/frame` under its own policy (no network, no
+  cookies or storage, no access to the page or the workspace), so the app's nonce policy never has
+  to allow inline scripts. In Markdown it is `<!-- leafdesk:html {"title":"…"} -->` before an
+  `html` fence; print, PDFs and Word files show its title and a note. No migration, no new
+  environment variables.
 
 - **Chains of agents.** *New chain* in the sidebar's *Agents* tab runs agents one after another,
   each handed the answer of the step before: a name, 2 to 8 steps (an agent, its task and the

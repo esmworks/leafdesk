@@ -1683,6 +1683,36 @@
       }
     }
   },
+  "htmlBlock": {
+    "label": "Blok interaktywny",
+    "emptyHint": "Ten blok HTML jest pusty. Dodaj kod źródłowy małej aplikacji, która ma tu działać.",
+    "emptyReadOnly": "Ten blok HTML jest pusty.",
+    "edit": "Edytuj kod źródłowy",
+    "makeWithAi": "Utwórz z AI",
+    "slash": {
+      "title": "HTML",
+      "subtext": "Mała interaktywna aplikacja napisana w HTML",
+      "aliases": "html aplikacja widżet kalkulator interaktywny kod osadź"
+    },
+    "editor": {
+      "title": "Blok HTML",
+      "titleField": "Tytuł",
+      "heightField": "Wysokość",
+      "heightAuto": "Dopasowana do treści",
+      "heightFixed": "Stała",
+      "heightPixels": "Wysokość w pikselach",
+      "sourceField": "Kod źródłowy",
+      "sourceHelp": "HTML ze skryptami i stylami w środku. Działa w piaskownicy: nie może niczego pobrać z sieci ani uzyskać dostępu do przestrzeni roboczej.",
+      "previewField": "Podgląd",
+      "previewEmpty": "Nie ma jeszcze nic do pokazania.",
+      "aiPlaceholder": "Opisz aplikację lub jak ją zmienić",
+      "aiWrite": "Napisz",
+      "aiChange": "Zmień",
+      "aiWorking": "Pisanie…",
+      "aiFailed": "AI nie zdołało tego napisać. Spróbuj ponownie.",
+      "apply": "Zastosuj"
+    }
+  },
   "approval": {
     "menu": "Poproś o zatwierdzenie…",
     "menuHint": "Poproś osoby o zatwierdzenie dokładnie tej wersji strony",

@@ -26,7 +26,7 @@ function input(blocks: MdBlock[], extra: Partial<PdfSection> = {}, more: Partial
     sections: [{ title: "Offer", blocks, properties: [], database: null, embeds: new Map(), crumbs: [], children: [], ...extra }],
     images: new Map(),
     link: (url) => (url.startsWith("/") ? `https://app.example${url}` : url),
-    labels: { untitled: "Untitled", unavailable: "Not available" },
+    labels: { untitled: "Untitled", unavailable: "Not available", interactive: "Interactive block" },
     ...more,
   };
 }
@@ -38,6 +38,12 @@ async function parts(i: DocxInput): Promise<Record<string, string>> {
 }
 
 describe("docx document", () => {
+  it("names an HTML block with its title and a note, never its source", async () => {
+    const doc = (await parts(input([block("html", undefined, { source: "<script>secret()</script>", title: "Loan calculator" })])))["word/document.xml"];
+    expect(doc).toContain("Loan calculator: Interactive block");
+    expect(doc).not.toContain("secret");
+  });
+
   it("starts with the title, without a first heading repeating it, and uses Word's heading styles", async () => {
     const doc = (await parts(input([block("heading", [text("offer")], { level: 1 }), block("heading", [text("Terms")], { level: 2 }), block("paragraph", [text("Body")])])))[
       "word/document.xml"

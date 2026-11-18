@@ -9,6 +9,7 @@ import { BREADCRUMB_BLOCK, CALLOUT_BLOCK, MERMAID_BLOCK, SUBPAGES_BLOCK, TOC_BLO
 import { plainText } from "@/lib/content-markdown";
 import { AGENT_CHAT_BLOCK } from "@/lib/agent-chat";
 import { QUIZ_BLOCK } from "@/lib/quiz-block";
+import { cleanHtmlHeight, cleanHtmlSource, cleanHtmlTitle, HTML_BLOCK } from "@/lib/html-block";
 import { DASHBOARD_BLOCK, dashboardLayout, parseDashboard, type DashboardLayout, type DashboardWidget } from "@/lib/dashboard";
 import { ALL_TIME, parseDashboardPeriod, type DashboardPeriod } from "@/lib/dashboard-period";
 import { isEmbedBlockType, parseLinkedView, type EmbedBlockType, type LinkedView } from "@/lib/embed-blocks";
@@ -222,6 +223,8 @@ export type BodySegment =
   | { kind: "breadcrumb" }
   | { kind: "subpages" }
   | { kind: "mermaid"; source: string }
+  /** An HTML block (lib/html-block): its app runs in the visitor's browser in a sandboxed frame; print and PDFs name it. */
+  | { kind: "htmlApp"; source: string; title: string; height: number }
   /** An agent chat block: chats happen in the app only, so it says just that (naming no agent). */
   | { kind: "agentChat" }
   | { kind: "bookmark"; bookmark: PublishedBookmark; align: MediaAlignment }
@@ -296,6 +299,7 @@ const isStandalone = (block: PageBlock) =>
   block.type === MERMAID_BLOCK ||
   block.type === AGENT_CHAT_BLOCK ||
   block.type === QUIZ_BLOCK ||
+  block.type === HTML_BLOCK ||
   inPlaceFileOf(block) !== null;
 
 /** This app's origin: its own pages are never framed in an embed. */
@@ -722,6 +726,14 @@ export async function bodySegmentsFromBlocks(
       // A quiz is taken in the app only, and its answers never leave it: published pages, print,
       // PDFs and Word files leave it out.
       if (block.type === QUIZ_BLOCK) return;
+      if (block.type === HTML_BLOCK) {
+        const props = block.props as { source?: unknown; title?: unknown; height?: unknown };
+        const source = cleanHtmlSource(props.source);
+        if (!source.trim()) return;
+        await flush();
+        segments.push({ kind: "htmlApp", source, title: cleanHtmlTitle(props.title), height: cleanHtmlHeight(props.height) });
+        return;
+      }
       if (block.type === MERMAID_BLOCK) {
         const source = plainText(block.content);
         if (!source.trim()) return;

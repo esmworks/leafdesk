@@ -1683,6 +1683,36 @@
       }
     }
   },
+  "htmlBlock": {
+    "label": "Khối tương tác",
+    "emptyHint": "Khối HTML này đang trống. Hãy thêm mã nguồn của một ứng dụng nhỏ để chạy tại đây.",
+    "emptyReadOnly": "Khối HTML này đang trống.",
+    "edit": "Sửa mã nguồn",
+    "makeWithAi": "Tạo bằng AI",
+    "slash": {
+      "title": "HTML",
+      "subtext": "Một ứng dụng tương tác nhỏ viết bằng HTML",
+      "aliases": "html ứng dụng tiện ích máy tính tương tác mã nhúng"
+    },
+    "editor": {
+      "title": "Khối HTML",
+      "titleField": "Tiêu đề",
+      "heightField": "Chiều cao",
+      "heightAuto": "Theo nội dung",
+      "heightFixed": "Cố định",
+      "heightPixels": "Chiều cao tính bằng pixel",
+      "sourceField": "Mã nguồn",
+      "sourceHelp": "HTML kèm script và kiểu dáng bên trong. Nó chạy trong môi trường cách ly: không thể tải gì từ mạng hay truy cập không gian làm việc.",
+      "previewField": "Xem trước",
+      "previewEmpty": "Chưa có gì để hiển thị.",
+      "aiPlaceholder": "Mô tả ứng dụng hoặc cách thay đổi nó",
+      "aiWrite": "Viết",
+      "aiChange": "Thay đổi",
+      "aiWorking": "Đang viết…",
+      "aiFailed": "AI không viết được. Hãy thử lại.",
+      "apply": "Áp dụng"
+    }
+  },
   "approval": {
     "menu": "Yêu cầu phê duyệt…",
     "menuHint": "Yêu cầu mọi người phê duyệt đúng phiên bản này của trang",

@@ -1683,6 +1683,36 @@
       }
     }
   },
+  "htmlBlock": {
+    "label": "Blok interaktif",
+    "emptyHint": "Blok HTML ini kosong. Tambahkan kode sumber aplikasi kecil untuk dijalankan di sini.",
+    "emptyReadOnly": "Blok HTML ini kosong.",
+    "edit": "Edit sumber",
+    "makeWithAi": "Buat dengan AI",
+    "slash": {
+      "title": "HTML",
+      "subtext": "Aplikasi interaktif kecil yang ditulis dengan HTML",
+      "aliases": "html aplikasi widget kalkulator interaktif kode sematkan"
+    },
+    "editor": {
+      "title": "Blok HTML",
+      "titleField": "Judul",
+      "heightField": "Tinggi",
+      "heightAuto": "Mengikuti isi",
+      "heightFixed": "Tetap",
+      "heightPixels": "Tinggi dalam piksel",
+      "sourceField": "Sumber",
+      "sourceHelp": "HTML dengan skrip dan gaya di dalamnya. Berjalan di kotak pasir: tidak bisa memuat apa pun dari jaringan atau mengakses ruang kerja.",
+      "previewField": "Pratinjau",
+      "previewEmpty": "Belum ada yang ditampilkan.",
+      "aiPlaceholder": "Jelaskan aplikasinya, atau cara mengubahnya",
+      "aiWrite": "Tulis",
+      "aiChange": "Ubah",
+      "aiWorking": "Menulis…",
+      "aiFailed": "AI tidak bisa menulisnya. Coba lagi.",
+      "apply": "Terapkan"
+    }
+  },
   "approval": {
     "menu": "Minta persetujuan…",
     "menuHint": "Minta orang menyetujui versi halaman yang persis ini",

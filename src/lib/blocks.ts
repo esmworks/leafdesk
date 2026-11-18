@@ -2,6 +2,7 @@ import { FOOTNOTE } from "./content-blocks";
 import { MEETING_BLOCK, meetingPlainText } from "./meetings";
 import { BUTTON_BLOCK, buttonPlainText } from "./buttons";
 import { MENTION, mentionPlainText } from "./mentions";
+import { cleanHtmlTitle, HTML_BLOCK } from "./html-block";
 
 /** Minimal structural view of BlockNote blocks; enough to extract searchable text. */
 type InlineNode = { type: string; text?: string; content?: InlineNode[] | string; props?: unknown };
@@ -42,6 +43,8 @@ export function blockText(block: BlockLike, pageText?: PageMentionText): string 
   }
   // A meeting's text is in its props: title, attendees, takeaways and transcript (lib/meetings).
   if (block.type === MEETING_BLOCK) return meetingPlainText(block.props);
+  // An HTML block reads as its title: its source is code, not what people search for.
+  if (block.type === HTML_BLOCK) return cleanHtmlTitle(block.props?.title);
   // A button reads as its label.
   if (block.type === BUTTON_BLOCK) return buttonPlainText(block.props);
   // A callout's title is a line of its own above its text.

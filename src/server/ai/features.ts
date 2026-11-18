@@ -52,6 +52,9 @@ const PLANS: [feature: string, plan: AiFeaturePlan][] = [
   // A PDF theme changed as the owner asks: a whole JSON document checked before it is offered,
   // while they wait, so the main model with a little thinking.
   ["pdf.theme", { thinking: "low" }],
+  // An HTML block's app written or changed as its editor asks, while they wait: a whole document, so
+  // the main model with a little thinking.
+  ["html.block", { thinking: "low" }],
   // Questions over the workspace's pages, often with figures, while the person waits.
   ["chat", { thinking: "medium" }],
   // A report from many sources, written once while the person watches its steps: the model's own

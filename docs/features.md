@@ -197,7 +197,20 @@
   tab, tabs don't go in tabs or columns; which tab shows is each reader's own choice; the cursor
   moving into another tab, by undo or a link to a block, shows it), also on published pages and in
   Markdown (`<!-- leafdesk:tabs -->`, `<!-- leafdesk:tab "Title" -->` before each tab's blocks,
-  `<!-- leafdesk:/tabs -->`); printed, in PDFs and Word files every tab is there under its title. Numbered lists nested in numbered lists count in
+  `<!-- leafdesk:/tabs -->`); printed, in PDFs and Word files every tab is there under its title.
+  An *HTML* block (`/html`) holds a small app (a calculator, a quiz, a chart, an org chart) written
+  as one HTML document with its scripts and styles inline, which runs in the page for everyone who
+  can read it, on published pages too. People who can edit the page open *Edit source* (the source
+  next to a live preview, a title, and a fixed height or one that follows the content; up to 200 KB)
+  and, with AI on, *Make with AI*: a description in words (or a change to the source already there)
+  and the model writes the HTML, which is only a draft until *Apply*. The app runs in a sandboxed
+  frame served with a policy of its own: it can't load anything from the network (not scripts,
+  images, fonts or frames; `data:` images and fonts are fine), send anything out, use cookies or
+  storage, open windows, submit forms or reach the page around it, the workspace or the person's
+  session, and links in it go nowhere. Its title is what search indexes (never the source) and what
+  print, PDFs and Word files show with a note, *Interactive block*; in Markdown it is the line
+  `<!-- leafdesk:html {"title":"…","height":320} -->` (title and height optional) before a
+  `html` code fence holding the source, so MCP, the AI chat and agents can write it too. Numbered lists nested in numbered lists count in
   letters, then roman numerals, then numbers again (1, a, i), in the editor, on published pages and
   in PDFs; inline code isn't marked by the browser's spelling check. A code block's menu adds a
   *Caption* under the code (published pages and PDFs show it; Markdown writes the line

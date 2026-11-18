@@ -721,6 +721,17 @@ several mailboxes, whose thread ids can repeat, so the list keys threads by `ite
   bodies, print, PDF and Word drop the block and Markdown exports name it (`export.ts` `nameQuizzes`).
   A duplicated page gets its own quizzes in `duplicate.ts` through `copyQuizzesForCopies`, which
   rewrites the copies' ids in their documents and Markdown.
+- **HTML blocks** (`lib/html-block.ts`: config, marker + fence Markdown, limits; `lib/html-frame.ts`:
+  the frame's CSP and shell document; `components/page/html-block.tsx`, `html-frame.tsx`,
+  `html-source-dialog.tsx` (lazy); `server/html-block-ai.ts`): all in props, searched by title only.
+  The app runs in an iframe whose `src` is `/api/html-block/frame`, a static document with its own
+  CSP (`sandbox allow-scripts; default-src 'none'; script-src 'unsafe-inline' …`) that the page
+  sends the source to by `postMessage` and the shell `document.write`s. It is an API route because
+  the proxy's nonce CSP would be added to any page route's and, applying together, block the inline
+  scripts; a `srcdoc` or blob frame inherits the nonce CSP too. The iframe never gets
+  `allow-same-origin`, and the page trusts only messages from that frame's window (heights are
+  clamped). A site's own domain lets the path through (`routeOnSiteHost`). Published pages and print
+  take it as the `htmlApp` segment (print draws a note instead of the frame).
 - **Reports about published pages** (`server/page-reports.ts`, table `page_report`): the form is
   its own route, `s/[token]/report`, on the app's address like `duplicate` (a site's domain
   redirects there, `routeOnSiteHost`); `servedPublication` decides whether the page is served.

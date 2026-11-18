@@ -1683,6 +1683,36 @@
       }
     }
   },
+  "htmlBlock": {
+    "label": "Blocco interattivo",
+    "emptyHint": "Questo blocco HTML è vuoto. Aggiungi il codice di una piccola app da eseguire qui.",
+    "emptyReadOnly": "Questo blocco HTML è vuoto.",
+    "edit": "Modifica sorgente",
+    "makeWithAi": "Crea con l’IA",
+    "slash": {
+      "title": "HTML",
+      "subtext": "Una piccola app interattiva scritta in HTML",
+      "aliases": "html app widget calcolatrice interattivo codice incorpora"
+    },
+    "editor": {
+      "title": "Blocco HTML",
+      "titleField": "Titolo",
+      "heightField": "Altezza",
+      "heightAuto": "Segue il contenuto",
+      "heightFixed": "Fissa",
+      "heightPixels": "Altezza in pixel",
+      "sourceField": "Sorgente",
+      "sourceHelp": "HTML con script e stili inclusi. Viene eseguito in una sandbox: non può caricare nulla dalla rete né accedere all’area di lavoro.",
+      "previewField": "Anteprima",
+      "previewEmpty": "Ancora niente da mostrare.",
+      "aiPlaceholder": "Descrivi l’app o come modificarla",
+      "aiWrite": "Scrivi",
+      "aiChange": "Modifica",
+      "aiWorking": "Scrittura…",
+      "aiFailed": "L’IA non è riuscita a scriverlo. Riprova.",
+      "apply": "Applica"
+    }
+  },
   "approval": {
     "menu": "Chiedi approvazione…",
     "menuHint": "Chiedi ad altre persone di approvare esattamente questa versione della pagina",

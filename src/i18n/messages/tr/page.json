@@ -1683,6 +1683,36 @@
       }
     }
   },
+  "htmlBlock": {
+    "label": "Etkileşimli blok",
+    "emptyHint": "Bu HTML bloğu boş. Burada çalışacak küçük bir uygulamanın kaynağını ekleyin.",
+    "emptyReadOnly": "Bu HTML bloğu boş.",
+    "edit": "Kaynağı düzenle",
+    "makeWithAi": "Yapay zekâyla oluştur",
+    "slash": {
+      "title": "HTML",
+      "subtext": "HTML ile yazılmış küçük etkileşimli bir uygulama",
+      "aliases": "html uygulama widget hesap makinesi etkileşimli kod göm"
+    },
+    "editor": {
+      "title": "HTML bloğu",
+      "titleField": "Başlık",
+      "heightField": "Yükseklik",
+      "heightAuto": "İçeriği izler",
+      "heightFixed": "Sabit",
+      "heightPixels": "Piksel cinsinden yükseklik",
+      "sourceField": "Kaynak",
+      "sourceHelp": "Betikleri ve stilleri içinde olan HTML. Korumalı alanda çalışır: ağdan hiçbir şey yükleyemez ve çalışma alanına erişemez.",
+      "previewField": "Önizleme",
+      "previewEmpty": "Henüz gösterilecek bir şey yok.",
+      "aiPlaceholder": "Uygulamayı ya da nasıl değiştirileceğini anlatın",
+      "aiWrite": "Yaz",
+      "aiChange": "Değiştir",
+      "aiWorking": "Yazılıyor…",
+      "aiFailed": "Yapay zekâ bunu yazamadı. Tekrar deneyin.",
+      "apply": "Uygula"
+    }
+  },
   "approval": {
     "menu": "Onay iste…",
     "menuHint": "Kişilerden sayfanın bu sürümünü onaylamasını iste",

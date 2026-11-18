@@ -1,4 +1,5 @@
 import { cleanCodeCaption } from "@/lib/code-caption";
+import { cleanHtmlTitle, HTML_BLOCK } from "@/lib/html-block";
 import { builtinIconSvg } from "@/lib/builtin-icon-svg";
 import type { Alignment, Column, Content, ContentImage, ContentTable, ContentText, TableCell, TableLayout, TDocumentDefinitions } from "pdfmake/interfaces";
 import { CALLOUT_BLOCK, MATH_BLOCK, MERMAID_BLOCK, BREADCRUMB_BLOCK, FOOTNOTE, INLINE_MATH, SUBPAGES_BLOCK, TOC_BLOCK } from "@/lib/content-blocks";
@@ -64,7 +65,7 @@ export type PdfInput = {
   images: Map<string, string>;
   /** A URL as a link from the file (site paths of uploads made absolute). */
   link: (url: string) => string;
-  labels: { untitled: string; unavailable: string };
+  labels: { untitled: string; unavailable: string; interactive: string };
   /** What every page prints around the body; without one, page numbers when there are several pages. */
   letterhead?: PdfLetterhead | null;
   /** How the paper looks and what prints around the body; takes the letterhead's place. */
@@ -321,6 +322,11 @@ function blockContent(block: MdBlock, walk: Walk, width: number): Content[] {
       // A code block's caption (lib/code-block) under it.
       const caption = cleanCodeCaption(str(prop(block, "caption")));
       return caption ? [{ stack: [code, ...captionLine(caption)], margin: [0, 0, 0, 6] }] : [code];
+    }
+    case HTML_BLOCK: {
+      // Nothing runs on paper: the block's title and a note (lib/html-block).
+      const title = cleanHtmlTitle(prop(block, "title"));
+      return [boxed([{ text: title ? `${title}: ${input.labels.interactive}` : input.labels.interactive, color: MUTED, italics: true, fontSize: 9 }], { edge: BORDER, frame: true })];
     }
     case MATH_BLOCK:
       return [{ text: plainText(block.content), italics: true, alignment: "center", margin: [0, 4, 0, 8] }];

@@ -19,6 +19,7 @@ import { AutofillError, requestAutofill, setAutofill } from "@/server/ai-propert
 import { snapshotBeforeAiEdit } from "@/server/ai-writing";
 import * as databases from "@/server/databases";
 import { MAX_FORMULA_REQUEST, suggestFormula, type FormulaRequest } from "@/server/formula-ai";
+import { MAX_HTML_INSTRUCTION, writeHtmlBlock } from "@/server/html-block-ai";
 import { requireUserId } from "@/server/session";
 import { deleteSharedNotes, placeNotes, writeSharedNote } from "@/server/shared-memory";
 import {
@@ -63,6 +64,16 @@ async function run<T>(fn: (userId: string) => Promise<T>): Promise<ActionResult<
     console.error("[ai action]", error);
     return { ok: false, error: t("common.genericError") };
   }
+}
+
+/** An HTML block's app written or changed as its editor asks: the HTML, not saved (server/html-block-ai.ts). */
+export async function writeHtmlBlockAction(pageId: string, current: string, instruction: string): Promise<ActionResult<string>> {
+  return run((userId) =>
+    writeHtmlBlock(userId, String(pageId), {
+      current: typeof current === "string" ? current : "",
+      instruction: typeof instruction === "string" ? instruction.slice(0, MAX_HTML_INSTRUCTION) : "",
+    }),
+  );
 }
 
 /** The person's saved prompts for the AI assistant in this workspace. */

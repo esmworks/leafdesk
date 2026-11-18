@@ -308,10 +308,10 @@ async function framing(
 async function pdfLabels() {
   const pivot = await pivotTexts();
   try {
-    const [tc, tp, tpub] = await Promise.all([getTranslations("common"), getTranslations("page.print"), getTranslations("publish")]);
-    return { untitled: tc("untitled"), unavailable: tp("embedUnavailable"), name: tpub("name"), pivot };
+    const [tc, tp, tpub, th] = await Promise.all([getTranslations("common"), getTranslations("page.print"), getTranslations("publish"), getTranslations("page.htmlBlock")]);
+    return { untitled: tc("untitled"), unavailable: tp("embedUnavailable"), interactive: th("label"), name: tpub("name"), pivot };
   } catch {
-    return { untitled: "Untitled", unavailable: "This database isn't available to you.", name: "Name", pivot };
+    return { untitled: "Untitled", unavailable: "This database isn't available to you.", interactive: "Interactive block", name: "Name", pivot };
   }
 }
 

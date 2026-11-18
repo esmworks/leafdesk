@@ -23,6 +23,7 @@ import {
   WidthType,
 } from "docx";
 import { cleanCodeCaption } from "@/lib/code-caption";
+import { cleanHtmlTitle, HTML_BLOCK } from "@/lib/html-block";
 import { CALLOUT_BLOCK, MATH_BLOCK, MERMAID_BLOCK, BREADCRUMB_BLOCK, FOOTNOTE, INLINE_MATH, SUBPAGES_BLOCK, TOC_BLOCK } from "@/lib/content-blocks";
 import { plainText, type MdBlock } from "@/lib/content-markdown";
 import { COLUMN_BLOCK, COLUMN_LIST_BLOCK, columnWidth } from "@/lib/columns";
@@ -280,6 +281,11 @@ function blockContent(block: MdBlock, walk: Walk, width: number, level: number, 
       // A code block's caption (lib/code-block) under it.
       const caption = cleanCodeCaption(str(prop(block, "caption")));
       return caption ? [...code, captionLine(caption)] : code;
+    }
+    case HTML_BLOCK: {
+      // Nothing runs on paper: the block's title and a note (lib/html-block).
+      const title = cleanHtmlTitle(prop(block, "title"));
+      return [boxed([new Paragraph({ children: runs(title ? `${title}: ${input.labels.interactive}` : input.labels.interactive, { italics: true, color: MUTED }) })], width - indent, { frame: true }, indent), spacer()];
     }
     case MATH_BLOCK:
       return [new Paragraph({ children: runs(plainText(block.content), { italics: true }), alignment: AlignmentType.CENTER })];

@@ -1683,6 +1683,36 @@
       }
     }
   },
+  "htmlBlock": {
+    "label": "Interaktivt block",
+    "emptyHint": "Det här HTML-blocket är tomt. Lägg till källkoden för en liten app som ska köras här.",
+    "emptyReadOnly": "Det här HTML-blocket är tomt.",
+    "edit": "Redigera källkod",
+    "makeWithAi": "Skapa med AI",
+    "slash": {
+      "title": "HTML",
+      "subtext": "En liten interaktiv app skriven i HTML",
+      "aliases": "html app widget kalkylator interaktiv kod bädda"
+    },
+    "editor": {
+      "title": "HTML-block",
+      "titleField": "Titel",
+      "heightField": "Höjd",
+      "heightAuto": "Följer innehållet",
+      "heightFixed": "Fast",
+      "heightPixels": "Höjd i pixlar",
+      "sourceField": "Källkod",
+      "sourceHelp": "HTML med skript och stilar inbyggda. Den körs i en sandlåda: den kan inte ladda något från nätverket eller nå arbetsytan.",
+      "previewField": "Förhandsvisning",
+      "previewEmpty": "Inget att visa ännu.",
+      "aiPlaceholder": "Beskriv appen eller hur den ska ändras",
+      "aiWrite": "Skriv",
+      "aiChange": "Ändra",
+      "aiWorking": "Skriver …",
+      "aiFailed": "AI:n kunde inte skriva det. Försök igen.",
+      "apply": "Tillämpa"
+    }
+  },
   "approval": {
     "menu": "Be om godkännande…",
     "menuHint": "Be personer godkänna exakt den här versionen av sidan",

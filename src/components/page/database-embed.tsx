@@ -26,6 +26,8 @@ export type EmbedHost = {
   editable: boolean;
   /** The page's document (new synced blocks keep their blocks in it, see synced-block.tsx). */
   doc?: Y.Doc;
+  /** The workspace has AI on and the person may use it here (the HTML block's "Make with AI"). */
+  ai?: boolean;
 };
 
 const EmbedHostContext = createContext<EmbedHost | null>(null);

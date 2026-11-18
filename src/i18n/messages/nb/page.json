@@ -1683,6 +1683,36 @@
       }
     }
   },
+  "htmlBlock": {
+    "label": "Interaktiv blokk",
+    "emptyHint": "Denne HTML-blokken er tom. Legg til kildekoden til en liten app som skal kjøre her.",
+    "emptyReadOnly": "Denne HTML-blokken er tom.",
+    "edit": "Rediger kildekode",
+    "makeWithAi": "Lag med AI",
+    "slash": {
+      "title": "HTML",
+      "subtext": "En liten interaktiv app skrevet i HTML",
+      "aliases": "html app widget kalkulator interaktiv kode bygg inn"
+    },
+    "editor": {
+      "title": "HTML-blokk",
+      "titleField": "Tittel",
+      "heightField": "Høyde",
+      "heightAuto": "Følger innholdet",
+      "heightFixed": "Fast",
+      "heightPixels": "Høyde i piksler",
+      "sourceField": "Kildekode",
+      "sourceHelp": "HTML med skript og stiler innebygd. Den kjører i en sandkasse: den kan ikke laste noe fra nettverket eller nå arbeidsområdet.",
+      "previewField": "Forhåndsvisning",
+      "previewEmpty": "Ingenting å vise ennå.",
+      "aiPlaceholder": "Beskriv appen, eller hvordan den skal endres",
+      "aiWrite": "Skriv",
+      "aiChange": "Endre",
+      "aiWorking": "Skriver …",
+      "aiFailed": "AI-en kunne ikke skrive det. Prøv igjen.",
+      "apply": "Bruk"
+    }
+  },
   "approval": {
     "menu": "Be om godkjenning…",
     "menuHint": "Be folk godkjenne akkurat denne versjonen av siden",

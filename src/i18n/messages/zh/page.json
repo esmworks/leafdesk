@@ -1683,6 +1683,36 @@
       }
     }
   },
+  "htmlBlock": {
+    "label": "交互式区块",
+    "emptyHint": "此 HTML 区块为空。添加要在此运行的小型应用的源代码。",
+    "emptyReadOnly": "此 HTML 区块为空。",
+    "edit": "编辑源代码",
+    "makeWithAi": "用 AI 创建",
+    "slash": {
+      "title": "HTML",
+      "subtext": "用 HTML 编写的小型交互式应用",
+      "aliases": "html 应用 小组件 计算器 交互 代码 嵌入"
+    },
+    "editor": {
+      "title": "HTML 区块",
+      "titleField": "标题",
+      "heightField": "高度",
+      "heightAuto": "跟随内容",
+      "heightFixed": "固定",
+      "heightPixels": "高度（像素）",
+      "sourceField": "源代码",
+      "sourceHelp": "内含脚本和样式的 HTML。它在沙盒中运行：无法从网络加载任何内容，也无法访问工作区。",
+      "previewField": "预览",
+      "previewEmpty": "暂无可显示的内容。",
+      "aiPlaceholder": "描述应用，或说明要如何修改",
+      "aiWrite": "编写",
+      "aiChange": "修改",
+      "aiWorking": "正在编写…",
+      "aiFailed": "AI 未能写出。请重试。",
+      "apply": "应用"
+    }
+  },
   "approval": {
     "menu": "请求审批…",
     "menuHint": "请他人审批页面的这一确切版本",

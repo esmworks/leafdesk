@@ -45,6 +45,7 @@ import { databaseBlockConfig, linkedViewBlockConfig, referenceLine, isEmbedBlock
 import { dashboardBlockConfig } from "@/lib/dashboard";
 import { agentChatBlockConfig } from "@/lib/agent-chat";
 import { quizBlockConfig } from "@/lib/quiz-block";
+import { htmlBlockConfig } from "@/lib/html-block";
 import { buttonBlockConfig, buttonColor, cleanButtonLabel } from "@/lib/buttons";
 import { meetingBlockConfig, meetingProps, parseAttendees, parseTakeaways } from "@/lib/meetings";
 import { markdownToPageBlocks } from "@/lib/page-markdown";
@@ -305,6 +306,8 @@ export const pageSchema = BlockNoteSchema.create({
     agentChat: createBlockSpec(agentChatBlockConfig, marker("agentChat"))(),
     // Only the quiz's id: its questions and answers stay in the quiz table (server/quizzes.ts).
     quiz: createBlockSpec(quizBlockConfig, marker("quiz"))(),
+    // Everything in its props (lib/html-block): where only text can be shown it is a marker; published pages draw it in its frame (published-body.ts).
+    html: createBlockSpec(htmlBlockConfig, marker("html"))(),
     // Its label as a button that does nothing: what it does runs only in the app (server/buttons.ts).
     button: createBlockSpec(buttonBlockConfig, { render: (block) => buttonElement(block.props) })(),
     // Everything in its props (lib/meetings); its Markdown is its region, transcript included.

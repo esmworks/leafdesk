@@ -1683,6 +1683,36 @@
       }
     }
   },
+  "htmlBlock": {
+    "label": "インタラクティブブロック",
+    "emptyHint": "この HTML ブロックは空です。ここで動かす小さなアプリのソースを追加してください。",
+    "emptyReadOnly": "この HTML ブロックは空です。",
+    "edit": "ソースを編集",
+    "makeWithAi": "AI で作成",
+    "slash": {
+      "title": "HTML",
+      "subtext": "HTML で書く小さなインタラクティブアプリ",
+      "aliases": "html アプリ ウィジェット 電卓 インタラクティブ コード 埋め込み"
+    },
+    "editor": {
+      "title": "HTML ブロック",
+      "titleField": "タイトル",
+      "heightField": "高さ",
+      "heightAuto": "内容に合わせる",
+      "heightFixed": "固定",
+      "heightPixels": "高さ（ピクセル）",
+      "sourceField": "ソース",
+      "sourceHelp": "スクリプトとスタイルを含む HTML。サンドボックス内で動作し、ネットワークから何も読み込めず、ワークスペースにも触れません。",
+      "previewField": "プレビュー",
+      "previewEmpty": "まだ表示するものがありません。",
+      "aiPlaceholder": "アプリの内容、または変更したい点を説明してください",
+      "aiWrite": "作成",
+      "aiChange": "変更",
+      "aiWorking": "作成中…",
+      "aiFailed": "AI が作成できませんでした。もう一度お試しください。",
+      "apply": "適用"
+    }
+  },
   "approval": {
     "menu": "承認を依頼…",
     "menuHint": "このページのこのバージョンそのものの承認を依頼します",

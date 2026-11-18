@@ -1683,6 +1683,36 @@
       }
     }
   },
+  "htmlBlock": {
+    "label": "Interaktiv blok",
+    "emptyHint": "Denne HTML-blok er tom. Tilføj kildekoden til en lille app, der skal køre her.",
+    "emptyReadOnly": "Denne HTML-blok er tom.",
+    "edit": "Rediger kildekode",
+    "makeWithAi": "Lav med AI",
+    "slash": {
+      "title": "HTML",
+      "subtext": "En lille interaktiv app skrevet i HTML",
+      "aliases": "html app widget regnemaskine interaktiv kode indlejr"
+    },
+    "editor": {
+      "title": "HTML-blok",
+      "titleField": "Titel",
+      "heightField": "Højde",
+      "heightAuto": "Følger indholdet",
+      "heightFixed": "Fast",
+      "heightPixels": "Højde i pixel",
+      "sourceField": "Kildekode",
+      "sourceHelp": "HTML med scripts og typografier indbygget. Den kører i en sandkasse: den kan ikke hente noget fra netværket eller få adgang til arbejdsområdet.",
+      "previewField": "Forhåndsvisning",
+      "previewEmpty": "Intet at vise endnu.",
+      "aiPlaceholder": "Beskriv appen, eller hvordan den skal ændres",
+      "aiWrite": "Skriv",
+      "aiChange": "Ændr",
+      "aiWorking": "Skriver …",
+      "aiFailed": "AI’en kunne ikke skrive det. Prøv igen.",
+      "apply": "Anvend"
+    }
+  },
   "approval": {
     "menu": "Bed om godkendelse…",
     "menuHint": "Bed folk godkende præcis denne version af siden",

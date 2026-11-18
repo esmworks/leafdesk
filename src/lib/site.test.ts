@@ -146,6 +146,7 @@ describe("routeOnSiteHost", () => {
     expect(route("/_next/static/chunks/a.js")).toEqual({ kind: "pass" });
     expect(route("/api/files/abc_123")).toEqual({ kind: "pass" });
     expect(route("/api/files/abc_123/preview")).toEqual({ kind: "pass" });
+    expect(route("/api/html-block/frame")).toEqual({ kind: "pass" });
     expect(route("/icon.svg")).toEqual({ kind: "pass" });
   });
 
