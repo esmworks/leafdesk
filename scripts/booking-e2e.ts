@@ -191,6 +191,11 @@ try {
   const limited: (string | null)[] = [];
   for (let i = 0; i < 8; i++) limited.push(await codeOf(() => bookSlot(link.token, request(slot + MINUTE), { ...options, ip: "203.0.113.50" })));
   check(limited.includes("rateLimited"), "one address can't try again and again", limited);
+  // Each booking emails the visitor's address: from any network, it gets a few a day at most.
+  resetBookingRateLimits();
+  const mailed: (string | null)[] = [];
+  for (let i = 0; i < 5; i++) mailed.push(await codeOf(() => bookSlot(link.token, { ...request(slot + MINUTE), email: "Someone@Example.test" }, { ...options, ip: `198.51.100.${20 + i}` })));
+  check(mailed.slice(0, 3).every((code) => code !== "rateLimited") && mailed.slice(3).every((code) => code === "rateLimited"), "one email address gets three bookings a day, whatever the network", mailed);
 
   // Free time for the AI
   const free = await findFreeTime(ids.owner, workspaceId, {

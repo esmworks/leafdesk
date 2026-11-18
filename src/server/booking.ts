@@ -317,18 +317,24 @@ export type PublicBooking = {
 
 /** Public page views per address, and per link from everyone. */
 export const BOOKING_VIEW_LIMITS = { perIp: { limit: 120, windowMs: 10 * 60_000 } };
-/** Bookings per address, and per link from everyone. */
+/**
+ * Bookings per address, per link from everyone, and per visitor's email address: each booking
+ * emails that address, so one address gets a few a day at most, whichever links and networks they
+ * come from (the page can't be used to send mail to someone over and over).
+ */
 export const BOOKING_RATE_LIMITS = {
   perIp: { limit: 6, windowMs: 10 * 60_000 },
   perLink: { limit: 60, windowMs: 60 * 60_000 },
+  perEmail: { limit: 3, windowMs: 24 * 60 * 60_000 },
 };
 const viewLimiter = () => sharedLimiter("booking:view", BOOKING_VIEW_LIMITS.perIp.limit, BOOKING_VIEW_LIMITS.perIp.windowMs);
 const ipLimiter = () => sharedLimiter("booking:ip", BOOKING_RATE_LIMITS.perIp.limit, BOOKING_RATE_LIMITS.perIp.windowMs);
 const linkLimiter = () => sharedLimiter("booking:link", BOOKING_RATE_LIMITS.perLink.limit, BOOKING_RATE_LIMITS.perLink.windowMs);
+const emailLimiter = () => sharedLimiter("booking:email", BOOKING_RATE_LIMITS.perEmail.limit, BOOKING_RATE_LIMITS.perEmail.windowMs);
 
 /** Scripts and tests: start counting again. */
 export function resetBookingRateLimits() {
-  for (const limiter of [viewLimiter, ipLimiter, linkLimiter]) limiter().reset();
+  for (const limiter of [viewLimiter, ipLimiter, linkLimiter, emailLimiter]) limiter().reset();
   busyCache().clear();
 }
 
@@ -407,7 +413,7 @@ export async function bookSlot(
   const age = ticketAge(token, request.ticket, now);
   if (age === null || age > MAX_TICKET_AGE_MS) throw new BookingError("expired", "The page has expired; reload it");
   if (age < MIN_FILL_MS) throw new BookingError("tooFast", "The booking was sent too quickly");
-  if (takeAll([[ipLimiter(), ip], [linkLimiter(), link.id]], now) > 0) throw new BookingError("rateLimited", "Too many bookings; try again later");
+  if (takeAll([[ipLimiter(), ip], [linkLimiter(), link.id], [emailLimiter(), email.toLowerCase()]], now) > 0) throw new BookingError("rateLimited", "Too many bookings; try again later");
   // Bots fill in every field. They are told it worked, so they have nothing to adapt to.
   if (typeof request.honeypot === "string" && request.honeypot.trim()) return null;
 

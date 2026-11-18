@@ -148,7 +148,8 @@
   for you (inbox, push, and chat apps; its own switch in Settings > Notifications) and a
   confirmation email to the visitor. Bookings are made one at a time per person and the slot is
   checked again then, so two visitors never get one time; pages and bookings are rate limited per
-  address and per link, and a hidden field and a minimum fill time turn bots away. Switching a link
+  address and per link, one email address gets at most three bookings (and confirmations) a day,
+  and a hidden field and a minimum fill time turn bots away. Switching a link
   off, deleting it, or losing the calendar makes its address answer as if it never existed. Links
   are not part of a backup: set them up again after a restore.
 - **Messages** (on the sidebar's rail): the workspace's own conversations, live over a websocket:
