@@ -777,7 +777,10 @@ several mailboxes, whose thread ids can repeat, so the list keys threads by `ite
   `html-source-dialog.tsx` (lazy); `server/html-block-ai.ts`): all in props, searched by title only.
   The app runs in an iframe whose `src` is `/api/html-block/frame`, a static document with its own
   CSP (`sandbox allow-scripts; default-src 'none'; script-src 'unsafe-inline' …`) that the page
-  sends the source to by `postMessage` and the shell `document.write`s. It is an API route because
+  sends the source to by `postMessage`; the shell runs it in a sandboxed `srcdoc` frame of its own,
+  because a frame's navigations are checked against its holder's `frame-src` (the app's allows
+  `https:`, so a block in the outer frame could navigate out with what was typed; the shell's is
+  `'none'`). It is an API route because
   the proxy's nonce CSP would be added to any page route's and, applying together, block the inline
   scripts; a `srcdoc` or blob frame inherits the nonce CSP too. The iframe never gets
   `allow-same-origin`, and the page trusts only messages from that frame's window (heights are

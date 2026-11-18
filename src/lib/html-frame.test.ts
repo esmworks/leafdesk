@@ -34,7 +34,14 @@ describe("the HTML block's frame", () => {
   it("holds only the shell: it loads nothing and takes its source from the embedding page alone", () => {
     expect(HTML_FRAME_DOCUMENT).not.toMatch(/src=|href=|https?:\/\//);
     expect(HTML_FRAME_DOCUMENT).toContain("event.source !== host");
-    expect(HTML_FRAME_DOCUMENT).toContain("document.write");
+    // The block runs in a sandboxed frame inside the shell, whose frame-src 'none' holds its navigations.
+    expect(HTML_FRAME_DOCUMENT).toContain('inner.setAttribute("sandbox", "allow-scripts")');
+    expect(HTML_FRAME_DOCUMENT).toContain("inner.srcdoc");
+    expect(HTML_FRAME_DOCUMENT).not.toContain("document.write");
+    expect(HTML_FRAME_CSP).toContain("frame-src 'none'");
+    // The inner frame's script sits in a string inside the shell's own script: it must not end it.
+    const shellScript = HTML_FRAME_DOCUMENT.slice(HTML_FRAME_DOCUMENT.indexOf("<script>") + 8, HTML_FRAME_DOCUMENT.lastIndexOf("</script>"));
+    expect(shellScript).not.toContain("</script>");
   });
 
   it("keeps heights within the limits", () => {
