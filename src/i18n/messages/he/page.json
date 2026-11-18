@@ -1450,6 +1450,25 @@
     "computerFiles": "יכול להשתמש בקבצים במחשב שלך: {folders}",
     "chatWithManager": "צ׳אט עם {manager}"
   },
+  "agentBlock": {
+    "label": "סוכן",
+    "elsewhere": "סוכן: אפשר לשאול אותו באפליקציה, כחבר במרחב העבודה.",
+    "choose": "בחירת סוכן",
+    "noAgent": "בחרו את הסוכן שהקוראים יוכלו לשאול כאן.",
+    "noAgentReadOnly": "לא נבחר סוכן עבור הבלוק הזה.",
+    "slash": {
+      "title": "סוכן",
+      "subtext": "לאפשר לקוראים לשאול סוכן של מרחב העבודה מתוך הדף הזה",
+      "aliases": "agent ask ai assistant bot question סוכן שאל עוזר בינה מלאכותית שאלה"
+    },
+    "openChat": "פתיחת הצ׳אט",
+    "closeChat": "סגירת הצ׳אט",
+    "youAsked": "שאלת: {question}",
+    "placeholder": "שאלו את {name}…",
+    "ask": "שאל",
+    "stop": "עצירה",
+    "awaitingApproval": "קריאה של הסוכן ממתינה לאישור של בעלים. פתחו את הצ׳אט כדי לענות."
+  },
   "button": {
     "untitled": "כפתור",
     "placeholder": "תווית הכפתור",

@@ -44,6 +44,7 @@ import {
 import { databaseBlockConfig, linkedViewBlockConfig, referenceLine, isEmbedBlockType } from "@/lib/embed-blocks";
 import { dashboardBlockConfig } from "@/lib/dashboard";
 import { agentChatBlockConfig } from "@/lib/agent-chat";
+import { agentBlockConfig } from "@/lib/agent-block";
 import { quizBlockConfig } from "@/lib/quiz-block";
 import { htmlBlockConfig } from "@/lib/html-block";
 import { buttonBlockConfig, buttonColor, cleanButtonLabel } from "@/lib/buttons";
@@ -304,6 +305,8 @@ export const pageSchema = BlockNoteSchema.create({
     syncedBlock: createBlockSpec(syncedBlockConfig, marker("syncedBlock"))(),
     // Only the agent's and the chat's ids: what is said in it is each reader's own.
     agentChat: createBlockSpec(agentChatBlockConfig, marker("agentChat"))(),
+    // Only the agent's id: asking is in the app, each reader's own (lib/agent-block).
+    agent: createBlockSpec(agentBlockConfig, marker("agent"))(),
     // Only the quiz's id: its questions and answers stay in the quiz table (server/quizzes.ts).
     quiz: createBlockSpec(quizBlockConfig, marker("quiz"))(),
     // Everything in its props (lib/html-block): where only text can be shown it is a marker; published pages draw it in its frame (published-body.ts).

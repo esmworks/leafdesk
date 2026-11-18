@@ -1450,6 +1450,25 @@
     "computerFiles": "내 컴퓨터의 파일을 사용할 수 있음: {folders}",
     "chatWithManager": "{manager}와(과) 채팅"
   },
+  "agentBlock": {
+    "label": "에이전트",
+    "elsewhere": "에이전트: 워크스페이스 멤버로서 앱에서 질문하세요.",
+    "choose": "에이전트 선택",
+    "noAgent": "독자가 여기서 질문할 수 있는 에이전트를 선택하세요.",
+    "noAgentReadOnly": "이 블록에 선택된 에이전트가 없습니다.",
+    "slash": {
+      "title": "에이전트",
+      "subtext": "독자가 이 페이지에서 워크스페이스의 에이전트에게 질문할 수 있게 합니다",
+      "aliases": "agent ask ai assistant bot question 에이전트 질문 어시스턴트 챗봇"
+    },
+    "openChat": "채팅 열기",
+    "closeChat": "채팅 닫기",
+    "youAsked": "질문: {question}",
+    "placeholder": "{name}에게 질문…",
+    "ask": "질문",
+    "stop": "중지",
+    "awaitingApproval": "에이전트의 호출이 소유자의 승인을 기다리고 있습니다. 채팅을 열어 응답하세요."
+  },
   "button": {
     "untitled": "버튼",
     "placeholder": "버튼 레이블",

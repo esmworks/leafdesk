@@ -27,6 +27,7 @@ import {
 import { parseTabMarker, TAB_BLOCK, TAB_LIST_BLOCK, tabMarkerBlock, tabMarkerLine, tabTitle, type TabMarker } from "./tabs";
 import { DASHBOARD_BLOCK, dashboardLine, parseDashboardLine } from "./dashboard";
 import { AGENT_CHAT_BLOCK, agentChatLine, newChatId, parseAgentChatLine } from "./agent-chat";
+import { AGENT_BLOCK, agentBlockLine, parseAgentBlockLine } from "./agent-block";
 import { parseQuizLine, QUIZ_BLOCK, quizLine } from "./quiz-block";
 import { cleanHtmlHeight, cleanHtmlSource, cleanHtmlTitle, HTML_BLOCK, htmlBlockMarkdown, parseHtmlBlockMarker } from "./html-block";
 import { BUTTON_BLOCK, buttonLine, cleanButtonLabel, parseButtonLine } from "./buttons";
@@ -116,6 +117,8 @@ import { parseSyncedBegin, SYNCED_BLOCK, SYNCED_END_LINE, syncedBeginLine, synce
  *   ```mermaid             a Mermaid diagram
  *   graph TD; A-->B
  *   ```
+ *
+ *   <!-- leafdesk:agent 5b1e… -->   an agent in the page (lib/agent-block): a box to ask it, one line naming it
  *
  *   <!-- leafdesk:html {"title":"Loan calculator","height":320} -->
  *   ```html                an interactive HTML block (lib/html-block): the marker, which may
@@ -343,6 +346,11 @@ export function prepareMarkdownExport<B extends MdBlock>(
           const agentId = String(block.props?.agentId ?? "");
           return paragraph(agentId ? blockToken(agentChatLine(agentId, String(block.props?.chatId ?? ""))) : "");
         }
+        case AGENT_BLOCK: {
+          // Only the agent; a block whose agent isn't chosen yet has nothing to write.
+          const agentId = String(block.props?.agentId ?? "");
+          return paragraph(agentId ? blockToken(agentBlockLine(agentId)) : "");
+        }
         case IMAGE_BLOCK: {
           // An image in a link is written as one (BlockNote's Markdown would keep only the link).
           const linked = linkedImageMarkdown(block.props);
@@ -533,6 +541,7 @@ type Pending =
   | { type: typeof DASHBOARD_BLOCK; id: string }
   | { type: typeof BUTTON_BLOCK; id: string; label: string }
   | { type: typeof AGENT_CHAT_BLOCK; agentId: string; chatId: string }
+  | { type: typeof AGENT_BLOCK; agentId: string }
   | { type: typeof QUIZ_BLOCK; quizId: string }
   | { type: typeof HTML_BLOCK; source: string; title: string; height: number }
   | { type: typeof IMAGE_BLOCK; url: string; name: string; caption: string; link: string }
@@ -633,6 +642,11 @@ export function prepareMarkdownImport(markdown: string, nonce: string, { appUrl 
     const button = parseButtonLine(line);
     if (button) {
       blockLine({ type: BUTTON_BLOCK, ...button });
+      continue;
+    }
+    const agentBlock = parseAgentBlockLine(line);
+    if (agentBlock !== null) {
+      blockLine({ type: AGENT_BLOCK, agentId: agentBlock });
       continue;
     }
     const agentChat = parseAgentChatLine(line);
@@ -1003,6 +1017,8 @@ export async function finishMarkdownImport<B extends MdBlock>(
           props: { source: cleanHtmlSource(pending.source), title: cleanHtmlTitle(pending.title), height: cleanHtmlHeight(pending.height) },
           children: [],
         } as unknown as B;
+      case AGENT_BLOCK:
+        return { type: AGENT_BLOCK, props: { agentId: pending.agentId }, children: [] } as unknown as B;
       case AGENT_CHAT_BLOCK:
         // A line without a chat id (written by hand, or by MCP) starts the block's conversations afresh.
         return { type: AGENT_CHAT_BLOCK, props: { agentId: pending.agentId, chatId: pending.chatId || newChatId() }, children: [] } as unknown as B;

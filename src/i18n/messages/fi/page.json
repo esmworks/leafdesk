@@ -1450,6 +1450,25 @@
     "computerFiles": "Voi käyttää tietokoneesi tiedostoja: {folders}",
     "chatWithManager": "Keskustele agentin {manager} kanssa"
   },
+  "agentBlock": {
+    "label": "Agentti",
+    "elsewhere": "Agentti: kysy sovelluksessa työtilan jäsenenä.",
+    "choose": "Valitse agentti",
+    "noAgent": "Valitse agentti, jolta lukijat voivat kysyä tässä.",
+    "noAgentReadOnly": "Tälle lohkolle ei ole valittu agenttia.",
+    "slash": {
+      "title": "Agentti",
+      "subtext": "Anna lukijoiden kysyä työtilan agentilta tältä sivulta",
+      "aliases": "agent ask ai assistant bot question agentti kysy avustaja tekoäly kysymys"
+    },
+    "openChat": "Avaa chat",
+    "closeChat": "Sulje chat",
+    "youAsked": "Kysyit: {question}",
+    "placeholder": "Kysy: {name}…",
+    "ask": "Kysy",
+    "stop": "Pysäytä",
+    "awaitingApproval": "Agentin kutsu odottaa omistajan hyväksyntää. Avaa chat vastataksesi."
+  },
   "button": {
     "untitled": "Painike",
     "placeholder": "Painikkeen teksti",

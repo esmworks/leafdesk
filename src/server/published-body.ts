@@ -8,6 +8,7 @@ import { applyCalloutStyles, findCalloutStyle, type CalloutStyle } from "@/lib/c
 import { BREADCRUMB_BLOCK, CALLOUT_BLOCK, MERMAID_BLOCK, SUBPAGES_BLOCK, TOC_BLOCK } from "@/lib/content-blocks";
 import { plainText } from "@/lib/content-markdown";
 import { AGENT_CHAT_BLOCK } from "@/lib/agent-chat";
+import { AGENT_BLOCK } from "@/lib/agent-block";
 import { QUIZ_BLOCK } from "@/lib/quiz-block";
 import { cleanHtmlHeight, cleanHtmlSource, cleanHtmlTitle, HTML_BLOCK } from "@/lib/html-block";
 import { DASHBOARD_BLOCK, dashboardLayout, parseDashboard, type DashboardLayout, type DashboardWidget } from "@/lib/dashboard";
@@ -227,6 +228,8 @@ export type BodySegment =
   | { kind: "htmlApp"; source: string; title: string; height: number }
   /** An agent chat block: chats happen in the app only, so it says just that (naming no agent). */
   | { kind: "agentChat" }
+  /** An Agent block: asking is in the app, each reader's own, so this says just that (naming no agent). */
+  | { kind: "agentAsk" }
   | { kind: "bookmark"; bookmark: PublishedBookmark; align: MediaAlignment }
   /** An embed of an allowlisted provider; any other URL comes back as a bookmark. */
   | ({ kind: "webEmbed"; url: string; embed: EmbedTarget } & MediaPlacement)
@@ -298,6 +301,7 @@ const isStandalone = (block: PageBlock) =>
   block.type === SUBPAGES_BLOCK ||
   block.type === MERMAID_BLOCK ||
   block.type === AGENT_CHAT_BLOCK ||
+  block.type === AGENT_BLOCK ||
   block.type === QUIZ_BLOCK ||
   block.type === HTML_BLOCK ||
   inPlaceFileOf(block) !== null;
@@ -721,6 +725,11 @@ export async function bodySegmentsFromBlocks(
       if (block.type === AGENT_CHAT_BLOCK) {
         await flush();
         segments.push({ kind: "agentChat" });
+        return;
+      }
+      if (block.type === AGENT_BLOCK) {
+        await flush();
+        segments.push({ kind: "agentAsk" });
         return;
       }
       // A quiz is taken in the app only, and its answers never leave it: published pages, print,

@@ -34,6 +34,7 @@ import { DashboardBlock } from "./dashboard-block";
 import { SyncedPageBlock } from "./synced-page";
 import { SyncedBlockSpec } from "./synced-block";
 import { AgentChatBlock } from "./agent-chat-block";
+import { AgentBlock } from "./agent-block";
 import { QuizBlock } from "./quiz-block";
 import { HtmlBlock } from "./html-block";
 import { ButtonBlock } from "./button-block";
@@ -127,6 +128,8 @@ export const pageEditorSchema = BlockNoteSchema.create({
     syncedBlock: SyncedBlockSpec(),
     // A chat with one of the workspace's agents (see agent-chat-block.tsx).
     agentChat: AgentChatBlock(),
+    // A box to ask one of the workspace's agents, each reader with their own conversation (see agent-block.tsx).
+    agent: AgentBlock(),
     // Questions about the page its readers answer (see quiz-block.tsx).
     quiz: QuizBlock(),
     // A small app that runs in a sandboxed frame (see html-block.tsx).

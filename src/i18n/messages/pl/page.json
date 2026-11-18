@@ -1450,6 +1450,25 @@
     "computerFiles": "Może używać plików na Twoim komputerze: {folders}",
     "chatWithManager": "Czat z {manager}"
   },
+  "agentBlock": {
+    "label": "Agent",
+    "elsewhere": "Agent: zapytaj w aplikacji, jako członek przestrzeni roboczej.",
+    "choose": "Wybierz agenta",
+    "noAgent": "Wybierz agenta, którego czytelnicy mogą tu zapytać.",
+    "noAgentReadOnly": "Dla tego bloku nie wybrano agenta.",
+    "slash": {
+      "title": "Agent",
+      "subtext": "Pozwól czytelnikom zapytać agenta przestrzeni roboczej z tej strony",
+      "aliases": "agent ask ai assistant bot question zapytaj asystent pytanie"
+    },
+    "openChat": "Otwórz czat",
+    "closeChat": "Zamknij czat",
+    "youAsked": "Zapytano: {question}",
+    "placeholder": "Zapytaj: {name}…",
+    "ask": "Zapytaj",
+    "stop": "Zatrzymaj",
+    "awaitingApproval": "Wywołanie agenta czeka na zatwierdzenie przez właściciela. Otwórz czat, aby odpowiedzieć."
+  },
   "button": {
     "untitled": "Przycisk",
     "placeholder": "Etykieta przycisku",

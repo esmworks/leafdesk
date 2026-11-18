@@ -1450,6 +1450,25 @@
     "computerFiles": "ใช้ไฟล์บนคอมพิวเตอร์ของคุณได้: {folders}",
     "chatWithManager": "แชทกับ {manager}"
   },
+  "agentBlock": {
+    "label": "เอเจนต์",
+    "elsewhere": "เอเจนต์: ถามได้ในแอป ในฐานะสมาชิกของเวิร์กสเปซ",
+    "choose": "เลือกเอเจนต์",
+    "noAgent": "เลือกเอเจนต์ที่ผู้อ่านถามได้ที่นี่",
+    "noAgentReadOnly": "ยังไม่ได้เลือกเอเจนต์สำหรับบล็อกนี้",
+    "slash": {
+      "title": "เอเจนต์",
+      "subtext": "ให้ผู้อ่านถามเอเจนต์ของเวิร์กสเปซได้จากหน้านี้",
+      "aliases": "agent ask ai assistant bot question เอเจนต์ ถาม ผู้ช่วย เอไอ คำถาม"
+    },
+    "openChat": "เปิดแชต",
+    "closeChat": "ปิดแชต",
+    "youAsked": "คุณถามว่า: {question}",
+    "placeholder": "ถาม {name}…",
+    "ask": "ถาม",
+    "stop": "หยุด",
+    "awaitingApproval": "การเรียกใช้ของเอเจนต์กำลังรอการอนุมัติจากเจ้าของ เปิดแชตเพื่อตอบ"
+  },
   "button": {
     "untitled": "ปุ่ม",
     "placeholder": "ข้อความบนปุ่ม",

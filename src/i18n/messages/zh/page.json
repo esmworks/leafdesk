@@ -1450,6 +1450,25 @@
     "computerFiles": "可以使用你电脑上的文件：{folders}",
     "chatWithManager": "与 {manager} 聊天"
   },
+  "agentBlock": {
+    "label": "智能体",
+    "elsewhere": "智能体：以工作区成员的身份在应用中向它提问。",
+    "choose": "选择智能体",
+    "noAgent": "选择读者可以在此提问的智能体。",
+    "noAgentReadOnly": "此块尚未选择智能体。",
+    "slash": {
+      "title": "智能体",
+      "subtext": "让读者在此页面向工作区的智能体提问",
+      "aliases": "agent ask ai assistant bot question 智能体 提问 助手 机器人 问题"
+    },
+    "openChat": "打开聊天",
+    "closeChat": "关闭聊天",
+    "youAsked": "你问：{question}",
+    "placeholder": "向 {name} 提问…",
+    "ask": "提问",
+    "stop": "停止",
+    "awaitingApproval": "智能体的一次调用正在等待所有者批准。打开聊天以回应。"
+  },
   "button": {
     "untitled": "按钮",
     "placeholder": "按钮文字",

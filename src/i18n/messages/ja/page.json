@@ -1450,6 +1450,25 @@
     "computerFiles": "あなたのコンピューターのファイルを使えます：{folders}",
     "chatWithManager": "{manager}とチャット"
   },
+  "agentBlock": {
+    "label": "エージェント",
+    "elsewhere": "エージェント：ワークスペースのメンバーとして、アプリで質問できます。",
+    "choose": "エージェントを選択",
+    "noAgent": "読者がここで質問できるエージェントを選択してください。",
+    "noAgentReadOnly": "このブロックにはエージェントが選択されていません。",
+    "slash": {
+      "title": "エージェント",
+      "subtext": "このページからワークスペースのエージェントに読者が質問できるようにします",
+      "aliases": "agent ask ai assistant bot question エージェント 質問 アシスタント ボット"
+    },
+    "openChat": "チャットを開く",
+    "closeChat": "チャットを閉じる",
+    "youAsked": "質問：{question}",
+    "placeholder": "{name}に質問…",
+    "ask": "質問",
+    "stop": "停止",
+    "awaitingApproval": "エージェントの呼び出しがオーナーの承認を待っています。チャットを開いて回答してください。"
+  },
   "button": {
     "untitled": "ボタン",
     "placeholder": "ボタンのラベル",

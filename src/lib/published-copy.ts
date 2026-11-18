@@ -1,3 +1,4 @@
+import { AGENT_BLOCK } from "./agent-block";
 import { AGENT_CHAT_BLOCK } from "./agent-chat";
 import { QUIZ_BLOCK } from "./quiz-block";
 import { BUTTON_BLOCK } from "./buttons";
@@ -122,7 +123,7 @@ export function copyPublishedBlocks<B extends Block>(blocks: B[], refs: CopyRefs
       return widgets.length ? [{ ...block, props: { ...props, widgets: serializeDashboard(widgets) }, children }] : (children as B[]);
     }
     // A chat with an agent of the source workspace: the copy's workspace has no such agent.
-    if (block.type === AGENT_CHAT_BLOCK) return children as B[];
+    if (block.type === AGENT_CHAT_BLOCK || block.type === AGENT_BLOCK) return children as B[];
     // A quiz lives in the source workspace, and the published page never showed it.
     if (block.type === QUIZ_BLOCK) return children as B[];
     // A button's steps name the source workspace's databases and people: the copy keeps its label.

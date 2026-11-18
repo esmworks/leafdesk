@@ -1450,6 +1450,25 @@
     "computerFiles": "Kan bestanden op je computer gebruiken: {folders}",
     "chatWithManager": "Chatten met {manager}"
   },
+  "agentBlock": {
+    "label": "Agent",
+    "elsewhere": "Agent: vraag het in de app, als lid van de werkruimte.",
+    "choose": "Kies een agent",
+    "noAgent": "Kies de agent die lezers hier kunnen vragen.",
+    "noAgentReadOnly": "Voor dit blok is geen agent gekozen.",
+    "slash": {
+      "title": "Agent",
+      "subtext": "Laat lezers vanaf deze pagina een agent van de werkruimte iets vragen",
+      "aliases": "agent ask ai assistant bot question vragen assistent ai vraag"
+    },
+    "openChat": "Chat openen",
+    "closeChat": "Chat sluiten",
+    "youAsked": "Je vroeg: {question}",
+    "placeholder": "Vraag het aan {name}…",
+    "ask": "Vragen",
+    "stop": "Stoppen",
+    "awaitingApproval": "Een aanroep van de agent wacht op goedkeuring van een eigenaar. Open de chat om te antwoorden."
+  },
   "button": {
     "untitled": "Knop",
     "placeholder": "Label van de knop",

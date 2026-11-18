@@ -1450,6 +1450,25 @@
     "computerFiles": "Dapat memakai file di komputer Anda: {folders}",
     "chatWithManager": "Mengobrol dengan {manager}"
   },
+  "agentBlock": {
+    "label": "Agen",
+    "elsewhere": "Agen: tanyakan di aplikasi, sebagai anggota ruang kerja.",
+    "choose": "Pilih agen",
+    "noAgent": "Pilih agen yang bisa ditanya pembaca di sini.",
+    "noAgentReadOnly": "Belum ada agen yang dipilih untuk blok ini.",
+    "slash": {
+      "title": "Agen",
+      "subtext": "Biarkan pembaca bertanya kepada salah satu agen ruang kerja dari halaman ini",
+      "aliases": "agent ask ai assistant bot question agen tanya asisten ai pertanyaan"
+    },
+    "openChat": "Buka obrolan",
+    "closeChat": "Tutup obrolan",
+    "youAsked": "Anda bertanya: {question}",
+    "placeholder": "Tanya {name}…",
+    "ask": "Tanya",
+    "stop": "Hentikan",
+    "awaitingApproval": "Panggilan agen menunggu persetujuan pemilik. Buka obrolan untuk menjawabnya."
+  },
   "button": {
     "untitled": "Tombol",
     "placeholder": "Label tombol",

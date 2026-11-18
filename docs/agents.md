@@ -325,6 +325,21 @@ block is on unless asked to. What it may do depends on who writes:
   see*. The agent reads only the pages both it and that person can open, changes nothing, proposes
   no notes and calls only its connections' tools that read.
 
+**Agent** block (the slash menu's *Agent*): a smaller way to put an agent in a page, a box to ask
+it something and the latest answer, which streams in as the agent writes it. Choose the agent when
+the block is added; readers see its name, a *Read-only* mark where that applies, the question they
+asked last and its answer. A message is sent to the agent as in its chat, with the page it is asked
+from named to the agent (it reads the page, with the reader's access, only when the question is
+about it) and a note that the answer shows in a small card. Each reader has one conversation with
+the agent per page, shared by every Agent block of that agent on the page, and nobody else sees it,
+owners included. *Open chat* swaps the card for the full block chat on the same conversation
+(its *New conversation*, search and the rest), *Close chat* goes back. Who may ask is the agent's own
+sharing rule, as in the chat: people it isn't shared with, guests, and a paused or over-limit agent
+show the block disabled with the reason, and a call that waits for an owner's approval is answered
+in the full chat. The page's Markdown line is `<!-- leafdesk:agent <agent id> -->`; a message is
+taken only from a page that still holds that line and that the person can open. Published pages,
+print and exports show a static card or the agent's name, never the conversation.
+
 Guests, people the agent isn't shared with, and readers of a published page, see that the chat
 isn't available to them. Each person's
 conversations are their own, per block (a copy of the block, on a duplicated page or one made from a

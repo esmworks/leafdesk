@@ -90,7 +90,7 @@ export async function PublishedBody({
   unavailable: string;
   print?: boolean;
 }) {
-  const [format, tc, tb, tw, tp, ts, td, ta, tt, th] = await Promise.all([
+  const [format, tc, tb, tw, tp, ts, td, ta, tt, th, tag] = await Promise.all([
     getFormatter(),
     getTranslations("common"),
     getTranslations("page.blocks"),
@@ -101,6 +101,7 @@ export async function PublishedBody({
     getTranslations("page.agentChat"),
     getTranslations("page.databaseTabs"),
     getTranslations("page.htmlBlock"),
+    getTranslations("page.agentBlock"),
   ]);
   const untitled = tc("untitled");
   const titles = new Map(crumbs.map((c) => [c.id, c.title]));
@@ -256,6 +257,16 @@ export async function PublishedBody({
             <p className="flex items-center gap-2 rounded-lg border border-dashed border-border px-3 py-2.5 text-sm text-fg-muted">
               <Bot className="h-4 w-4 shrink-0" aria-hidden />
               {ta("elsewhere")}
+            </p>
+          </div>
+        );
+      case "agentAsk":
+        // Asking is each reader's own, in the app: here only a note that there is an agent.
+        return (
+          <div key={i} className={cn("my-2", pad, print && styles.keep)}>
+            <p className="flex items-center gap-2 rounded-lg border border-dashed border-border px-3 py-2.5 text-sm text-fg-muted">
+              <Bot className="h-4 w-4 shrink-0" aria-hidden />
+              {tag("elsewhere")}
             </p>
           </div>
         );

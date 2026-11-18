@@ -11,6 +11,13 @@
   failed. The answer's steps show *Auto → model*, and usage stays per model. Owners can make Auto
   the default for new conversations (*New chats start on Auto*, Settings > General > AI), and an
   agent's model setting (and MCP's and the REST API's `model`) takes `auto` too. No migration, no new
+- **Ask an agent from inside a page.** `/agent` adds a block with a box to ask one of the
+  workspace's agents and its latest answer, which streams in as the agent writes it; *Open chat*
+  swaps the card for the full chat on the same conversation. The agent is told which page the
+  question came from and reads it only when asked about it. Each reader has their own conversation
+  per page and agent, held to the agent's own sharing rule, so people it isn't shared with see the
+  block disabled with the reason. Published pages and exports show only a static note or the
+  agent's name. Markdown form `<!-- leafdesk:agent <agent id> -->`. No migration, no new
   environment variables.
 - **Catch up on the inbox with AI.** *Catch up* in the inbox's head (where AI is on) sorts your
   unread notifications, the newest 100, into *Needs you*, *Updates* and *Can be cleared*, each item

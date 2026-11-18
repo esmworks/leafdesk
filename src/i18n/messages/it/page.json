@@ -1450,6 +1450,25 @@
     "computerFiles": "Può usare file del tuo computer: {folders}",
     "chatWithManager": "Chatta con {manager}"
   },
+  "agentBlock": {
+    "label": "Agente",
+    "elsewhere": "Agente: chiedi nell’app, come membro dello spazio di lavoro.",
+    "choose": "Scegli un agente",
+    "noAgent": "Scegli l’agente a cui i lettori possono chiedere qui.",
+    "noAgentReadOnly": "Nessun agente scelto per questo blocco.",
+    "slash": {
+      "title": "Agente",
+      "subtext": "Lascia che i lettori chiedano a un agente dello spazio di lavoro da questa pagina",
+      "aliases": "agent ask ai assistant bot question agente chiedere assistente ia domanda"
+    },
+    "openChat": "Apri la chat",
+    "closeChat": "Chiudi la chat",
+    "youAsked": "Hai chiesto: {question}",
+    "placeholder": "Chiedi a {name}…",
+    "ask": "Chiedi",
+    "stop": "Interrompi",
+    "awaitingApproval": "Una chiamata dell’agente attende l’approvazione di un proprietario. Apri la chat per rispondere."
+  },
   "button": {
     "untitled": "Pulsante",
     "placeholder": "Etichetta del pulsante",

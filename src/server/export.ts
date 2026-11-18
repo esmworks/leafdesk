@@ -11,6 +11,7 @@ import { pivotColumnProperty, pivotData, pivotMeasure, pivotRowProperty } from "
 import { timestampDay } from "@/lib/time-zone";
 import { valueType } from "@/lib/derived";
 import { mapReferenceLines, markdownReferences } from "@/lib/embed-blocks";
+import { mapAgentBlockLines } from "@/lib/agent-block";
 import { mapAgentChatLines } from "@/lib/agent-chat";
 import { mapQuizLines } from "@/lib/quiz-block";
 import { quizQuestionCounts } from "@/server/quizzes";
@@ -135,10 +136,18 @@ async function nameAgentChats(pageId: string, markdown: string, labels: ExportLa
     ids.add(agentId);
     return "";
   });
+  mapAgentBlockLines(markdown, (agentId) => {
+    ids.add(agentId);
+    return "";
+  });
   if (!ids.size) return markdown;
   const [found] = await db.select({ workspaceId: page.workspaceId }).from(page).where(eq(page.id, pageId));
   const names = await agentNames(found ? [found.workspaceId] : [], [...ids]);
-  return mapAgentChatLines(markdown, ({ agentId }) => `*${labels.agentChat(names.get(agentId) ?? "").replace(/[*_[\]]/g, "\\$&")}*`);
+  const line = (agentId: string) => `*${labels.agentChat(names.get(agentId) ?? "").replace(/[*_[\]]/g, "\\$&")}*`;
+  return mapAgentBlockLines(
+    mapAgentChatLines(markdown, ({ agentId }) => line(agentId)),
+    line,
+  );
 }
 
 /**

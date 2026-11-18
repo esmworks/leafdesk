@@ -118,7 +118,7 @@ export function pasteAgentChat(event: ClipboardEvent, editor: PageEditor, worksp
 }
 
 /** Picks one of the workspace's agents for a chat block. */
-function AgentPicker({ open, workspaceId, onPick, onClose }: { open: boolean; workspaceId: string; onPick: (agentId: string) => void; onClose: () => void }) {
+export function AgentPicker({ open, workspaceId, onPick, onClose }: { open: boolean; workspaceId: string; onPick: (agentId: string) => void; onClose: () => void }) {
   const t = useTranslations("page.agentChat.picker");
   const tc = useTranslations("common");
   const [agents, setAgents] = useState<{ id: string; name: string; icon: string | null; description: string; enabled: boolean }[] | null>(null);

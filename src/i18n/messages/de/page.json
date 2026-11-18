@@ -1450,6 +1450,25 @@
     "computerFiles": "Kann Dateien auf deinem Computer verwenden: {folders}",
     "chatWithManager": "Mit {manager} chatten"
   },
+  "agentBlock": {
+    "label": "Agent",
+    "elsewhere": "Agent: in der App fragen, als Mitglied des Workspaces.",
+    "choose": "Agent auswählen",
+    "noAgent": "Wähle den Agenten, den Leser hier fragen können.",
+    "noAgentReadOnly": "Für diesen Block wurde kein Agent ausgewählt.",
+    "slash": {
+      "title": "Agent",
+      "subtext": "Leser können von dieser Seite aus einen Agenten des Workspaces fragen",
+      "aliases": "agent agenten ask ai assistant bot fragen ki assistent"
+    },
+    "openChat": "Chat öffnen",
+    "closeChat": "Chat schließen",
+    "youAsked": "Du hast gefragt: {question}",
+    "placeholder": "{name} fragen…",
+    "ask": "Fragen",
+    "stop": "Stopp",
+    "awaitingApproval": "Ein Aufruf des Agenten wartet auf die Freigabe eines Inhabers. Öffne den Chat, um ihn zu beantworten."
+  },
   "button": {
     "untitled": "Schaltfläche",
     "placeholder": "Beschriftung",

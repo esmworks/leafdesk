@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import * as Y from "yjs";
+import { agentBlockLine } from "@/lib/agent-block";
 import { agentChatLine } from "@/lib/agent-chat";
 import { quizLine } from "@/lib/quiz-block";
 import { buttonLine, serializeButtonConfig } from "@/lib/buttons";
@@ -459,6 +460,31 @@ describe("agent chats in page bodies", () => {
     const segments = await bodySegmentsFromYdoc(Y.encodeStateAsUpdate(doc));
     expect(segments.map((s) => s.kind)).toEqual(["html", "agentChat"]);
     // An id no random block id can contain, unlike a short one such as "a1".
+    expect(JSON.stringify(segments)).not.toContain("agent-never-shown");
+  });
+});
+
+describe("agent blocks in page bodies", () => {
+  it("round-trip through the Yjs document and Markdown, keeping only the agent", async () => {
+    const doc = docFrom([
+      { type: "paragraph", content: "Ask" },
+      { type: "agent", props: { agentId: "a1" } },
+    ]);
+    const blocks = read(doc);
+    expect(blocks[1]).toMatchObject({ type: "agent", props: { agentId: "a1" } });
+    const markdown = (await blocksToMarkdown(blocks)).trim();
+    expect(markdown).toBe(`Ask\n\n${agentBlockLine("a1")}`);
+    const back = await markdownToBlocks(markdown);
+    expect(back.map((b) => [b.type, b.props])).toEqual([
+      ["paragraph", expect.anything()],
+      ["agent", { agentId: "a1" }],
+    ]);
+  });
+
+  it("show a note, never the agent, on a published page", async () => {
+    const doc = docFrom([{ type: "paragraph", content: "Visible" }, { type: "agent", props: { agentId: "agent-never-shown" } }]);
+    const segments = await bodySegmentsFromYdoc(Y.encodeStateAsUpdate(doc));
+    expect(segments.map((s) => s.kind)).toEqual(["html", "agentAsk"]);
     expect(JSON.stringify(segments)).not.toContain("agent-never-shown");
   });
 });

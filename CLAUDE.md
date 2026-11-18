@@ -727,6 +727,16 @@ several mailboxes, whose thread ids can repeat, so the list keys threads by `ite
   bodies, print, PDF and Word drop the block and Markdown exports name it (`export.ts` `nameQuizzes`).
   A duplicated page gets its own quizzes in `duplicate.ts` through `copyQuizzesForCopies`, which
   rewrites the copies' ids in their documents and Markdown.
+- **Agent blocks** (`lib/agent-block.ts`: config, Markdown line, the place; `components/page/agent-block.tsx`,
+  the card `components/agent-chat/agent-card.tsx`, a `lazyPart`): a box to ask an agent in a page, on
+  the agent chat's own machinery. The block holds only the agent; its conversations are the person's
+  with that agent under chat id `pageAgent:<pageId>` (`pageAgentPlace`), so every block of the agent on a
+  page and the full block chat *Open chat* swaps in (`AgentChat variant="block"`) share one. `chat.ts`
+  `pageHoldsChat` takes that place only from a page that holds the line `agentBlockLine` (not the
+  agent-chat line), `searchAgentChats` names that page, and `run.ts` `eventText` tells the run the
+  page's id (`pageAgentNote`). Published pages and print take it as the `agentAsk` segment, exports
+  name the agent (`export.ts` `nameAgentChats`), a copy into another workspace drops it.
+  `scripts/agent-block-e2e.ts` runs without a model.
 - **HTML blocks** (`lib/html-block.ts`: config, marker + fence Markdown, limits; `lib/html-frame.ts`:
   the frame's CSP and shell document; `components/page/html-block.tsx`, `html-frame.tsx`,
   `html-source-dialog.tsx` (lazy); `server/html-block-ai.ts`): all in props, searched by title only.

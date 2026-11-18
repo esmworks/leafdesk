@@ -1450,6 +1450,25 @@
     "computerFiles": "Bilgisayarınızdaki dosyaları kullanabilir: {folders}",
     "chatWithManager": "{manager} ile sohbet et"
   },
+  "agentBlock": {
+    "label": "Ajan",
+    "elsewhere": "Ajan: uygulamada, çalışma alanının bir üyesi olarak sorabilirsin.",
+    "choose": "Bir ajan seç",
+    "noAgent": "Okuyucuların burada soracağı ajanı seç.",
+    "noAgentReadOnly": "Bu blok için ajan seçilmedi.",
+    "slash": {
+      "title": "Ajan",
+      "subtext": "Okuyucular bu sayfadan çalışma alanının ajanlarından birine soru sorsun",
+      "aliases": "agent ask ai assistant bot question ajan sor asistan yapay zeka soru"
+    },
+    "openChat": "Sohbeti aç",
+    "closeChat": "Sohbeti kapat",
+    "youAsked": "Sorduğun: {question}",
+    "placeholder": "{name} ajanına sor…",
+    "ask": "Sor",
+    "stop": "Durdur",
+    "awaitingApproval": "Ajanın bir çağrısı bir sahibin onayını bekliyor. Yanıtlamak için sohbeti aç."
+  },
   "button": {
     "untitled": "Düğme",
     "placeholder": "Düğme etiketi",

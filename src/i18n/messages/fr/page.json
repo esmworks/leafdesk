@@ -1450,6 +1450,25 @@
     "computerFiles": "Peut utiliser des fichiers de votre ordinateur : {folders}",
     "chatWithManager": "Discuter avec {manager}"
   },
+  "agentBlock": {
+    "label": "Agent",
+    "elsewhere": "Agent : à interroger dans l’app, en tant que membre de l’espace de travail.",
+    "choose": "Choisir un agent",
+    "noAgent": "Choisissez l’agent que les lecteurs peuvent interroger ici.",
+    "noAgentReadOnly": "Aucun agent n’a été choisi pour ce bloc.",
+    "slash": {
+      "title": "Agent",
+      "subtext": "Laisser les lecteurs interroger un agent de l’espace de travail depuis cette page",
+      "aliases": "agent ask ai assistant bot question demander assistant ia"
+    },
+    "openChat": "Ouvrir le chat",
+    "closeChat": "Fermer le chat",
+    "youAsked": "Vous avez demandé : {question}",
+    "placeholder": "Demander à {name}…",
+    "ask": "Demander",
+    "stop": "Arrêter",
+    "awaitingApproval": "Un appel de l’agent attend l’approbation d’un propriétaire. Ouvrez le chat pour y répondre."
+  },
   "button": {
     "untitled": "Bouton",
     "placeholder": "Libellé du bouton",

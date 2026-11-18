@@ -1450,6 +1450,25 @@
     "computerFiles": "Có thể dùng tệp trên máy tính của bạn: {folders}",
     "chatWithManager": "Trò chuyện với {manager}"
   },
+  "agentBlock": {
+    "label": "Tác nhân",
+    "elsewhere": "Tác nhân: hỏi trong ứng dụng, với tư cách thành viên của không gian làm việc.",
+    "choose": "Chọn một tác nhân",
+    "noAgent": "Chọn tác nhân mà người đọc có thể hỏi tại đây.",
+    "noAgentReadOnly": "Chưa chọn tác nhân nào cho khối này.",
+    "slash": {
+      "title": "Tác nhân",
+      "subtext": "Cho phép người đọc hỏi một tác nhân của không gian làm việc ngay từ trang này",
+      "aliases": "agent ask ai assistant bot question tác nhân hỏi trợ lý câu hỏi"
+    },
+    "openChat": "Mở cuộc trò chuyện",
+    "closeChat": "Đóng cuộc trò chuyện",
+    "youAsked": "Bạn đã hỏi: {question}",
+    "placeholder": "Hỏi {name}…",
+    "ask": "Hỏi",
+    "stop": "Dừng",
+    "awaitingApproval": "Một lệnh gọi của tác nhân đang chờ chủ sở hữu phê duyệt. Mở cuộc trò chuyện để trả lời."
+  },
   "button": {
     "untitled": "Nút",
     "placeholder": "Nhãn nút",

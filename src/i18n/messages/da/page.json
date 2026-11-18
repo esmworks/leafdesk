@@ -1450,6 +1450,25 @@
     "computerFiles": "Kan bruge filer på din computer: {folders}",
     "chatWithManager": "Chat med {manager}"
   },
+  "agentBlock": {
+    "label": "Agent",
+    "elsewhere": "Agent: spørg i appen, som medlem af arbejdsområdet.",
+    "choose": "Vælg en agent",
+    "noAgent": "Vælg den agent, læsere kan spørge her.",
+    "noAgentReadOnly": "Der er ikke valgt nogen agent til denne blok.",
+    "slash": {
+      "title": "Agent",
+      "subtext": "Lad læsere spørge en af arbejdsområdets agenter fra denne side",
+      "aliases": "agent ask ai assistant bot question spørg assistent ai"
+    },
+    "openChat": "Åbn chat",
+    "closeChat": "Luk chat",
+    "youAsked": "Du spurgte: {question}",
+    "placeholder": "Spørg {name}…",
+    "ask": "Spørg",
+    "stop": "Stop",
+    "awaitingApproval": "Et kald fra agenten venter på en ejers godkendelse. Åbn chatten for at svare."
+  },
   "button": {
     "untitled": "Knap",
     "placeholder": "Knaptekst",

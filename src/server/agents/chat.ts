@@ -38,6 +38,7 @@ import {
   type AgentConversationSummary,
   type ChatPlace,
 } from "@/lib/agent-chat";
+import { agentBlockLine, isPageAgentPlace, pageOfAgentChat } from "@/lib/agent-block";
 import { checkChatFiles } from "@/lib/agent-chat-files";
 import { MAX_QUEUED, queuedTurn, queueView, turnPrompt } from "@/lib/agent-chat-queue";
 import { AGENT_CHAT_SEARCH, searchSnippet } from "@/lib/agent-chat-search";
@@ -135,7 +136,8 @@ async function pageHoldsChat(userId: string, workspaceId: string, agentId: strin
   const [held] = await db
     .select({ id: page.id })
     .from(page)
-    .where(and(eq(page.id, place.pageId), sql`strpos(${page.contentMarkdown}, ${agentChatLine(agentId, place.chatId)}) > 0`));
+    // A page's Agent blocks (lib/agent-block.ts) keep one place per page; the page must still hold one naming this agent.
+    .where(and(eq(page.id, place.pageId), sql`strpos(${page.contentMarkdown}, ${isPageAgentPlace(place) ? agentBlockLine(agentId) : agentChatLine(agentId, place.chatId)}) > 0`));
   return Boolean(held);
 }
 
@@ -579,6 +581,18 @@ export async function searchAgentChats(userId: string, workspaceId: string, agen
     for (const chatId of chatIds) {
       const found = holding.find((p) => p.markdown.includes(agentChatLine(agentId, chatId)));
       if (found) pages.set(chatId, found.id);
+    }
+    // An Agent block's conversations are the page's own: the page is named in the chat id.
+    const blockPages = [...new Set(chatIds.flatMap((c) => pageOfAgentChat(c) ?? []))];
+    if (blockPages.length) {
+      const holdingBlock = await db
+        .select({ id: page.id })
+        .from(page)
+        .where(and(inArray(page.id, blockPages), eq(page.workspaceId, workspaceId), isNull(page.archivedAt), pageVisibleTo(userId), sql`strpos(${page.contentMarkdown}, ${agentBlockLine(agentId)}) > 0`));
+      for (const chatId of chatIds) {
+        const pageId = pageOfAgentChat(chatId);
+        if (pageId && holdingBlock.some((p) => p.id === pageId)) pages.set(chatId, pageId);
+      }
     }
   }
   return hits.map((h) => ({

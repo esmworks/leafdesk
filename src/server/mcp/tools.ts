@@ -292,7 +292,7 @@ function withContentNote(result: CallToolResult): CallToolResult {
 }
 
 const EMBED_NOTE =
-  "Databases shown inside a page body appear in its Markdown as their own lines, `<!-- leafdesk:database <id> -->` (an inline database) or `<!-- leafdesk:linked-view <id> -->` (a linked view of a database); get_page lists them under embedded_databases. A dashboard (see add_dashboard) is the line `<!-- leafdesk:dashboard <id> -->`; get_page lists dashboards and their widgets under dashboards. A chat with an agent, where readers of the page talk to it in the app, is the line `<!-- leafdesk:agent-chat <agent_id> <chat_id> -->` (keep the chat_id: it holds the readers' conversations; a new line may leave it out). A button is the line `<!-- leafdesk:button <id> \"Label\" -->`: keep it to keep the button.";
+  "Databases shown inside a page body appear in its Markdown as their own lines, `<!-- leafdesk:database <id> -->` (an inline database) or `<!-- leafdesk:linked-view <id> -->` (a linked view of a database); get_page lists them under embedded_databases. A dashboard (see add_dashboard) is the line `<!-- leafdesk:dashboard <id> -->`; get_page lists dashboards and their widgets under dashboards. A chat with an agent, where readers of the page talk to it in the app, is the line `<!-- leafdesk:agent-chat <agent_id> <chat_id> -->` (keep the chat_id: it holds the readers' conversations; a new line may leave it out). A small box to ask an agent, each reader with their own conversation, is the line `<!-- leafdesk:agent <agent_id> -->`. A button is the line `<!-- leafdesk:button <id> \"Label\" -->`: keep it to keep the button.";
 
 /** How formulas are written, for tool descriptions. */
 const FORMULA_HELP =

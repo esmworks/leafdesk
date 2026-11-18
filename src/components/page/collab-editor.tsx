@@ -66,6 +66,7 @@ import type { PageDoc } from "./use-page-doc";
 import { SyncedFrameProvider, useSyncedFrame, useSyncedPageSlashItem } from "./synced-page";
 import { pasteSyncedBlock, useSyncedBlockSlashItem } from "./synced-block";
 import { pasteAgentChat, useAgentChatSlashItem } from "./agent-chat-block";
+import { useAgentSlashItem } from "./agent-block";
 import { useQuizSlashItem } from "./quiz-block";
 import { useHtmlSlashItem } from "./html-block";
 import { useButtonSlashItem } from "./button-block";
@@ -621,6 +622,7 @@ function SlashMenu({
   const placeSynced = useCallback((at: string, block: Parameters<typeof placeEmbedBlock>[2]) => placeEmbedBlock(editor, at, block), [editor]);
   const syncedBlockItems = useSyncedBlockSlashItem(editor, doc, placeSynced);
   const agentChatItems = useAgentChatSlashItem(editor, placeSynced);
+  const agentItems = useAgentSlashItem(editor, placeSynced);
   const buttonItems = useButtonSlashItem(editor, placeSynced);
   const quizItems = useQuizSlashItem(editor, placeSynced);
   const htmlItems = useHtmlSlashItem(editor, placeSynced);
@@ -656,6 +658,7 @@ function SlashMenu({
             ...syncedPageItems,
             ...syncedBlockItems,
             ...agentChatItems,
+            ...agentItems,
             ...buttonItems,
             ...quizItems,
             ...htmlItems,

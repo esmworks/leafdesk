@@ -465,6 +465,7 @@ export type PublishedBlock =
   | { kind: "mermaid"; source: string }
   | { kind: "htmlApp"; source: string; title: string; height: number }
   | { kind: "agentChat" }
+  | { kind: "agentAsk" }
   | { kind: "bookmark"; bookmark: PublishedBookmark; align: MediaAlignment }
   | ({ kind: "webEmbed"; url: string; embed: EmbedTarget } & MediaPlacement)
   | ({ kind: "pdf"; fileId: string; name: string; caption: string } & MediaPlacement)

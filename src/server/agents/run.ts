@@ -53,7 +53,7 @@
  */
 import { and, eq, inArray, isNotNull, isNull, lte, not, or, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { agentRun, channel, connection, connectionEvent, connectionTrigger, databaseSync, notification, page, user, workspaceAgent, type AgentRunRow, type AgentRunState } from "@/db/schema";
+import { agentRun, channel, connection, connectionEvent, connectionTrigger, conversation, databaseSync, notification, page, user, workspaceAgent, type AgentRunRow, type AgentRunState } from "@/db/schema";
 import {
   AGENT_RUN_HISTORY_DAYS,
   isChannelRun,
@@ -89,6 +89,7 @@ import { withoutCalls } from "@/lib/message-quiet";
 import { MESSAGE_LIMITS } from "@/lib/messages";
 import { findMembership, hasLevel, inWorkspace, isGuest, pageAccessOf } from "@/server/access";
 import { runActingFor } from "@/server/acting-for";
+import { pageAgentNote, pageOfAgentChat } from "@/lib/agent-block";
 import { endRun, openRun, publish, type ChatRun } from "@/server/ai-chat-runs";
 import { routeModel, type RouteChoice } from "@/lib/model-route";
 import { aiConfig, AiError, isAiError, promptRoomFor, takeWorkspaceCapacity, type AiMessage, type AiToolCall } from "@/server/ai";
@@ -1035,7 +1036,10 @@ async function eventText(run: Run) {
   if (run.source.kind === "handoff") return handoffEventText(run.source);
   if (run.source.kind === "chat") {
     const [person] = await db.select({ name: user.name }).from(user).where(eq(user.id, run.source.userId));
-    return `${person?.name ?? "A person"} wrote to you in a chat.`;
+    // From an Agent block (lib/agent-block.ts): the page it is in comes with the message.
+    const [held] = await db.select({ chatId: conversation.chatId }).from(conversation).where(eq(conversation.id, run.source.conversationId));
+    const blockPage = held?.chatId ? pageOfAgentChat(held.chatId) : null;
+    return `${person?.name ?? "A person"} wrote to you in a chat.${blockPage ? ` ${pageAgentNote(blockPage)}` : ""}`;
   }
   if (isScheduleRun(run.source) && run.source.chain) {
     const [owner] = await db.select({ name: user.name }).from(user).where(eq(user.id, run.source.scheduledBy));

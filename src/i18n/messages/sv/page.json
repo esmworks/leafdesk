@@ -1450,6 +1450,25 @@
     "computerFiles": "Kan använda filer på din dator: {folders}",
     "chatWithManager": "Chatta med {manager}"
   },
+  "agentBlock": {
+    "label": "Agent",
+    "elsewhere": "Agent: fråga i appen, som medlem i arbetsytan.",
+    "choose": "Välj en agent",
+    "noAgent": "Välj agenten som läsare kan fråga här.",
+    "noAgentReadOnly": "Ingen agent har valts för det här blocket.",
+    "slash": {
+      "title": "Agent",
+      "subtext": "Låt läsare fråga en av arbetsytans agenter från den här sidan",
+      "aliases": "agent ask ai assistant bot question fråga assistent ai"
+    },
+    "openChat": "Öppna chatten",
+    "closeChat": "Stäng chatten",
+    "youAsked": "Du frågade: {question}",
+    "placeholder": "Fråga {name}…",
+    "ask": "Fråga",
+    "stop": "Stoppa",
+    "awaitingApproval": "Ett anrop från agenten väntar på en ägares godkännande. Öppna chatten för att svara."
+  },
   "button": {
     "untitled": "Knapp",
     "placeholder": "Knappens etikett",

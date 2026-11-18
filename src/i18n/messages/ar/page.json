@@ -1450,6 +1450,25 @@
     "computerFiles": "يمكنه استخدام ملفات على جهازك: {folders}",
     "chatWithManager": "الدردشة مع {manager}"
   },
+  "agentBlock": {
+    "label": "الوكيل",
+    "elsewhere": "الوكيل: اسأله في التطبيق بصفتك عضوًا في مساحة العمل.",
+    "choose": "اختيار وكيل",
+    "noAgent": "اختر الوكيل الذي يمكن للقراء سؤاله هنا.",
+    "noAgentReadOnly": "لم يتم اختيار وكيل لهذه الكتلة.",
+    "slash": {
+      "title": "وكيل",
+      "subtext": "دع القراء يسألون أحد وكلاء مساحة العمل من هذه الصفحة",
+      "aliases": "agent ask ai assistant bot question وكيل اسأل مساعد ذكاء اصطناعي سؤال"
+    },
+    "openChat": "فتح الدردشة",
+    "closeChat": "إغلاق الدردشة",
+    "youAsked": "سألت: {question}",
+    "placeholder": "اسأل {name}…",
+    "ask": "اسأل",
+    "stop": "إيقاف",
+    "awaitingApproval": "هناك استدعاء من الوكيل ينتظر موافقة مالك. افتح الدردشة للرد عليه."
+  },
   "button": {
     "untitled": "زر",
     "placeholder": "تسمية الزر",
