@@ -45,6 +45,9 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   feature's description goes in the docs file of its area.
 - `scripts/`: `migrate.ts`, `*-e2e.ts` end-to-end checks, `bundle-budget.ts`, `ai-eval.ts`,
   `upgrade-test.sh`, `scale-seed.ts` / `scale-e2e.ts`, screenshot and social-preview generators.
+- `deploy/dokploy/leafdesk/`: the Dokploy template, kept as it goes into `Dokploy/templates`'
+  `blueprints/leafdesk/` (secrets come from `template.toml` helpers, so no `secrets` service);
+  `scripts/dokploy-template.ts` prints it as the Base64 that Dokploy's Import takes.
 
 ## Where each part lives
 
@@ -1006,7 +1009,9 @@ plus the `scripts/*-e2e.ts` of the area you touched (`pnpm tsx scripts/<name>-e2
   locale of `desktop/src/strings.ts`.
 
 **Releases.** The version is in `package.json`, `site/index.html`, `extension/manifest.json` and example strings in
-`.env.example`, `README.md` and `.github/workflows/{docker,desktop}.yml`; find them with
+`.env.example`, `README.md`, `.github/workflows/{docker,desktop}.yml` and the Dokploy template
+(`deploy/dokploy/leafdesk/`, image tag and `meta.json`; its copy in `Dokploy/templates` takes a
+PR of its own after the image is out); find them with
 `git grep -n '<old version>' -- ':!CHANGELOG.md' ':!pnpm-lock.yaml' ':!drizzle'`. A release heading
 `## X.Y.Z — date` starts with `### Upgrading from <previous>` (migration range, compose changes,
 new settings). Publishing a GitHub release builds the Docker image and the desktop installers.

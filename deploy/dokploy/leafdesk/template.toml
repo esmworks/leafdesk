@@ -1,0 +1,21 @@
+[variables]
+main_domain = "${domain}"
+auth_secret = "${password:64}"
+db_password = "${password:32}"
+
+[config]
+[[config.domains]]
+serviceName = "leafdesk"
+port = 3_000
+host = "${main_domain}"
+
+[config.env]
+APP_URL = "http://${main_domain}"
+BETTER_AUTH_SECRET = "${auth_secret}"
+POSTGRES_PASSWORD = "${db_password}"
+DISABLE_SIGNUP = "false"
+SMTP_URL = ""
+MAIL_FROM = ""
+AI_PROVIDER = ""
+AI_MODEL = ""
+AI_API_KEY = ""

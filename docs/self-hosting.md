@@ -449,8 +449,18 @@ no`), so no `proxy_buffering` setting is needed.
 
 ## Deploy on Dokploy
 
-Run the database as a Dokploy database service and the app as an Application, so Dokploy
-handles database backups on its own. No compose file is involved.
+**From the template.** [`deploy/dokploy/leafdesk`](../deploy/dokploy/leafdesk) is a Dokploy
+template: the published image and its own PostgreSQL in one Compose service, with the auth secret
+and the database password made when it is created. Create a **Compose** service, open
+**Advanced → Import**, paste what `pnpm tsx scripts/dokploy-template.ts` prints and deploy.
+Dokploy gives it an address of its own over plain HTTP, and `APP_URL` matches it. To use your own
+domain, change the domain's host (with HTTPS) and `APP_URL` in **Environment** to the same
+`https://` address, then deploy again. SMTP and AI settings are listed there empty; the rest of
+`.env.example` can be added beside them. Raise the image tag in **General → Compose** to upgrade.
+Connected AI apps reach the MCP server only over HTTPS.
+
+**As an Application.** Run the database as a Dokploy database service and the app as an
+Application, so Dokploy handles database backups on its own. No compose file is involved.
 
 1. Create a **Database → PostgreSQL** service with Docker image `postgres:18` and deploy it.
    Copy its **Internal Connection URL**.

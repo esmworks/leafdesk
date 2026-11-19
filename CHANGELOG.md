@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+### Added
+
+- **A Dokploy template.** `deploy/dokploy/leafdesk` runs the published image beside its own
+  PostgreSQL as one Dokploy Compose service, with the auth secret and the database password made
+  when it is created; `pnpm tsx scripts/dokploy-template.ts` prints it for Dokploy's Import (see
+  docs/self-hosting.md).
+
 ## 0.9.0 — 2026-11-19
 
 ### Upgrading from 0.8.1

@@ -1,0 +1,18 @@
+{
+  "id": "leafdesk",
+  "name": "Leafdesk",
+  "version": "0.9.0",
+  "description": "Leafdesk is an open source workspace of pages and databases with real-time collaborative editing, AI chat and agents, an MCP server and a REST API.",
+  "links": {
+    "github": "https://github.com/esmworks/leafdesk",
+    "website": "https://esmworks.github.io/leafdesk/",
+    "docs": "https://github.com/esmworks/leafdesk/tree/main/docs"
+  },
+  "logo": "leafdesk.svg",
+  "tags": [
+    "productivity",
+    "knowledge-base",
+    "collaboration",
+    "self-hosted"
+  ]
+}
