@@ -205,21 +205,23 @@ export function chunkPieces(
   const base = { c: place.chunk, d: place.duration, ...r };
   if (!text.trim()) return [{ ...base, t: place.offset, x: "" }];
   if (place.stream === "mic") return [{ ...base, t: place.offset, s: "you", x: text }];
-  if (!segments?.length) return [{ ...base, t: place.offset, ...(place.stream === "others" ? { s: "others" } : {}), x: text }];
-  // The provider numbers speakers within this piece alone: its "A" in the next piece may be someone
-  // else, so the key carries the piece and only a name given in the block joins speakers across pieces.
-  const key = (speaker: string) => `${place.stream === "others" ? "o" : "d"}:${place.chunk}:${speaker}`.slice(0, 32);
+  const who = place.stream === "others" ? ({ s: "others" } as const) : {};
+  if (!segments?.length) return [{ ...base, t: place.offset, ...who, x: text }];
+  // The provider tells speakers apart within this piece alone (its "A" may be someone else in the
+  // next one), so its turns only split the piece into lines at their own times; who spoke stays the
+  // stream's.
   const out: TranscriptChunk[] = [];
+  let turn: string | null = null;
   for (const seg of segments) {
-    const s = key(seg.speaker);
     const last = out[out.length - 1];
-    if (last && last.s === s && "x" in last) {
+    if (last && seg.speaker === turn && "x" in last) {
       last.x = `${last.x} ${seg.text}`;
       last.d = Math.max(0, Math.round((place.offset + Math.min(seg.end, place.duration) - last.t) * 10) / 10);
       continue;
     }
+    turn = seg.speaker;
     const start = Math.min(Math.max(0, seg.start), place.duration);
-    out.push({ ...base, t: Math.round((place.offset + start) * 10) / 10, d: Math.max(0, Math.round((Math.min(seg.end, place.duration) - start) * 10) / 10), s, x: seg.text });
+    out.push({ ...base, t: Math.round((place.offset + start) * 10) / 10, d: Math.max(0, Math.round((Math.min(seg.end, place.duration) - start) * 10) / 10), ...who, x: seg.text });
   }
   return out;
 }
@@ -280,24 +282,13 @@ export function speakerKeys(chunks: TranscriptChunk[]): string[] {
 }
 
 /** The words a speaker is called by until someone names them: "You" is the recorder's own name when known. */
-export type SpeakerLabels = { you: string; others: string; speaker: (n: number) => string };
+export type SpeakerLabels = { you: string; others: string };
 
-export const ENGLISH_SPEAKER_LABELS = (recorderName = ""): SpeakerLabels => ({ you: recorderName.trim() || "You", others: "Others", speaker: (n) => `Speaker ${n}` });
+export const ENGLISH_SPEAKER_LABELS = (recorderName = ""): SpeakerLabels => ({ you: recorderName.trim() || "You", others: "Others" });
 
-/**
- * A function giving each speaker key its name: the one given in `names`, else "you" / "others" /
- * "Speaker N" (N counting the provider-identified speakers by first appearance).
- */
-export function speakerNamer(chunks: TranscriptChunk[], names: SpeakerNames, labels: SpeakerLabels): (key: string) => string {
-  const numbered = speakerKeys(chunks).filter((k) => k !== "you" && k !== "others");
-  return (key) => {
-    const given = names[key]?.name;
-    if (given) return given;
-    if (key === "you") return labels.you;
-    if (key === "others") return labels.others;
-    const n = numbered.indexOf(key);
-    return labels.speaker(n >= 0 ? n + 1 : numbered.length + 1);
-  };
+/** A function giving each speaker key its name: the one given in `names`, else "you" / "others". */
+export function speakerNamer(names: SpeakerNames, labels: SpeakerLabels): (key: string) => string {
+  return (key) => names[key]?.name || (key === "you" ? labels.you : labels.others);
 }
 
 /** The member (or attendee) a name given in a summary points at: the whole name, else a first name, only when exactly one fits. */
@@ -465,7 +456,7 @@ export function meetingMarkdown(raw: Record<string, unknown> | undefined): strin
   section("Decisions", props.decisions);
   section("Action items", props.actions, true);
   const chunks = parseTranscript(props.transcript);
-  const transcript = transcriptLines(chunks, undefined, speakerNamer(chunks, parseSpeakers(props.speakers), ENGLISH_SPEAKER_LABELS(props.recorderName)));
+  const transcript = transcriptLines(chunks, undefined, speakerNamer(parseSpeakers(props.speakers), ENGLISH_SPEAKER_LABELS(props.recorderName)));
   if (transcript.length) out.push("**Transcript**", "", ...transcript.map((line) => `- ${safe(line)}`), "");
   out.push("<!-- leafdesk:/meeting -->");
   return out.join("\n");

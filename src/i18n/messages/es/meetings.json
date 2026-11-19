@@ -84,7 +84,6 @@
       "label": "Hablantes",
       "you": "Tú",
       "others": "Los demás",
-      "speaker": "Hablante {n}",
       "rename": "Ponle nombre a este hablante",
       "namePlaceholder": "Escribe un nombre o busca personas",
       "use": "Usar este nombre",

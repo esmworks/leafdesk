@@ -66,7 +66,7 @@ export function MeetingView({
   const chunks = useMemo(() => parseTranscript(props.transcript), [props.transcript]);
   const attendees = useMemo(() => parseAttendees(props.attendees), [props.attendees]);
   const speakers = useMemo(() => parseSpeakers(props.speakers), [props.speakers]);
-  const nameOf = useSpeakerNames(chunks, speakers, props.recorderName);
+  const nameOf = useSpeakerNames(speakers, props.recorderName);
   const [transcriptOpen, setTranscriptOpen] = useState(props.status === "recording");
   const [highlight, setHighlight] = useState<number | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);

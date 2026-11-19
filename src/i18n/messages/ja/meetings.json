@@ -84,7 +84,6 @@
       "label": "話者",
       "you": "あなた",
       "others": "その他の人",
-      "speaker": "話者 {n}",
       "rename": "この話者に名前を付ける",
       "namePlaceholder": "名前を入力、または人を検索",
       "use": "この名前を使う",

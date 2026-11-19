@@ -11,13 +11,13 @@ import { speakerKeys, speakerNamer, serializeSpeakers, type SpeakerLabels, type 
 /** The words speakers are called by until someone names them, in the reader's language. */
 export function useSpeakerLabels(recorderName: string): SpeakerLabels {
   const t = useTranslations("meetings.block.speakers");
-  return useMemo(() => ({ you: recorderName.trim() || t("you"), others: t("others"), speaker: (n: number) => t("speaker", { n }) }), [recorderName, t]);
+  return useMemo(() => ({ you: recorderName.trim() || t("you"), others: t("others") }), [recorderName, t]);
 }
 
-/** A function giving each speaker key of the transcript its name (given, or "You", "Others", "Speaker N"). */
-export function useSpeakerNames(chunks: TranscriptChunk[], names: SpeakerNames, recorderName: string) {
+/** A function giving each speaker key of the transcript its name (given, or "You", "Others"). */
+export function useSpeakerNames(names: SpeakerNames, recorderName: string) {
   const labels = useSpeakerLabels(recorderName);
-  return useMemo(() => speakerNamer(chunks, names, labels), [chunks, names, labels]);
+  return useMemo(() => speakerNamer(names, labels), [names, labels]);
 }
 
 /**

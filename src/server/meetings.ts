@@ -215,7 +215,7 @@ export async function addMeetingChunk(
   if (before.status !== "recording" || before.recorder !== userId) throw new MeetingError("notRecording", "This meeting isn't being recorded by you");
   let heard: Awaited<ReturnType<typeof transcribeSpeakers>> = { text: "", segments: null };
   try {
-    // The microphone's pieces are "you" outright; elsewhere the provider's speakers are used if it has them.
+    // The microphone's pieces are "you" outright; elsewhere the provider's turns, if it has them, split a piece into lines.
     heard = await transcribeSpeakers(audio, { feature: "voice.meeting", userId, workspaceId: found.workspaceId, language, signal, speakers: place.stream !== "mic" });
   } catch (error) {
     // Nothing said in these seconds: not a failure.
@@ -358,7 +358,7 @@ export function namesForSummary(props: MeetingProps): string[] {
 async function summarizeMeeting(userId: string, pageId: string, meetingId: string, workspaceId: string, regenerated: boolean) {
   const props = await readMeeting(pageId, meetingId);
   const chunks = parseTranscript(props.transcript);
-  const lines = transcriptLines(chunks, "(not transcribed)", speakerNamer(chunks, parseSpeakers(props.speakers), ENGLISH_SPEAKER_LABELS(props.recorderName)));
+  const lines = transcriptLines(chunks, "(not transcribed)", speakerNamer(parseSpeakers(props.speakers), ENGLISH_SPEAKER_LABELS(props.recorderName)));
   const heard = chunks.some((c) => !("gap" in c) && c.x.trim());
   // Whether this write put it in: one ended meanwhile (written by another process) is left alone.
   let applied = false;

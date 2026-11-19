@@ -84,7 +84,6 @@
       "label": "发言人",
       "you": "你",
       "others": "其他人",
-      "speaker": "发言人 {n}",
       "rename": "为此发言人命名",
       "namePlaceholder": "输入名称或搜索人员",
       "use": "使用此名称",

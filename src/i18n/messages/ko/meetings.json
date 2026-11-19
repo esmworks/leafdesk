@@ -84,7 +84,6 @@
       "label": "화자",
       "you": "나",
       "others": "다른 사람",
-      "speaker": "화자 {n}",
       "rename": "이 화자 이름 지정",
       "namePlaceholder": "이름 입력 또는 사람 검색",
       "use": "이 이름 사용",

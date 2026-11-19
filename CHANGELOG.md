@@ -92,9 +92,9 @@
   environment variables.
 - **Who said what in meeting notes.** *Record with others* records a shared tab's or screen's
   sound next to the microphone, so the transcript reads *You* (the recorder) and *Others*; a speech
-  to text model with `diarize` in its name (such as `gpt-4o-transcribe-diarize`) also splits the
-  speakers of each piece of about 30 seconds by itself (speakers of different pieces are joined
-  only by giving them the same name). The block lists the speakers and an editor names each after a workspace
+  to text model with `diarize` in its name (such as `gpt-4o-transcribe-diarize`) also breaks the
+  lines at each turn (it tells speakers apart only within a piece of about 30 seconds, so it never
+  names them). The block lists the speakers and an editor names each after a workspace
   member or any name, which the transcript, the Markdown, search and the AI summary use, so action
   items name the right person, and *Add as to-dos* puts them on the page mentioning the matched
   members. Published pages still drop the transcript and the speakers. No migration, no new

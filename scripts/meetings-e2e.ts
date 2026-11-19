@@ -238,7 +238,7 @@ try {
     "pieces of the microphone and of the others at one time are both kept, labelled by their stream",
     twoStreams,
   );
-  // A diarizing model splits the others' stream by the provider's speakers; the microphone stays "you".
+  // A diarizing model splits the others' piece at the provider's turns, still "others"; the microphone stays "you".
   setAiEnv({ ...AI_ENV, STT_MODEL: "fake-diarize" });
   fake.setSegments(() => [
     { speaker: "A", start: 0, end: 5, text: "Ayşe will tell the customer" },
@@ -250,16 +250,16 @@ try {
   setAiEnv(AI_ENV);
   const diarized = parseTranscript((await meetingOn(callPage))?.transcript);
   check(
-    JSON.stringify(diarized.filter((c) => c.c === 1).map((c) => ("x" in c ? [c.s, c.t, c.x] : []))) === JSON.stringify([["you", 30, SAID[1000]], ["o:1:A", 30, "Ayşe will tell the customer"], ["o:1:B", 36, "by Friday."]]),
-    "a diarizing model's speakers become keyed pieces at their own times (the microphone's piece is still you)",
+    JSON.stringify(diarized.filter((c) => c.c === 1).map((c) => ("x" in c ? [c.s, c.t, c.x] : []))) === JSON.stringify([["you", 30, SAID[1000]], ["others", 30, "Ayşe will tell the customer"], ["others", 36, "by Friday."]]),
+    "a diarizing model's turns become lines at their own times, still the others' (the microphone's piece is still you)",
     diarized,
   );
-  // Name a speaker after a member, and the write-up and the to-dos use the name.
-  await getCollab().updateBlockAttributes(callPage, MEETING_BLOCK, (p) => p.meetingId === call!.meetingId, () => ({ speakers: JSON.stringify({ "o:1:A": { name: "Ayşe Yılmaz", id: ids.member } }) }), { userId: ids.owner });
+  // Name the others after a member, and the write-up and the to-dos use the name.
+  await getCollab().updateBlockAttributes(callPage, MEETING_BLOCK, (p) => p.meetingId === call!.meetingId, () => ({ speakers: JSON.stringify({ others: { name: "Ayşe Yılmaz", id: ids.member } }) }), { userId: ids.owner });
   await meetings.finishMeeting(ids.owner, callPage, call!.meetingId, 60);
   await waitFor(() => meetingOn(callPage), (m) => m?.status === "done", "the call is written up");
   const callPrompt = textOf(fake.chats.at(-1)?.messages.at(-1)?.content ?? "");
-  check(callPrompt.includes("Owner: Okay everyone") && callPrompt.includes("Others: Ayşe will tell") && callPrompt.includes("Ayşe Yılmaz: Ayşe will tell the customer") && callPrompt.includes("Speaker 2: by Friday."), "the AI read who said what, with the names people gave", callPrompt);
+  check(callPrompt.includes("Owner: Okay everyone") && !callPrompt.includes("Others:") && callPrompt.includes("Ayşe Yılmaz: Ayşe will tell the customer") && callPrompt.includes("Ayşe Yılmaz: by Friday."), "the AI read who said what, with the names people gave", callPrompt);
   const todos = await meetings.addMeetingTodos(ids.owner, callPage, call!.meetingId);
   check(todos.count === 1, "the open action item is added to the page as a to-do", todos);
   const todosAgain = await meetings.addMeetingTodos(ids.owner, callPage, call!.meetingId);

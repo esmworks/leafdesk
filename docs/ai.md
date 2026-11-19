@@ -828,21 +828,18 @@ upload starts.
   sharing stops, the recording goes on with the microphone alone.
 - A speech to text model that tells speakers apart. Leafdesk asks for it when `STT_MODEL` has
   `diarize` in its name (OpenAI's `gpt-4o-transcribe-diarize`; the request is `diarized_json` with
-  `chunking_strategy` `auto`). Other models, Whisper servers included, are asked for plain text and
-  never labelled by guesswork: a recording of one microphone without such a model has no speakers.
-  The provider numbers speakers within one piece of about 30 seconds, so across pieces its *A* and
-  *B* are not guaranteed to be the same people: each piece's speakers get numbers of their own
-  (*Speaker 1*, *Speaker 2* … in the order they first speak), and naming two of them alike in the
-  block reads them as one. With *Record with others*, the shared stream's speakers are told apart this way and the
-  microphone stays *you*.
+  `chunking_strategy` `auto`); other models, Whisper servers included, are asked for plain text. The
+  provider tells speakers apart only within one piece of about 30 seconds (its *A* in one piece may
+  be someone else in the next), so its turns split a piece into lines at their own times, and who
+  spoke stays what the recording knows: *you* for the microphone, *Others* for the shared sound,
+  nobody for one microphone alone. Nothing is labelled by guesswork.
 
-Above the transcript the block lists the speakers (*You*, *Others*, *Speaker 2* …). Anyone who can
+Above the transcript the block lists the speakers (*You*, *Others*). Anyone who can
 edit the page names one: pick a workspace member (the name is theirs, and an action item for them
 mentions them) or type any name. The names are kept in the block's `speakers` property, shown in
 the transcript, the page's Markdown (`[mm:ss] Name: text`), search and what AI reads, and are never
 published: a published page drops the transcript and the speakers with it. The transcript's lines
-are stored with a speaker key (`s`: `you`, `others`, `o:<id>`, `d:<id>`) and, for the shared
-stream, `r: "o"`.
+are stored with a speaker key (`s`: `you` or `others`) and, for the shared stream, `r: "o"`.
 
 **Summary.** *Stop and summarize* has AI write a summary, the decisions and the action items, the
 latter assigned (`@Name:`) when they name an attendee or a named speaker; AI reads the transcript
