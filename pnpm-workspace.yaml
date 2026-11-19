@@ -26,6 +26,9 @@ overrides:
   # Better Auth lists vitest as an optional peer, which brings vite into the production install;
   # 8.3.3 has the dev server's file-serving fixes. Nothing runs it in production.
   vite: ^8.3.3
+  # SAML sign-in's XML parser (through Better Auth's SSO plugin) spends quadratic time on unclosed
+  # tags before 5.11.3; an identity provider's response is outside data.
+  'fast-xml-parser@<5.11.3': ^5.11.3
 
 # Advisories `pnpm audit --prod` reports that don't reach a running Leafdesk. Review them when the
 # weekly dependency check (.github/workflows/dependencies.yml) lists something new.

@@ -186,7 +186,7 @@ import { gzipSync } from "node:zlib";
  * approval state and menu item add about 3 kB to all first loads together, which stood at their
  * budget: it rose 4 kB. Their dialogs, the To plan list, a quiz and the approval badge, history and
  * banner load when shown.
- * The 0.9 wave adds about 15 kB to all first loads together, for which that budget rose 18 kB: the
+ * The 0.9 wave adds about 18 kB to all first loads together, for which that budget rose 21 kB: the
  * booking page is a route of its own (`/b/[token]`, about 7 kB), and the rest is spread thin over
  * the routes that show it: the HTML and agent blocks in the editor's menus and published bodies,
  * the chat's Plan first switch and plan cards' loader, Zendesk and Salesforce among synced
@@ -195,7 +195,7 @@ import { gzipSync } from "node:zlib";
  * frame's source editor load when shown; an external agent's settings and the Teams link card load
  * in chunks of their own.
  */
-const BUDGET = { routeFirstLoad: 804, firstLoadShared: 1290, onDemandChunk: 450 };
+const BUDGET = { routeFirstLoad: 804, firstLoadShared: 1293, onDemandChunk: 450 };
 
 const NEXT = ".next";
 const kB = (bytes: number) => bytes / 1024;

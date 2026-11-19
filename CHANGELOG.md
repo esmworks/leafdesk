@@ -139,6 +139,10 @@
 
 ### Fixed
 
+- **Next.js 16.4.6 and a patched XML parser for SAML sign-in.** Next.js 16.4.3 had two advisories
+  about values of one request's route showing in another's cached answer; SAML sign-in's XML parser
+  (fast-xml-parser, below 5.11.3) could spend quadratic time on a response with unclosed tags. No
+  migration, no new environment variables.
 - **Apps connected over MCP stay connected past their first hour.** Apps that ask for the scopes the
   MCP metadata lists (as the MCP SDK does) were never given `offline_access`, so they got no refresh
   token and showed as signed out once the hour-long access token ran out; signing in again worked
