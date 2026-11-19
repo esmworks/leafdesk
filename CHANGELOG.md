@@ -2,6 +2,20 @@
 
 ## Unreleased
 
+## 0.9.0 — 2026-11-19
+
+### Upgrading from 0.8.1
+
+- **Back up the database first.** Migrations 0209 to 0215 run automatically when the container
+  starts (from source, run `pnpm db:migrate`). They add agent teams and chains, chat-app links for
+  Slack and Teams beside Telegram, booking links, external agents and their mentions, and give
+  apps connected over MCP the scope that keeps them signed in.
+- **New optional settings.** The AI chat from Slack takes `SLACK_APP_TOKEN` and `SLACK_BOT_TOKEN`
+  (`SLACK_API_URL` for tests), from Microsoft Teams `TEAMS_APP_ID`, `TEAMS_APP_PASSWORD` and
+  `TEAMS_TENANT_ID` (`TEAMS_LOGIN_URL`, `TEAMS_OPENID_URL` and `TEAMS_SERVICE_URL_HOSTS` for other
+  Microsoft clouds and tests). Download the new `docker-compose.yml` to set them with Compose;
+  otherwise `docker-compose.yml` and `.env` stay as they are.
+
 ### Added
 
 - **Copy IDs for the REST API and MCP.** A block's side menu has *Copy block ID*, Settings > General
