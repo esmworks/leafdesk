@@ -96,6 +96,10 @@
         "name": "Haku",
         "hint": "Haku sivuista ja riveistä."
       },
+      "memory": {
+        "name": "Muisti",
+        "hint": "Mitä Leafdesk muistaa sinusta, jotta tekoälytyökaluilla on sama konteksti."
+      },
       "databases": {
         "name": "Tietokannat",
         "hint": "Tietokannan ominaisuudet ja näkymät."

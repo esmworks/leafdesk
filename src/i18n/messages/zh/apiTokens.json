@@ -96,6 +96,10 @@
         "name": "搜索",
         "hint": "在页面和行中搜索。"
       },
+      "memory": {
+        "name": "记忆",
+        "hint": "Leafdesk 记住的关于你的信息，让 AI 工具获得相同的上下文。"
+      },
       "databases": {
         "name": "数据库",
         "hint": "数据库的属性和视图。"

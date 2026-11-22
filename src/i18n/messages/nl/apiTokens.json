@@ -96,6 +96,10 @@
         "name": "Zoeken",
         "hint": "Zoeken in pagina’s en rijen."
       },
+      "memory": {
+        "name": "Geheugen",
+        "hint": "Wat Leafdesk over je onthoudt, zodat AI-tools dezelfde context krijgen."
+      },
       "databases": {
         "name": "Databases",
         "hint": "De eigenschappen en weergaven van een database."

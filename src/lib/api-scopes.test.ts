@@ -70,7 +70,7 @@ describe("API token scopes", () => {
     expect(scopesWrite(["rows:read", "rows:write"])).toBe(true);
     expect(presetOf(READ_SCOPES)).toBe("readAll");
     expect(presetOf([...API_TOKEN_SCOPES].reverse())).toBe("all");
-    expect(presetOf([...API_TOKEN_SCOPES.filter(isWriteScope), "workspaces:read", "search:read", "databases:read"])).toBe("all");
+    expect(presetOf([...API_TOKEN_SCOPES.filter(isWriteScope), "workspaces:read", "search:read", "memory:read", "databases:read"])).toBe("all");
     expect(presetOf(["pages:read"])).toBeNull();
   });
 });

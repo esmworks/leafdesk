@@ -96,6 +96,10 @@
         "name": "Suche",
         "hint": "Suche in Seiten und Zeilen."
       },
+      "memory": {
+        "name": "Gedächtnis",
+        "hint": "Was Leafdesk über dich weiß, damit KI-Werkzeuge denselben Kontext haben."
+      },
       "databases": {
         "name": "Datenbanken",
         "hint": "Eigenschaften und Ansichten einer Datenbank."

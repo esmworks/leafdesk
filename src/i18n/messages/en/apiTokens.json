@@ -96,6 +96,10 @@
         "name": "Search",
         "hint": "Search across pages and rows."
       },
+      "memory": {
+        "name": "Memory",
+        "hint": "What Leafdesk remembers about you, to give AI tools the same context."
+      },
       "databases": {
         "name": "Databases",
         "hint": "A database's properties and views."

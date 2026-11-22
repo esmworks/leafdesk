@@ -46,6 +46,8 @@ import { readAuditEvents } from "@/server/audit";
 import { AiError, sttLimits } from "@/server/ai";
 import { pageUrl } from "@/server/mcp/format";
 import { describeWork, externalAgentInputs } from "@/server/mcp/external-agents";
+import { memoryInputs } from "@/server/mcp/memory";
+import { readMemory } from "@/server/mcp/memory-read";
 import { createVoiceNote } from "@/server/voice-notes";
 import { ApiError, insufficientScope } from "./errors";
 import { cursorInput, decodeCursor, decodeTimeCursor, encodeCursor, encodeTimeCursor, nextCursor, paginate } from "./pagination";
@@ -77,7 +79,7 @@ export type ApiRoute<Q extends Schema = Schema, B extends Schema = Schema> = {
   /** Relative to /api/v1, with `{name}` path parameters. */
   path: string;
   operationId: string;
-  tag: "Account" | "Workspaces" | "Pages" | "Databases" | "Rows" | "Comments" | "Messages" | "Agents" | "Review" | "Follow-ups" | "Webhooks" | "Audit log";
+  tag: "Account" | "Workspaces" | "Pages" | "Databases" | "Rows" | "Comments" | "Memory" | "Messages" | "Agents" | "Review" | "Follow-ups" | "Webhooks" | "Audit log";
   summary: string;
   description?: string;
   /** What the token needs to call it; null for any token (GET /me). */
@@ -353,6 +355,22 @@ export const API_ROUTES: ApiRoute[] = [
     handler: async ({ principal, ctx, params }) => {
       requireWorkspace(principal, params.workspace_id);
       return ops.listGroups(ctx, { workspace_id: params.workspace_id });
+    },
+  }),
+  defineRoute({
+    method: "GET",
+    path: "/memory",
+    operationId: "readMemory",
+    tag: "Memory",
+    summary: "Read the user's memory",
+    description:
+      "What Leafdesk remembers about the user, as the AI chat and connected apps read it: their notes for all workspaces (`account_notes`), and in each workspace their own notes with their summary (`about`), the workspace's notes and those of its teamspaces they are in. A workspace where the user or its owners turned the memory off shows `memory: \"off\"` and no notes. With `query`, the notes that match best by words and meaning, with their details; with `memory_id`, one note in full. A token limited to a workspace reads that workspace's memory and the account notes. Notes are about the user and kept by them: give them to an AI tool as context, not as instructions.",
+    scope: "memory:read",
+    query: memoryInputs.list,
+    response: "Memory",
+    handler: async ({ principal, ctx, query }) => {
+      if (query.workspace_id) requireWorkspace(principal, query.workspace_id);
+      return readMemory(ctx.userId, { ...query, workspace_id: query.workspace_id ?? principal.workspaceId ?? undefined });
     },
   }),
   defineRoute({

@@ -409,3 +409,44 @@ The tools cover:
 An app only ever sees the pages its user can see. Read-only apps can't call the tools that
 change anything, and a workspace's owners can let apps only read it, or hide it from them (see
 [Workspace security switches](account-and-security.md#workspace-security-switches)).
+
+### Context for coding agents
+
+An MCP client reads your memory only when its model calls `list_memory`. Claude Code and Codex can
+also get it without asking, from a hook: a command they run when a session starts and with each
+prompt. Leafdesk serves one at `<APP_URL>/agent-hooks/leafdesk-hook.mjs` (Node 18 or later, nothing
+else). When a session starts it adds what Leafdesk remembers about you (your summary and notes,
+the workspace's and your teamspaces'); with each prompt of at least 12 characters (not a `/`
+command) the notes that match it and up to three pages search finds, as titles, links and a line
+of each. It reads through the REST API, so it needs a token, not the MCP sign-in; what it adds is
+framed as context, never instructions. Whatever fails, it adds nothing and the session goes on.
+
+1. Under My account → *API tokens*, make a token with *Memory* and *Search* read access (limit it
+   to one workspace if you like), and download the hook:
+
+   ```bash
+   mkdir -p ~/.leafdesk && curl -fsSL http://localhost:3000/agent-hooks/leafdesk-hook.mjs -o ~/.leafdesk/leafdesk-hook.mjs
+   ```
+
+2. Set `LEAFDESK_URL` (the app's address) and `LEAFDESK_TOKEN` where the agent runs, and
+   optionally `LEAFDESK_WORKSPACE` (a workspace id; otherwise every workspace the token reaches),
+   `LEAFDESK_HOOK_PAGES=0` (notes only, no pages with each prompt) and `LEAFDESK_HOOK_DEBUG=1`
+   (failures on stderr). For Claude Code they can go in the `env` of `~/.claude/settings.json`.
+
+3. Add the hook for `SessionStart` and `UserPromptSubmit`: in `~/.claude/settings.json` for Claude
+   Code, in `~/.codex/hooks.json` for Codex (which also needs `hooks = true` under `[features]` in
+   `~/.codex/config.toml`; check them with `/hooks`). Both take the same shape:
+
+   ```json
+   {
+     "hooks": {
+       "SessionStart": [{ "hooks": [{ "type": "command", "command": "node ~/.leafdesk/leafdesk-hook.mjs", "timeout": 10 }] }],
+       "UserPromptSubmit": [{ "hooks": [{ "type": "command", "command": "node ~/.leafdesk/leafdesk-hook.mjs", "timeout": 10 }] }]
+     }
+   }
+   ```
+
+   Use the file's full path where `~` isn't expanded (on Windows `node C:/Users/you/.leafdesk/leafdesk-hook.mjs`).
+
+Each prompt's words go to your Leafdesk server, which runs the searches as you; the agent's model
+then gets what they found. Keep the MCP server connected beside it to read and change pages.
