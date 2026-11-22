@@ -96,6 +96,10 @@
         "name": "Pencarian",
         "hint": "Pencarian di seluruh halaman dan baris."
       },
+      "memory": {
+        "name": "Memori",
+        "hint": "Hal yang diingat Leafdesk tentang Anda, agar alat AI mendapat konteks yang sama."
+      },
       "databases": {
         "name": "Basis data",
         "hint": "Properti dan tampilan basis data."

@@ -96,6 +96,10 @@
         "name": "Sök",
         "hint": "Sök i sidor och rader."
       },
+      "memory": {
+        "name": "Minne",
+        "hint": "Det Leafdesk minns om dig, så att AI-verktyg får samma sammanhang."
+      },
       "databases": {
         "name": "Databaser",
         "hint": "En databas egenskaper och vyer."

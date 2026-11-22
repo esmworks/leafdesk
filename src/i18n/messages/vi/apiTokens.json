@@ -96,6 +96,10 @@
         "name": "Tìm kiếm",
         "hint": "Tìm kiếm trên các trang và hàng."
       },
+      "memory": {
+        "name": "Bộ nhớ",
+        "hint": "Những gì Leafdesk ghi nhớ về bạn, để công cụ AI có cùng ngữ cảnh."
+      },
       "databases": {
         "name": "Cơ sở dữ liệu",
         "hint": "Thuộc tính và chế độ xem của một cơ sở dữ liệu."

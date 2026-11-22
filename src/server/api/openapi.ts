@@ -14,6 +14,7 @@ const TAGS = [
   { name: "Databases", description: "Database schemas and row queries." },
   { name: "Rows", description: "Database rows and their property values." },
   { name: "Comments", description: "Comment threads on pages." },
+  { name: "Memory", description: "What Leafdesk remembers about the user: the notes their AI chat and connected apps keep, read to give an AI tool outside Leafdesk the same context." },
   { name: "Messages", description: "Team messages: the channels and direct conversations the user may read, their messages and threads, search, and messages sent as the user." },
   { name: "Agents", description: "A workspace's agents: their settings, who they are shared with, runs asked for now, schedules, run history and monthly usage." },
   { name: "Review", description: "Changes agents proposed instead of making them: rows to add or change and email drafts, each approved (optionally edited) or dismissed by a person." },
@@ -30,6 +31,8 @@ const TOOL_NAMES = [
   ["query_database", "POST /databases/{database_id}/query"],
   ["create_database_row", "POST /databases/{database_id}/rows"],
   ["update_database_row", "PATCH /rows/{row_id}"],
+  ["list_memory", "GET /memory"],
+  ["change_memory", "the app or MCP (not in the REST API)"],
   ["list_templates, attach_file", "the app (not in the REST API yet)"],
 ];
 
@@ -63,6 +66,18 @@ const loose = (properties: Record<string, JsonSchema>, required: string[] = []):
   properties,
   ...(required.length ? { required } : {}),
   additionalProperties: true,
+});
+
+const memoryNote = loose({
+  memory_id: id,
+  text: { type: "string" },
+  category: { type: "string" },
+  has_details: { type: "boolean", description: "The note says more: read it with memory_id, or find it with query." },
+  details: { type: "string", description: "The note in full; only in a search or a read of one note." },
+  layer: { type: "string", enum: ["account", "person", "workspace", "teamspace"], description: "Whose note it is; only in a search or a read of one note." },
+  workspace_id: { type: "string" },
+  created_at: { type: "string", format: "date-time" },
+  updated_at: { type: "string", format: "date-time" },
 });
 
 const channelMessage = loose(
@@ -254,6 +269,23 @@ const SCHEMAS: Record<string, JsonSchema> = {
       expired: { type: "boolean", description: "`until` has passed: the page needs checking again." },
     },
   },
+  Memory: loose(
+    {
+      account_notes: { type: "array", items: memoryNote, description: "The user's notes for all their workspaces." },
+      workspaces: {
+        type: "array",
+        description: "Without workspace_id: each workspace's memory, as with it.",
+        items: loose({ name: { type: "string" }, workspace_id: id, memory: { type: "string", enum: ["on", "off"] } }),
+      },
+      workspace_id: id,
+      memory: { type: "string", enum: ["on", "off"], description: "off: the user or the workspace's owners turned the memory off there, so no notes are read." },
+      about: { type: "string", description: "The user's own summary of their notes in the workspace, when they keep one." },
+      notes: { type: "array", items: memoryNote, description: "The user's notes in the workspace; with query, the notes that match best (every layer), with their details." },
+      workspace_notes: loose({ notes: { type: "array", items: memoryNote } }),
+      teamspace_notes: { type: "array", items: loose({ teamspace_id: id, name: { type: "string" }, notes: { type: "array", items: memoryNote } }) },
+      query: { type: "string" },
+    },
+  ),
   SearchResults: loose(
     {
       results: {

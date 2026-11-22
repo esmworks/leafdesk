@@ -28,6 +28,7 @@ const { addProperty } = await import("@/server/databases");
 const { setMailDatabases } = await import("@/server/row-mail/settings");
 const { updateWorkspaceSettings } = await import("@/server/workspaces");
 const { createSequence } = await import("@/server/sequences/manage");
+const { addMemory } = await import("@/server/ai-memory");
 const { createApiToken, revokeApiToken, listApiTokens, updateApiTokenScopes, verifyApiToken } = await import("@/server/api/tokens");
 const { pruneIdempotencyKeys } = await import("@/server/api/idempotency");
 const { API_ROUTES } = await import("@/server/api/routes");
@@ -457,6 +458,27 @@ try {
   check((await api("GET", `/pages/${parent}/children`, pagesOnly)).status === 200, "…and their sub-pages");
   await denied("GET", "/workspaces", pagesOnly, "workspaces:read");
   await denied("GET", `/search?query=${RUN}`, pagesOnly, "search:read");
+  await denied("GET", "/memory", pagesOnly, "memory:read");
+  await addMemory(ids.alice, wsA, `${RUN} fark iki yüzde`);
+  await addMemory(ids.alice, wsB, `${RUN} in workspace B`);
+  const memoryReader = await scoped("memory reader", ["memory:read"]);
+  const memoryAll = await api("GET", "/memory", memoryReader);
+  const listedIn = (name: string) => memoryAll.body.workspaces?.find((w: any) => w.name === name)?.notes?.map((n: any) => n.text) ?? [];
+  check(
+    memoryAll.status === 200 && listedIn(`${RUN} A`).includes(`${RUN} fark iki yüzde`) && listedIn(`${RUN} B`).includes(`${RUN} in workspace B`),
+    "GET /memory lists the notes of every workspace",
+    memoryAll.body,
+  );
+  const memoryFound = await api("GET", `/memory?workspace_id=${wsA}&query=${encodeURIComponent("farkı")}`, memoryReader);
+  check(memoryFound.status === 200 && memoryFound.body.notes?.some((n: any) => n.text === `${RUN} fark iki yüzde` && n.layer === "person"), "…searches them, a Turkish ending finding its root", memoryFound.body);
+  const memoryBound = await createApiToken(ids.alice, { name: `${RUN} memory bound`, scopes: ["memory:read"], workspaceId: wsA });
+  const boundMemory = await api("GET", "/memory", memoryBound.secret);
+  check(
+    boundMemory.status === 200 && boundMemory.body.workspace_id === wsA && JSON.stringify(boundMemory.body).includes("fark iki") && !JSON.stringify(boundMemory.body).includes("in workspace B"),
+    "…and a token limited to a workspace reads that workspace's alone",
+    boundMemory.body,
+  );
+  check((await api("GET", `/memory?workspace_id=${wsB}`, memoryBound.secret)).status === 404, "…refusing another workspace's");
   await denied("GET", `/databases/${database.id}`, pagesOnly, "databases:read");
   await denied("POST", `/databases/${database.id}/query`, pagesOnly, "rows:read", {});
   await denied("GET", `/pages/${pageId}/comments`, pagesOnly, "comments:read");

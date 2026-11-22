@@ -259,7 +259,11 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
 - **REST API.** One route table, `API_ROUTES` in `src/server/api/routes.ts` (`defineRoute`); the
   OpenAPI document is generated from it. Bearer tokens only (`api/tokens.ts`). `defineRoute` makes
   each query and body schema `.strict()`, so a field a route doesn't name answers 400 (a script
-  sending a path's id in the body too gets one).
+  sending a path's id in the body too gets one). `GET /memory` and MCP's `list_memory` are one
+  function, `mcp/memory-read.ts` `readMemory`. The coding-agent hook
+  `public/agent-hooks/leafdesk-hook.mjs` (plain Node, no build, served as a static file outside the
+  proxy's matcher; tested from `src/lib/agent-hook.test.ts` through its `.d.mts`) reads that and
+  `GET /search` with a token: a change to their answers' shape is a change to it.
 - **Skills** (`server/skills.ts`, pure part `lib/skills.ts`): pages or rows marked as reusable
   instructions; SKILL.md export is the page export route's `format=skill`, import is
   `api/skills/import` → `server/skill-import.ts` (unpacked by `import/archive.ts` `collectFiles`, read

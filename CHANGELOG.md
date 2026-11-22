@@ -4,10 +4,24 @@
 
 ### Added
 
+- **Leafdesk's context in Claude Code and Codex without asking for it.** A hook command served at
+  `<APP_URL>/agent-hooks/leafdesk-hook.mjs` gives a coding agent what Leafdesk remembers about you
+  when a session starts, and the notes and pages that match each prompt, so the agent no longer
+  depends on calling the MCP tools first. It needs Node 18, `LEAFDESK_URL` and `LEAFDESK_TOKEN`, and
+  stays silent when anything fails (see docs/connections.md, *Context for coding agents*).
+- **The memory in the REST API.** `GET /api/v1/memory` reads the user's notes and summaries as
+  MCP's `list_memory` does, searches them with `query` and reads one with `memory_id`, under the
+  new token scope `memory:read` (*Memory* in a token's access).
 - **A Dokploy template.** `deploy/dokploy/leafdesk` runs the published image beside its own
   PostgreSQL as one Dokploy Compose service, with the auth secret and the database password made
   when it is created; `pnpm tsx scripts/dokploy-template.ts` prints it for Dokploy's Import (see
   docs/self-hosting.md).
+
+### Fixed
+
+- **Memory search finds a note from a Turkish word with an ending.** Searching the AI memory for
+  "farkı", "notlar" or "kitabı" now finds notes that say "fark", "not" or "kitap" (below notes
+  with the word itself), in the AI chat's memory search and MCP's `list_memory` alike.
 
 ## 0.9.0 — 2026-11-19
 

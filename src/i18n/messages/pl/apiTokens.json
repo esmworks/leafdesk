@@ -96,6 +96,10 @@
         "name": "Wyszukiwanie",
         "hint": "Wyszukiwanie w stronach i wierszach."
       },
+      "memory": {
+        "name": "Pamięć",
+        "hint": "To, co Leafdesk pamięta o Tobie, aby narzędzia AI miały ten sam kontekst."
+      },
       "databases": {
         "name": "Bazy danych",
         "hint": "Właściwości i widoki bazy danych."

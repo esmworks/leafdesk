@@ -96,6 +96,10 @@
         "name": "Arama",
         "hint": "Sayfalarda ve satırlarda arama."
       },
+      "memory": {
+        "name": "Hafıza",
+        "hint": "Leafdesk'in senin hakkında hatırladıkları; yapay zekâ araçlarına aynı bağlamı vermek için."
+      },
       "databases": {
         "name": "Veritabanları",
         "hint": "Bir veritabanının özellikleri ve görünümleri."

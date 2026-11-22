@@ -96,6 +96,10 @@
         "name": "Søgning",
         "hint": "Søg på tværs af sider og rækker."
       },
+      "memory": {
+        "name": "Hukommelse",
+        "hint": "Det, Leafdesk husker om dig, så AI-værktøjer får samme kontekst."
+      },
       "databases": {
         "name": "Databaser",
         "hint": "En databases egenskaber og visninger."
