@@ -11,6 +11,14 @@ describe("matchNotes", () => {
     expect(matchNotes(notes, "izmir").map((n) => n.id)).toEqual(["d"]);
     expect(matchNotes(notes, "klif")).toEqual([]);
   });
+
+  it("finds a note by the root of a Turkish word with an ending, below one with the word itself", () => {
+    const notes = [note("a", "Fark iki yüzde"), note("b", "Kitap listesi"), note("c", "Örnek proje Python"), note("d", "Farkı müşteri sordu")];
+    expect(matchNotes(notes, "farkı").map((n) => n.id)).toEqual(["d", "a"]);
+    expect(matchNotes(notes, "kitabı").map((n) => n.id)).toEqual(["b"]);
+    expect(matchNotes(notes, "örneği").map((n) => n.id)).toEqual(["c"]);
+    expect(matchNotes([note("x", "Not", "Ayrıntı yok")], "notlar").map((n) => n.id)).toEqual(["x"]);
+  });
 });
 
 describe("rankNotes", () => {

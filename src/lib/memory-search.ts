@@ -1,3 +1,5 @@
+import { turkishRoots } from "./turkish-stem";
+
 /** Notes a search of the memory answers with (the chat's read_memory, MCP's list_memory), the best first. */
 export const MEMORY_SEARCH_LIMIT = 10;
 
@@ -11,18 +13,30 @@ export const queryWords = (query: string) => [...new Set(words(query))];
 const hasWord = (text: string[], word: string) => text.some((w) => w.startsWith(word));
 
 /**
+ * How well `word` is found in a note's line and details: 2 in the line, 1 in the details; half
+ * that when only its Turkish root is ("farkı" in a note saying "fark", lib/turkish-stem.ts).
+ */
+function wordScore(line: string[], details: string[], word: string, roots: string[]): number {
+  if (hasWord(line, word)) return 2;
+  if (hasWord(details, word)) return 1;
+  if (roots.some((root) => hasWord(line, root))) return 1;
+  if (roots.some((root) => hasWord(details, root))) return 0.5;
+  return 0;
+}
+
+/**
  * The notes (oldest first) with most of `query`'s words, the best first: words in a note's line
  * count twice those in its details, newer notes first on a tie; at most `limit`. A word matches
- * the start of a note's word.
+ * the start of a note's word, and so does its Turkish root, by half.
  */
 export function matchNotes<T extends { text: string; details?: string | null }>(notes: T[], query: string, limit: number = MEMORY_SEARCH_LIMIT): T[] {
-  const wanted = queryWords(query);
+  const wanted = queryWords(query).map((word) => ({ word, roots: turkishRoots(word) }));
   if (!wanted.length) return [];
   return notes
     .map((note, index) => {
       const line = words(note.text);
       const details = words(note.details ?? "");
-      return { note, index, score: wanted.reduce((sum, w) => sum + (hasWord(line, w) ? 2 : hasWord(details, w) ? 1 : 0), 0) };
+      return { note, index, score: wanted.reduce((sum, w) => sum + wordScore(line, details, w.word, w.roots), 0) };
     })
     .filter((s) => s.score > 0)
     .sort((a, b) => b.score - a.score || b.index - a.index)
