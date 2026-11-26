@@ -21,6 +21,7 @@ import {
   type GcalSyncError,
   type GcalWritten,
 } from "@/lib/gcal-sync";
+import { googleTriesLater } from "@/lib/google-errors";
 import type { IcalField } from "@/lib/ical-sync";
 import { answerJson, answerText, type ToolAnswer } from "@/lib/import/google-docs";
 import { redactError, redactText } from "@/lib/redact";
@@ -108,6 +109,8 @@ export async function callCalendar(
   if (answer.isError) {
     const said = answerText(answer).slice(0, 500);
     await audit("failed", said);
+    // A spent quota or Google down for a while: the run tries again next time.
+    if (googleTriesLater(said)) throw new JiraError("unreachable", `Google couldn't answer now`, redactText(said).slice(0, 300) || null);
     if (/not.?found|\b404\b/i.test(said)) throw new JiraError("notFound", "No such calendar or event");
     if (/permission|forbidden|\b403\b/i.test(said)) throw new JiraError("forbidden", `The connection's account may not ${kind} the calendar`, redactText(said).slice(0, 300) || null);
     throw new JiraError("badQuery", `Google refused the ${kind}`, redactText(said).slice(0, 300) || null);

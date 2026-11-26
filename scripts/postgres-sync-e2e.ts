@@ -157,12 +157,12 @@ try {
   check(renamed?.properties[prop("credit").id] === 2000, "a run writes the table's changes over", renamed);
   check(after.some((r) => r.title === "Initech") && after.some((r) => r.title === "Globex"), "new rows come in, rows that left the table stay");
 
-  // A dropped column pauses the sync with the server's words; a new address checks the table again.
+  // A dropped column fails the run with the server's words; a new address checks the table again.
   await db.execute(sql.raw(`alter table ${schema}.customers drop column city`));
   await due(databaseId);
   await runDueSyncs();
   const paused = await getPostgresSync(owner, databaseId);
-  check(paused?.lastError === "badQuery" && !paused.enabled && Boolean(paused.lastErrorDetail?.includes("city")), "a dropped column pauses the sync", paused);
+  check(paused?.lastError === "badQuery" && paused.enabled && Boolean(paused.lastErrorDetail?.includes("city")), "a dropped column is shown with the server's words (it pauses only if it repeats)", paused);
   check((await outcome(() => updatePostgresSync(owner, databaseId, { url }))) === "badQuery", "a new address checks the table first");
   await db.execute(sql.raw(`alter table ${schema}.customers add column city text`));
   const resumed = await updatePostgresSync(owner, databaseId, { url });

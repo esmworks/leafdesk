@@ -299,8 +299,12 @@ try {
   check(limited.outcome.error === "unreachable" && limited.enabled, "a spent rate limit is passing: the sync stays on", limited);
   rateLimited = false;
   token = "token-2";
-  const refused = await manage.syncGithubPullsNow(ids.owner, databaseId);
-  check(refused.outcome.error === "unauthorized" && !refused.enabled, "a revoked token pauses the sync", refused);
+  const { PAUSE_AFTER_FAILURES } = await import("@/lib/jira-sync");
+  const once = await manage.syncGithubPullsNow(ids.owner, databaseId);
+  check(once.outcome.error === "unauthorized" && once.enabled, "a revoked token shows its error, and the sync stays on", once);
+  let refused = once;
+  for (let i = 1; i < PAUSE_AFTER_FAILURES; i++) refused = await manage.syncGithubPullsNow(ids.owner, databaseId);
+  check(refused.outcome.error === "unauthorized" && !refused.enabled, "a revoked token pauses the sync once runs in a row failed", refused);
   check((await runDue(databaseId)) === 0, "a paused sync isn't run when due");
   check((await errorCode(() => manage.updateGithubPullsSync(ids.owner, databaseId, { token: "token-1" }))) === "unauthorized", "a new token is checked with GitHub first");
   const renewed = await manage.updateGithubPullsSync(ids.owner, databaseId, { token });
@@ -312,7 +316,7 @@ try {
 
   await deleteProperty(ids.owner, byName("Number").id);
   const keyless = await manage.syncGithubPullsNow(ids.owner, databaseId);
-  check(keyless.outcome.error === "keyGone" && !keyless.enabled, "without its Number property it pauses", keyless);
+  check(keyless.outcome.error === "keyGone" && keyless.enabled, "without its Number property it fails (and pauses only if it repeats)", keyless);
   await restoreProperty(ids.owner, byName("Number").id);
   check((await manage.syncGithubPullsNow(ids.owner, databaseId)).outcome.error === null, "and goes on when the property is back");
 

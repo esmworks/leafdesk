@@ -340,7 +340,7 @@ try {
   );
   await db.update(connection).set({ status: "needsAuth" }).where(eq(connection.id, calendarConn));
   const signedOut = await syncGcalNow(ids.owner, databaseId);
-  check(signedOut.outcome.error === "unauthorized" && !signedOut.enabled, "a connection signed out pauses the sync", signedOut.outcome);
+  check(signedOut.outcome.error === "unauthorized" && signedOut.enabled, "a connection signed out fails the run (it pauses only if it repeats)", signedOut.outcome);
   await db.update(connection).set({ status: "ready" }).where(eq(connection.id, calendarConn));
 
   // Writing back

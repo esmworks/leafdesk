@@ -35,7 +35,7 @@ const FAKE_PORT = 30_000 + Math.floor(Math.random() * 20_000);
 process.env.CONNECTOR_ALLOWED_HOSTS = `localhost:${FAKE_PORT}`;
 
 // Imported after .env is loaded: the database client reads DATABASE_URL when it is created.
-const { and, eq, inArray } = await import("drizzle-orm");
+const { and, eq, inArray, isNull } = await import("drizzle-orm");
 const z = await import("zod");
 const { McpServer, createMcpHandler } = await import("@modelcontextprotocol/server");
 const { db } = await import("@/db");
@@ -354,7 +354,7 @@ try {
   // Runs that can't happen
   await db.update(connection).set({ status: "needsAuth" }).where(eq(connection.id, sheetsConn));
   const signedOut = await syncSheetsNow(ids.owner, databaseId);
-  check(signedOut.outcome.error === "unauthorized" && !signedOut.enabled, "a connection signed out pauses the sync", signedOut);
+  check(signedOut.outcome.error === "unauthorized" && signedOut.enabled, "a connection signed out fails the run (it pauses only if it repeats)", signedOut);
   await db.update(connection).set({ status: "ready" }).where(eq(connection.id, sheetsConn));
   const db2 = await createSheetsSync({ userId: ids.member }, { ...setup, parentId: null });
   await db.update(connection).set({ chatTools: [] }).where(eq(connection.id, sheetsConn));
@@ -371,7 +371,8 @@ try {
 
   // Writing back
   const outbox = () => db.select().from(sheetsWrite).where(eq(sheetsWrite.syncId, stored.id));
-  const rowOf = async (title: string) => (await db.select().from(page).where(and(eq(page.parentId, databaseId), eq(page.title, title))))[0];
+  // Live rows only: a row in the trash can share a title (the twin below).
+  const rowOf = async (title: string) => (await db.select().from(page).where(and(eq(page.parentId, databaseId), eq(page.title, title), isNull(page.archivedAt))))[0];
   const value = async (title: string, name: string) => (await rowOf(title)).properties[prop(name)!.id];
   const cell = (key: string, column: number) => stock.rows.find((r) => r[0]?.formattedValue === key)?.[column];
   check((await failure(() => updateSheetsSync(ids.owner, databaseId, { direction: "both" }))) === "invalidInput", "writing back needs a schedule");
@@ -613,10 +614,10 @@ try {
   cash.rows.push([num(46328, "02.11.2026", "DATE"), text("C"), num(30)]);
   const repeating = await syncSheetsNow(ids.owner2, cashId);
   check(repeating.outcome.error === null && repeating.repeatedKeys === 1, "a run counts the rows it leaves out for repeating a key", repeating);
-  // As people do to sort by it: the key property made a date, which pauses the sync.
+  // As people do to sort by it: the key property made a date, which fails the run.
   await changePropertyType(ids.owner2, keyProp, { type: "date", yes: "Yes" });
   const retyped = await syncSheetsNow(ids.owner2, cashId);
-  check(retyped.outcome.error === "keyGone" && !retyped.enabled, "a key property made a date pauses the sync", retyped.outcome);
+  check(retyped.outcome.error === "keyGone" && retyped.enabled, "a key property made a date fails the run (it pauses only if it repeats)", retyped.outcome);
   check((await failure(() => syncSheetsByPlace(ids.guest, cashId, "Satır"))) === "access", "only people with full access change how rows are found");
   const turned = await syncSheetsByPlace(ids.owner2, cashId, "Satır");
   const cashProps = await getProperties(cashId);

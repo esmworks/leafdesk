@@ -329,8 +329,12 @@ try {
   check(zLimited.outcome.error === "unreachable" && zLimited.enabled, "Zendesk: a spent request limit is passing: the sync stays on", zLimited);
   zendeskLimited = false;
   zendeskToken = "revoked";
-  const zRefused = await zd.syncZendeskNow(ids.owner, zId);
-  check(zRefused.outcome.error === "unauthorized" && !zRefused.enabled, "Zendesk: a revoked token pauses the sync", zRefused);
+  const { PAUSE_AFTER_FAILURES } = await import("@/lib/jira-sync");
+  const zOnce = await zd.syncZendeskNow(ids.owner, zId);
+  check(zOnce.outcome.error === "unauthorized" && zOnce.enabled, "Zendesk: a revoked token shows its error, and the sync stays on", zOnce);
+  let zRefused = zOnce;
+  for (let i = 1; i < PAUSE_AFTER_FAILURES; i++) zRefused = await zd.syncZendeskNow(ids.owner, zId);
+  check(zRefused.outcome.error === "unauthorized" && !zRefused.enabled, "Zendesk: a revoked token pauses the sync once runs in a row failed", zRefused);
   check((await runDue(zId)) === 0, "a paused sync isn't run when due");
   zendeskToken = "zd-token-2";
   check((await errorCode(() => zd.updateZendeskSync(ids.owner, zId, { email: "admin@acme.test", token: "still-wrong" }))) === "unauthorized", "a new sign-in is checked first");
@@ -340,7 +344,7 @@ try {
   check(zEvery.intervalMinutes === 0 && (await syncRow(zId)).nextRunAt === null, "only when asked: it never falls due");
   await deleteProperty(ids.owner, zBy("Ticket").id);
   const zKeyless = await zd.syncZendeskNow(ids.owner, zId);
-  check(zKeyless.outcome.error === "keyGone" && !zKeyless.enabled, "without its Ticket property it pauses", zKeyless);
+  check(zKeyless.outcome.error === "keyGone" && zKeyless.enabled, "without its Ticket property it fails (and pauses only if it repeats)", zKeyless);
   await zd.stopZendeskSync(ids.owner, zId);
   check(!(await syncRow(zId)) && (await rowsOf(zId)).length === 6, "stopping forgets the sync and keeps the rows");
 
@@ -423,18 +427,18 @@ try {
   refuseIndustry = true;
   const accountsId = accounts.pages[0].id;
   const refused = await sf.syncSalesforceNow(ids.owner, accountsId);
-  check(refused.outcome.error === "badQuery" && !refused.enabled && refused.lastErrorDetail?.includes("Industry"), "a query Salesforce refuses pauses the sync, with Salesforce's words", refused);
+  check(refused.outcome.error === "badQuery" && refused.enabled && refused.lastErrorDetail?.includes("Industry"), "a query Salesforce refuses is shown with Salesforce's words (it pauses only if it repeats)", refused);
   refuseIndustry = false;
   salesforceSecret = "rotated";
   const bad = await sf.syncSalesforceNow(ids.owner, sId);
-  check(bad.outcome.error === "unauthorized" && !bad.enabled, "a rotated secret pauses the sync", bad);
+  check(bad.outcome.error === "unauthorized" && bad.enabled, "a rotated secret shows its error (it pauses only if it repeats)", bad);
   check((await errorCode(() => sf.updateSalesforceSync(ids.second, sId, { clientId: "app-id", clientSecret: "nope" }))) === "unauthorized", "a new sign-in is checked first");
   // Each person has a budget of sync setups a minute (server/sync-setup): the second owner checks the new sign-in.
   const renewed = await sf.updateSalesforceSync(ids.second, sId, { clientId: "app-id", clientSecret: "rotated" });
   check(renewed.enabled && renewed.lastError === null, "a new sign-in syncs it again", renewed);
   await deleteProperty(ids.owner, sBy("Id").id);
   const keyless = await sf.syncSalesforceNow(ids.owner, sId);
-  check(keyless.outcome.error === "keyGone" && !keyless.enabled, "without its Id property it pauses", keyless);
+  check(keyless.outcome.error === "keyGone" && keyless.enabled, "without its Id property it fails (and pauses only if it repeats)", keyless);
   await sf.stopSalesforceSync(ids.owner, sId);
   check(!(await syncRow(sId)) && (await rowsOf(sId)).length === 4, "stopping forgets the sync and keeps the rows");
 

@@ -194,7 +194,7 @@ export type IcalSyncPatch = { intervalMinutes?: unknown; url?: unknown };
  */
 export async function updateIcalSync(userId: string, databaseId: string, patch: IcalSyncPatch) {
   const row = await requireSync(userId, databaseId);
-  const changes: Partial<typeof databaseSync.$inferInsert> = { runAs: userId, enabled: true };
+  const changes: Partial<typeof databaseSync.$inferInsert> = { runAs: userId, enabled: true, failedRuns: 0 };
   if (patch.intervalMinutes !== undefined) {
     changes.intervalMinutes = interval(patch.intervalMinutes);
     changes.nextRunAt = changes.intervalMinutes > 0 ? new Date(Date.now() + changes.intervalMinutes * 60_000) : null;

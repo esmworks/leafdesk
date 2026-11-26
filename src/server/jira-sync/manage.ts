@@ -267,7 +267,7 @@ export type JiraSyncPatch = JiraCredentials & { query?: unknown; intervalMinutes
  */
 export async function updateJiraSync(userId: string, databaseId: string, patch: JiraSyncPatch) {
   const row = await requireSync(userId, databaseId);
-  const changes: Partial<typeof databaseSync.$inferInsert> = { runAs: userId, enabled: true };
+  const changes: Partial<typeof databaseSync.$inferInsert> = { runAs: userId, enabled: true, failedRuns: 0 };
   const signingIn = patch.email !== undefined || patch.token !== undefined;
   if (patch.query !== undefined) {
     const next = query(patch.query);

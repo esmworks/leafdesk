@@ -137,12 +137,12 @@ try {
   check(Boolean(moved) && moved!.properties[statusProp.id] === statusProp.options.options?.find((o) => o.name === "Cancelled")?.id, "a run writes the calendar's changes over", moved);
   check(after.some((r) => r.title === "New event") && after.some((r) => r.title === "Offsite"), "new events come in, events that left keep their rows");
 
-  // A calendar that asks for a sign-in pauses the sync; a new address starts it again.
+  // A calendar that asks for a sign-in is shown (it pauses only if it repeats); a new address syncs it again.
   status = 401;
   await db.update(databaseSync).set({ nextRunAt: new Date(Date.now() - 1000) }).where(eq(databaseSync.databaseId, databaseId));
   await runDueSyncs();
   const paused = await getIcalSync(owner, databaseId);
-  check(paused?.lastError === "unauthorized" && !paused.enabled, "a calendar asking for a sign-in pauses the sync", paused);
+  check(paused?.lastError === "unauthorized" && paused.enabled, "a calendar asking for a sign-in shows it, and the sync tries again next time", paused);
   status = 200;
   const resumed = await updateIcalSync(owner, databaseId, { url: `${base}/team.ics?key=new` });
   check(resumed.enabled && resumed.lastError === null, "a new address starts it again", resumed);

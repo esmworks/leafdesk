@@ -75,7 +75,8 @@ export const ENGLISH_JIRA_NAMES: JiraNames = {
 
 /**
  * Why a run didn't happen: each but "unreachable" and "failed" (passing problems: it tries again
- * next time) pauses the sync until someone changes it or syncs by hand. "unauthorized": Jira
+ * next time) pauses the sync, once PAUSE_AFTER_FAILURES runs in a row failed (pausesAfter), until
+ * someone changes it or syncs by hand. "unauthorized": Jira
  * refused the email and token; "forbidden": they may not search there; "notFound": no Jira at the
  * address, or no such project; "badQuery": Jira refused the JQL; "tooManyIssues": the query finds
  * more than MAX_JIRA_ISSUES; "runAsGone" / "accessLost": whoever set it has no account, or can no
@@ -96,6 +97,16 @@ export const JIRA_SYNC_ERRORS = [
 export type JiraSyncError = (typeof JIRA_SYNC_ERRORS)[number];
 
 export const pausesJiraSync = (error: JiraSyncError) => error !== "unreachable" && error !== "failed";
+
+/**
+ * Runs in a row that must fail before an error that won't pass pauses the sync. Such errors are
+ * read from what another service answered, which can be wrong for a while (a header row being
+ * edited, a sign-in being renewed, an outage worded as a refusal), so one alone doesn't stop it.
+ */
+export const PAUSE_AFTER_FAILURES = 3;
+
+/** Whether a run ending in `error`, the `failedRuns`th failed run in a row (counting it), pauses the sync. */
+export const pausesAfter = (error: JiraSyncError, failedRuns: number) => pausesJiraSync(error) && failedRuns >= PAUSE_AFTER_FAILURES;
 
 /**
  * What setting up or changing a sync can be refused for, besides a run's errors: "invalidSite" (not

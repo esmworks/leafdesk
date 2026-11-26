@@ -1,0 +1,1 @@
+ALTER TABLE "database_sync" ADD COLUMN "failed_runs" integer DEFAULT 0 NOT NULL;

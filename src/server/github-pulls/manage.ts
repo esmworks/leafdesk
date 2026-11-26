@@ -236,7 +236,7 @@ export type GithubPullsSyncPatch = { state?: unknown; intervalMinutes?: unknown;
  */
 export async function updateGithubPullsSync(userId: string, databaseId: string, patch: GithubPullsSyncPatch) {
   const row = await requireSync(userId, databaseId);
-  const changes: Partial<typeof databaseSync.$inferInsert> = { runAs: userId, enabled: true };
+  const changes: Partial<typeof databaseSync.$inferInsert> = { runAs: userId, enabled: true, failedRuns: 0 };
   if (patch.state !== undefined) changes.query = query({ repo: row.query.repo, state: patch.state });
   if (patch.intervalMinutes !== undefined) {
     changes.intervalMinutes = interval(patch.intervalMinutes);

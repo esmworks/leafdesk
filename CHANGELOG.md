@@ -19,6 +19,12 @@
 
 ### Fixed
 
+- **A synced database no longer stops after one failed run.** A Google Sheets or Google Calendar
+  sync that met a spent Google quota, a rate limit or a short outage was paused as if Google had
+  refused it, and ran again only after *Sync now*; such answers now wait for the next run. Any
+  synced database (Jira, GitHub, calendars, PostgreSQL, Google Sheets and Calendar, Zendesk,
+  Salesforce) now pauses only once three runs in a row failed for a reason that won't pass; until
+  then the dialog shows the error and the schedule goes on. Migration 0216.
 - **Memory search finds a note from a Turkish word with an ending.** Searching the AI memory for
   "farkı", "notlar" or "kitabı" now finds notes that say "fark", "not" or "kitap" (below notes
   with the word itself), in the AI chat's memory search and MCP's `list_memory` alike.

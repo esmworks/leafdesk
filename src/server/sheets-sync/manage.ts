@@ -335,7 +335,7 @@ export type SheetsSyncPatch = { intervalMinutes?: unknown; connectionId?: unknow
  */
 export async function updateSheetsSync(userId: string, databaseId: string, patch: SheetsSyncPatch) {
   const row = await requireSync(userId, databaseId);
-  const changes: Partial<typeof databaseSync.$inferInsert> = { runAs: userId, enabled: true };
+  const changes: Partial<typeof databaseSync.$inferInsert> = { runAs: userId, enabled: true, failedRuns: 0 };
   if (patch.intervalMinutes !== undefined) {
     changes.intervalMinutes = interval(patch.intervalMinutes);
     changes.nextRunAt = changes.intervalMinutes > 0 ? new Date(Date.now() + changes.intervalMinutes * 60_000) : null;

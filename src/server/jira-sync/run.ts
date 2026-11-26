@@ -1,7 +1,7 @@
 import { and, asc, eq, gt, isNull, lt, lte, or } from "drizzle-orm";
 import { db } from "@/db";
 import { databaseSync } from "@/db/schema";
-import { issueRow, jqlOf, optionsNeeded, pausesJiraSync, rowValues, type JiraField, type JiraMapping, type JiraQuery, type JiraRow, type JiraSyncError } from "@/lib/jira-sync";
+import { issueRow, jqlOf, optionsNeeded, pausesAfter, rowValues, type JiraField, type JiraMapping, type JiraQuery, type JiraRow, type JiraSyncError } from "@/lib/jira-sync";
 import type { PropertyType } from "@/lib/property-types";
 import { AccessError } from "@/server/access";
 import { getCollab } from "@/server/collab/bridge";
@@ -151,13 +151,15 @@ export async function runAndRecord(sync: SyncRow, now = new Date()): Promise<Syn
       console.error(`[${sync.source} sync] run failed`, sync.id, e);
     }
   }
-  const pause = error !== null && pausesJiraSync(error);
+  const failedRuns = error === null ? 0 : (sync.failedRuns ?? 0) + 1;
+  const pause = error !== null && pausesAfter(error, failedRuns);
   await db
     .update(databaseSync)
     .set({
       ...(timedOut ? {} : { runningUntil: null }),
       lastError: error,
       lastErrorDetail: detail,
+      failedRuns,
       ...(pause ? { enabled: false, nextRunAt: null } : {}),
       ...(result ? { lastRunAt: now, lastCount: result.count } : {}),
     })

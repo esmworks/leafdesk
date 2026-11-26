@@ -6,6 +6,8 @@ import {
   jqlOf,
   optionsNeeded,
   parseJiraQuery,
+  PAUSE_AFTER_FAILURES,
+  pausesAfter,
   pausesJiraSync,
   projectsOf,
   rowValues,
@@ -221,5 +223,12 @@ describe("Jira's answers", () => {
     expect(pausesJiraSync("keyGone")).toBe(true);
     expect(pausesJiraSync("unreachable")).toBe(false);
     expect(pausesJiraSync("failed")).toBe(false);
+  });
+
+  it("pauses only once runs in a row failed", () => {
+    expect(pausesAfter("badQuery", 1)).toBe(false);
+    expect(pausesAfter("badQuery", PAUSE_AFTER_FAILURES - 1)).toBe(false);
+    expect(pausesAfter("badQuery", PAUSE_AFTER_FAILURES)).toBe(true);
+    expect(pausesAfter("unreachable", 100)).toBe(false);
   });
 });

@@ -340,15 +340,19 @@ try {
 
   // Paused, and back
   token = "token-2";
-  const refused = await manage.syncJiraNow(ids.owner, databaseId);
-  check(refused.outcome.error === "unauthorized" && !refused.enabled, "a revoked token pauses the sync", refused);
+  const { PAUSE_AFTER_FAILURES } = await import("@/lib/jira-sync");
+  const once = await manage.syncJiraNow(ids.owner, databaseId);
+  check(once.outcome.error === "unauthorized" && once.enabled, "a revoked token shows its error, and the sync stays on", once);
+  let refused = once;
+  for (let i = 1; i < PAUSE_AFTER_FAILURES; i++) refused = await manage.syncJiraNow(ids.owner, databaseId);
+  check(refused.outcome.error === "unauthorized" && !refused.enabled, "a revoked token pauses the sync once runs in a row failed", refused);
   check((await runDue(databaseId)) === 0, "a paused sync isn't run when due");
   check((await errorCode(() => manage.updateJiraSync(ids.owner, databaseId, { email: EMAIL, token: "token-1" }))) === "unauthorized", "a new token is checked with Jira first");
   const renewed = await manage.updateJiraSync(ids.owner, databaseId, { email: EMAIL, token });
   check(renewed.enabled && renewed.lastError === null, "a new sign-in syncs it again", renewed);
 
   const badQuery = await manage.updateJiraSync(ids.owner, databaseId, { query: { project: "NOPE" } });
-  check(badQuery.lastError === "badQuery" && badQuery.lastErrorDetail?.includes("NOPE") && !badQuery.enabled, "a refused query pauses it, with Jira's words", badQuery);
+  check(badQuery.lastError === "badQuery" && badQuery.lastErrorDetail?.includes("NOPE") && badQuery.enabled, "a refused query is shown with Jira's words (it pauses only if it repeats)", badQuery);
   const big = await manage.updateJiraSync(ids.owner, databaseId, { query: { project: "BIG" } });
   check(big.lastError === "tooManyIssues" && (await rowsOf(databaseId)).length === 4, "a query finding too many issues writes nothing", big);
   const loop = await manage.updateJiraSync(ids.owner, databaseId, { query: { project: "LOOP" } });
@@ -357,7 +361,7 @@ try {
 
   await deleteProperty(ids.owner, byName("Key").id);
   const keyless = await manage.syncJiraNow(ids.owner, databaseId);
-  check(keyless.outcome.error === "keyGone" && !keyless.enabled, "without its Key property it pauses", keyless);
+  check(keyless.outcome.error === "keyGone" && keyless.enabled, "without its Key property it fails (and pauses only if it repeats)", keyless);
   await restoreProperty(ids.owner, byName("Key").id);
   check((await manage.syncJiraNow(ids.owner, databaseId)).outcome.error === null, "and goes on when the property is back");
 

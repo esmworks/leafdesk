@@ -1409,7 +1409,8 @@
   and rows in the trash stay there. Changes after the first run count as edits, so automations,
   row activity and assignment notices follow them. A run goes through as whoever last set the sync
   up or synced it by hand, and needs them to still be able to edit the database. Refused
-  credentials, a refused query, a deleted *Key* property or more than 2,000 issues pause it until
+  credentials, a refused query, a deleted *Key* property or more than 2,000 issues pause it, once
+  three runs in a row failed (one failure shows in the dialog and the next run tries again), until
   it is changed in the database's sync dialog (the ⟳ button on its toolbar), where people with
   full access can also sync now, change the query or sign-in, pick the person property the
   reporter goes to (or none), or stop syncing (the rows stay). Only the person whose sign-in the
@@ -1429,7 +1430,7 @@
   board by state. It takes the open pull requests (and, on each run, the last 100 closed ones, to
   finish the rows of those merged or closed since) or all of them, the 1,000 most recently updated,
   and syncs as often and as one-way as a Jira sync. A spent rate limit waits for the next run; a
-  refused token or a deleted *Number* property pauses it. In the database's sync dialog people with
+  refused token or a deleted *Number* property pauses it after three failed runs in a row. In the database's sync dialog people with
   full access can change which pull requests it takes, how often, the token, sync now or stop.
   Tested against a stand-in GitHub (`scripts/github-pulls-sync-e2e.ts`), not yet the real API.
 - **Sync Zendesk tickets**: Import's Zendesk tab takes a Zendesk account (its subdomain, `acme`, or
@@ -1443,7 +1444,7 @@
   (up to 5,000 tickets a run, the rest on the next runs), then only what changed since the newest
   update it has seen; a deleted ticket is marked *Deleted*. It syncs as often and as one-way as a
   Jira sync. A spent request limit waits for the next run; a refused token, an account that may not
-  export or a deleted *Ticket* property pauses it. In the database's sync dialog people with full
+  export or a deleted *Ticket* property pauses it after three failed runs in a row. In the database's sync dialog people with full
   access can change how often, the sign-in, sync now or stop. Tested against a stand-in Zendesk
   (`scripts/crm-sync-e2e.ts`), not yet a real account.
 - **Sync a Salesforce object**: Import's Salesforce tab takes an org's My Domain address
@@ -1460,7 +1461,7 @@
   records a run, then only what changed since the newest `SystemModstamp` seen; records deleted in
   Salesforce stay as rows. It syncs as often and as one-way as a Jira sync; a refused key, an app
   without the flow, a field the run-as user may not read (with Salesforce's words in the sync
-  dialog) or a deleted *Id* property pauses it. A fresh token is fetched for every run and never
+  dialog) or a deleted *Id* property pauses it after three failed runs in a row. A fresh token is fetched for every run and never
   kept, and the org's address is the one set up (the token answer's `instance_url` isn't followed).
   Tested against a stand-in Salesforce (`scripts/crm-sync-e2e.ts`), not yet a real org.
 - **Sync a calendar**: Import's Calendar tab takes a calendar's iCal address (an `.ics` or `webcal://`
@@ -1473,7 +1474,7 @@
   (daily, weekly, monthly and yearly rules with their intervals, counts, end dates, weekdays and
   days of the month; excluded dates; moved and cancelled occurrences). It syncs as often and as
   one-way as a Jira sync; rows of events that leave the calendar stay. A calendar that asks for a
-  sign-in, refuses or is gone pauses it until its address is changed in the sync dialog. Up to
+  sign-in, refuses or is gone pauses it after three failed runs in a row, until its address is changed in the sync dialog. Up to
   5,000 events and 10 MB. Tested against a calendar the e2e serves (`scripts/ical-sync-e2e.ts`).
 - **Sync a PostgreSQL table**: Import's PostgreSQL tab takes a connection address
   (`postgres://user:password@host:5432/database`, kept sealed), a table or view (`schema.table`),
@@ -1488,7 +1489,7 @@
   your own network needs its host in `CONNECTOR_ALLOWED_HOSTS` (a bare name allows port 5432; name
   any other port, `db:6543`), and the sync set up by a workspace owner. A refused password, a missing
   table, a dropped column (with the server's words in the sync dialog) or a deleted key property
-  pauses it. Use a user that may only read the table. Tested against a table of the e2e's own
+  pauses it after three failed runs in a row. Use a user that may only read the table. Tested against a table of the e2e's own
   database (`scripts/postgres-sync-e2e.ts`).
 - **Sync a Google Sheets sheet**: Import's Google Sheets tab reads one sheet through the
   workspace's Google Sheets connection (Settings → Connections; owners may use it, members once an
@@ -1507,7 +1508,8 @@
   its id, so renaming it is fine. Runs read up to 100,000 cells from the header row down, write the
   sheet's values over and add new rows; rows that leave the sheet stay. A connection signed out of
   Google, one the sync's person may no longer read through, a missing spreadsheet or sheet, or a
-  renamed key column pauses it; the sync dialog can switch it to another connection. Each read is
+  renamed key column pauses it after three failed runs in a row, while a spent Google quota or an
+  outage only waits for the next run; the sync dialog can switch it to another connection. Each read is
   in the audit log as a call of the connection. A sync by place keeps each row's sheet row number
   in a hidden *Row* property and makes a property of every named column, the one naming rows too.
   Each row with anything in it is a row, the same values twice included; inserting, deleting or
@@ -1540,7 +1542,8 @@
   each row again) with the events from 90 days back to a year ahead, opening beside a calendar view
   by *When*, and keeps it up to date every 15 minutes to every day, or when asked; rows of events
   that leave the calendar stay. A connection signed out of Google, one the sync's person may no
-  longer read through, or a calendar that is gone pauses it. Up to 5,000 events; each read is in
+  longer read through, or a calendar that is gone pauses it after three failed runs in a row (a
+  spent Google quota or an outage only waits for the next run). Up to 5,000 events; each read is in
   the audit log as a call of the connection. **Direction** is *From the calendar only* or *Both
   ways*. Both ways needs the connection's `create_event` and `update_event` tools (owners; members
   once an owner ticks *In chat* for both), a calendar the account may change and a sync on a

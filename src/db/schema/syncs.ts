@@ -55,8 +55,10 @@ export const databaseSync = pgTable(
     secrets: text("secrets").notNull(),
     /** How often it runs on its own, in minutes; 0 for only when asked. */
     intervalMinutes: integer("interval_minutes").notNull(),
-    /** Off once a run couldn't happen for a reason that won't pass (see JiraSyncError). */
+    /** Off once runs in a row couldn't happen for a reason that won't pass (lib/jira-sync pausesAfter). */
     enabled: boolean("enabled").notNull().default(true),
+    /** Runs in a row that ended in an error; 0 after one that went through, or once someone changes the sync. */
+    failedRuns: integer("failed_runs").notNull().default(0),
     nextRunAt: timestamp("next_run_at", { withTimezone: true }),
     /** Held while a run is going (a crash lets it go after a while), so two never run at once. */
     runningUntil: timestamp("running_until", { withTimezone: true }),
