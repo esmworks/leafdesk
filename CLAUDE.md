@@ -641,7 +641,8 @@ several mailboxes, whose thread ids can repeat, so the list keys threads by `ite
   draft before after that); pictures in the text are the editor's `Picture` node, sent as `cid:`
   parts (`compose.ts` `inlineFiles`, form field `inline`), each uploaded once and carried over from
   the draft saved last by Content-ID, opened again as data URLs marked `data-cid`; a send waits
-  `MAIL_UNDO_SECONDS` in memory, `write.ts` `holdMail`, and is counted in `mail_send`, which with
+  `MAIL_UNDO_SECONDS` in memory, `write.ts` `holdMail` (sent at once as the server stops, `sendHeldNow`
+  in `server.ts` `shutdown`), and is counted in `mail_send`, which with
   `row_email` holds a mailbox to `MAX_SENDS_PER_HOUR` (both `write.ts` and `row-mail/send.ts` read both), which scripts skip with `sendHeld`;
   the list's mark of each thread's other party is `lib/sender-marks.ts` (`mail_message.sender_auth`
   from the first `Authentication-Results`, counted only for Google and Microsoft mailboxes, `fromReceiver`; kept by the indexer; pictures and logos only on a DMARC pass, logos fetched

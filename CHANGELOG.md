@@ -28,6 +28,10 @@
 - **Memory search finds a note from a Turkish word with an ending.** Searching the AI memory for
   "farkı", "notlar" or "kitabı" now finds notes that say "fark", "not" or "kitap" (below notes
   with the word itself), in the AI chat's memory search and MCP's `list_memory` alike.
+- **A message sent from the Mail tab just before the server stops still goes.** Sent mail waits
+  a few seconds on the server for *Undo*; a restart or a desktop app quit in those seconds lost it,
+  neither sent nor kept as a draft. The server now sends such messages at once as it stops and waits
+  for every send under way.
 
 ## 0.9.0 — 2026-11-19
 
